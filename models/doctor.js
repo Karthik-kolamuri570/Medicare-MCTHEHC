@@ -81,3 +81,4 @@ const userSchema=new Schema({
         default:[]
     }
 })
+module.exports = mongoose.model('Doctor',userSchema);

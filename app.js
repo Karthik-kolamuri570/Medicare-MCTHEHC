@@ -38,4 +38,4 @@ app.use(session({
     store:store
 }))
 const patientRoutes=require('./routes/patientRoutes');
-app.use(patientRoutes);
+app.use('/api/patient',patientRoutes);

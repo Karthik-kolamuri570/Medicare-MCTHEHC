@@ -97,9 +97,9 @@ exports.loginPatient = async (req, res) => {
 };
 
 // Get patient profile
-exports.getPatientProfile = async (req, res) => {
+exports.getPatientById = async (req, res) => {
     try {
-        const patient = await Patient.findById(req.userId).select('-password');
+        const patient = await Patient.findById(req.params.patientId).select('-password');
         if (!patient) {
             return res.status(404).json({
                 success: false,
@@ -122,10 +122,11 @@ exports.getPatientProfile = async (req, res) => {
 };
 
 // Update patient profile
-exports.updatePatientProfile = async (req, res) => {
+exports.updatePatient = async (req, res) => {
     try {
         const { name, contact, age, gender, address } = req.body;
-
+        console.log(req.userId);
+        
         const updatedPatient = await Patient.findByIdAndUpdate(
             req.userId,
             { name, contact, age, gender, address },

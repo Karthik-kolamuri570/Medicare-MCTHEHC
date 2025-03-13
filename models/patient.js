@@ -28,11 +28,11 @@ const patientSchema=new Schema({
         required:[true,"Address is required"]
     },
     contact:{
-        type:String,
+        type:Number,
         required:[true,"Contact is required"],
         validate:{
             validator:function(value){
-                return value.length==10 && value.isMobilePhone
+                return value.isMobilePhone
             },
             message:"Contact should be of 10 digits"
         }
