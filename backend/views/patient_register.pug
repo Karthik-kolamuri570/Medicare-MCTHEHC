@@ -1,0 +1,20 @@
+block content
+  h1 Patient Registration
+  form(action="/patients/register" method="POST")
+    label Name: 
+    input(type="text" name="name" required)
+    label Email: 
+    input(type="email" name="email" required)
+    label Password: 
+    input(type="password" name="password" required)
+    label Contact: 
+    input(type="text" name="contact" required)
+    label Age: 
+    input(type="number" name="age" required)
+    label Gender: 
+    select(name="gender")
+      option(value="Male") Male
+      option(value="Female") Female
+    label Address: 
+    input(type="text" name="address" required)
+    button(type="submit") Register

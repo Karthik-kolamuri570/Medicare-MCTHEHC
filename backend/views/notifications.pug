@@ -1,0 +1,8 @@
+extends layout
+
+block content
+  h1 Notifications
+  each notification in notifications
+    p= notification.message
+    form(action="/notifications/delete/" + notification._id method="POST")
+      button(type="submit") Delete

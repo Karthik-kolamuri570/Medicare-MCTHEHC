@@ -1,0 +1,10 @@
+extends layout
+
+block content
+  h1 Doctor Login
+  form(action="/doctors/login" method="POST")
+    label Email: 
+    input(type="email" name="email" required)
+    label Password: 
+    input(type="password" name="password" required)
+    button(type="submit") Login

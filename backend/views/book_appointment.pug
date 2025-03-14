@@ -1,0 +1,14 @@
+extends layout
+
+block content
+  h1 Book an Appointment
+  form(action="/appointments/book" method="POST")
+    label Doctor ID: 
+    input(type="text" name="doctorId" required)
+    label Date: 
+    input(type="date" name="date" required)
+    label Time: 
+    input(type="time" name="time" required)
+    label Problem: 
+    input(type="text" name="problem" required)
+    button(type="submit") Book Appointment

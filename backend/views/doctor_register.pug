@@ -1,0 +1,18 @@
+extends layout
+
+block content
+  h1 Doctor Registration
+  form(action="/doctors/register" method="POST")
+    label Name: 
+    input(type="text" name="name" required)
+    label Email: 
+    input(type="email" name="email" required)
+    label Password: 
+    input(type="password" name="password" required)
+    label Specialization: 
+    input(type="text" name="specialization" required)
+    label Experience: 
+    input(type="number" name="experience" required)
+    label Hospital: 
+    input(type="text" name="hospital" required)
+    button(type="submit") Register
