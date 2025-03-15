@@ -10,17 +10,7 @@ router.get("/register", (req, res) => {
 });
 
 // Handle registration
-router.post("/register", async (req, res) => {
-  try {
-    const { name, email, password, specialization, experience, hospital } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const doctor = new Doctor({ name, email, password: hashedPassword, specialization, experience, hospital });
-    await doctor.save();
-    res.redirect("/doctors/login");
-  } catch (err) {
-    res.status(500).send("Error registering doctor");
-  }
-});
+router.post("/register", doctorController.register)
 
 // Render login form
 router.get("/login", (req, res) => {
