@@ -167,6 +167,7 @@ exports.updatePatient = async (req, res) => {
 exports.bookAppointment = async (req, res) => {
     try {
         const { doctorId, date, time, problem } = req.body;
+        const { patientId } = req.params;
 
         // Check if doctor exists
         const doctor = await Doctor.findById(doctorId);
@@ -189,7 +190,13 @@ exports.bookAppointment = async (req, res) => {
         };
 
         // Add appointment to patient
-        const patient = await Patient.findById(req.params);
+        const patient = await Patient.findById(patientId);
+        if (!patient) {
+            return res.status(404).json({
+                success: false,
+                message: "Patient not found"
+            });
+        }
         patient.appointments.push(appointment);
         await patient.save();
 
@@ -206,7 +213,7 @@ exports.bookAppointment = async (req, res) => {
         };
 
         // Update doctor's unseenNotifications
-        await Doctor.findByIdAndUpdate(req.params, {
+        await Doctor.findByIdAndUpdate(doctorId, {
             $push: { unseenNotifications: notification }
         });
 
