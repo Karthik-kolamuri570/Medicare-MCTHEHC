@@ -1,57 +1,9 @@
 const Doctor = require('../models/doctor');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const Patient = require('../models/patient');
+const Appointment = require('../models/appointments');
 
-// Get all doctors
-exports.getAllDoctors = async (req, res, next) => {
-  try {
-    const doctors = await Doctor.find({}, '-password');
-    res.status(200).json({
-      success: true,
-      count: doctors.length,
-      data: doctors
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: 'Server Error'
-    });
-  }
-};
-
-// Get doctor by ID
-exports.getDoctorById = async (req, res, next) => {
-  try {
-    const doctor = await Doctor.findById(req.params.id, '-password');
-     
-    if (!doctor) {
-      return res.status(404).json({
-        success: false,
-        message: 'Doctor not found'
-      });
-    }
-    
-    res.status(200).json({
-      success: true,
-      data: doctor
-    });
-  } catch (error) {
-    console.error(error);
-    if (error.kind === 'ObjectId') {
-      return res.status(404).json({
-        success: false,
-        message: 'Doctor not found'
-      });
-    }
-    res.status(500).json({
-      success: false,
-      message: 'Server Error'
-    });
-  }
-};
-
-// Register new doctor
 exports.registerDoctor = async (req, res, next) => {
   const {
     name,
@@ -60,6 +12,7 @@ exports.registerDoctor = async (req, res, next) => {
     password,
     specialization,
     experience,
+    location,
     hospital,
     feePerConsultation,
     fromTime,
@@ -86,6 +39,7 @@ exports.registerDoctor = async (req, res, next) => {
         password:hashedPassword,
         specialization,
         experience,
+        location,
         hospital,
         feePerConsultation,
         fromTime,
@@ -110,6 +64,7 @@ exports.registerDoctor = async (req, res, next) => {
         email: doctor.email,
         specialization: doctor.specialization,
         experience: doctor.experience,
+        location: doctor.location,
         hospital: doctor.hospital,
         feePerConsultation: doctor.feePerConsultation,
         fromTime: doctor.fromTime,
@@ -166,6 +121,7 @@ exports.loginDoctor = async (req, res, next) => {
         email: doctor.email,
         specialization: doctor.specialization,
         experience: doctor.experience,
+        location: doctor.location,
         hospital: doctor.hospital,
         feePerConsultation: doctor.feePerConsultation,
         fromTime: doctor.fromTime,
@@ -214,6 +170,51 @@ exports.updateDoctor = async (req, res, next) => {
   }
 };
 
+
+// Get all doctors
+exports.getAllDoctors = async (req, res, next) => {
+    try {
+        const doctors = await Doctor.find();
+        
+        res.status(200).json({
+          success: true,
+          data: doctors
+        });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({
+          success: false,
+          message: 'Server Error'
+        });
+      }
+}
+
+//get doctor by id
+exports.getDoctorById = async (req, res, next) => {
+    try {
+        const doctor = await Doctor.findById(req.params.id);
+        
+        if (!doctor) {
+            return res.status(404).json({
+                success: false,
+                message: 'Doctor not found'
+            });
+        }
+        
+        res.status(200).json({
+            success: true,
+            data: doctor
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: 'Server Error'
+        });
+    }
+};
+
+
 // Delete doctor
 exports.deleteDoctor = async (req, res, next) => {
   try {
@@ -239,7 +240,6 @@ exports.deleteDoctor = async (req, res, next) => {
   }
 };
 
-// Update doctor availability
 exports.updateAvailability = async (req, res, next) => {
   try {
     const doctor = await Doctor.findById(req.params.id);
@@ -265,4 +265,72 @@ exports.updateAvailability = async (req, res, next) => {
       message: 'Server Error'
     });
   }
+};
+
+exports.getDoctorAppointments = async (req, res, next) => {
+    try {
+        const appointments = await Appointment.find({ doctorId: req.params.doctorId });
+        
+        res.status(200).json({
+        success: true,
+        data: appointments
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+        success: false,
+        message: 'Server Error'
+        });
+    }
+}
+
+exports.getDoctorPatients = async (req, res, next) => {
+    try {
+        const patients = await Patient.find({ doctorId: req.params.doctorId });
+        
+        res.status(200).json({
+        success: true,
+        data: patients
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+        success: false,
+        message: 'Server Error'
+        });
+    }
+}
+
+exports.getDoctorBySpecialization = async (req, res, next) => {
+    try {
+        const doctors = await Doctor.find({ specialization: req.params.specialization });
+        
+        res.status(200).json({
+        success: true,
+        data: doctors
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+        success: false,
+        message: 'Server Error'
+        });
+    }
+}
+
+exports.getDoctorByLocation = async (req, res, next) => {
+    try {
+        const doctors = await Doctor.find({ location: req.params.location });
+        
+        res.status(200).json({
+            success: true,
+            data: doctors
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: 'Server Error'
+        });
+    }
 };

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const doctorController = require('../controllers/doctorController');
+const doctorController = require('../controller/doctorController');
 // const authMiddleware = require('../middleware/authMiddleware');
 
 // Public routes
@@ -22,6 +22,10 @@ router.delete('/:id', doctorController.deleteDoctor);
 
 // Update doctor availability
 router.put('/availability/:id', doctorController.updateAvailability);
+router.get('/appointments/:doctorId', doctorController.getDoctorAppointments);
+router.get('/patients/:doctorId', doctorController.getDoctorPatients);
+router.get('/specializations/:specialization', doctorController.getDoctorBySpecialization);
+router.get('/location/:location', doctorController.getDoctorByLocation); // Corrected the path
 
 module.exports = router;
 

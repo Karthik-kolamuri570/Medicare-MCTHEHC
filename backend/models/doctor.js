@@ -46,6 +46,10 @@ const userSchema=new Schema({
             message:"Experience should be greater than 0"
         }
     },
+    location:{
+        type:String,
+        required:[true,"Location is required"]
+    },
     hospital:{
         type:String,
         required:[true,"Hospital is required"]
