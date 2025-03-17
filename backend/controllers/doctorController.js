@@ -24,7 +24,7 @@ exports.getAllDoctors = async (req, res, next) => {
 exports.getDoctorById = async (req, res, next) => {
   try {
     const doctor = await Doctor.findById(req.params.id, '-password');
-    
+     
     if (!doctor) {
       return res.status(404).json({
         success: false,
@@ -56,7 +56,7 @@ exports.registerDoctor = async (req, res, next) => {
   const {
     name,
     contact,
-    email,
+    email, 
     password,
     specialization,
     experience,

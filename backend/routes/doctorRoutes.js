@@ -24,3 +24,4 @@ router.delete('/:id', doctorController.deleteDoctor);
 router.put('/availability/:id', doctorController.updateAvailability);
 
 module.exports = router;
+
