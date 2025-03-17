@@ -124,11 +124,18 @@ exports.getPatientById = async (req, res) => {
 // Update patient profile
 exports.updatePatient = async (req, res) => {
     try {
+        const patientId = req.params.patientId; // Extract patientId from params
         const { name, contact, age, gender, address } = req.body;
-        console.log(req.userId);
         
+        if (!patientId) {
+            return res.status(400).json({
+                success: false,
+                message: "Patient ID is required"
+            });
+        }
+
         const updatedPatient = await Patient.findByIdAndUpdate(
-            req.userId,
+            patientId,
             { name, contact, age, gender, address },
             { new: true, runValidators: true }
         ).select('-password');
@@ -154,6 +161,7 @@ exports.updatePatient = async (req, res) => {
         });
     }
 };
+
 
 // Book an appointment
 exports.bookAppointment = async (req, res) => {
@@ -181,7 +189,7 @@ exports.bookAppointment = async (req, res) => {
         };
 
         // Add appointment to patient
-        const patient = await Patient.findById(req.userId);
+        const patient = await Patient.findById(req.params);
         patient.appointments.push(appointment);
         await patient.save();
 
@@ -198,7 +206,7 @@ exports.bookAppointment = async (req, res) => {
         };
 
         // Update doctor's unseenNotifications
-        await Doctor.findByIdAndUpdate(doctorId, {
+        await Doctor.findByIdAndUpdate(req.params, {
             $push: { unseenNotifications: notification }
         });
 
@@ -220,7 +228,7 @@ exports.bookAppointment = async (req, res) => {
 // Get all appointments
 exports.getAppointments = async (req, res) => {
     try {
-        const patient = await Patient.findById(req.userId);
+        const patient = await Patient.findById(req.params);
         if (!patient) {
             return res.status(404).json({
                 success: false,
@@ -309,7 +317,7 @@ exports.cancelAppointment = async (req, res) => {
 // Get notifications
 exports.getNotifications = async (req, res) => {
     try {
-        const patient = await Patient.findById(req.userId);
+        const patient = await Patient.findById(req.params);
         if (!patient) {
             return res.status(404).json({
                 success: false,
@@ -335,7 +343,7 @@ exports.getNotifications = async (req, res) => {
 // Mark notifications as seen
 exports.markNotificationsAsSeen = async (req, res) => {
     try {
-        const patient = await Patient.findById(req.userId);
+        const patient = await Patient.findById(req.params);
         if (!patient) {
             return res.status(404).json({
                 success: false,
