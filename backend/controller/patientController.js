@@ -6,6 +6,8 @@ const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 exports.registerPatient = async (req, res) => {
     try {
+        console.log('Under Register Patient Controller');
+        
         const { name, email, password, contact, age, gender, address } = req.body;
         // Check if patient already exists
         const existingPatient = await Patient.findOne({ email });
@@ -50,6 +52,7 @@ exports.registerPatient = async (req, res) => {
 // Login patient
 exports.loginPatient = async (req, res) => {
     try {
+        console.log('Under Login Patient Controller');
         const { email, password } = req.body;
         // Check if patient exists
         const patient = await Patient.findOne({ email });
@@ -66,6 +69,9 @@ exports.loginPatient = async (req, res) => {
                 success: false,
                 message: "Invalid credentials"
             });
+        }
+        if(req.body.email ==="kart91801@gmail.com") {
+            req.session.isAdminLoggedIn=true;
         }
 
         req.session.PatientLogin=req.body;
@@ -168,6 +174,7 @@ exports.updatePatient = async (req, res) => {
 
 exports.bookAppointment = async (req, res) => {
     try {
+        console.log('Under Booked Appointment Controller');
         const { patientId } = req.params;
         const { doctorId, problem, date, time } = req.body;
         console.log(patientId, doctorId, problem, date, time);
