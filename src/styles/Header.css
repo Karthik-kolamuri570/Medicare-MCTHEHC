@@ -1,0 +1,109 @@
+/* Reset Styles */
+* {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+          font-family: Arial, sans-serif;
+}
+
+/* Main Navbar */
+.navbar {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 15px 50px;
+          background-color: white;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.mlogo {
+          height: 60px;
+          display: block;
+}
+
+/* Logo */
+.logo {
+          font-size: 24px;
+          font-weight: bold;
+          color: #000;
+          display: flex;
+          align-items: center;
+}
+
+.alogo {
+          text-decoration: none;
+          color: black;
+
+
+}
+
+/* Navigation Links */
+.nav-links {
+          list-style: none;
+          display: flex;
+          gap: 20px;
+          float: right;
+}
+
+.nav-links li {
+          display: inline;
+}
+
+.nav-links a {
+          text-decoration: none;
+          color: #000;
+          font-size: 16px;
+          transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+          color: #007bff;
+}
+
+/* Search Bar */
+.search-container {
+          display: flex;
+          align-items: center;
+          border: 1px solid #ccc;
+          border-radius: 20px;
+          overflow: hidden;
+}
+
+.search-container input {
+          border: none;
+          padding: 8px 12px;
+          outline: none;
+          width: 180px;
+}
+
+.search-container button {
+          border: none;
+          background: none;
+          padding: 8px;
+          cursor: pointer;
+          font-size: 18px;
+}
+
+/* Secondary Navbar (Yellow Background) */
+.secondary-navbar {
+          display: flex;
+          justify-content: right;
+          gap: 20px;
+          background-color: #ffcc00;
+          padding: 10px;
+          margin-left: 800px;
+          border-radius: 50px;
+}
+
+.secondary-navbar a {
+          text-decoration: none;
+          color: black;
+          font-weight: bold;
+          padding: 8px 12px;
+          border-radius: 10px;
+          transition: background 0.3s;
+}
+
+.secondary-navbar a:hover {
+          background: rgba(0, 0, 0, 0.1);
+}
