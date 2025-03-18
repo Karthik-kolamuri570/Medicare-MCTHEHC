@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Patient = require('../models/patient');
 const Appointment = require('../models/appointments');
+const patient = require('../models/patient');
 
 exports.registerDoctor = async (req, res, next) => {
   const {
@@ -45,7 +46,7 @@ exports.registerDoctor = async (req, res, next) => {
         fromTime,
         toTime
     });
-    
+    req.session.DoctorRegister=req.body;
     await doctor.save();
     
     // Create token
@@ -111,7 +112,8 @@ exports.loginDoctor = async (req, res, next) => {
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
     );
-    
+    req.session.doctorLogin=req.body;
+    req.session.isDoctorLoggedIn=true;
     res.status(200).json({
       success: true,
       token,
@@ -241,36 +243,51 @@ exports.deleteDoctor = async (req, res, next) => {
 };
 
 exports.updateAvailability = async (req, res, next) => {
-  try {
-    const doctor = await Doctor.findById(req.params.id);
-    
-    if (!doctor) {
-      return res.status(404).json({
-        success: false,
-        message: 'Doctor not found'
-      });
-    }
-    
-    doctor.availability = req.body.availability;
-    await doctor.save();
-    
-    res.status(200).json({
-      success: true,
-      data: doctor.availability
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: 'Server Error'
-    });
-  }
-};
+    try {
+        const { fromTime, toTime } = req.body;
+        const doctorId = req.params.id;
 
+        if (!fromTime || !toTime) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please provide fromTime and toTime'
+            });
+        }
+
+        const doctor = await Doctor.findByIdAndUpdate(
+            doctorId,
+            { fromTime, toTime },
+            { new: true, runValidators: true }
+        );
+
+        if (!doctor) {
+            return res.status(404).json({
+                success: false,
+                message: 'Doctor not found'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: doctor
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: 'Server Error'
+        });
+    }
+};
 exports.getDoctorAppointments = async (req, res, next) => {
     try {
         const appointments = await Appointment.find({ doctorId: req.params.doctorId });
-        
+        if(!appointments){
+            res.status(500).json({
+                success: false,
+                message: 'No appointments found'
+            });
+        }
         res.status(200).json({
         success: true,
         data: appointments
@@ -286,7 +303,14 @@ exports.getDoctorAppointments = async (req, res, next) => {
 
 exports.getDoctorPatients = async (req, res, next) => {
     try {
-        const patients = await Patient.find({ doctorId: req.params.doctorId });
+        const patients = await Appointment.find({ doctorId: req.params.doctorId }).select('patientId').populate('patientId');
+        if(!patients){
+            res.status(500).json({
+                success: false,
+                message: 'No patients found'
+            });
+        }
+        console.log(patients);
         
         res.status(200).json({
         success: true,
@@ -303,25 +327,37 @@ exports.getDoctorPatients = async (req, res, next) => {
 
 exports.getDoctorBySpecialization = async (req, res, next) => {
     try {
-        const doctors = await Doctor.find({ specialization: req.params.specialization });
-        
+        const specialization = req.params.specialization;
+        const doctors = await Doctor.find({ specialization });
+        if (!doctors || doctors.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'No doctors found with this specialization'
+            });
+        }
         res.status(200).json({
-        success: true,
-        data: doctors
+            success: true,
+            data: doctors
         });
     } catch (error) {
         console.error(error);
         res.status(500).json({
-        success: false,
-        message: 'Server Error'
+            success: false,
+            message: 'Server Error'
         });
     }
-}
+};
 
 exports.getDoctorByLocation = async (req, res, next) => {
     try {
         const doctors = await Doctor.find({ location: req.params.location });
-        
+        if (!doctors) {
+          res.status(500).json({
+            success: false,
+            message: 'No doctors found in this location'
+          })
+          
+        }
         res.status(200).json({
             success: true,
             data: doctors

@@ -44,3 +44,8 @@ const patientRoutes = require('./routes/patientRoutes');
 app.use('/api/patient/', patientRoutes);
 const doctorRoutes = require('./routes/doctorRoutes');
 app.use('/api/doctor/', doctorRoutes);
+
+app.use((req, res, next) => {
+    console.log('Session:', req.session);
+    next();
+});

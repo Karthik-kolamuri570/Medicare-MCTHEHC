@@ -31,6 +31,7 @@ exports.registerPatient = async (req, res) => {
 
         // Save patient
         await newPatient.save();
+        req.session.patientRegister=req.body;
         res.status(201).json({
             success: true,
             message: "Patient registered successfully",
@@ -66,6 +67,9 @@ exports.loginPatient = async (req, res) => {
                 message: "Invalid credentials"
             });
         }
+
+        req.session.PatientLogin=req.body;
+        req.session.isPatientLoggedIn=true;
 
         // Generate token
         const token = jwt.sign(
