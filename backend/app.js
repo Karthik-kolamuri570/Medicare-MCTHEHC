@@ -30,7 +30,8 @@ mongoose.connect(process.env.MONGO_URI)
 
 const store = new mongoDBStore({
     uri: process.env.MONGO_URI,
-    collection: "sessions"
+    collection: "sessions",
+    autoRemove: true
 });
 
 app.use(session({
