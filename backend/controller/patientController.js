@@ -34,6 +34,8 @@ exports.registerPatient = async (req, res) => {
         // Save patient
         await newPatient.save();
         req.session.patientRegister=req.body;
+        
+
         res.status(201).json({
             success: true,
             message: "Patient registered successfully",
@@ -71,10 +73,12 @@ exports.loginPatient = async (req, res) => {
             });
         }
         if(req.body.email ==="kart91801@gmail.com") {
-            req.session.isAdminLoggedIn=true;
+            req.session.isAdminLoggedIn = true;
+            req.session.adminId = patient._id;
         }
 
         req.session.PatientLogin=req.body;
+        req.session.patientId=patient._id;
         req.session.isPatientLoggedIn=true;
 
         // Generate token
@@ -96,6 +100,7 @@ exports.loginPatient = async (req, res) => {
 
             }
         });
+        console.log(req.user);
     } catch (error) {
         console.error(error);
         res.status(500).json({
@@ -175,10 +180,10 @@ exports.updatePatient = async (req, res) => {
 exports.bookAppointment = async (req, res) => {
     try {
         console.log('Under Booked Appointment Controller');
-        const { patientId } = req.params;
+        const patientId  = req.user._id.toString();
         const { doctorId, problem, date, time } = req.body;
         console.log(patientId, doctorId, problem, date, time);
-        
+        console.log(req.user._id.toString())
         if (!patientId || !doctorId || !problem || !date || !time) {
             return res.status(400).json({
                 success: false,
@@ -270,7 +275,8 @@ exports.bookAppointment = async (req, res) => {
 
 exports.getPatientAppointments = async (req, res) => {
     try {
-        const { patientId } = req.params;
+        const patientId = req.user._id;
+        console.log("Patient ID:", patientId);
 
         if (!patientId) {
             return res.status(400).json({
@@ -278,13 +284,16 @@ exports.getPatientAppointments = async (req, res) => {
                 message: "Patient ID is required"
             });
         }
-        const appointments = await Appointment.find({ patientId }).populate('doctorId', 'specialization');
-        if (!appointments) {
+
+        const appointments = await Appointment.find({ patientId }).populate('doctorId', 'name specialization');
+        
+        if (!appointments || appointments.length === 0) {
             return res.status(404).json({
                 success: false,
                 message: "No appointments found for this patient"
             });
         }
+
         res.status(200).json({
             success: true,
             data: appointments
@@ -375,7 +384,7 @@ exports.cancelAppointment=async(req,res)=>{
 }
 exports.getNotifications=async(req,res)=>{
     try{
-        const {patientId}=req.params;
+        const {patientId}=req.user._id;
         const patient=await Patient.findById(patientId);
         if(!patient){
             return res.status(404).json({
@@ -400,7 +409,7 @@ exports.getNotifications=async(req,res)=>{
 
 exports.markNotificationAsSeen=async(req,res)=>{
     try{
-        const {patientId}=req.params;
+        const {patientId}=req.user._id;
         const patient=await Patient.findById(patientId);
         if(!patient){
             return res.status(404).json({
