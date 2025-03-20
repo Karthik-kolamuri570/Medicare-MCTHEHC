@@ -25,7 +25,7 @@ function Notifications() {
           </div>
           <ul className="nav-links">
             <li>
-              <a href="#" onClick={() => navigate("/top-doctors")} >Find a Doctor</a>
+              <a href="/api/patient/find-doctor">Find a Doctor</a>
             </li>
             <li>
               <a href="#">Get Second Opinion</a>
