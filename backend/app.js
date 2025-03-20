@@ -37,7 +37,7 @@ const store = new mongoDBStore({
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     store: store
 }));
 
@@ -48,6 +48,5 @@ app.use('/api/doctor/', doctorRoutes);
 
 app.use((req, res, next) => {
     console.log('Session:', req.session);
-    console.log(req.user);
     next();
 });

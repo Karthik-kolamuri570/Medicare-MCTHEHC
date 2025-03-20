@@ -114,7 +114,6 @@ exports.loginDoctor = async (req, res, next) => {
     );
     req.session.doctorLogin=req.body;
     req.session.isDoctorLoggedIn=true;
-    req.session.doctorId=doctor._id;
     res.status(200).json({
       success: true,
       token,
@@ -246,7 +245,7 @@ exports.deleteDoctor = async (req, res, next) => {
 exports.updateAvailability = async (req, res, next) => {
     try {
         const { fromTime, toTime } = req.body;
-        const doctorId = req.user._id;
+        const doctorId = req.params.id;
 
         if (!fromTime || !toTime) {
             return res.status(400).json({
@@ -282,8 +281,7 @@ exports.updateAvailability = async (req, res, next) => {
 };
 exports.getDoctorAppointments = async (req, res, next) => {
     try {
-      console.log(req.user._id.toString());
-        const appointments = await Appointment.find({ doctorId: req.user._id }).populate('patientId');
+        const appointments = await Appointment.find({ doctorId: req.params.doctorId });
         if(!appointments){
             res.status(500).json({
                 success: false,
@@ -305,7 +303,7 @@ exports.getDoctorAppointments = async (req, res, next) => {
 
 exports.getDoctorPatients = async (req, res, next) => {
     try {
-        const patients = await Appointment.find({ doctorId: req.user._id }).select('patientId')
+        const patients = await Appointment.find({ doctorId: req.params.doctorId }).select('patientId').populate('patientId');
         if(!patients){
             res.status(500).json({
                 success: false,
