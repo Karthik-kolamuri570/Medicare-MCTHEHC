@@ -21,9 +21,9 @@ router.get('/', doctorController.getAllDoctors);
 router.delete('/:id', doctorController.deleteDoctor);
 
 // Update doctor availability
-router.put('/availability/:id',auth.adminAuth, doctorController.updateAvailability);
-router.get('/appointments/:doctorId',auth.doctorAuth, doctorController.getDoctorAppointments);
-router.get('/patients/:doctorId', auth.doctorAuth, doctorController.getDoctorPatients);
+router.put('/availability/',auth.adminAuth, doctorController.updateAvailability);
+router.get('/appointments/',auth.doctorAuth, doctorController.getDoctorAppointments);
+router.get('/patients/', auth.doctorAuth, doctorController.getDoctorPatients);
 router.get('/specializations/:specialization', doctorController.getDoctorBySpecialization);
 router.get('/location/:location', doctorController.getDoctorByLocation); // Corrected the path
 
