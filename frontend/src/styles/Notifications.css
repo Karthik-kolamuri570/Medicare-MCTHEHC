@@ -1,0 +1,74 @@
+/* Wrapper to center the notification box */
+.notifications-wrapper {
+          display: flex;
+          justify-content: center; /* Centers horizontally */
+          align-items: center; /* Centers vertically */
+          min-height: 100vh; /* Space between header and footer */
+        }
+        
+        /* Notification Container */
+        .notifications-container {
+          width: 50%;
+          min-height: 500px;
+          background-color: white;
+          border-radius: 8px;
+          box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+          padding: 20px;
+          text-align: center;
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start; /* Aligns content to the top */
+        }
+        
+        /* BELL ICON */
+        .bell-container {
+          position: absolute;
+          top: 20px;
+          right: 20px;
+          cursor: pointer;
+        }
+        
+        .bell-icon {
+          font-size: 24px;
+          color: #ff9800;
+        }
+        
+        .notification-count {
+          position: absolute;
+          top: -5px;
+          right: -5px;
+          background: red;
+          color: white;
+          font-size: 12px;
+          font-weight: bold;
+          border-radius: 50%;
+          width: 20px;
+          height: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        
+        /* BIGGER & CENTERED NOTIFICATIONS TITLE */
+        .notifications-title {
+          font-size: 32px; /* Make it bigger */
+          font-weight: bold;
+          text-align: center;
+          margin-bottom: 20px;
+        }
+        
+        /* Notifications List */
+        .notifications-list {
+          width: 100%;
+          margin-top: 20px;
+        }
+        
+        .notification-item {
+          background: #f9f9f9;
+          padding: 15px;
+          border-radius: 5px;
+          margin-bottom: 10px;
+          box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
