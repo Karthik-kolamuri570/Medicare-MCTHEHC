@@ -1,0 +1,504 @@
+/* Header Component */
+/* Reset Styles */
+* {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+          font-family: Arial, sans-serif;
+}
+
+/* Main Navbar */
+.navbar {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 15px 50px;
+          background-color: white;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.mlogo {
+          height: 60px;
+          display: block;
+}
+
+/* Logo */
+.logo {
+          font-size: 24px;
+          font-weight: bold;
+          color: #000;
+          display: flex;
+          align-items: center;
+}
+
+.alogo {
+          text-decoration: none;
+          color: black;
+
+
+}
+
+/* Navigation Links */
+.nav-links {
+          list-style: none;
+          display: flex;
+          gap: 20px;
+          float: right;
+}
+
+.nav-links li {
+          display: inline;
+}
+
+.nav-links a {
+          text-decoration: none;
+          color: #000;
+          font-size: 16px;
+          transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+          color: #007bff;
+}
+
+/* Search Bar */
+.search-container {
+          display: flex;
+          align-items: center;
+          border: 1px solid #ccc;
+          border-radius: 20px;
+          overflow: hidden;
+}
+
+.search-container input {
+          border: none;
+          padding: 8px 12px;
+          outline: none;
+          width: 180px;
+}
+
+.search-container button {
+          border: none;
+          background: none;
+          padding: 8px;
+          cursor: pointer;
+          font-size: 18px;
+}
+
+/* Secondary Navbar (Yellow Background) */
+.secondary-navbar {
+          display: flex;
+          justify-content: right;
+          gap: 20px;
+          background-color: #ffcc00;
+          padding: 10px;
+          margin-left: 800px;
+          border-radius: 50px;
+}
+
+.secondary-navbar a {
+          text-decoration: none;
+          color: black;
+          font-weight: bold;
+          padding: 8px 12px;
+          border-radius: 10px;
+          transition: background 0.3s;
+}
+
+.secondary-navbar a:hover {
+          background: rgba(0, 0, 0, 0.1);
+}
+
+/* Bookanappointment */
+.book-appointment-container {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          max-width: 1200px;
+          margin: 50px auto;
+          /* Space between Header and this section */
+          padding: 20px;
+          gap: 40px;
+          /* Space between text and image */
+          border: 2px solid #ddd;
+          /* Light gray border */
+          border-radius: 10px;
+          /* Rounded corners */
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+          /* Soft shadow */
+          background-color: #fff;
+          /* White background */
+        }
+        
+        .book-appointment-text {
+          flex: 1;
+          text-align: left;
+        }
+        
+        .book-appointment-text h1 {
+          font-size: 32px;
+          margin-bottom: 10px;
+          color: #333;
+        }
+        
+        .book-appointment-text p {
+          font-size: 16px;
+          line-height: 1.6;
+          color: #555;
+        }
+        
+        .book-appointment-text ul {
+          padding-left: 20px;
+        }
+        
+        .book-appointment-text li {
+          margin-bottom: 10px;
+        }
+        
+        .book-appointment-image {
+          flex: 1;
+          display: flex;
+          justify-content: center;
+        }
+        
+        .book-appointment-image img {
+          max-width: 100%;
+          height: auto;
+          border-radius: 10px;
+          /* Smooth corners */
+        }
+        
+/* Findahospital */
+.find-hospital-container {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          max-width: 1200px;
+          margin: 50px auto; /* Space between Header and this section */
+          padding: 20px;
+          gap: 40px; /* Space between image and text */
+          border: 2px solid #ddd; /* Light border */
+          border-radius: 10px; /* Rounded corners */
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* Soft shadow */
+          background-color: #fff; /* White background */
+        }
+        
+        .find-hospital-image {
+          flex: 1;
+          display: flex;
+          justify-content: center;
+        }
+        
+        .find-hospital-image img {
+          max-width: 100%;
+          height: auto;
+          border-radius: 10px; /* Smooth corners */
+        }
+        
+        .find-hospital-text {
+          flex: 1;
+          text-align: left;
+        }
+        
+        .find-hospital-text h1 {
+          font-size: 32px;
+          margin-bottom: 10px;
+          color: #333;
+        }
+        
+        .find-hospital-text p {
+          font-size: 16px;
+          line-height: 1.6;
+          color: #555;
+        }
+        
+/* Specialities */
+.specialities-container {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          max-width: 1200px;
+          margin: 50px auto; /* Space from other sections */
+          padding: 20px;
+          gap: 40px; /* Space between text and image */
+          border: 2px solid #ddd; /* Light border */
+          border-radius: 10px; /* Smooth corners */
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* Soft shadow */
+          background-color: #fff; /* Clean background */
+        }
+        
+        .specialities-text {
+          flex: 1;
+          text-align: left;
+        }
+        
+        .specialities-text h1 {
+          font-size: 32px;
+          margin-bottom: 10px;
+          color: #333;
+        }
+        
+        .specialities-text p {
+          font-size: 16px;
+          line-height: 1.6;
+          color: #555;
+        }
+        
+        .specialities-image {
+          flex: 1;
+          display: flex;
+          justify-content: center;
+        }
+        
+        .specialities-image img {
+          max-width: 100%;
+          height: auto;
+          border-radius: 10px; /* Smooth edges */
+        }
+
+
+/* FindaDoctor */
+.find-a-doctor-container {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          max-width: 1200px;
+          margin: 50px auto; /* Space from other sections */
+          padding: 20px;
+          gap: 40px; /* Space between text and image */
+          border: 2px solid #ddd; /* Light border */
+          border-radius: 10px; /* Smooth corners */
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* Soft shadow */
+          background-color: #fff; /* Clean background */
+        }
+        
+        .find-a-doctor-image {
+          flex: 1;
+          display: flex;
+          justify-content: center;
+        }
+        
+        .find-a-doctor-image img {
+          max-width: 90%; /* Adjusted image width */
+          height: auto;
+          border-radius: 8px; /* Smooth edges */
+        }
+        
+        .find-a-doctor-text {
+          flex: 1;
+          text-align: left;
+        }
+        
+        .find-a-doctor-text h1 {
+          font-size: 28px; /* Keep heading size consistent */
+          margin-bottom: 8px;
+          color: #333;
+        }
+        
+        .find-a-doctor-text p {
+          font-size: 15px;
+          line-height: 1.5;
+          color: #555;
+        }
+        
+
+/* Blogs */
+.blogs-section {
+          width: 100%;
+          padding: 40px 0;
+          display: flex;
+          justify-content: center; /* Light background to highlight the border */
+        }
+        
+        .blogs-container {
+          width: 100%;
+          max-width: 1200px;
+          text-align: center;
+          padding: 20px;
+          border: 2px solid #ddd; /* Outside border */
+          border-radius: 10px;
+          background-color: white;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* Soft shadow effect */
+        }
+        
+        .blogs-heading {
+          font-size: 2.5rem;
+          font-weight: bold;
+          margin-bottom: 20px;
+          color: #333;
+        }
+        
+        .blogs-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 20px;
+        }
+        
+        .blog-card {
+          background-color: #f9f9f9;
+          border: 1px solid #ccc;
+          border-radius: 8px;
+          padding: 20px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          text-align: center;
+        }
+        
+        .blog-card img {
+          width: 100%;
+          height: auto;
+          border-radius: 8px;
+        }
+        
+        .blog-card h3 {
+          font-size: 1.2rem;
+          margin: 10px 0;
+        }
+        
+        .blog-card p {
+          font-size: 0.9rem;
+          color: #666;
+        }
+        
+        .blog-card button {
+          background-color: #007bff;
+          color: white;
+          padding: 10px 20px;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          margin-top: 10px;
+        }
+        
+        .blog-card button:hover {
+          background-color: #0056b3;
+        }
+        
+
+        /* TopDoctors */
+        .top-doctors-section {
+          width: 100%;
+          padding: 40px 0;
+          display: flex;
+          justify-content: center;
+        }
+        
+        .top-doctors-container {
+          width: 100%;
+          max-width: 1200px;
+          text-align: center;
+          padding: 20px;
+          border: 2px solid #ddd;
+          border-radius: 10px;
+          background-color: white;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .top-doctors-heading {
+          font-size: 2.5rem;
+          font-weight: bold;
+          margin-bottom: 20px;
+          color: #333;
+        }
+        
+        .doctors-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 20px;
+        }
+        
+        .doctor-card {
+          background-color: #f9f9f9;
+          border: 1px solid #ccc;
+          border-radius: 8px;
+          padding: 20px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          text-align: center;
+        }
+        
+        .doctor-img {
+          width: 100%;
+          height: auto;
+          border-radius: 8px;
+        }
+        
+        .doctor-name {
+          font-size: 1.2rem;
+          margin: 10px 0;
+        }
+        
+        .doctor-description {
+          font-size: 0.9rem;
+          color: #666;
+        }
+        
+        .appointment-btn {
+          background-color: #007bff;
+          color: white;
+          padding: 10px 20px;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          margin-top: 10px;
+        }
+        
+        .appointment-btn:hover {
+          background-color: #0056b3;
+        }
+        
+
+
+/* Footer */
+.footer {
+          background-color: #333;
+          color: white;
+          padding: 20px 0;
+          text-align: center;
+        }
+        
+        .footer-container {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 15px;
+        }
+        
+        .footer-logo h2 {
+          font-size: 1.8rem;
+          font-weight: bold;
+        }
+        
+        .footer-links {
+          display: flex;
+          gap: 15px;
+        }
+        
+        .footer-links a {
+          color: white;
+          text-decoration: none;
+          font-size: 1rem;
+        }
+        
+        .footer-links a:hover {
+          text-decoration: underline;
+        }
+        
+        .footer-social {
+          display: flex;
+          gap: 15px;
+        }
+        
+        .footer-social a {
+          color: white;
+          font-size: 1.5rem;
+          transition: 0.3s ease-in-out;
+        }
+        
+        .footer-social a:hover {
+          color: #007bff;
+        }
+        
+        .footer-bottom {
+          margin-top: 10px;
+          font-size: 0.9rem;
+        }
+        

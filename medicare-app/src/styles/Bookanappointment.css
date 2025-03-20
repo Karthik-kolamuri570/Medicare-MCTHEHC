@@ -1,0 +1,141 @@
+.appointment-container {
+          max-width: 700px;
+          margin: 50px auto;
+          background: white;
+          padding: 20px;
+          border-radius: 8px;
+          box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+          text-align: center;
+          margin-bottom: 20px;
+        }
+        
+        .appointment-form {
+          display: flex;
+          flex-direction: column;
+        }
+        
+        .form-group {
+          margin-bottom: 15px;
+        }
+        
+        .form-group label {
+          font-weight: bold;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+          width: 100%;
+          padding: 8px;
+          margin-top: 5px;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+        }
+        
+        /* Select Doctor Button */
+        .select-doctor-btn {
+          width: 100%;
+          padding: 12px;
+          background: #007bff;
+          color: white;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          margin-top: 5px;
+          font-size: 16px;
+          font-weight: bold;
+        }
+        
+        .select-doctor-btn:hover {
+          background: #0056b3;
+        }
+        
+        /* Doctor List Dropdown */
+        .doctor-list {
+          background: white;
+          border: 1px solid #ddd;
+          border-radius: 5px;
+          padding: 10px;
+          max-height: 250px;
+          overflow-y: auto;
+          margin-top: 5px;
+        }
+        
+        .doctor-item {
+          display: flex;
+          align-items: center;
+          padding: 10px;
+          cursor: pointer;
+          transition: background 0.2s;
+          border-bottom: 1px solid #ddd;
+        }
+        
+        .doctor-item:last-child {
+          border-bottom: none;
+        }
+        
+        .doctor-item:hover {
+          background: #f1f1f1;
+        }
+        
+        .doctor-thumbnail {
+          width: 80px;
+          height: 80px;
+          object-fit: cover;
+          border-radius: 8px; /* Square shape with slightly rounded corners */
+          margin-right: 15px;
+        }
+        
+        /* Selected Doctor Profile */
+        .doctor-profile {
+          display: flex;
+          align-items: center;
+          background: #f9f9f9;
+          padding: 15px;
+          border-radius: 8px;
+          margin-top: 15px;
+        }
+        
+        .doctor-image {
+          width: 200px;
+          height: 200px;
+          object-fit: cover;
+          border-radius: 8px; /* Square shape with slightly rounded corners */
+          margin-right: 20px;
+        }
+        
+        .doctor-details {
+          flex-grow: 1;
+        }
+        
+        .doctor-details h2 {
+          margin: 0 0 10px 0;
+          font-size: 22px;
+          color: #333;
+        }
+        
+        .doctor-details p {
+          margin: 5px 0;
+          font-size: 16px;
+          color: #666;
+        }
+        
+        /* Submit Button */
+        .submit-btn {
+          background-color: #28a745;
+          color: white;
+          padding: 12px;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          margin-top: 10px;
+          font-size: 16px;
+          font-weight: bold;
+        }
+        
+        .submit-btn:hover {
+          background-color: #218838;
+        }
+        
