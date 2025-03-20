@@ -177,6 +177,7 @@ exports.updatePatient = async (req, res) => {
     }
 };
 
+
 exports.bookAppointment = async (req, res) => {
     try {
         console.log('Under Booked Appointment Controller');
