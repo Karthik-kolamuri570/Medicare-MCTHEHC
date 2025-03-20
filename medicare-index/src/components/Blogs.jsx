@@ -27,3 +27,4 @@ function Blogs({ blogs = [] }) {
 }
 
 export default Blogs;
+

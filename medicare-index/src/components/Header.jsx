@@ -1,8 +1,6 @@
 import React from "react";
 import "../styles/Header.css";
 import logo from "../assets/logo.png";
-import {BrowserRouter as Router,Route,Routes,Link,Switch} from 'react-router-dom'
-import TopDoctors from "./TopDoctors";
 
 
 function Header() {
@@ -17,15 +15,7 @@ function Header() {
         </div>
         <ul className="nav-links">
           <li>
-            <Router>
-            <Link to="/api/doctor/">Find a Doctor</Link> 
-              <Switch>
-            <Routes>
-              <Route path="/api/doctor/" element={<TopDoctors />} />
-            </Routes>
-            </Switch>
-            </Router>
-           
+            <a href="#">Find a Doctor</a>
           </li>
           <li>
             <a href="#">Get Second Opinion</a>
