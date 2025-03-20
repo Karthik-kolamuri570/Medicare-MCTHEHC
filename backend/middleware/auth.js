@@ -30,3 +30,4 @@ exports.adminAuth = async (req, res, next) => {
     console.log("Admin is authenticated");
     next();
 };
+
