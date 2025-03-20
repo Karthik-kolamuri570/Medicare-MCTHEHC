@@ -6,7 +6,7 @@ router.post('/register',patientController.registerPatient);
 router.post('/login',patientController.loginPatient);
 // router.get('/:patientId',auth.patientAuth,patientController.getPatientById);
 // router.get('/',patientController.getAllPatients);
-router.put('/:patientId',auth.patientAuth,patientController.updatePatient);
+router.put('/',auth.patientAuth,patientController.updatePatient);
 router.post('/book-appointment/',auth.patientAuth,patientController.bookAppointment);
 router.get('/appointments/',auth.patientAuth,patientController.getPatientAppointments);
 router.post('/cancel-appointment/:appointmentId',auth.patientAuth,patientController.cancelAppointment);

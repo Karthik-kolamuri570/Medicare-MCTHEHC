@@ -139,7 +139,7 @@ exports.getPatientById = async (req, res) => {
 // Update patient profile
 exports.updatePatient = async (req, res) => {
     try {
-        const patientId = req.params.patientId; // Extract patientId from params
+        const patientId = req.user._id; // Extract patientId from params
         const { name, contact, age, gender, address } = req.body;
         
         if (!patientId) {
