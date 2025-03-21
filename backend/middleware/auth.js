@@ -3,7 +3,7 @@ const Doctor = require('../models/doctor'); // Adjust the path as needed
 // const Admin = require('../model/adminModel'); // Adjust the path as needed
 exports.patientAuth = async (req, res, next) => {
     console.log("Checking patient authentication");
-    console.log("Session:", req.session);
+    console.log("Session:", req.session.isPatientLoggedIn); 
     if (!req.session || !req.session.isPatientLoggedIn) {
         console.log("Unauthorized Access - Returning 401");
         return res.status(401).redirect('/api/patient/login');

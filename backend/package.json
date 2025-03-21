@@ -30,6 +30,7 @@
     "jsonwebtoken": "^9.0.2",
     "medicare": "file:",
     "mongoose": "^8.12.1",
+    "nodemon": "^3.1.9",
     "path": "^0.12.7",
     "pug": "^3.0.3"
   }

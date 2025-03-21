@@ -1,5 +1,6 @@
 import React from 'react'
-import { navigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import logo from '../../assets/logo.png';
 
 function Header() {
           const navigate = useNavigate();
@@ -15,7 +16,7 @@ function Header() {
               </div>
               <ul className="nav-links">
                 <li>
-                <a href="#">Find a Doctor</a>
+                <a href="#" onClick={()=>navigate("/top-doctors")}>Find a Doctor</a>
                 </li>
                 <li>
                   <a href="#">Get Second Opinion</a>
@@ -48,3 +49,4 @@ function Header() {
   )
 }
 
+export default Header;

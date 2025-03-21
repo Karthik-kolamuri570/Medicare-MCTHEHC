@@ -34,6 +34,7 @@ exports.registerPatient = async (req, res) => {
         // Save patient
         await newPatient.save();
         req.session.patientRegister=req.body;
+        req.session.save();
         
 
         res.status(201).json({
@@ -51,6 +52,7 @@ exports.registerPatient = async (req, res) => {
     }
 };
 
+// Login patient
 // Login patient
 exports.loginPatient = async (req, res) => {
     try {
@@ -77,9 +79,11 @@ exports.loginPatient = async (req, res) => {
             req.session.adminId = patient._id;
         }
 
-        req.session.PatientLogin=req.body;
-        req.session.patientId=patient._id;
-        req.session.isPatientLoggedIn=true;
+        // Update session variables
+        req.session.patientRegister = req.body;
+        req.session.patientId = patient._id.toString();
+        req.session.isPatientLoggedIn = true;
+        req.session.save();
 
         // Generate token
         const token = jwt.sign(
@@ -88,7 +92,7 @@ exports.loginPatient = async (req, res) => {
             { expiresIn: '1d' }
         );
 
-        res.status(200).json({
+        res.status(201).json({
             success: true,
             message: "Login successful",
             token,
@@ -97,10 +101,9 @@ exports.loginPatient = async (req, res) => {
                 name: patient.name,
                 email: patient.email,
                 role: 'patient',
-
             }
         });
-        console.log(req.user);
+        console.log("req.user:",req.user);
     } catch (error) {
         console.error(error);
         res.status(500).json({
@@ -110,6 +113,7 @@ exports.loginPatient = async (req, res) => {
         });
     }
 };
+
 
 // Get patient profile
 exports.getPatientById = async (req, res) => {
