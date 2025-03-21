@@ -1,11 +1,10 @@
 import React from "react";
 import "../styles/MedicareIndex.css";
-import logo from "../assets/logo.png";
 import bookanappointment from "../assets/bookanappointment.png";
 import searchdoctor from "../assets/searchdoctor.png";
 import Hospital from "../assets/Hospital.png";
-import specialities from "../assets/specialities.png";
-import { useNavigate } from "react-router-dom";
+import specialities from "../assets/Specialities.png";
+
 
 const doctorsData = [
   {
@@ -54,55 +53,11 @@ const blogData = [
 ];
 
 function MedicareIndex() {
-  const navigate = useNavigate();
+  
   return (
     <div>
       <div>
-        {/* Header */}
-        <header>
-          <nav className="navbar">
-            <div className="logo">
-              <img src={logo} alt="logo" className="mlogo" />
-              <a href="#" className="alogo">
-                Medicare
-              </a>
-            </div>
-            <ul className="nav-links">
-              <li>
-                <a href="#" onClick={() => navigate("/top-doctors")}>
-                  Find a Doctor
-                </a>
-              </li>
-              <li>
-                <a href="#">Get Second Opinion</a>
-              </li>
-              <li>
-                <a href="#">Blogs</a>
-              </li>
-              <li>
-                <a href="#">Contact Us</a>
-              </li>
-              <li>
-                <a href="#" onClick={() => navigate("/SignUp")}>
-                  Sign Up
-                </a>
-              </li>
-            </ul>
-            <div className="search-container">
-              <input type="text" placeholder="Search Your Service" />
-              <button>🔍</button>
-            </div>
-          </nav>
-
-          {/* Secondary Yellow Navbar */}
-          <div className="secondary-navbar">
-            <a href="#">Our Hospitals</a>
-            <a href="#">Online Consultancy</a>
-            <a href="#">Treatments</a>
-            <a href="#">Blood Camps and Banks</a>
-          </div>
-        </header>
-
+        
         {/* Book an Appointment */}
         <div className="book-appointment-container">
           <div className="book-appointment-text">
@@ -230,37 +185,7 @@ function MedicareIndex() {
           </div>
         </section>
 
-        {/* Footer */}
-        <footer className="footer">
-          <div className="footer-container">
-            <div className="footer-logo">
-              <h2>Medicare</h2>
-            </div>
-            <div className="footer-links">
-              <a href="#">Home</a>
-              <a href="#">About</a>
-              <a href="#">Services</a>
-              <a href="#">Contact</a>
-            </div>
-            <div className="footer-social">
-              <a href="https://www.facebook.com/" target="_blank">
-                <i className="fab fa-facebook"></i>
-              </a>
-              <a href="https://www.twitter.com/" target="_blank">
-                <i className="fab fa-twitter"></i>
-              </a>
-              <a href="https://www.instagram.com/" target="_blank">
-                <i className="fab fa-instagram"></i>
-              </a>
-              <a href="https://www.linkedin.com/" target="_blank">
-                <i className="fab fa-linkedin"></i>
-              </a>
-            </div>
-          </div>
-          <div className="footer-bottom">
-            <p>© 2025 Medicare. All rights reserved.</p>
-          </div>
-        </footer>
+       
       </div>
     </div>
   );
