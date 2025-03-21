@@ -30,7 +30,7 @@ exports.doctorAuth = async (req, res, next) => {
     console.log("Checking doctor authentication");
     console.log("Session:", req.session);
     if (!req.session || !req.session.isDoctorLoggedIn) {
-        console.log("Unauthorized Access - Returning 401");
+         ;
         return res.status(401).redirect('/api/doctor/login');
     }
     try {

@@ -15,7 +15,10 @@ app.use(express.json()); // to parse the incoming request with JSON payloads
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "pug");
 app.set("views", path.join(__dirname, "views"));
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:5173/',
+    credentials: true
+  }));
 
 const PORT = 1600;
 mongoose.connect(process.env.MONGO_URI)
