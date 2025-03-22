@@ -10,11 +10,12 @@
 /* Main Navbar */
 .navbar {
           display: flex;
-          justify-content: space-between;
+          justify-content:space-between;
           align-items: center;
           padding: 15px 50px;
           background-color: white;
           box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+          
 }
 
 .mlogo {
@@ -91,11 +92,10 @@
           justify-content: right;
           gap: 20px;
           background-color: #ffcc00;
-          padding: 10px;
+          padding: 5px;
           margin-left: 800px;
           border-radius: 50px;
 }
-
 .secondary-navbar a {
           text-decoration: none;
           color: black;
@@ -107,6 +107,8 @@
 
 .secondary-navbar a:hover {
           background: rgba(0, 0, 0, 0.1);
+          transition: 0.5s ;
+
 }
 
 /* Bookanappointment */

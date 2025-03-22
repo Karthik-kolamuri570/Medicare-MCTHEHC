@@ -15,10 +15,13 @@ app.use(express.json()); // to parse the incoming request with JSON payloads
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "pug");
 app.set("views", path.join(__dirname, "views"));
+
+
 app.use(cors({
-    origin: 'http://localhost:5173/',
-    credentials: true
-  }));
+    origin: "http://localhost:5173",
+    credentials: true  // This is crucial for cookies to be sent
+}));
+
 
 const PORT = 1600;
 mongoose.connect(process.env.MONGO_URI)
@@ -41,10 +44,17 @@ const store = new mongoDBStore({
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true,
-    store: store
+    saveUninitialized: false, 
+    store: store,
+    cookie: { 
+        httpOnly: true,  
+        secure: false,  // Set to `true` if using HTTPS
+        sameSite: 'lax', // Set to 'none' if using cross-origin
+        maxAge: 24 * 60 * 60 * 1000 // 1 day expiration
+    } 
 }));
 
+  
 const patientRoutes = require('./routes/patientRoutes');
 app.use('/api/patient/', patientRoutes);
 const doctorRoutes = require('./routes/doctorRoutes');

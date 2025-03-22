@@ -48,6 +48,7 @@ exports.registerDoctor = async (req, res, next) => {
     });
     req.session.DoctorRegister=req.body;
     await doctor.save();
+    req.session.save();
     
     // Create token
     const token = jwt.sign(
@@ -115,6 +116,7 @@ exports.loginDoctor = async (req, res, next) => {
     req.session.doctorLogin=req.body;
     req.session.isDoctorLoggedIn=true;
     req.session.doctorId=doctor._id;
+    req.session.save();
     res.status(200).json({
       success: true,
       token,

@@ -1,0 +1,162 @@
+
+
+/* Container for forms */
+.app-container {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  min-height: 500px;
+}
+
+/* Register button (top-right corner) */
+.login-dropdown-container {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+/* Dropdown styling */
+.dropdown {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  background: white;
+  width: 200px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  padding: 10px 0;
+  z-index: 1000;
+}
+
+/* Dropdown items */
+.dropdown-item {
+  width: 100%;
+  padding: 10px;
+  text-align: center;
+  border: none;
+  background: none;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+  color: #333;
+}
+
+.dropdown-item:hover {
+  background: #0072ff;
+  color: white;
+}
+
+/* Form container styling */
+.form-container {
+  border: solid 1px #928282;
+  background: white;
+  padding: 45px;
+  width: 400px;
+  border-radius: 12px;
+  /* box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); */
+  text-align: center;
+  animation: fadeIn 0.5s ease-in-out;
+  /* position: relative; */
+  /* margin-top: 50px; */
+  margin: auto;
+  margin-top: 80px;
+  margin-bottom: 80px;
+}
+
+/* Form heading */
+.form-container h1 {
+  font-size: 22px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+/* Label styles */
+.form label {
+  display: block;
+  text-align: left;
+  font-weight: 500;
+  margin: 8px 0 5px;
+  color: #333;
+}
+
+/* Input field styles */
+.form input,
+.form textarea {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 10px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  transition: 0.3s ease-in-out;
+  font-size: 14px;
+}
+
+.form input:focus,
+.form textarea:focus {
+  border-color: #0072ff;
+  outline: none;
+  box-shadow: 0px 0px 8px rgba(0, 114, 255, 0.5);
+}
+
+/* Button styles */
+.register-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #0072ff;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s ease;
+  margin-top: 10px;
+}
+
+.register-btn:hover {
+  background: #0056d2;
+}
+
+/* Login link */
+.login-link {
+  margin-top: 10px;
+}
+
+.login-link a {
+  color: #0072ff;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.login-link a:hover {
+  text-decoration: underline;
+}
+
+/* Gender radio buttons */
+.radio-group {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+/* Register button styling */
+.login-btn {
+  background: #0072ff;
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: 0.3s ease;
+}
+
+.login-btn:hover {
+  background: #0056d2;
+}
