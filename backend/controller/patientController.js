@@ -389,7 +389,7 @@ exports.cancelAppointment=async(req,res)=>{
 }
 exports.getNotifications=async(req,res)=>{
     try{
-        const {patientId}=req.user._id;
+        const patientId=req.user._id;
         const patient=await Patient.findById(patientId);
         if(!patient){
             return res.status(404).json({
