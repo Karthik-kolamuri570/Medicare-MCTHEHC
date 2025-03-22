@@ -4,31 +4,7 @@ import bookanappointment from "../assets/bookanappointment.png";
 import searchdoctor from "../assets/searchdoctor.png";
 import Hospital from "../assets/Hospital.png";
 import specialities from "../assets/Specialities.png";
-
-
-const doctorsData = [
-  {
-    img: "doctor1.jpg",
-    name: "Dr. John Doe",
-    description: "Expert in Cardiology with 10+ years of experience.",
-  },
-  {
-    img: "doctor2.jpg",
-    name: "Dr. Jane Smith",
-    description: "Leading Dermatologist, specializes in skincare treatments.",
-  },
-  {
-    img: "doctor3.jpg",
-    name: "Dr. Alex Johnson",
-    description: "Orthopedic surgeon, expert in joint replacement.",
-  },
-  {
-    img: "doctor4.jpg",
-    name: "Dr. Emily Brown",
-    description: "Renowned Pediatrician, taking care of little ones.",
-  },
-];
-
+import TopDoctors from "./TopDoctors";
 const blogData = [
   {
     img: "image1.jpg",
@@ -163,7 +139,7 @@ function MedicareIndex() {
         </section>
 
         {/* Top Doctors */}
-        <section className="top-doctors-section">
+        {/* <section className="top-doctors-section">
           <div className="top-doctors-container">
             <h1 className="top-doctors-heading">Our Top Doctors</h1>
             <div className="doctors-grid">
@@ -183,8 +159,8 @@ function MedicareIndex() {
               ))}
             </div>
           </div>
-        </section>
-
+        </section> */}
+        <TopDoctors/>
        
       </div>
     </div>

@@ -160,3 +160,49 @@
 .login-btn:hover {
   background: #0056d2;
 }
+/* Basic CSS styles for layout */
+.app-container {
+  margin: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f4f4f4;
+}
+
+.form-container {
+  padding: 20px;
+  border-radius: 8px;
+  background-color: #fff;
+  width: 400px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.form-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.registration-btn {
+  padding: 12px 20px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  width: 100%;
+  background-color: #007bff;
+  color: white;
+  margin-top: 10px;
+}
+
+.registration-btn:hover {
+  background-color: #0056b3;
+}
