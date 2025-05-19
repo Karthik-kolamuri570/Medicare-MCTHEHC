@@ -13,8 +13,8 @@ dotEnv.config();
 
 app.use(express.json()); // to parse the incoming request with JSON payloads
 app.use(bodyParser.urlencoded({ extended: true }));
-app.set("view engine", "pug");
-app.set("views", path.join(__dirname, "views"));
+// app.set("view engine", "pug");
+// app.set("views", path.join(__dirname, "views"));
 
 
 app.use(cors({

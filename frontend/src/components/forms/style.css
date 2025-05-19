@@ -18,6 +18,11 @@
   right: 20px;
 }
 
+.float-right{
+  float: right;
+  
+}
+
 /* Dropdown styling */
 .dropdown {
   position: absolute;

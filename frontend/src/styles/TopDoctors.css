@@ -10,19 +10,47 @@
           max-width: 1200px;
           min-height: 400px;
           text-align: center;
-          padding: 20px;
+          padding: 15px;
           border: 2px solid #ddd;
           border-radius: 10px;
           background-color: white;
           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         
+        .top-doctors-heading-bar{
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin-bottom: 20px;
+          
+        }
+        
+        
         .top-doctors-heading {
           font-size: 2.5rem;
           font-weight: bold;
           margin-bottom: 20px;
           color: #333;
+          margin-left: 170px;
+
         }
+
+        .search-container{
+          float: right;
+          justify-content: end;
+          align-items: center;
+          display: flex;
+          margin: 0 100px;
+        }
+        .search-bar{
+          width: 300px;
+          padding: 10px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          font-size: 0.8rem;
+          
+        }
+        
         
         .doctors-grid {
           display: grid;

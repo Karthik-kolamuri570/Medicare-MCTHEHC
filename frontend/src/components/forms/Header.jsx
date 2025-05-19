@@ -14,7 +14,7 @@ function Header() {
                   Medicare
                 </a>
               </div>
-              <ul className="nav-links">
+              <ul className="nav-links text-right">
                 <li>
                 <a href="#" onClick={()=>navigate("/top-doctors")}>Find a Doctor</a>
                 </li>
