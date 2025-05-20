@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import axios from 'axios'; // Import Axios for fetching data
 import "../styles/Bookanappointment.css";
 import doc from "../assets/doctor1.png";
-import logo from "../assets/logo.png";
 
 function Bookanappointment() {
   const navigate = useNavigate();
@@ -126,7 +125,8 @@ function Bookanappointment() {
           {selectedDoctor && (
             <div className="doctor-profile">
               <img
-                src={selectedDoctor.image || 'path/to/default-image.jpg'}
+                // src={selectedDoctor.image || 'path/to/default-image.jpg'}
+                src={selectedDoctor.image ? selectedDoctor.image : doc}
                 alt={selectedDoctor.name}
                 className="doctor-image"
               />
@@ -184,3 +184,4 @@ function Bookanappointment() {
 }
 
 export default Bookanappointment;
+

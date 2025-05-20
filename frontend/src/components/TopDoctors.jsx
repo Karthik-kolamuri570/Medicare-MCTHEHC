@@ -118,16 +118,16 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import "../styles/TopDoctors.css";
 import axios from 'axios';
+import defaultDoctorImage from "../assets/doctor1.png"; // fallback image
 
 function TopDoctors() {
   const navigate = useNavigate();
 
-  const [allDoctors, setAllDoctors] = useState([]);  // Full unfiltered list
+  const [allDoctors, setAllDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchInput, setSearchInput] = useState("");  // Search input
+  const [searchInput, setSearchInput] = useState("");
 
-  // Fetch doctors from API once
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -146,34 +146,23 @@ function TopDoctors() {
       }
     };
 
-     fetchData(); //it is called again You want to re-fetch the data after some action, like:
-    //                         A new doctor is added.
-    //                         A doctor’s details were updated.
-    //                         A user clears the search input and you want a fresh list from the backend.
-    //                         You add a "Refresh" button.
+    fetchData();
   }, []);
 
-  // Filter doctors based on specialization by using searchInput 
   const filteredDoctors = allDoctors.filter((doc) =>
     doc.specialization.toLowerCase().includes(searchInput.toLowerCase())
   );
-  // 1.At fetch time, searchInput is still an empty string (""), and it never updates the state after typing because fetchData() runs only once!
-  // 2.When you check if a string "includes" an empty string, it always returns true. 
-  //3. Every string contains the empty string at every position — that’s just how .includes() is designed.
-  //By the 2nd point , we are rendering the ""allData"" indirectly bcz  "specialization.includes("") is always true". so we will render all the doctor so no need to do it again.
-
-
 
   return (
     <div>
       <section className="top-doctors-section">
         <div className="top-doctors-container">
-          <div className='top-doctors-heading-bar'>
+          <div className="top-doctors-heading-bar">
             <h1 className="top-doctors-heading">Our Top Doctors</h1>
             <div className="search-container">
               <input
                 type="text"
-                className='search-bar'
+                className="search-bar"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 placeholder="Search Doctors"
@@ -190,21 +179,33 @@ function TopDoctors() {
               <p>No doctors found matching your search.</p>
             )}
 
-            {!loading && filteredDoctors.map((doc, index) => (
-              <div key={index} className="doctor-card">
-                <div>
-                  <h3>Name: {doc.name}</h3>
-                  <p>Specialization: <strong>{doc.specialization}</strong></p>
-                  <p>Experience: <strong>{doc.experience}</strong> years</p>
+            {!loading &&
+              filteredDoctors.map((doc, index) => (
+                <div key={index} className="doctor-card">
+                  <div className="doctor-card-left">
+                    <img
+                      src={doc.image || defaultDoctorImage}
+                      alt={doc.name}
+                      className="doctor-image"
+                    />
+                  </div>
+                  <div className="doctor-card-right">
+                    <h3>Name: {doc.name}</h3>
+                    <p>
+                      Specialization: <strong>{doc.specialization}</strong>
+                    </p>
+                    <p>
+                      Experience: <strong>{doc.experience}</strong> years
+                    </p>
+                    <button
+                      className="appointment-btn"
+                      onClick={() => navigate("/book-appointment")}
+                    >
+                      Book an Appointment
+                    </button>
+                  </div>
                 </div>
-                <button
-                  className="appointment-btn"
-                  onClick={() => navigate("/book-appointment")}
-                >
-                  Book an Appointment
-                </button>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
       </section>
