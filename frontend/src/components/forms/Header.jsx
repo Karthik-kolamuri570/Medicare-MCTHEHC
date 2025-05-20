@@ -303,7 +303,7 @@ function Header() {
           margin: 0,
           padding: 0
         }}>
-          <li style={{ cursor: 'pointer' }} onClick={() => navigate("/find-doctor")}>Find a Doctor</li>
+          <li style={{ cursor: 'pointer' }} onClick={() => navigate("/top-doctors")}>Find a Doctor</li>
           <li style={{ cursor: 'pointer' }} onClick={() => navigate("/second-opinion")}>Get Second Opinion</li>
           <li style={{ cursor: 'pointer' }} onClick={() => navigate("/blogs")}>Blogs</li>
           <li style={{ cursor: 'pointer' }} onClick={() => navigate("/contact")}>Contact Us</li>
