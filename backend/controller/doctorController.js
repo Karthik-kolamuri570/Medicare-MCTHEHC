@@ -87,6 +87,8 @@ exports.loginDoctor = async (req, res, next) => {
   const { email, password } = req.body;
   
   try {
+    console.log("Doctor login attempt with email:", email);
+    
     // Check if doctor exists
     const doctor = await Doctor.findOne({ email });
     

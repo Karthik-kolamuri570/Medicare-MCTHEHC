@@ -16,7 +16,6 @@ exports.patientAuth = async (req, res, next) => {
         }
         console.log("in assigning the patient to the req.user is success")
         req.user = patient;
-        
         console.log(req.user._id.toString());
         console.log("Patient is authenticated");
         next();

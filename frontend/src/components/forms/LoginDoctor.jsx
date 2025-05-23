@@ -27,7 +27,7 @@ function Login() {
       // Handle successful login
       if (response.data) {
         localStorage.setItem("token", response.data.token); // Store token
-        navigate("/book-appointment"); // Redirect to booking page
+        navigate("/api/doctor"); // Redirect to booking page
       }
     } catch (err) {
       // Show error message from API if available

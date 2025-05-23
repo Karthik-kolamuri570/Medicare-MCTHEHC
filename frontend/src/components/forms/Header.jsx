@@ -279,7 +279,8 @@ function Header() {
   };
 
   return (
-    <header style={{ boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
+    <header >
+      <div style={{ boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
       <nav style={{
         display: 'flex',
         alignItems: 'center',
@@ -375,6 +376,7 @@ function Header() {
           )}
         </div>
       </nav>
+      </div>
 
                    {/* Secondary Yellow Navbar */}
             <div className="secondary-navbar"> 

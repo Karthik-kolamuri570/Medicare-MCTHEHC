@@ -56,7 +56,7 @@ exports.registerPatient = async (req, res) => {
 // Login patient
 exports.loginPatient = async (req, res) => {
     try {
-        console.log('Under Login Patient Controller');
+        console.log(`Under Login Patient Controller with email: ${req.body.email}`);
         const { email, password } = req.body;
         // Check if patient exists
         const patient = await Patient.findOne({ email });
@@ -103,8 +103,7 @@ exports.loginPatient = async (req, res) => {
                 role: 'patient',
             }
         });
-        console.log("req.user:",req.user);
-    } catch (error) {
+        console.log("req.user:",req.user._id.toString());    } catch (error) {
         console.error(error);
         res.status(500).json({
             success: false,

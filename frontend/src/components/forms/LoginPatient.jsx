@@ -29,7 +29,7 @@ function Login() {
 
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
-        navigate('/book-appointment'); 
+        navigate('/'); 
       } else {
         setError("Invalid response from server.");
       }
