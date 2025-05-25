@@ -1,30 +1,48 @@
 import React, { useState } from "react";
+import axios from "axios";
+import { useEffect } from "react";
+// const dummyAppointments = [
+//   {
+//     id: 1,
+//     patientName: "John Doe",
+//     problem: "Fever & Cough",
+//     availability: { from: "10:00 AM", to: "11:00 AM" },
+//     mode: "Online",
+//     contact: "johndoe@example.com"
+//   },
+//   {
+//     id: 2,
+//     patientName: "Jane Smith",
+//     problem: "Back Pain",
+//     availability: { from: "02:00 PM", to: "03:00 PM" },
+//     mode: "Offline",
+//     contact: "9876543210"
+//   },
+// ];
 
-const dummyAppointments = [
-  {
-    id: 1,
-    patientName: "John Doe",
-    problem: "Fever & Cough",
-    availability: { from: "10:00 AM", to: "11:00 AM" },
-    mode: "Online",
-    contact: "johndoe@example.com"
-  },
-  {
-    id: 2,
-    patientName: "Jane Smith",
-    problem: "Back Pain",
-    availability: { from: "02:00 PM", to: "03:00 PM" },
-    mode: "Offline",
-    contact: "9876543210"
-  },
-];
 
 function DAppointments() {
-  const [appointments, setAppointments] = useState(dummyAppointments);
+  
+  const [appointments, setAppointments] = useState([]);
+  useEffect(()=>{
+    const fetchAppointments = async () => {
+      try{
+        const response= await axios.get("http://localhost:1600/api/doctor/appointments/", { withCredentials: true })
+        const data=await response.data.data;
+        console.log("Fetched Appointments:", data); // Debugging
+        setAppointments(data);
+      }
+      catch(error){
+        console.error("Error fetching appointments:", error);
+      }
+    }
+    fetchAppointments();
+  },[])
+  
 
   const handleResponse = (id, status) => {
     alert(`Appointment ID ${id} has been ${status}.`);
-    setAppointments((prev) => prev.filter((appt) => appt.id !== id)); // it tries to remove the appointment from the list after accepting or rejecting
+    setAppointments((prev) => prev.filter((appt) => appt._id !== id)); // it tries to remove the appointment from the list after accepting or rejecting
     
   };
 
@@ -36,7 +54,7 @@ function DAppointments() {
       <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
         {appointments.map((appt) => (
           <div
-            key={appt.id}
+            key={appt._id}
             style={{
               border: "1px solid #ccc",
               borderRadius: "10px",
@@ -44,11 +62,13 @@ function DAppointments() {
               boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)"
             }}
           >
-            <p><strong>Patient Name:</strong> {appt.patientName}</p>
+            <p><strong>Patient Name:</strong> {appt.patientId?.name}</p>
             <p><strong>Problem:</strong> {appt.problem}</p>
-            <p><strong>Availability:</strong> {appt.availability.from} - {appt.availability.to}</p>
-            <p><strong>Mode:</strong> {appt.mode}</p>
-            <p><strong>Phone or Email:</strong> {appt.contact}</p>
+            <p><strong>Availability:</strong>Date: {appt.date} - Time: {appt.time}</p>
+            <p><strong>Mode:</strong> Online</p>
+            <p><strong>Phone or Email:</strong> {appt.patientId?.email}</p>
+            <p><strong>Status :</strong> {appt.status}</p>
+
 
             <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
               <button
@@ -60,7 +80,7 @@ function DAppointments() {
                   borderRadius: "5px",
                   cursor: "pointer"
                 }}
-                onClick={() => handleResponse(appt.id, "accepted")}
+                onClick={() => handleResponse(appt._id, "accepted")}
               >
                 Accept
               </button>
@@ -73,7 +93,7 @@ function DAppointments() {
                   borderRadius: "5px",
                   cursor: "pointer"
                 }}
-                onClick={() => handleResponse(appt.id, "rejected")}
+                onClick={() => handleResponse(appt._id, "rejected")}
               >
                 Reject
               </button>
