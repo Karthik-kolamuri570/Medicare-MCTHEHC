@@ -26,6 +26,8 @@ router.get('/appointments/',auth.doctorAuth, doctorController.getDoctorAppointme
 router.get('/patients/', auth.doctorAuth, doctorController.getDoctorPatients);
 router.get('/specializations/:specialization', doctorController.getDoctorBySpecialization);
 router.get('/location/:location', doctorController.getDoctorByLocation); // Corrected the path
+// router.get('/search/:search', doctorController.searchDoctors);
+router.get('/logout', doctorController.logoutDoctor);
 
 module.exports = router;
 

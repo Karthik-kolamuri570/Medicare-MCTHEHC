@@ -13,6 +13,7 @@ router.post('/cancel-appointment/:appointmentId',auth.patientAuth,patientControl
 router.get('/notifications/',auth.patientAuth,patientController.getNotifications);
 router.post('/notifications/',auth.patientAuth,patientController.markNotificationAsSeen);
 // router.delete('/notifications/:notificationId',patientController.deleteNotification);
+router.get('/logout',patientController.logoutPatient)
 router.get("/test-session", (req, res) => {
     console.log("Session Data:", req.session);
     console.log("Session User:", req.session.user);

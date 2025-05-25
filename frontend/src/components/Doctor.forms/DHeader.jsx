@@ -116,9 +116,9 @@ function DHeader() {
           margin: 0,
           padding: 0
         }}>
-          <li style={{ cursor: 'pointer' }} onClick={() => navigate("/top-doctors")}>My Appointments</li>
-          <li style={{ cursor: 'pointer' }} onClick={() => navigate("/second-opinion")}>My Consultation</li>
-          <li style={{ cursor: 'pointer' }} onClick={() => navigate("/blogs")}>My Blogs</li>
+          <li style={{ cursor: 'pointer' }} onClick={() => navigate("/my-appointments")}>My Appointments</li>
+          <li style={{ cursor: 'pointer' }} onClick={() => navigate("/my-consultation")}>My Consultation</li>
+          <li style={{ cursor: 'pointer' }} onClick={() => navigate("/my-blogs")}>My Blogs</li>
           <li style={{ cursor: 'pointer' }} onClick={() => navigate("/contact")}>My Notification</li>
           <li style={{ cursor: 'pointer' }} onClick={() => navigate("/SignUp")}>Sign Up</li>
         </ul>

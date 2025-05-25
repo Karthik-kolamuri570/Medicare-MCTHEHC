@@ -285,6 +285,7 @@ exports.updateAvailability = async (req, res, next) => {
         });
     }
 };
+// Get all appointments for a doctor
 exports.getDoctorAppointments = async (req, res, next) => {
     try {
       console.log(req.user._id.toString());
@@ -377,3 +378,22 @@ exports.getDoctorByLocation = async (req, res, next) => {
         });
     }
 };
+
+exports.logoutDoctor = async (req, res, next) => {
+  req.session.destroy((err)=>{
+    if (err){
+      console.log("Error in destroying session:", err);
+      return res.json({
+        success: false,
+        message : 'Error in logging out'  
+      })
+    }
+    res.clearCookie('connect.sid'); // Clear the session cookie
+    console.log("Doctor logged out successfully");
+    res.status(200).json({
+      success: true,
+      message: 'Doctor logged out successfully'
+    });
+
+  })
+}

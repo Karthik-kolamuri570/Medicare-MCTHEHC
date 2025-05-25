@@ -24,7 +24,8 @@ function DAppointments() {
 
   const handleResponse = (id, status) => {
     alert(`Appointment ID ${id} has been ${status}.`);
-    setAppointments((prev) => prev.filter((appt) => appt.id !== id));
+    setAppointments((prev) => prev.filter((appt) => appt.id !== id)); // it tries to remove the appointment from the list after accepting or rejecting
+    
   };
 
   return (

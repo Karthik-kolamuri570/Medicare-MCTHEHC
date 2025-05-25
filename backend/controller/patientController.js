@@ -84,6 +84,7 @@ exports.loginPatient = async (req, res) => {
         req.session.patientId = patient._id.toString();
         req.session.isPatientLoggedIn = true;
         req.session.save();
+        req.user = patient; // Assign patient to req.user for further use
 
         // Generate token
         const token = jwt.sign(
@@ -103,7 +104,9 @@ exports.loginPatient = async (req, res) => {
                 role: 'patient',
             }
         });
-        console.log("req.user:",req.user._id.toString());    } catch (error) {
+        console.log("req.user:",req.user._id.toString());    
+    } 
+        catch (error) {
         console.error(error);
         res.status(500).json({
             success: false,
@@ -438,3 +441,42 @@ exports.markNotificationAsSeen=async(req,res)=>{
         });
     }
 }
+
+
+exports.logoutPatient = (req, res) => {
+    const sessionId = req.sessionID;
+    console.log("Logging out session ID:", sessionId);
+
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('Error destroying session:', err);
+            return res.status(500).json({
+                success: false,
+                message: 'Logout failed'
+            });
+        }
+
+        // Manually remove session from MongoDB store (belt & suspenders approach)
+        req.sessionStore.destroy(sessionId, (err) => {
+            if (err) {
+                console.error('Manual store destroy failed:', err);
+            } else {
+                console.log('Session manually removed from MongoDB store:', sessionId);
+            }
+
+            // Clear cookie from client
+            res.clearCookie('connect.sid', {
+                path: '/',
+                httpOnly: true,
+                sameSite: 'lax'
+            });
+            res.json({
+                success: true,
+                message: 'Logout successful'
+            });
+
+            // res.redirect('/api/patient/login'); // Redirect to login page
+        });
+    });
+};
+

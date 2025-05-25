@@ -17,6 +17,8 @@ import DSecondOpinions from "./components/Doctor.forms/DSecondOpinions";
 import DBlogs from "./components/Doctor.forms/DBlogs";
 import DAppointments from "./components/Doctor.forms/DAppointments";
 import DOnlineConsultation from "./components/Doctor.forms/DOnlineConsultation";
+import LogoutPatient from "./components/forms/LogoutPatient";
+import LogoutDoctor from "./components/Doctor.forms/LogoutDoctor";
 
 const Layout = ({ children }) => (<><Header />{children}<Footer /></>);
 const DLayout = ({ children }) => (<><DHeader />{children}<DFooter /></>);
@@ -35,6 +37,7 @@ function App() {
         <Route path="/api/doctor/login" element={<Layout><LoginDoctor /></Layout>} />
         <Route path="/api/patient/register" element={<Layout><User /></Layout>} />
         <Route path="/api/doctor/register" element={<Layout><Doctor /></Layout>} />
+        <Route path="/api/patient/logout" element={<LogoutPatient/>} />
 
         {/* Doctor Dashboard Routes */}
         <Route path="/api/doctor" element={<DLayout><DoctorDashboard /></DLayout>} />
@@ -42,6 +45,7 @@ function App() {
         <Route path="/api/doctor/my-consultations" element={<DLayout><DOnlineConsultation /></DLayout>} />
         <Route path="/api/doctor/second-opinion" element={<DLayout><DSecondOpinions /></DLayout>} />
         <Route path="/my-blogs" element={<DLayout><DBlogs /></DLayout>} />
+        <Route path="/api/doctor/logout" element={<LogoutDoctor/>} />
       </Routes>
     </Router>
   );
