@@ -64,6 +64,10 @@ const userSchema=new Schema({
             message:"Fee per consultation should be greater than 0"
         }
     },
+    appointments: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Appointment'
+    }],
     fromTime: {
         type: String,
         required: [true, "Please provide your from time"],

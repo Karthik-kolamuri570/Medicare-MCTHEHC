@@ -397,3 +397,67 @@ exports.logoutDoctor = async (req, res, next) => {
 
   })
 }
+
+//Accepteed Appointments for the Doctor...
+exports.acceptAppointment=async(req,res)=>{
+  const appointmentId=req.params.id;
+  const doctorId=req.session.doctorId;
+  try{
+    console.log("Accepting appointment with ID:", appointmentId);
+
+    // Check if appointment exists in  the Appointment  Collection...
+    const appointment=await Appointment.findById(appointmentId);
+    if(!appointment){
+      return res.json({
+        success:false,
+        message:'Appointment not found...'
+      })
+    }
+    console.log(`Doctor Id : ${doctorId.toString()}`);
+
+    //After checking the appointment, we need to check if the appointment belongs to the doctor or not ,if it belongs to doctor then we will give access to Accepting the Appointment...
+    if(appointment.doctorId.toString() !== doctorId.toString()){
+      return res.json({
+        success: false,
+        message: 'You are not authorized to accept this appointment'
+      });
+    }
+    //Updating the status of the appointment to 'Accepted'...
+    appointment.status = 'Accepted';
+    await appointment.save();
+    //here we can also delete the appointment from the Appointment Collection if we want to but what i have to is i want to  show both pending and accepted appointments in the doctor profile so i will not delete it from the Appointment Collection...
+    // const delApp=await Appointment.findByIdAndDelete(appointmentId)
+    // await delApp.save();
+    console.log("Appointment accepted successfully:", appointment);
+    const doctor = await Doctor.findById(doctorId);
+    if (!doctor) {
+      return res.json({
+        success: false,
+        message: 'Doctor not found'
+      });
+    }
+    // // Check if the appointment already exists in the doctor's appointments array
+    // const existingAppointment = doctor.appointments.find(app => app._id.toString() === appointmentId);
+    // if (existingAppointment) {
+    //   return res.json({
+    //     success: false,
+    //     message: 'Appointment already exists in doctor\'s appointments'
+    //   });
+    // }
+    //sending the appointment which is accepted in the frontend to Doctor appointments array in Doctor's Collection... 
+    doctor.appointments.push(appointment);
+    await doctor.save();
+    res.status(200).json({
+      success: true,
+      message: 'Appointment accepted successfully',
+      data: appointment
+    });
+  }
+  catch(error){
+    console.error("Error accepting appointment:", error);
+    res.status(500).json({
+      success: false,
+      message: 'Server Error'
+    });
+  }
+}
