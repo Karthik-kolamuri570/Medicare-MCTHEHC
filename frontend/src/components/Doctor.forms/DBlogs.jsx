@@ -6,7 +6,7 @@ function DBlogs() {
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
-      height: "600px",
+      minHeight: "600px",
       backgroundColor: "#f8f9fa",
     }}>
           <h1>Doctor's Blogs</h1>
