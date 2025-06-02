@@ -11,6 +11,46 @@ const secondOpinionRequests = [
     previousTreatment: "Prescribed triptans, asked to track triggers.",
     records: "report1.pdf"
   },
+  {
+    id: 1,
+    patientName: "Alice Johnson",
+    problem: "Chronic migraine",
+    availability: { from: "10:00 AM", to: "12:00 PM" },
+    mode: "Online",
+    contact: "alice.johnson@example.com",
+    previousTreatment: "Prescribed triptans, asked to track triggers.",
+    records: "report1.pdf"
+  },
+  {
+    id: 1,
+    patientName: "Alice Johnson",
+    problem: "Chronic migraine",
+    availability: { from: "10:00 AM", to: "12:00 PM" },
+    mode: "Online",
+    contact: "alice.johnson@example.com",
+    previousTreatment: "Prescribed triptans, asked to track triggers.",
+    records: "report1.pdf"
+  },
+  {
+    id: 1,
+    patientName: "Alice Johnson",
+    problem: "Chronic migraine",
+    availability: { from: "10:00 AM", to: "12:00 PM" },
+    mode: "Online",
+    contact: "alice.johnson@example.com",
+    previousTreatment: "Prescribed triptans, asked to track triggers.",
+    records: "report1.pdf"
+  },
+  {
+    id: 1,
+    patientName: "Alice Johnson",
+    problem: "Chronic migraine",
+    availability: { from: "10:00 AM", to: "12:00 PM" },
+    mode: "Online",
+    contact: "alice.johnson@example.com",
+    previousTreatment: "Prescribed triptans, asked to track triggers.",
+    records: "report1.pdf"
+  },
 ];
 
 function DSecondOpinions() {
@@ -26,7 +66,7 @@ function DSecondOpinions() {
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
-      height: "600px",
+      minHeight: "600px",
       backgroundColor: "#f8f9fa",
     }}>
     <div style={{ padding: "2rem" }}>

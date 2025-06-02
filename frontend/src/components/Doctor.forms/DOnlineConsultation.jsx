@@ -7,7 +7,7 @@ function DOnlineConsultation() {
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
-      height: "600px",
+      minHeight: "600px",
       backgroundColor: "#f8f9fa",
     }}>
           <h1>Online Consultation</h1>
