@@ -436,14 +436,14 @@ exports.acceptAppointment=async(req,res)=>{
         message: 'Doctor not found'
       });
     }
-    // // Check if the appointment already exists in the doctor's appointments array
-    // const existingAppointment = doctor.appointments.find(app => app._id.toString() === appointmentId);
-    // if (existingAppointment) {
-    //   return res.json({
-    //     success: false,
-    //     message: 'Appointment already exists in doctor\'s appointments'
-    //   });
-    // }
+    // Check if the appointment already exists in the doctor's appointments array
+    const existingAppointment = doctor.appointments.find(app => app._id.toString() === appointmentId);
+    if (existingAppointment) {
+      return res.json({
+        success: false,
+        message: 'Appointment already exists in doctor\'s appointments'
+      });
+    }
     //sending the appointment which is accepted in the frontend to Doctor appointments array in Doctor's Collection... 
     doctor.appointments.push(appointment);
     await doctor.save();
