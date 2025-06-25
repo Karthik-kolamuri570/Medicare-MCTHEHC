@@ -381,7 +381,7 @@ function Header() {
                    {/* Secondary Yellow Navbar */}
             <div className="secondary-navbar"> 
                <a href="#">Our Hospitals</a>
-               <a href="#">Online Consultancy</a>
+               <a href="/api/patient/online-consultation">Online Consultancy</a>
                <a href="#">Treatments</a>
                <a href="#">Blood Camps and Banks</a>
              </div> 

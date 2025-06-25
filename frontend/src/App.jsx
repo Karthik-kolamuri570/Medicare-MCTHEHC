@@ -19,7 +19,9 @@ import DAppointments from "./components/Doctor.forms/DAppointments";
 import DOnlineConsultation from "./components/Doctor.forms/DOnlineConsultation";
 import LogoutPatient from "./components/forms/LogoutPatient";
 import LogoutDoctor from "./components/Doctor.forms/LogoutDoctor";
-
+import OnlineConsultation from './components/forms/OnlineConsultation'
+// import ChatApp from "./components/forms/ChatApp";
+import ChatWrapper from "./components/forms/ChatWrapper";
 const Layout = ({ children }) => (<><Header />{children}<Footer /></>);
 const DLayout = ({ children }) => (<><DHeader />{children}<DFooter /></>);
 
@@ -38,6 +40,8 @@ function App() {
         <Route path="/api/patient/register" element={<Layout><User /></Layout>} />
         <Route path="/api/doctor/register" element={<Layout><Doctor /></Layout>} />
         <Route path="/api/patient/logout" element={<LogoutPatient/>} />
+        <Route path="/api/patient/online-consultation" element={<Layout><OnlineConsultation /></Layout>} />
+        {/* <Route path="/api/chat/:receiverId" element={<Layout><ChatWrapper /></Layout>} /> */}
 
         {/* Doctor Dashboard Routes */}
         <Route path="/api/doctor" element={<DLayout><DoctorDashboard /></DLayout>} />
@@ -46,6 +50,10 @@ function App() {
         <Route path="/api/doctor/second-opinion" element={<DLayout><DSecondOpinions /></DLayout>} />
         <Route path="/my-blogs" element={<DLayout><DBlogs /></DLayout>} />
         <Route path="/api/doctor/logout" element={<LogoutDoctor/>} />
+        {/* <Route path="/chat/:patientId" element={<DLayout><ChatApp /></DLayout>} /> */}
+        <Route path="/api/chat/:receiverId" element={<ChatWrapper />} />
+
+        {/* Protected Routes */}
       </Routes>
     </Router>
   );

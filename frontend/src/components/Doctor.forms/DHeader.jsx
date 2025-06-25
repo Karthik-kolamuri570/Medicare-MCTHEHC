@@ -47,7 +47,7 @@ function DHeader() {
   const [searchInput, setSearchInput] = useState('');
   const [searchedData, setSearchedData] = useState([]);
   const dropdownRef = useRef(null);
-
+  
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -116,8 +116,8 @@ function DHeader() {
           margin: 0,
           padding: 0
         }}>
-          <li style={{ cursor: 'pointer' }} onClick={() => navigate("/my-appointments")}>My Appointments</li>
-          <li style={{ cursor: 'pointer' }} onClick={() => navigate("/my-consultation")}>My Consultation</li>
+          <li style={{ cursor: 'pointer' }} onClick={() => navigate("/api/doctor/my-appointments")}>My Appointments</li>
+          <li style={{ cursor: 'pointer' }} onClick={() => navigate("/api/doctor/my-consultations")}>My Consultation</li>
           <li style={{ cursor: 'pointer' }} onClick={() => navigate("/my-blogs")}>My Blogs</li>
           <li style={{ cursor: 'pointer' }} onClick={() => navigate("/contact")}>My Notification</li>
           <li style={{ cursor: 'pointer' }} onClick={() => navigate("/SignUp")}>Sign Up</li>

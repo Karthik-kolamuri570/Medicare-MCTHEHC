@@ -2,8 +2,8 @@ const Doctor = require('../models/doctor');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Patient = require('../models/patient');
-const Appointment = require('../models/appointments');
-const patient = require('../models/patient');
+const Appointment = require('./../models/appointments');
+// const patient = require('../models/patient');
 
 exports.registerDoctor = async (req, res, next) => {
   const {
@@ -398,7 +398,7 @@ exports.logoutDoctor = async (req, res, next) => {
   })
 }
 
-//Accepteed Appointments for the Doctor...
+//Accepted Appointments for the Doctor... Storing in the Doctor's Collection as appointments
 exports.acceptAppointment=async(req,res)=>{
   const appointmentId=req.params.id;
   const doctorId=req.session.doctorId;
@@ -461,3 +461,104 @@ exports.acceptAppointment=async(req,res)=>{
     });
   }
 }
+
+
+// exports.getAcceptedAppointments = async (req, res) => {
+//   try {
+//     console.log("Fetching accepted appointments for doctor:", req.user._id);
+//     const doctorId = req.user._id;
+
+//     const doctor = await Doctor.findById(doctorId).populate('appointments');
+//     if (!doctor) {
+//       return res.status(404).json({
+//         success: false,
+//         message: 'Doctor not found',
+//       });
+//     }
+
+//     // Map over appointments, get patient info
+//     const patientAppointments = doctor.appointments.map(async (appointment) => {
+//       const patient = await Patient.findById(appointment.patientId);
+//       return {
+//         appointmentId: appointment._id,
+//         patientName: patient ? patient.name : 'Unknown',
+//         appointmentDate: appointment.date,
+//         appointmentTime: appointment.time,
+//         problem: appointment.problem,
+//       };
+//     });
+
+//     // Wait for all promises to resolve
+//     const acceptedAppointments = await Promise.all(patientAppointments);
+
+//     res.status(200).json({
+//       success: true,
+//       data: acceptedAppointments,
+//     });
+
+//   } catch (error) {
+//     console.error("Error fetching accepted appointments:", error);
+//     res.status(500).json({
+//       success: false,
+//       message: 'Server Error',
+//     });
+//   }
+// };
+
+
+
+
+
+
+exports.getAcceptedAppointments = async (req, res) => {
+  try {
+    const doctorId = req.user._id;
+    console.log("Fetching appointments for doctor:", doctorId);
+
+    if (!doctorId) {
+      return res.status(400).json({ success: false, message: 'Doctor ID is required' });
+    }
+
+    // Step 1: Find the doctor by ID
+    const doctor = await Doctor.findById(doctorId);
+
+    if (!doctor) {
+      return res.status(404).json({ success: false, message: 'Doctor not found' });
+    }
+
+    // Step 2: Get all appointment IDs from doctor
+    const appointmentIds = doctor.appointments;
+
+    if (!appointmentIds || appointmentIds.length === 0) {
+      return res.status(404).json({ success: false, message: 'No appointments linked to this doctor' });
+    }
+
+    // Step 3: Find appointments by those IDs
+    const appointmentDetails = await Appointment.find({
+      _id: { $in: appointmentIds }
+    })
+      .select('doctorId problem date time  patientId')
+      .populate({
+        path: 'patientId',
+        select: 'name contact'
+      })
+      .sort({ date: 1, time: 1 }); // optional sorting by upcoming
+
+    if (!appointmentDetails || appointmentDetails.length === 0) {
+      return res.status(404).json({ success: false, message: 'No appointment details found' });
+    }
+
+    // Step 4: give thee reponse to the frontend
+    res.status(200).json({
+      success: true,
+      data: appointmentDetails
+    });
+
+  } catch (error) {
+    console.error("Error fetching appointments:", error);
+    res.status(500).json({
+      success: false,
+      message: 'Server Error'
+    });
+  }
+};

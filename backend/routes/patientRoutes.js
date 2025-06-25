@@ -2,6 +2,7 @@ const express=require('express');
 const router=express.Router();
 const patientController=require('../controller/patientController');
 const auth=require('../middleware/auth');
+const Patient = require('../models/patient'); // Adjust the path as needed
 router.post('/register',patientController.registerPatient);
 router.post('/login',patientController.loginPatient);
 // router.get('/:patientId',auth.patientAuth,patientController.getPatientById);
@@ -24,6 +25,8 @@ router.get("/test-session", (req, res) => {
 
     res.json({ message: "Session is active", session: req.session });
 });
+
+
 
 
 module.exports=router;

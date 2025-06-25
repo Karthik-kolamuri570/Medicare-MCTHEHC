@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const doctorController = require('../controller/doctorController');
 // const authMiddleware = require('../middleware/authMiddleware');
+const Doctor = require('../models/doctor'); // Adjust the path as needed
 const auth=require('../middleware/auth');
 // Public routes
 router.post('/register', doctorController.registerDoctor);
@@ -29,6 +30,8 @@ router.get('/location/:location', doctorController.getDoctorByLocation); // Corr
 // router.get('/search/:search', doctorController.searchDoctors);
 router.put('/accept-appointment/:id', auth.doctorAuth, doctorController.acceptAppointment);
 router.get('/logout', doctorController.logoutDoctor);
+router.get('/accepted-appointments', auth.doctorAuth, doctorController.getAcceptedAppointments);
+
 
 module.exports = router;
 

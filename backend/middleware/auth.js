@@ -27,7 +27,7 @@ exports.patientAuth = async (req, res, next) => {
 
 exports.doctorAuth = async (req, res, next) => {
     console.log("Checking doctor authentication");
-    console.log("Session:", req.session);
+    // console.log("Session:", req.session);
     if (!req.session || !req.session.isDoctorLoggedIn) {
          ;
         return res.status(401).redirect('/api/doctor/login');
@@ -38,8 +38,9 @@ exports.doctorAuth = async (req, res, next) => {
             return res.status(401).redirect('/api/doctor/login');
         }
         req.user = doctor;
-        console.log(req.user._id.toString());
-        console.log("Doctor is authenticated");
+        
+        console.log(`req.user._id.toString(): ${req.user._id.toString()}`);
+        console.log("Doctor is authenticated...");
         next();
     } catch (error) {
         console.error("Error in doctor authentication:", error);
@@ -49,7 +50,7 @@ exports.doctorAuth = async (req, res, next) => {
 
 exports.adminAuth = async (req, res, next) => {
     console.log("Checking admin authentication");
-    console.log("Session:", req.session);
+    // console.log("Ses   sion:", req.session);
     if (!req.session || !req.session.isAdminLoggedIn) {
         console.log("Unauthorized Access - Returning 401");
         return res.status(401).json({ success: false, message: "Unauthorized access. Please log in as an admin." });
