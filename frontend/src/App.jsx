@@ -22,6 +22,8 @@ import LogoutDoctor from "./components/Doctor.forms/LogoutDoctor";
 import OnlineConsultation from './components/forms/OnlineConsultation'
 // import ChatApp from "./components/forms/ChatApp";
 import ChatWrapper from "./components/forms/ChatWrapper";
+import CallPage from "./components/forms/CallPage";''
+import {Toaster} from 'react-hot-toast';
 const Layout = ({ children }) => (<><Header />{children}<Footer /></>);
 const DLayout = ({ children }) => (<><DHeader />{children}<DFooter /></>);
 
@@ -52,9 +54,12 @@ function App() {
         <Route path="/api/doctor/logout" element={<LogoutDoctor/>} />
         {/* <Route path="/chat/:patientId" element={<DLayout><ChatApp /></DLayout>} /> */}
         <Route path="/api/chat/:receiverId" element={<ChatWrapper />} />
+        <Route path="/api/video-call/:receiverId" element={<CallPage />} />
 
+         
         {/* Protected Routes */}
       </Routes>
+      <Toaster position="top-center" reverseOrder={false} />
     </Router>
   );
 }

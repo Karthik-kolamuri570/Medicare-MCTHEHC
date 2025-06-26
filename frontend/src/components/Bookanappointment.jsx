@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from 'axios'; // Import Axios for fetching data
 import "../styles/Bookanappointment.css";
 import doc from "../assets/doctor1.png";
+import toast from 'react-hot-toast'; // Import toast for notifications
 
 function Bookanappointment() {
   const navigate = useNavigate();
@@ -27,8 +28,8 @@ function Bookanappointment() {
       } else {
         setError('The data returned from the server is in an incorrect format');
       }
-    } catch (err) {
-      setError('Failed to fetch doctor data');
+    } catch(err) {
+      setError('Failed to fetch doctor data',err.message); // Set error message if fetching fails
     } finally {
       setLoading(false); // Stop loading after fetching
     }
@@ -64,6 +65,7 @@ function Bookanappointment() {
       
       if (response.status === 201) {
         alert("Appointment booked successfully!");
+        toast.success("Appointment booked successfully!");
         navigate("/notifications");
       }
     } catch (err) {

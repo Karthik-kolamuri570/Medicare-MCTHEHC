@@ -94,7 +94,7 @@ const DOnlineConsultation = () => {
 
   const handleVirtualCardClick = (doctorId,patientId) => {
 
-    navigate(`api/chat/${doctorId}-${patientId}`);
+    navigate(`/api/chat/${doctorId}-${patientId}`);
   };
 
   const handleScheduleCardClick = (patient) => {
@@ -106,18 +106,20 @@ const DOnlineConsultation = () => {
 
 
   //copied from chat Gpt 
-  const renderCard = (patient, isVirtual = false) => (
+  const renderCard = (patient, isVirtual = false) => {
+  // guard clause: skip rendering if patientId is not populated
+  if (!patient?.patientId || !patient?.patientId?.name) return null;
+
+  return (
     <div
       key={patient._id}
-      
       style={{
         ...styles.card,
-        // if the appointment is consulted then it automaticaly changes the background color to green... actually it is no need but keep it we will chaange later.
         backgroundColor: consultedIds.includes(patient._id) ? "#e0ffe0" : "#fff",
         border: consultedIds.includes(patient._id) ? "2px solid #4caf50" : "1px solid #ddd",
       }}
       onClick={() =>
-        isVirtual ? handleVirtualCardClick(patient.doctorId,patient.patientId._id) : handleScheduleCardClick(patient)
+        isVirtual ? handleVirtualCardClick(patient.doctorId, patient.patientId._id) : handleScheduleCardClick(patient)
       }
       title={isVirtual ? "Click to begin consultation" : "View appointment details"}
     >
@@ -135,6 +137,8 @@ const DOnlineConsultation = () => {
       </div>
     </div>
   );
+};
+
 
   return (
     <div style={styles.container}>

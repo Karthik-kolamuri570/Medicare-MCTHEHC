@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 function DAppointments() {
   const [appointments, setAppointments] = useState([]);
@@ -10,6 +11,7 @@ function DAppointments() {
         const response = await axios.get("http://localhost:1600/api/doctor/appointments/");
         const data = response.data.data;
         console.log("Fetched Appointments:", data);
+        toast.success("Appointments fetched successfully!");
         setAppointments(data);
       } catch (error) {
         console.error("Error fetching appointments:", error);
