@@ -24,6 +24,8 @@ import OnlineConsultation from './components/forms/OnlineConsultation'
 import ChatWrapper from "./components/forms/ChatWrapper";
 import CallPage from "./components/forms/CallPage";''
 import {Toaster} from 'react-hot-toast';
+import PaymentSuccess from "./components/forms/PaymentSuccess";
+import PaymentCancel from "./components/forms/PaymentCancel";
 const Layout = ({ children }) => (<><Header />{children}<Footer /></>);
 const DLayout = ({ children }) => (<><DHeader />{children}<DFooter /></>);
 
@@ -56,7 +58,8 @@ function App() {
         <Route path="/api/chat/:receiverId" element={<ChatWrapper />} />
         <Route path="/api/video-call/:receiverId" element={<CallPage />} />
 
-         
+         <Route path="/api/payment/success" element={<Layout><PaymentSuccess /></Layout>} />
+         <Route path="/api/payment/cancel" element={<Layout><PaymentCancel /></Layout>} />
         {/* Protected Routes */}
       </Routes>
       <Toaster position="top-center" reverseOrder={false} />

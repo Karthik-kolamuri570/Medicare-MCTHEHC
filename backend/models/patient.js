@@ -61,5 +61,6 @@ const patientSchema=new Schema({
         type:Array,
         default:[]
     }
+    
 })
 module.exports=mongoose.model("Patient",patientSchema);

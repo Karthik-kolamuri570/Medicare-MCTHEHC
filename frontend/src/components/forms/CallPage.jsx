@@ -108,8 +108,10 @@
 
 // export default CallPage;
 
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+
+
+import { useEffect, useState, useRef } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   StreamVideoClient,
   StreamCall,
@@ -119,31 +121,56 @@ import {
   useCallStateHooks,
   SpeakerLayout,
   StreamVideo,
+  useCall,
 } from "@stream-io/video-react-sdk";
 import "@stream-io/video-react-sdk/dist/css/styles.css";
 import axios from "axios";
 import toast from "react-hot-toast";
 
+// Singleton video client
 let globalVideoClient = null;
 
+// ✅ Custom CallControls with leave handling + redirect
 const CustomControls = () => {
   const { useCallCallingState } = useCallStateHooks();
   const callingState = useCallCallingState();
+  const call = useCall();
+  const navigate = useNavigate();
+
+  const handleLeave = async () => {
+    try {
+      // ✅ Prevent double leave errors
+      if (call && call.state.callingState !== CallingState.LEFT) {
+        await call.leave();
+      }
+      toast.success("📞 Call ended");
+    } catch (err) {
+      console.warn("⚠️ Leave failed:", err.message);
+    } finally {
+      navigate("/"); // ✅ Always redirect
+    }
+  };
 
   if (callingState !== CallingState.JOINED) return null;
-  return <CallControls />;
+
+  return <CallControls onLeave={handleLeave} />;
 };
 
 const CallPage = () => {
   const { receiverId } = useParams(); // Format: doctorId-patientId
   const [videoClient, setVideoClient] = useState(null);
   const [call, setCall] = useState(null);
+  const hasJoinedRef = useRef(false); // Prevents duplicate joins
 
   useEffect(() => {
     let activeCall;
 
     const initCall = async () => {
+      if (hasJoinedRef.current) return;
+      hasJoinedRef.current = true;
+
       try {
+        // 🔑 Step 1: Get token & user info
         const res = await fetch("http://localhost:1600/api/stream/token", {
           credentials: "include",
         });
@@ -155,9 +182,11 @@ const CallPage = () => {
           return;
         }
 
+        // 👥 Step 2: Parse peerId
         const [doctorId, patientId] = receiverId.split("-");
         const peerId = userId === doctorId ? patientId : doctorId;
 
+        // 🧠 Step 3: Sync users with Stream
         await axios.post(
           "http://localhost:1600/api/stream/upsert-users",
           {
@@ -166,6 +195,7 @@ const CallPage = () => {
           { withCredentials: true }
         );
 
+        // ⚙️ Step 4: Create or reuse singleton client
         if (!globalVideoClient) {
           globalVideoClient = new StreamVideoClient({
             apiKey,
@@ -174,35 +204,31 @@ const CallPage = () => {
           });
         }
 
+        // 📞 Step 5: Create/join call
         const callId = [userId, peerId].sort().join("-");
         activeCall = globalVideoClient.call("default", callId);
 
-        const callInfo = await activeCall.get();
-        if (callInfo && callInfo.members?.some(m => m.user_id === userId)) {
-          console.log("Already joined, skipping re-join.");
-        } else {
-          await activeCall.getOrCreate();
-          await activeCall.join();
-        }
+        await activeCall.getOrCreate();
+        await activeCall.join();
 
         setVideoClient(globalVideoClient);
         setCall(activeCall);
       } catch (err) {
-        console.error("Error setting up video call:", err);
+        console.error("❌ Error setting up video call:", err);
         toast.error("❌ Failed to join video call.");
       }
     };
 
     initCall();
 
+    // 🧹 Cleanup on unmount
     return () => {
-      if (activeCall) {
-        try {
-          activeCall.leave(); // gracefully exit the call on unmount
-        } catch (err) {
-          console.warn("Error while leaving call:", err.message);
-        }
+      if (activeCall && activeCall.state.callingState !== CallingState.LEFT) {
+        activeCall.leave().catch((err) =>
+          console.warn("⚠️ Error during cleanup leave:", err.message)
+        );
       }
+      hasJoinedRef.current = false;
     };
   }, [receiverId]);
 

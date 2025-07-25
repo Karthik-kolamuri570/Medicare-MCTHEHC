@@ -39,6 +39,10 @@ const appointmentSchema=new Schema({
         //         message:"Invalid time"
         // }
     },
+    paymentStatus:{
+        type:String,
+        default:"unpaid",
+    },
     status:{
         type:String,
         default:"Pending"

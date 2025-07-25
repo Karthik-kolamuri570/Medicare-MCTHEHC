@@ -56,11 +56,15 @@ app.use(session({
     } 
 }));
 
-  
 const patientRoutes = require('./routes/patientRoutes');
-app.use('/api/patient/', patientRoutes);
 const doctorRoutes = require('./routes/doctorRoutes');
+const paymentRoutes = require('./routes/payment');
+  
+app.use('/api/patient/', patientRoutes);
+
 app.use('/api/doctor/', doctorRoutes);
+
+app.use('/api/payment',paymentRoutes );
 
 app.use((req, res, next) => {
     console.log('Session:', req.session);
