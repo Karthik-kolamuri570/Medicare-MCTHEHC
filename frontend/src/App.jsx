@@ -24,8 +24,8 @@ import OnlineConsultation from './components/forms/OnlineConsultation'
 import ChatWrapper from "./components/forms/ChatWrapper";
 import CallPage from "./components/forms/CallPage";''
 import {Toaster} from 'react-hot-toast';
-import PaymentSuccess from "./components/forms/PaymentSuccess";
-import PaymentCancel from "./components/forms/PaymentCancel";
+import PaymentSuccess from './payments/PaymentSuccess';
+import PaymentCancel from './payments/PaymentCancel';
 const Layout = ({ children }) => (<><Header />{children}<Footer /></>);
 const DLayout = ({ children }) => (<><DHeader />{children}<DFooter /></>);
 

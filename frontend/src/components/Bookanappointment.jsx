@@ -4,7 +4,8 @@ import axios from "axios";
 import "../styles/Bookanappointment.css";
 import doc from "../assets/doctor1.png";
 import toast from "react-hot-toast";
-import Payment from "./forms/Payment"; // ✅ Import Payment component
+
+import Payment from "../payments/Payment";// ✅ Import Payment component
 
 function Bookanappointment() {
   const navigate = useNavigate();
