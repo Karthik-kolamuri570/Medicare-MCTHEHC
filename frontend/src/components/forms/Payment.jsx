@@ -25,6 +25,12 @@ const Payment = ({ appointment }) => {
     //   console.log({ appointmentId, patientEmail, doctorName, price });
 
       const stripe = await stripePromise;
+      if (!stripe) {
+      console.error("Stripe failed to load");
+      alert("Stripe failed to load. Please try again later.");
+      return;
+    }
+
       await stripe.redirectToCheckout({ sessionId: res.data.id });
     } catch (error) {
       console.error("Payment error:", error);
