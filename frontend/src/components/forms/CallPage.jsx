@@ -182,11 +182,11 @@ const CallPage = () => {
           return;
         }
 
-        // 👥 Step 2: Parse peerId
+        //  Step 2: Parse peerId
         const [doctorId, patientId] = receiverId.split("-");
         const peerId = userId === doctorId ? patientId : doctorId;
 
-        // 🧠 Step 3: Sync users with Stream
+        //  Step 3: Sync users with Stream
         await axios.post(
           "http://localhost:1600/api/stream/upsert-users",
           {
@@ -204,7 +204,7 @@ const CallPage = () => {
           });
         }
 
-        // 📞 Step 5: Create/join call
+        //  Step 5: Create/join call
         const callId = [userId, peerId].sort().join("-");
         activeCall = globalVideoClient.call("default", callId);
 
@@ -221,7 +221,7 @@ const CallPage = () => {
 
     initCall();
 
-    // 🧹 Cleanup on unmount
+  
     return () => {
       if (activeCall && activeCall.state.callingState !== CallingState.LEFT) {
         activeCall.leave().catch((err) =>
