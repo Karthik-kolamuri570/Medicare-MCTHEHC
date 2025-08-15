@@ -221,7 +221,6 @@ const CallPage = () => {
 
     initCall();
 
-  
     return () => {
       if (activeCall && activeCall.state.callingState !== CallingState.LEFT) {
         activeCall.leave().catch((err) =>

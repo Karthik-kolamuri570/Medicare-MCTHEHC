@@ -60,9 +60,9 @@ const patientRoutes = require('./routes/patientRoutes');
 const doctorRoutes = require('./routes/doctorRoutes');
 const paymentRoutes = require('./routes/payment');
   
-app.use('/api/patient/', patientRoutes);
+app.use('/api/patient', patientRoutes);
 
-app.use('/api/doctor/', doctorRoutes);
+app.use('/api/doctor', doctorRoutes);
 
 app.use('/api/payment',paymentRoutes );
 

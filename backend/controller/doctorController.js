@@ -562,3 +562,4 @@ exports.getAcceptedAppointments = async (req, res) => {
     });
   }
 };
+

@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import MedicareIndex from "./components/MedicareIndex";
 import TopDoctors from "./components/TopDoctors";
@@ -26,6 +27,7 @@ import CallPage from "./components/forms/CallPage";''
 import {Toaster} from 'react-hot-toast';
 import PaymentSuccess from './payments/PaymentSuccess';
 import PaymentCancel from './payments/PaymentCancel';
+import GetSecondOpinion from "./components/forms/GetSecondOpinion";
 const Layout = ({ children }) => (<><Header />{children}<Footer /></>);
 const DLayout = ({ children }) => (<><DHeader />{children}<DFooter /></>);
 
@@ -45,6 +47,7 @@ function App() {
         <Route path="/api/doctor/register" element={<Layout><Doctor /></Layout>} />
         <Route path="/api/patient/logout" element={<LogoutPatient/>} />
         <Route path="/api/patient/online-consultation" element={<Layout><OnlineConsultation /></Layout>} />
+        <Route path="/api/get-second-opinion" element={<Layout><GetSecondOpinion /></Layout>} />
         {/* <Route path="/api/chat/:receiverId" element={<Layout><ChatWrapper /></Layout>} /> */}
 
         {/* Doctor Dashboard Routes */}
