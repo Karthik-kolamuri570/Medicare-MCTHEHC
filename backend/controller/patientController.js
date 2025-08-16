@@ -536,7 +536,6 @@ exports.getSecondOpinion = async (req, res) => {
       problem,
       files: uploadedFiles,
       treatment,
-      status: "Pending",
       mode,
       date: appointmentDate,
       time,

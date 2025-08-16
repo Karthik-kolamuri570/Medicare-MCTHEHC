@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Patient = require('../models/patient');
 const Appointment = require('./../models/appointments');
+const GetSecondOpinion = require('../models/GetSecondOpinion'); // Ensure this is imported
 // const patient = require('../models/patient');
 
 exports.registerDoctor = async (req, res, next) => {
@@ -563,3 +564,87 @@ exports.getAcceptedAppointments = async (req, res) => {
   }
 };
 
+
+
+
+exports.getSecondOpinion = async (req, res) => {
+  try {
+    const doctorId = req.user._id;
+    console.log("Fetching appointments for doctor:", doctorId);
+    if (!doctorId) {
+      return res.status(400).json({ success: false, message: 'Doctor ID is required' });
+    }
+    
+    const doctor = await Doctor.findById(doctorId);
+    if (!doctor) {
+      return res.status(404).json({ success: false, message: 'Doctor not found' });
+    }
+    
+    const secondOpinionRequests = await GetSecondOpinion.find({ doctorId: doctorId })
+      .populate('patientId', 'name contact')
+      .sort({ createdAt: -1 }); // Sort by most recent first  
+    if (!secondOpinionRequests || secondOpinionRequests.length === 0) {
+      return res.status(404).json({ success: false, message: 'No second opinion requests found' });
+    }
+    
+    res.status(200).json({
+      success: true,
+      data: secondOpinionRequests
+    });
+  }
+  catch (error) {
+    console.error("Error fetching second opinion requests:", error);
+    res.status(500).json({
+      success: false,
+      message: 'Server Error'
+    });
+  }
+};
+
+// In your backend controller file
+
+exports.acceptGetSecondOpinion = async (req, res) => {
+  try {
+    const doctorId = req.user._id;
+    const requestId = req.params.id;
+    const { status } = req.body;
+
+    // --- Validation: Ensure status is valid ---
+    if (!status || !['accepted', 'rejected'].includes(status.toLowerCase())) {
+        return res.status(400).json({ 
+            success: false, 
+            message: 'Invalid status provided. Must be "accepted" or "rejected".' 
+        });
+    }
+
+    const secondOpinionRequest = await GetSecondOpinion.findById(requestId);
+    if (!secondOpinionRequest) {
+      return res.status(404).json({ success: false, message: 'Second opinion request not found' });
+    }
+
+    // This prevents the server from crashing if doctorId is missing.
+    if (!secondOpinionRequest.doctorId) {
+        console.error(`Request ${requestId} has no doctorId assigned.`);
+        return res.status(403).json({ success: false, message: 'This request is not assigned to any doctor.' });
+    }
+    
+    // Now we can safely check for authorization
+    if (secondOpinionRequest.doctorId.toString() !== doctorId.toString()) {
+      return res.status(403).json({ success: false, message: 'You are not authorized to update this request.' });
+    }
+
+    // Update and save the document
+    secondOpinionRequest.status = status.toLowerCase();
+    await secondOpinionRequest.save();
+
+    return res.json({
+      success: true,
+      message: `Second opinion request ${status} successfully`,
+      data: secondOpinionRequest
+    });
+
+  } catch (error) {
+    console.error("Error updating second opinion request:", error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};

@@ -31,7 +31,7 @@ router.get('/location/:location', doctorController.getDoctorByLocation); // Corr
 router.put('/accept-appointment/:id', auth.doctorAuth, doctorController.acceptAppointment);
 router.get('/logout', doctorController.logoutDoctor);
 router.get('/accepted-appointments', auth.doctorAuth, doctorController.getAcceptedAppointments);
-
-
+router.get('/get-second-opinion', auth.doctorAuth, doctorController.getSecondOpinion);
+router.put('/get-second-opinion/:id', auth.doctorAuth, doctorController.acceptGetSecondOpinion); // New route for handling second opinion responses
 module.exports = router;
 
