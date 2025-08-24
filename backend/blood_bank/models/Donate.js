@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const donorSchema = new mongoose.Schema({
-  user_id: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  user_id: { type: mongoose.Schema.Types.ObjectId, ref: "patient", required: true },
   bank_id: { type: mongoose.Schema.Types.ObjectId, ref: "BloodBank", required: true },
 
   blood_group: { 
@@ -15,6 +15,13 @@ const donorSchema = new mongoose.Schema({
     min: [1, "At least 1 unit must be donated"], 
     max: [5, "Cannot donate more than 5 units at once"] 
   },
+  requested_date:{
+    type:Date,
+    validate: {
+      validator: (val) => val >= new Date(),
+      message: "Donation date cannot be in the Past"
+    }
+  },
   donation_date: { 
     type: Date, 
     default: Date.now,
@@ -25,10 +32,12 @@ const donorSchema = new mongoose.Schema({
   },
   status: { 
     type: String, 
-    enum: ["verified", "pending"], 
+    enum: ["verified", "pending", "rejected", "accepted"], 
     default: "pending" 
   }
 
 }, { timestamps: true });
 
-export default mongoose.model("Donate", donorSchema);
+module.exports= mongoose.model("Donation", donorSchema);
+
+

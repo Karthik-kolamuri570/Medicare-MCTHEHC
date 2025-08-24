@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const requestSchema = new mongoose.Schema({
   user_id: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
@@ -17,8 +17,16 @@ const requestSchema = new mongoose.Schema({
   },
   status: { 
     type: String, 
-    enum: ["pending", "approved", "rejected", "fulfilled"], 
+    enum: ["pending", "accepted", "rejected", "fulfilled"], 
     default: "pending" 
+  },
+  requested_date: { 
+    type: Date, 
+    default: Date.now,
+    validate: {
+      validator: (val) => val >= new Date(),
+      message: "Requested date cannot be in the past"
+    }
   },
   fulfilled_at: { 
     type: Date,
@@ -32,4 +40,4 @@ const requestSchema = new mongoose.Schema({
 
 }, { timestamps: true });
 
-export default mongoose.model("Request", requestSchema);
+module.exports = mongoose.model("Request", requestSchema);

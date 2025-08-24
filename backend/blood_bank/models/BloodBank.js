@@ -25,6 +25,7 @@ const bloodBankSchema = new mongoose.Schema({
   },
 
   // Blood stock levels (cannot be negative)
+  blood_groups:{
   A_pos: { type: Number, default: 0, min: 0 },
   A_neg: { type: Number, default: 0, min: 0 },
   B_pos: { type: Number, default: 0, min: 0 },
@@ -33,7 +34,7 @@ const bloodBankSchema = new mongoose.Schema({
   O_neg: { type: Number, default: 0, min: 0 },
   AB_pos: { type: Number, default: 0, min: 0 },
   AB_neg: { type: Number, default: 0, min: 0 },
-
+},
   location: { 
     type: String, 
     required: true, 
@@ -44,7 +45,9 @@ const bloodBankSchema = new mongoose.Schema({
     required: true, 
     match: [/^\d{10}$/, "Contact number must be a valid 10-digit number"] 
   },
-  capacity: { type: Number, required: true, min: [10, "Capacity must be at least 10 units"] }
+  capacity: { type: Number, required: true, min: [10, "Capacity must be at least 10 units"] },
+  // donates: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Donate' }],
+  // requests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Request' }]
 
 }, { timestamps: true });
 

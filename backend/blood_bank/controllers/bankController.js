@@ -158,28 +158,28 @@ exports.updateStock=async (req,res)=>{
         }
         switch(blood_group){
             case "A+":
-                bank.A_pos+=units;
+                bank.blood_groups.A_pos+=units;
                 break;
             case "A-":
-                bank.A_neg+=units;
+                bank.blood_groups.A_neg+=units;
                 break;
             case "B+":
-                bank.B_pos+=units;
+                bank.blood_groups.B_pos+=units;
                 break;
             case "B-":
-                bank.B_neg+=units;
+                bank.blood_groups.B_neg+=units;
                 break;
             case "O+":
-                bank.O_pos+=units;
+                bank.blood_groups.O_pos+=units;
                 break;
             case "O-":
-                bank.O_neg+=units;
+                bank.blood_groups.O_neg+=units;
                 break;
             case "AB+":
-                bank.AB_pos+=units;
+                bank.blood_groups.AB_pos+=units;
                 break;
             case "AB-":
-                bank.AB_neg+=units;
+                bank.blood_groups.AB_neg+=units;
                 break;
             default:
                 return res.status(400).json({message:"Invalid blood group"});
