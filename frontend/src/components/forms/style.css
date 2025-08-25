@@ -1,5 +1,3 @@
-
-
 /* Container for forms */
 .app-container {
   position: relative;
@@ -18,9 +16,9 @@
   right: 20px;
 }
 
-.float-right{
+.float-right {
   float: right;
-  
+
 }
 
 /* Dropdown styling */
@@ -165,6 +163,7 @@
 .login-btn:hover {
   background: #0056d2;
 }
+
 /* Basic CSS styles for layout */
 .app-container {
   margin: 20px;
