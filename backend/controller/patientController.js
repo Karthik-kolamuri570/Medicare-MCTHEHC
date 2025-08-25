@@ -4,6 +4,7 @@ const Appointment=require('../models/appointments');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
+const GetSecondOpinion = require('../models/GetSecondOpinion');
 exports.registerPatient = async (req, res) => {
     try {
         console.log('Under Register Patient Controller');
@@ -480,3 +481,72 @@ exports.logoutPatient = (req, res) => {
     });
 };
 
+const multer = require("multer");
+const path = require("path");
+
+
+// Multer config for multiple files
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname));
+  },
+});
+const upload = multer({ storage: storage });
+
+// Controller function
+exports.getSecondOpinion = async (req, res) => {
+  const userId = req.user?._id;
+  const { problem, doctorId, treatment, date, time, mode } = req.body;
+  const files = req.files; // Expecting multiple files under 'files' field
+
+  // Validation
+  if (!problem || !doctorId || !treatment || !date || !time || !mode) {
+    return res.status(400).json({ success: false, message: "All fields except files are required" });
+  }
+
+  if (!files || files.length === 0) {
+    return res.status(400).json({ success: false, message: "At least one file is required" });
+  }
+
+  try {
+    const [doctor, patient] = await Promise.all([
+      Doctor.findById(doctorId),
+      Patient.findById(userId),
+    ]);
+
+    if (!doctor) return res.status(404).json({ success: false, message: "Doctor not found" });
+    if (!patient) return res.status(404).json({ success: false, message: "Patient not found" });
+
+    // Map filenames from uploaded files array
+    const uploadedFiles = files.map((file) => file.filename);
+
+    // Convert date string to Date object
+    const appointmentDate = new Date(date);
+    if (isNaN(appointmentDate)) {
+      return res.status(400).json({ success: false, message: "Invalid date format" });
+    }
+
+    const newSecondOpinion = await GetSecondOpinion.create({
+      patientId: userId,
+      doctorId,
+      problem,
+      files: uploadedFiles,
+      treatment,
+      mode,
+      date: appointmentDate,
+      time,
+    });
+
+    res.status(201).json({ success: true, message: "Second opinion request created", data: newSecondOpinion });
+  } catch (err) {
+    console.error("Error in getSecondOpinion:", err);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+// Export multer upload middleware for routes
+exports.uploadFiles = upload.array("files", 5); // max 5 files

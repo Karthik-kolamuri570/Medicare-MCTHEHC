@@ -59,12 +59,20 @@ app.use(session({
 const patientRoutes = require('./routes/patientRoutes');
 const doctorRoutes = require('./routes/doctorRoutes');
 const paymentRoutes = require('./routes/payment');
+const BloodBankUserRoutes=require('./blood_bank/routes/userRoutes'); 
+const BloodBankRoutes=require('./blood_bank/routes/bankRoute');
   
-app.use('/api/patient/', patientRoutes);
+app.use('/api/patient', patientRoutes);
 
-app.use('/api/doctor/', doctorRoutes);
+app.use('/api/doctor', doctorRoutes);
 
 app.use('/api/payment',paymentRoutes );
+
+app.use('/api/blood-bank',BloodBankRoutes); 
+
+app.use('/api/blood-bank-user',BloodBankUserRoutes);
+
+app.use((req, res) => res.status(404).send("Page Not Found"));
 
 app.use((req, res, next) => {
     console.log('Session:', req.session);

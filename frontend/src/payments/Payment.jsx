@@ -3,7 +3,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import axios from "axios";
 
 // Load your Stripe public key
-const stripePromise = loadStripe("pk_test_51R8gyJFRIPI2bBzupfsKEo8tXxb4xntVxqRPhZ9MIjuDGPiP6gjG8zSZkblRvRYiq2HWkRLPMcLz8dN6sZHcJoE100TpuGtw6Q"); 
+const stripePromise = loadStripe("pk_test_51Rs6m3KeDTOPdy8SRB04YzOvSB4bvxRzzsYczXEkiqEaQudbkvOgEsuKSz3kZw9fdW4RIZqJL9yrlh38fEfWsewO002ISFw1tt"); 
 
 const Payment = ({ appointment }) => {
   const handlePayment = async () => {

@@ -35,9 +35,10 @@ function DAppointments() {
             appt._id === updatedAppt._id ? { ...appt, status: updatedAppt.status } : appt
           )
         );
-
+        toast.success("Appointment accepted successfully!");
         console.log("✅ Appointment accepted:", updatedAppt);
       } else {
+        toast.error("Failed to accept appointment: " + result.message);
         console.warn("⚠️ Could not accept appointment:", result.message);
       }
     } catch (error) {
