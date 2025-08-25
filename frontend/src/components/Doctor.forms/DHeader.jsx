@@ -91,7 +91,7 @@ function DHeader() {
   };
 
   return (
-    <header >
+    <header style={{position:'fixed', width: '100%', top: 0, zIndex: 1000}}>
       <div style={{ boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
       <nav style={{
         display: 'flex',

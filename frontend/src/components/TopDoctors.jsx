@@ -190,7 +190,7 @@ function TopDoctors() {
                     />
                   </div>
                   <div className="doctor-card-right">
-                    <h3>Name: {doc.name}</h3>
+                    <p>Name: {doc.name}</p>
                     <p>
                       Specialization: <strong>{doc.specialization}</strong>
                     </p>

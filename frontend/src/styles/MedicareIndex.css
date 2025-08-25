@@ -10,7 +10,7 @@
 /* Main Navbar */
 .navbar {
           display: flex;
-          justify-content:space-between;
+          justify-content: space-between;
           align-items: center;
           padding: 15px 50px;
           background-color: white;
@@ -91,7 +91,7 @@
           display: flex;
           justify-content: right;
           gap: 20px;
-          background-color: #ffcc00;
+          background-color: #ffcc00;  
           padding: 5px;
           margin-left: 800px;
           border-radius: 50px;
@@ -307,7 +307,7 @@
 /* Blogs */
 .blogs-section {
           width: 100%;
-          padding: 40px 0;
+          padding: 3px 0;
           display: flex;
           justify-content: center; /* Light background to highlight the border */
         }
@@ -379,7 +379,7 @@
         /* TopDoctors */
         .top-doctors-section {
           width: 100%;
-          padding: 40px 0;
+          padding: 3px 0;
           display: flex;
           justify-content: center;
         }
@@ -389,6 +389,7 @@
           max-width: 1200px;
           text-align: center;
           padding: 20px;
+          margin: 10px;
           border: 2px solid #ddd;
           border-radius: 10px;
           background-color: white;

@@ -59,7 +59,7 @@ function DAppointments() {
         backgroundColor: "#f8f9fa",
       }}
     >
-      <div style={{ padding: "2rem", width: "600px" }}>
+      <div style={{ padding: "6rem", width: "600px" }}>
         <h2 style={{ marginBottom: "1.5rem" }}>Appointments</h2>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>

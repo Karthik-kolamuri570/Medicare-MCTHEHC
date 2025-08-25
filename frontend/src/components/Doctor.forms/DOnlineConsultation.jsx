@@ -7,10 +7,10 @@ const styles = {
     display: "flex",
     justifyContent: "center",
     alignItems: "stretch",
-    padding: "60px",
+    padding: "150px",
     gap: "40px",
     backgroundColor: "#fdfdfd",
-    minHeight: "600px",
+    minHeight: "800px",
     boxSizing: "border-box",
   },
   virtualHall: {
@@ -69,15 +69,18 @@ const DOnlineConsultation = () => {
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const response = await axios.get("http://localhost:1600/api/doctor/accepted-appointments", {
-          withCredentials: true, // Important if using cookies/session
-        });
+        const response = await axios.get(
+          "http://localhost:1600/api/doctor/accepted-appointments",
+          {
+            withCredentials: true, // Important if using cookies/session
+          }
+        );
         const initialPatients = response.data.data;
         console.log("Fetched appointments:", initialPatients);
-        const doctorId=initialPatients[0]?.doctorId;
+        const doctorId = initialPatients[0]?.doctorId;
         console.log("Doctor ID:", doctorId);
-          //Getting today's date in YYYY-MM-DD format by ...
-        //"2025-06-26T05:04:23.456Z" gets by toISOString() 
+        //Getting today's date in YYYY-MM-DD format by ...
+        //"2025-06-26T05:04:23.456Z" gets by toISOString()
         // ["2025-06-26", "05:04:23.456Z"] gets by split('T') then we take the first paart [0] i.e, date ...
         const today = new Date().toISOString().split("T")[0];
         const todayList = initialPatients.filter((p) => p.date === today);
@@ -92,8 +95,7 @@ const DOnlineConsultation = () => {
     fetchAppointments();
   }, []);
 
-  const handleVirtualCardClick = (doctorId,patientId) => {
-
+  const handleVirtualCardClick = (doctorId, patientId) => {
     navigate(`/api/chat/${doctorId}-${patientId}`);
   };
 
@@ -104,47 +106,55 @@ const DOnlineConsultation = () => {
     );
   };
 
-
-  //copied from chat Gpt 
+  //copied from chat Gpt
   const renderCard = (patient, isVirtual = false) => {
-  // guard clause: skip rendering if patientId is not populated
-  if (!patient?.patientId || !patient?.patientId?.name) return null;
+    // guard clause: skip rendering if patientId is not populated
+    if (!patient?.patientId || !patient?.patientId?.name) return null;
 
-  return (
-    <div
-      key={patient._id}
-      style={{
-        ...styles.card,
-        backgroundColor: consultedIds.includes(patient._id) ? "#e0ffe0" : "#fff",
-        border: consultedIds.includes(patient._id) ? "2px solid #4caf50" : "1px solid #ddd",
-      }}
-      onClick={() =>
-        isVirtual ? handleVirtualCardClick(patient.doctorId, patient.patientId._id) : handleScheduleCardClick(patient)
-      }
-      title={isVirtual ? "Click to begin consultation" : "View appointment details"}
-    >
-      <div>
-        <span style={styles.cardLabel}>Name:</span> {patient.patientId.name}
+    return (
+      <div
+        key={patient._id}
+        style={{
+          ...styles.card,
+          backgroundColor: consultedIds.includes(patient._id)
+            ? "#e0ffe0"
+            : "#fff",
+          border: consultedIds.includes(patient._id)
+            ? "2px solid #4caf50"
+            : "1px solid #ddd",
+        }}
+        onClick={() =>
+          isVirtual
+            ? handleVirtualCardClick(patient.doctorId, patient.patientId._id)
+            : handleScheduleCardClick(patient)
+        }
+        title={
+          isVirtual ? "Click to begin consultation" : "View appointment details"
+        }
+      >
+        <div>
+          <span style={styles.cardLabel}>Name:</span> {patient.patientId.name}
+        </div>
+        <div>
+          <span style={styles.cardLabel}>Date:</span> {patient.date}
+        </div>
+        <div>
+          <span style={styles.cardLabel}>Time:</span> {patient.time}
+        </div>
+        <div>
+          <span style={styles.cardLabel}>Problem:</span> {patient.problem}
+        </div>
       </div>
-      <div>
-        <span style={styles.cardLabel}>Date:</span> {patient.date}
-      </div>
-      <div>
-        <span style={styles.cardLabel}>Time:</span> {patient.time}
-      </div>
-      <div>
-        <span style={styles.cardLabel}>Problem:</span> {patient.problem}
-      </div>
-    </div>
-  );
-};
-
+    );
+  };
 
   return (
     <div style={styles.container}>
       <div style={styles.virtualHall}>
         <h2>Virtual Waiting Hall</h2>
-        <p style={styles.title}>Today's Appointments (Ready for Consultation)</p>
+        <p style={styles.title}>
+          Today's Appointments (Ready for Consultation)
+        </p>
         {todayAppointments.length > 0 ? (
           todayAppointments.map((patient) => renderCard(patient, true))
         ) : (
