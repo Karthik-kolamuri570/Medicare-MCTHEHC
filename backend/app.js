@@ -71,6 +71,9 @@ app.use('/api/payment',paymentRoutes );
 app.use('/api/blood-bank',BloodBankRoutes); 
 
 app.use('/api/blood-bank-user',BloodBankUserRoutes);
+
+app.use((req, res) => res.status(404).send("Page Not Found"));
+
 app.use((req, res, next) => {
     console.log('Session:', req.session);
     console.log(req.user);
