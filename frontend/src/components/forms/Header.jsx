@@ -367,7 +367,7 @@ function Header() {
               </li>
               <li
                 style={{ cursor: "pointer" }}
-                onClick={() => navigate("/second-opinion")}
+                onClick={() => navigate("/api/get-second-opinion")}
               >
                 Get Second Opinion
               </li>
@@ -477,11 +477,10 @@ function Header() {
           <a href="#">Our Hospitals</a>
           <a href="/api/patient/online-consultation">Online Consultancy</a>
           <a href="#">Treatments</a>
-          <a href="#">Blood Camps and Banks</a>
+          <a href="/api/blood-bank">Blood Camps and Banks</a>
         </div>
       </div>
     </header>
   );
 }
-
 export default Header;

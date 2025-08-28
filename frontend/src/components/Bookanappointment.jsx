@@ -83,7 +83,7 @@ function Bookanappointment() {
   };
 
   return (
-    <div className="appointment-container">Microsoft.QuickAction.MobileHotspot
+    <div className="appointment-container">
       <h1>Book an Appointment</h1>
 
       {/* Only show form if payment hasn't started */}

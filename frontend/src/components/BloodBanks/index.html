@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Webcrumbs Plugin</title>
+    <style>
+      @import url(https://fonts.googleapis.com/css2?family=Lato&display=swap);
+      @import url(https://fonts.googleapis.com/css2?family=Open+Sans&display=swap);
+      @import url(https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined);
+      @import url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css);
+    </style>
+  </head>
+  <body>
+    <div id="webcrumbs">
+      <div class="min-h-screen bg-gray-50">
+        <header
+          class="relative bg-gradient-to-r from-red-700 to-red-900 text-white"
+        >
+          <div class="container mx-auto px-6 py-16">
+            <nav class="flex justify-between items-center mb-16">
+              <div class="flex items-center">
+                <span class="material-symbols-outlined text-3xl mr-2"
+                  >bloodtype</span
+                >
+                <h1 class="text-2xl font-bold">LifeStream</h1>
+              </div>
+              <div class="hidden md:flex items-center space-x-8">
+                <a
+                  href="#services"
+                  class="hover:text-red-200 transition duration-300"
+                  >Services</a
+                >
+                <a
+                  href="#how-it-works"
+                  class="hover:text-red-200 transition duration-300"
+                  >How It Works</a
+                >
+                <a
+                  href="#locations"
+                  class="hover:text-red-200 transition duration-300"
+                  >Blood Banks</a
+                >
+                <a
+                  href="#contact"
+                  class="hover:text-red-200 transition duration-300"
+                  >Contact</a
+                >
+              </div>
+              <div class="flex space-x-4">
+                <button
+                  class="bg-white text-red-700 px-4 py-2 rounded-full font-medium hover:bg-red-100 transition duration-300"
+                >
+                  Log In
+                </button>
+                <button
+                  class="bg-red-600 text-white px-4 py-2 rounded-full font-medium hover:bg-red-500 transition duration-300 border border-red-400"
+                >
+                  Register
+                </button>
+              </div>
+            </nav>
+            <div class="flex flex-col md:flex-row items-center justify-between">
+              <div class="md:w-1/2 mb-10 md:mb-0">
+                <h2 class="text-4xl md:text-5xl font-bold leading-tight mb-6">
+                  Donate Blood, <br />Save Lives
+                </h2>
+                <p class="text-lg mb-8 text-red-100">
+                  Join our network of blood donors and help save lives in your
+                  community. Your donation can make a difference.
+                </p>
+                <div
+                  class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4"
+                >
+                  <button
+                    class="bg-white text-red-700 px-6 py-3 rounded-full font-medium hover:bg-red-100 transition duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                  >
+                    Donate Blood
+                  </button>
+                  <button
+                    class="bg-red-600 text-white px-6 py-3 rounded-full font-medium hover:bg-red-500 transition duration-300 border border-red-400 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                  >
+                    Request Blood
+                  </button>
+                </div>
+              </div>
+              <div class="md:w-1/2">
+                <img
+                  src="https://images.unsplash.com/photo-1615461066159-fea0960485d5?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3w3MzkyNDZ8MHwxfHNlYXJjaHwxfHxibG9vZCUyMGRvbmF0aW9ufGVufDB8fHx8MTc1NjExMzIwOHww&amp;ixlib=rb-4.1.0&amp;q=80&amp;w=1080"
+                  alt="Blood donation illustration"
+                  class="rounded-lg shadow-2xl transform hover:scale-105 transition duration-500"
+                  keywords="blood donation, blood bank, healthcare, medical illustration"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="absolute bottom-0 left-0 right-0">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 1440 320"
+              class="w-full"
+            >
+              <path
+                fill="#f8fafc"
+                fill-opacity="1"
+                d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,117.3C1248,117,1344,139,1392,149.3L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+              ></path>
+            </svg>
+          </div>
+        </header>
+        <section id="services" class="py-20 px-6">
+          <div class="container mx-auto">
+            <div class="text-center mb-16">
+              <h2 class="text-3xl font-bold mb-4">Our Services</h2>
+              <p class="text-gray-600 max-w-2xl mx-auto">
+                We provide comprehensive blood services to ensure that blood is
+                available when and where it is needed.
+              </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div
+                class="bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-2"
+              >
+                <div
+                  class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-6"
+                >
+                  <span class="material-symbols-outlined text-red-600 text-3xl"
+                    >volunteer_activism</span
+                  >
+                </div>
+                <h3 class="text-xl font-semibold mb-4">Blood Donation</h3>
+                <p class="text-gray-600">
+                  Donate blood at our centers or mobile drives. Your donation
+                  can save up to three lives.
+                </p>
+                <button
+                  class="mt-6 text-red-600 font-medium flex items-center hover:text-red-800 transition duration-300"
+                >
+                  Learn more
+                  <span class="material-symbols-outlined ml-1"
+                    >arrow_forward</span
+                  >
+                </button>
+              </div>
+              <div
+                class="bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-2"
+              >
+                <div
+                  class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-6"
+                >
+                  <span class="material-symbols-outlined text-red-600 text-3xl"
+                    >emergency</span
+                  >
+                </div>
+                <h3 class="text-xl font-semibold mb-4">Blood Requests</h3>
+                <p class="text-gray-600">
+                  Request blood for medical emergencies or planned procedures.
+                  We prioritize urgent cases.
+                </p>
+                <button
+                  class="mt-6 text-red-600 font-medium flex items-center hover:text-red-800 transition duration-300"
+                >
+                  Learn more
+                  <span class="material-symbols-outlined ml-1"
+                    >arrow_forward</span
+                  >
+                </button>
+              </div>
+              <div
+                class="bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-2"
+              >
+                <div
+                  class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-6"
+                >
+                  <span class="material-symbols-outlined text-red-600 text-3xl"
+                    >inventory</span
+                  >
+                </div>
+                <h3 class="text-xl font-semibold mb-4">Blood Banking</h3>
+                <p class="text-gray-600">
+                  We collect, test, and store blood to ensure a safe and
+                  adequate supply for the community.
+                </p>
+                <button
+                  class="mt-6 text-red-600 font-medium flex items-center hover:text-red-800 transition duration-300"
+                >
+                  Learn more
+                  <span class="material-symbols-outlined ml-1"
+                    >arrow_forward</span
+                  >
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section id="how-it-works" class="py-20 px-6 bg-gray-100">
+          <div class="container mx-auto">
+            <div class="text-center mb-16">
+              <h2 class="text-3xl font-bold mb-4">How It Works</h2>
+              <p class="text-gray-600 max-w-2xl mx-auto">
+                The process is simple and efficient for both donors and
+                requesters.
+              </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div
+                class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition duration-300 text-center"
+              >
+                <div
+                  class="w-16 h-16 bg-red-600 text-white rounded-full flex items-center justify-center mx-auto mb-4"
+                >
+                  <span class="font-bold text-xl">1</span>
+                </div>
+                <h3 class="text-lg font-semibold mb-2">Register</h3>
+                <p class="text-gray-600">
+                  Create an account as a donor or requester to access our
+                  services.
+                </p>
+              </div>
+              <div
+                class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition duration-300 text-center"
+              >
+                <div
+                  class="w-16 h-16 bg-red-600 text-white rounded-full flex items-center justify-center mx-auto mb-4"
+                >
+                  <span class="font-bold text-xl">2</span>
+                </div>
+                <h3 class="text-lg font-semibold mb-2">Request/Donate</h3>
+                <p class="text-gray-600">
+                  Submit a blood request or register to donate at a blood bank.
+                </p>
+              </div>
+              <div
+                class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition duration-300 text-center"
+              >
+                <div
+                  class="w-16 h-16 bg-red-600 text-white rounded-full flex items-center justify-center mx-auto mb-4"
+                >
+                  <span class="font-bold text-xl">3</span>
+                </div>
+                <h3 class="text-lg font-semibold mb-2">Verification</h3>
+                <p class="text-gray-600">
+                  Our team reviews and verifies all requests and donations.
+                </p>
+              </div>
+              <div
+                class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition duration-300 text-center"
+              >
+                <div
+                  class="w-16 h-16 bg-red-600 text-white rounded-full flex items-center justify-center mx-auto mb-4"
+                >
+                  <span class="font-bold text-xl">4</span>
+                </div>
+                <h3 class="text-lg font-semibold mb-2">Completion</h3>
+                <p class="text-gray-600">
+                  Donation is accepted or request is fulfilled by our network.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section
+          class="py-16 px-6 bg-gradient-to-r from-red-700 to-red-900 text-white"
+        >
+          <div class="container mx-auto">
+            <div
+              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-center"
+            >
+              <div
+                class="p-6 transform hover:scale-105 transition duration-300"
+              >
+                <h3 class="text-4xl font-bold mb-2">10,000+</h3>
+                <p class="text-red-200">Donors Registered</p>
+              </div>
+              <div
+                class="p-6 transform hover:scale-105 transition duration-300"
+              >
+                <h3 class="text-4xl font-bold mb-2">5,000+</h3>
+                <p class="text-red-200">Lives Saved</p>
+              </div>
+              <div
+                class="p-6 transform hover:scale-105 transition duration-300"
+              >
+                <h3 class="text-4xl font-bold mb-2">50+</h3>
+                <p class="text-red-200">Blood Banks</p>
+              </div>
+              <div
+                class="p-6 transform hover:scale-105 transition duration-300"
+              >
+                <h3 class="text-4xl font-bold mb-2">95%</h3>
+                <p class="text-red-200">Request Fulfillment</p>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section id="locations" class="py-20 px-6">
+          <div class="container mx-auto">
+            <div class="text-center mb-16">
+              <h2 class="text-3xl font-bold mb-4">Our Blood Banks</h2>
+              <p class="text-gray-600 max-w-2xl mx-auto">
+                Find a blood bank near you to donate or request blood.
+              </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div
+                class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition duration-300"
+              >
+                <img
+                  src="https://images.unsplash.com/photo-1536856136534-bb679c52a9aa?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3w3MzkyNDZ8MHwxfHNlYXJjaHwxfHxibG9vZCUyMGJhbmt8ZW58MHx8fHwxNzU2MTI4MTUwfDA&amp;ixlib=rb-4.1.0&amp;q=80&amp;w=1080"
+                  alt="Blood Bank Location"
+                  class="w-full h-48 object-cover"
+                  keywords="blood bank, hospital, medical facility"
+                />
+                <div class="p-6">
+                  <h3 class="text-xl font-semibold mb-2">Central Blood Bank</h3>
+                  <p class="text-gray-600 mb-4">123 Main Street, City Center</p>
+                  <div class="flex items-center text-gray-500 mb-2">
+                    <span class="material-symbols-outlined mr-2">schedule</span>
+                    <p>Mon-Fri: 9AM-5PM, Sat: 10AM-2PM</p>
+                  </div>
+                  <div class="flex items-center text-gray-500">
+                    <span class="material-symbols-outlined mr-2">call</span>
+                    <p>(123) 456-7890</p>
+                  </div>
+                  <button
+                    class="mt-6 bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700 transition duration-300 w-full"
+                  >
+                    View Details
+                  </button>
+                </div>
+              </div>
+              <div
+                class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition duration-300"
+              >
+                <img
+                  src="https://images.unsplash.com/photo-1683791895200-201c0c40310f?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3w3MzkyNDZ8MHwxfHNlYXJjaHwyfHxibG9vZCUyMGJhbmt8ZW58MHx8fHwxNzU2MTI4MTUwfDA&amp;ixlib=rb-4.1.0&amp;q=80&amp;w=1080"
+                  alt="Blood Bank Location"
+                  class="w-full h-48 object-cover"
+                  keywords="blood bank, clinic, medical facility"
+                />
+                <div class="p-6">
+                  <h3 class="text-xl font-semibold mb-2">Metro Blood Center</h3>
+                  <p class="text-gray-600 mb-4">456 West Avenue, Downtown</p>
+                  <div class="flex items-center text-gray-500 mb-2">
+                    <span class="material-symbols-outlined mr-2">schedule</span>
+                    <p>Mon-Sat: 8AM-6PM, Sun: 10AM-2PM</p>
+                  </div>
+                  <div class="flex items-center text-gray-500">
+                    <span class="material-symbols-outlined mr-2">call</span>
+                    <p>(123) 789-0123</p>
+                  </div>
+                  <button
+                    class="mt-6 bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700 transition duration-300 w-full"
+                  >
+                    View Details
+                  </button>
+                </div>
+              </div>
+              <div
+                class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition duration-300"
+              >
+                <img
+                  src="https://images.unsplash.com/photo-1606206522398-de3bd05b1615?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3w3MzkyNDZ8MHwxfHNlYXJjaHwzfHxibG9vZCUyMGJhbmt8ZW58MHx8fHwxNzU2MTI4MTUwfDA&amp;ixlib=rb-4.1.0&amp;q=80&amp;w=1080"
+                  alt="Blood Bank Location"
+                  class="w-full h-48 object-cover"
+                  keywords="blood bank, medical center, healthcare facility"
+                />
+                <div class="p-6">
+                  <h3 class="text-xl font-semibold mb-2">
+                    Community Blood Services
+                  </h3>
+                  <p class="text-gray-600 mb-4">789 North Road, Suburbia</p>
+                  <div class="flex items-center text-gray-500 mb-2">
+                    <span class="material-symbols-outlined mr-2">schedule</span>
+                    <p>Mon-Fri: 10AM-7PM, Sat: 9AM-3PM</p>
+                  </div>
+                  <div class="flex items-center text-gray-500">
+                    <span class="material-symbols-outlined mr-2">call</span>
+                    <p>(123) 345-6789</p>
+                  </div>
+                  <button
+                    class="mt-6 bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700 transition duration-300 w-full"
+                  >
+                    View Details
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="text-center mt-10">
+              <button
+                class="bg-white text-red-600 border border-red-600 px-6 py-3 rounded-full font-medium hover:bg-red-50 transition duration-300 inline-flex items-center"
+              >
+                View All Blood Banks
+                <span class="material-symbols-outlined ml-2"
+                  >arrow_forward</span
+                >
+              </button>
+            </div>
+          </div>
+        </section>
+        <section class="py-20 px-6 bg-gray-100">
+          <div class="container mx-auto">
+            <div class="text-center mb-16">
+              <h2 class="text-3xl font-bold mb-4">What People Say</h2>
+              <p class="text-gray-600 max-w-2xl mx-auto">
+                Hear from donors and recipients about their experiences with our
+                service.
+              </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div
+                class="bg-white p-8 rounded-lg shadow-md hover:shadow-xl transition duration-300"
+              >
+                <div class="flex items-center mb-4">
+                  <div
+                    class="w-12 h-12 bg-red-200 rounded-full overflow-hidden mr-4"
+                  >
+                    <img
+                      src="https://images.unsplash.com/photo-1536856136534-bb679c52a9aa?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3w3MzkyNDZ8MHwxfHNlYXJjaHwxfHxkb25vcnxlbnwwfHx8fDE3NTYwMzUwODl8MA&amp;ixlib=rb-4.1.0&amp;q=80&amp;w=1080"
+                      alt="Testimonial author"
+                      class="w-full h-full object-cover"
+                      keywords="donor, testimonial, portrait"
+                    />
+                  </div>
+                  <div>
+                    <h4 class="font-semibold">John Smith</h4>
+                    <p class="text-gray-500 text-sm">Regular Donor</p>
+                  </div>
+                </div>
+                <p class="text-gray-600 italic">
+                  &quot;The donation process was quick and painless. The staff
+                  was professional and made me feel comfortable throughout.
+                  Knowing my blood helps save lives makes it all
+                  worthwhile.&quot;
+                </p>
+                <div class="mt-4 flex text-yellow-400">
+                  <span class="material-symbols-outlined">star</span>
+                  <span class="material-symbols-outlined">star</span>
+                  <span class="material-symbols-outlined">star</span>
+                  <span class="material-symbols-outlined">star</span>
+                  <span class="material-symbols-outlined">star</span>
+                </div>
+              </div>
+              <div
+                class="bg-white p-8 rounded-lg shadow-md hover:shadow-xl transition duration-300"
+              >
+                <div class="flex items-center mb-4">
+                  <div
+                    class="w-12 h-12 bg-red-200 rounded-full overflow-hidden mr-4"
+                  >
+                    <img
+                      src="https://images.unsplash.com/photo-1538108149393-fbbd81895907?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3w3MzkyNDZ8MHwxfHNlYXJjaHwxfHxyZWNpcGllbnR8ZW58MHx8fHwxNzU2MTI4MTU2fDA&amp;ixlib=rb-4.1.0&amp;q=80&amp;w=1080"
+                      alt="Testimonial author"
+                      class="w-full h-full object-cover"
+                      keywords="recipient, testimonial, portrait"
+                    />
+                  </div>
+                  <div>
+                    <h4 class="font-semibold">Sarah Johnson</h4>
+                    <p class="text-gray-500 text-sm">Blood Recipient</p>
+                  </div>
+                </div>
+                <p class="text-gray-600 italic">
+                  &quot;I needed blood urgently after an accident. The blood
+                  bank responded quickly and efficiently. I&#x27;m forever
+                  grateful to the donors and the blood bank for saving my
+                  life.&quot;
+                </p>
+                <div class="mt-4 flex text-yellow-400">
+                  <span class="material-symbols-outlined">star</span>
+                  <span class="material-symbols-outlined">star</span>
+                  <span class="material-symbols-outlined">star</span>
+                  <span class="material-symbols-outlined">star</span>
+                  <span class="material-symbols-outlined">star</span>
+                </div>
+              </div>
+              <div
+                class="bg-white p-8 rounded-lg shadow-md hover:shadow-xl transition duration-300"
+              >
+                <div class="flex items-center mb-4">
+                  <div
+                    class="w-12 h-12 bg-red-200 rounded-full overflow-hidden mr-4"
+                  >
+                    <img
+                      src="https://images.unsplash.com/photo-1638202993928-7267aad84c31?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3w3MzkyNDZ8MHwxfHNlYXJjaHwxfHxkb2N0b3J8ZW58MHx8fHwxNzU2MTI4MTU3fDA&amp;ixlib=rb-4.1.0&amp;q=80&amp;w=1080"
+                      alt="Testimonial author"
+                      class="w-full h-full object-cover"
+                      keywords="doctor, testimonial, portrait"
+                    />
+                  </div>
+                  <div>
+                    <h4 class="font-semibold">Dr. Michael Lee</h4>
+                    <p class="text-gray-500 text-sm">Hospital Physician</p>
+                  </div>
+                </div>
+                <p class="text-gray-600 italic">
+                  &quot;As a doctor, I&#x27;ve seen firsthand how important
+                  blood donations are. This blood bank has been an excellent
+                  partner in ensuring we have the blood supply needed for our
+                  patients.&quot;
+                </p>
+                <div class="mt-4 flex text-yellow-400">
+                  <span class="material-symbols-outlined">star</span>
+                  <span class="material-symbols-outlined">star</span>
+                  <span class="material-symbols-outlined">star</span>
+                  <span class="material-symbols-outlined">star</span>
+                  <span class="material-symbols-outlined">star</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="py-20 px-6 bg-red-700 text-white text-center">
+          <div class="container mx-auto max-w-4xl">
+            <h2 class="text-3xl md:text-4xl font-bold mb-6">
+              Ready to Make a Difference?
+            </h2>
+            <p class="text-xl mb-10">
+              Your donation can save up to three lives. Register today and
+              become a hero.
+            </p>
+            <div
+              class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6"
+            >
+              <button
+                class="bg-white text-red-700 px-8 py-4 rounded-full font-bold text-lg hover:bg-red-100 transition duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              >
+                Donate Blood
+              </button>
+              <button
+                class="bg-transparent text-white px-8 py-4 rounded-full font-bold text-lg border-2 border-white hover:bg-red-600 transition duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              >
+                Request Blood
+              </button>
+            </div>
+          </div>
+        </section>
+        <section id="contact" class="py-20 px-6">
+          <div class="container mx-auto">
+            <div class="text-center mb-16">
+              <h2 class="text-3xl font-bold mb-4">Contact Us</h2>
+              <p class="text-gray-600 max-w-2xl mx-auto">
+                Have questions or need assistance? Reach out to our team.
+              </p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+              <div class="bg-white p-8 rounded-lg shadow-lg">
+                <h3 class="text-2xl font-semibold mb-6">Send Us a Message</h3>
+                <form>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                      <label for="name" class="block text-gray-700 mb-2"
+                        >Full Name</label
+                      >
+                      <input
+                        type="text"
+                        id="name"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                      />
+                    </div>
+                    <div>
+                      <label for="email" class="block text-gray-700 mb-2"
+                        >Email Address</label
+                      >
+                      <input
+                        type="email"
+                        id="email"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                      />
+                    </div>
+                  </div>
+                  <div class="mb-6">
+                    <label for="subject" class="block text-gray-700 mb-2"
+                      >Subject</label
+                    >
+                    <input
+                      type="text"
+                      id="subject"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                    />
+                  </div>
+                  <div class="mb-6">
+                    <label for="message" class="block text-gray-700 mb-2"
+                      >Message</label
+                    >
+                    <textarea
+                      id="message"
+                      rows="5"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                    ></textarea>
+                  </div>
+                  <button
+                    type="submit"
+                    class="bg-red-600 text-white px-6 py-3 rounded-full font-medium hover:bg-red-700 transition duration-300"
+                  >
+                    Send Message
+                  </button>
+                </form>
+              </div>
+              <div>
+                <div class="bg-white p-8 rounded-lg shadow-lg mb-8">
+                  <h3 class="text-2xl font-semibold mb-6">
+                    Contact Information
+                  </h3>
+                  <div class="space-y-4">
+                    <div class="flex items-start">
+                      <span
+                        class="material-symbols-outlined text-red-600 mr-4 mt-1"
+                        >location_on</span
+                      >
+                      <p class="text-gray-600">
+                        123 Blood Bank Street, Medical District<br />City, State
+                        12345
+                      </p>
+                    </div>
+                    <div class="flex items-center">
+                      <span class="material-symbols-outlined text-red-600 mr-4"
+                        >call</span
+                      >
+                      <p class="text-gray-600">(123) 456-7890</p>
+                    </div>
+                    <div class="flex items-center">
+                      <span class="material-symbols-outlined text-red-600 mr-4"
+                        >email</span
+                      >
+                      <p class="text-gray-600">contact@lifestream.org</p>
+                    </div>
+                    <div class="flex items-center">
+                      <span class="material-symbols-outlined text-red-600 mr-4"
+                        >schedule</span
+                      >
+                      <p class="text-gray-600">
+                        Mon-Fri: 9AM-5PM, Sat: 10AM-2PM
+                      </p>
+                    </div>
+                  </div>
+                  <div class="mt-8">
+                    <h4 class="font-semibold mb-4">Follow Us</h4>
+                    <div class="flex space-x-4">
+                      <a
+                        href="#"
+                        class="w-10 h-10 bg-red-100 text-red-600 rounded-full flex items-center justify-center hover:bg-red-600 hover:text-white transition duration-300"
+                      >
+                        <i class="fa-brands fa-facebook-f"></i>
+                      </a>
+                      <a
+                        href="#"
+                        class="w-10 h-10 bg-red-100 text-red-600 rounded-full flex items-center justify-center hover:bg-red-600 hover:text-white transition duration-300"
+                      >
+                        <i class="fa-brands fa-twitter"></i>
+                      </a>
+                      <a
+                        href="#"
+                        class="w-10 h-10 bg-red-100 text-red-600 rounded-full flex items-center justify-center hover:bg-red-600 hover:text-white transition duration-300"
+                      >
+                        <i class="fa-brands fa-instagram"></i>
+                      </a>
+                      <a
+                        href="#"
+                        class="w-10 h-10 bg-red-100 text-red-600 rounded-full flex items-center justify-center hover:bg-red-600 hover:text-white transition duration-300"
+                      >
+                        <i class="fa-brands fa-linkedin-in"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-lg h-64">
+                  <img
+                    src="https://images.unsplash.com/photo-1524661135-423995f22d0b?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3w3MzkyNDZ8MHwxfHNlYXJjaHwxfHxtYXB8ZW58MHx8fHwxNzU2MTE4MjM3fDA&amp;ixlib=rb-4.1.0&amp;q=80&amp;w=1080"
+                    alt="Map location"
+                    class="w-full h-full object-cover rounded"
+                    keywords="map, location, blood bank location"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <footer class="bg-gray-900 text-white py-12 px-6">
+          <div class="container mx-auto">
+            <div
+              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8"
+            >
+              <div>
+                <div class="flex items-center mb-6">
+                  <span
+                    class="material-symbols-outlined text-3xl mr-2 text-red-500"
+                    >bloodtype</span
+                  >
+                  <h3 class="text-2xl font-bold">LifeStream</h3>
+                </div>
+                <p class="text-gray-400 mb-6">
+                  Connecting donors with those in need, one donation at a time.
+                </p>
+                <div class="flex space-x-4">
+                  <a
+                    href="#"
+                    class="text-gray-400 hover:text-white transition duration-300"
+                  >
+                    <i class="fa-brands fa-facebook-f"></i>
+                  </a>
+                  <a
+                    href="#"
+                    class="text-gray-400 hover:text-white transition duration-300"
+                  >
+                    <i class="fa-brands fa-twitter"></i>
+                  </a>
+                  <a
+                    href="#"
+                    class="text-gray-400 hover:text-white transition duration-300"
+                  >
+                    <i class="fa-brands fa-instagram"></i>
+                  </a>
+                  <a
+                    href="#"
+                    class="text-gray-400 hover:text-white transition duration-300"
+                  >
+                    <i class="fa-brands fa-linkedin-in"></i>
+                  </a>
+                </div>
+              </div>
+              <div>
+                <h4 class="text-lg font-semibold mb-6">Quick Links</h4>
+                <ul class="space-y-3">
+                  <li>
+                    <a
+                      href="#"
+                      class="text-gray-400 hover:text-white transition duration-300"
+                      >Home</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      href="#services"
+                      class="text-gray-400 hover:text-white transition duration-300"
+                      >Services</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      href="#how-it-works"
+                      class="text-gray-400 hover:text-white transition duration-300"
+                      >How It Works</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      href="#locations"
+                      class="text-gray-400 hover:text-white transition duration-300"
+                      >Blood Banks</a
+                    >
+                  </li>
+                  <li></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        content: ["./src/**/*.{html,js}"],
+        theme: {
+          name: "Bluewave",
+          fontFamily: {
+            sans: [
+              "Open Sans",
+              "ui-sans-serif",
+              "system-ui",
+              "sans-serif",
+              '"Apple Color Emoji"',
+              '"Segoe UI Emoji"',
+              '"Segoe UI Symbol"',
+              '"Noto Color Emoji"',
+            ],
+          },
+          extend: {
+            fontFamily: {
+              title: [
+                "Lato",
+                "ui-sans-serif",
+                "system-ui",
+                "sans-serif",
+                '"Apple Color Emoji"',
+                '"Segoe UI Emoji"',
+                '"Segoe UI Symbol"',
+                '"Noto Color Emoji"',
+              ],
+              body: [
+                "Open Sans",
+                "ui-sans-serif",
+                "system-ui",
+                "sans-serif",
+                '"Apple Color Emoji"',
+                '"Segoe UI Emoji"',
+                '"Segoe UI Symbol"',
+                '"Noto Color Emoji"',
+              ],
+            },
+            colors: {
+              neutral: {
+                50: "#f7f7f7",
+                100: "#eeeeee",
+                200: "#e0e0e0",
+                300: "#cacaca",
+                400: "#b1b1b1",
+                500: "#999999",
+                600: "#7f7f7f",
+                700: "#676767",
+                800: "#545454",
+                900: "#464646",
+                950: "#282828",
+              },
+              primary: {
+                50: "#f3f1ff",
+                100: "#e9e5ff",
+                200: "#d5cfff",
+                300: "#b7a9ff",
+                400: "#9478ff",
+                500: "#7341ff",
+                600: "#631bff",
+                700: "#611bf8",
+                800: "#4607d0",
+                900: "#3c08aa",
+                950: "#220174",
+                DEFAULT: "#611bf8",
+              },
+            },
+          },
+          fontSize: {
+            xs: ["12px", { lineHeight: "19.200000000000003px" }],
+            sm: ["14px", { lineHeight: "21px" }],
+            base: ["16px", { lineHeight: "25.6px" }],
+            lg: ["18px", { lineHeight: "27px" }],
+            xl: ["20px", { lineHeight: "28px" }],
+            "2xl": ["24px", { lineHeight: "31.200000000000003px" }],
+            "3xl": ["30px", { lineHeight: "36px" }],
+            "4xl": ["36px", { lineHeight: "41.4px" }],
+            "5xl": ["48px", { lineHeight: "52.800000000000004px" }],
+            "6xl": ["60px", { lineHeight: "66px" }],
+            "7xl": ["72px", { lineHeight: "75.60000000000001px" }],
+            "8xl": ["96px", { lineHeight: "100.80000000000001px" }],
+            "9xl": ["128px", { lineHeight: "134.4px" }],
+          },
+          borderRadius: {
+            none: "0px",
+            sm: "6px",
+            DEFAULT: "12px",
+            md: "18px",
+            lg: "24px",
+            xl: "36px",
+            "2xl": "48px",
+            "3xl": "72px",
+            full: "9999px",
+          },
+          spacing: {
+            0: "0px",
+            1: "4px",
+            2: "8px",
+            3: "12px",
+            4: "16px",
+            5: "20px",
+            6: "24px",
+            7: "28px",
+            8: "32px",
+            9: "36px",
+            10: "40px",
+            11: "44px",
+            12: "48px",
+            14: "56px",
+            16: "64px",
+            20: "80px",
+            24: "96px",
+            28: "112px",
+            32: "128px",
+            36: "144px",
+            40: "160px",
+            44: "176px",
+            48: "192px",
+            52: "208px",
+            56: "224px",
+            60: "240px",
+            64: "256px",
+            72: "288px",
+            80: "320px",
+            96: "384px",
+            px: "1px",
+            0.5: "2px",
+            1.5: "6px",
+            2.5: "10px",
+            3.5: "14px",
+          },
+        },
+        plugins: [],
+        important: "#webcrumbs",
+      };
+    </script>
+  </body>
+</html>

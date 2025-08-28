@@ -1,0 +1,218 @@
+/* LandingPage.css */
+
+:root {
+  --red-primary: #e74c3c;
+  --red-light: #fdecea;
+  --white: #fff;
+  --text-dark: #333;
+}
+
+body {
+  margin: 0;
+  background: var(--red-light);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--text-dark);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--red-primary);
+  padding: 1rem 2rem;
+  color: var(--white);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.logo {
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.nav {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.nav-link {
+  color: var(--white);
+  text-decoration: none;
+  font-weight: 600;
+  transition: text-decoration 0.3s ease;
+}
+
+.nav-link:hover {
+  text-decoration: underline;
+}
+
+.hero {
+  text-align: center;
+  padding: 4rem 1rem;
+  background: var(--red-light);
+  position: relative;
+}
+
+.blood-drop {
+  width: 80px;
+  height: 120px;
+  margin: 0 auto 1rem;
+  animation: pulseBlood 2.5s ease-in-out infinite;
+}
+
+.blood-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.blood-fill {
+  fill: var(--red-primary);
+  transform-origin: center;
+  animation: stretchY 2.5s ease-in-out infinite;
+}
+
+.blood-highlight {
+  fill: var(--white);
+  opacity: 0.4;
+}
+
+@keyframes pulseBlood {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-15px) scale(1.05); }
+}
+
+@keyframes stretchY {
+  0%, 100% { transform: scaleY(0.8); }
+  50% { transform: scaleY(1.1); }
+}
+
+.hero-title {
+  font-size: 2.5rem;
+  color: var(--red-primary);
+  margin-bottom: 0.75rem;
+  font-weight: 700;
+}
+
+.hero-text {
+  font-size: 1.25rem;
+  max-width: 600px;
+  margin: 0 auto 1.5rem;
+  color: var(--text-dark);
+}
+
+.hero-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.btn {
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.btn-primary {
+  background-color: var(--red-primary);
+  color: var(--white);
+}
+
+.btn-primary:hover {
+  background-color: #c0392b;
+}
+
+.btn-secondary {
+  border: 2px solid var(--red-primary);
+  color: var(--red-primary);
+}
+
+.btn-secondary:hover {
+  background-color: var(--red-primary);
+  color: var(--white);
+}
+
+.features {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+  padding: 3rem 1rem;
+}
+
+.feature-card {
+  background: var(--white);
+  border-radius: 15px;
+  width: 320px;
+  box-shadow: 0 0 22px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-12px);
+  box-shadow: 0 10px 30px rgba(231, 76, 60, 0.4);
+}
+
+.feature-title {
+  color: var(--red-primary);
+  font-weight: 700;
+  margin-bottom: 1rem;
+  font-size: 1.75rem;
+}
+
+.feature-list {
+  list-style: inside disc;
+  color: #555;
+  margin-bottom: 1.5rem;
+  line-height: 1.4;
+}
+
+.feature-btn {
+  display: inline-block;
+  text-align: center;
+}
+
+.trust {
+  padding: 3rem 1rem;
+  background: #ffe5e0;
+  text-align: center;
+}
+
+.trust-title {
+  font-size: 2rem;
+  color: var(--red-primary);
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.trust-text {
+  color: #444;
+  max-width: 600px;
+  margin: 0 auto 1.5rem;
+  font-size: 1.2rem;
+}
+
+.trust-badges {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  font-weight: 600;
+  color: var(--red-primary);
+}
+
+.footer {
+  background: var(--red-primary);
+  color: var(--white);
+  text-align: center;
+  padding: 1.25rem 1rem;
+}

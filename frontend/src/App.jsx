@@ -29,6 +29,7 @@ import PaymentSuccess from './payments/PaymentSuccess';
 import PaymentCancel from './payments/PaymentCancel';
 import GetSecondOpinion from "./components/forms/GetSecondOpinion";
 import BankHome from "./components/BloodBanks/BankHome";
+import BloodBankContainer from './components/BloodBanks/BloodBankContainer';
 const Layout = ({ children }) => (<><Header />{children}<Footer /></>);
 const DLayout = ({ children }) => (<><DHeader />{children}<DFooter /></>);
 
@@ -49,7 +50,8 @@ function App() {
         <Route path="/api/patient/logout" element={<LogoutPatient/>} />
         <Route path="/api/patient/online-consultation" element={<Layout><OnlineConsultation /></Layout>} />
         <Route path="/api/get-second-opinion" element={<Layout><GetSecondOpinion /></Layout>} />
-        <Route path="/api/blood-bank" element={<Layout><BankHome /></Layout>} />
+        <Route path="/api/blood-bank" element={<BankHome />} />
+        <Route path="/api/blood-bank/bank" element={<BloodBankContainer />} />
         {/* <Route path="/api/chat/:receiverId" element={<Layout><ChatWrapper /></Layout>} /> */}
 
         {/* Doctor Dashboard Routes */}

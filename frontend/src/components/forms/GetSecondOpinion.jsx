@@ -214,7 +214,7 @@ import {
   FiArrowLeft,
   FiTrash2
 } from "react-icons/fi";
-import "./../../index.css";
+
 
 export default function SecondOpinionForm() {
   const [formData, setFormData] = useState({
@@ -360,7 +360,7 @@ export default function SecondOpinionForm() {
         animate={{ opacity: 1, y: 0 }}
         className="max-w-4xl mx-auto bg-white rounded-3xl shadow-xl border border-gray-100 p-8"
       >
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 ">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
             Request a Second Opinion
           </h1>
