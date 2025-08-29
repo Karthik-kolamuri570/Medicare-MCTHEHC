@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
-
+const Patient=require("./../../models/patient")
 const donorSchema = new mongoose.Schema({
-  user_id: { type: mongoose.Schema.Types.ObjectId, ref: "patient", required: true },
+  user_id: { type: mongoose.Schema.Types.ObjectId, ref: "Patient", required: true },
   bank_id: { type: mongoose.Schema.Types.ObjectId, ref: "BloodBank", required: true },
 
   blood_group: { 

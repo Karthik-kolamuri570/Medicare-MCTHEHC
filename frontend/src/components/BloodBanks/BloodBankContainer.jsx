@@ -9,107 +9,195 @@ function BloodBankContainer() {
   const [donations, setDonations] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authChecking, setAuthChecking] = useState(true);
 
-  // Example API endpoints; adjust URLs as needed
-  const fetchBankDetails = () => axios.get("/api/blood-bank/my-bank");
-  const fetchStock = () => axios.get("/api/blood-bank/my-bank"); // Assuming stock is part of bank details
-  const fetchRequests = () => axios.get("/api/blood-bank-user/blood-requests");
-  const fetchDonations = () => axios.get("/api/blood-bank-user/donation-requests");
-  const fetchNotifications = () => axios.get("/api/blood-bank/notifications"); // You need to create this endpoint or adjust accordingly
+  // API endpoints
+  const API_BASE = "http://localhost:1600/api";
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true);
-        const [bankRes, requestsRes, donationsRes, notificationsRes] = await Promise.all([
-          fetchBankDetails(),
-          fetchRequests(),
-          fetchDonations(),
-          fetchNotifications(),
-        ]);
-
-        setBank(bankRes.data.bank || {});
-        // Assuming blood groups stock is part of bank details as bankRes.data.bank.blood_groups
-        setStock(bankRes.data.bank?.blood_groups || {});
-
-        setRequests(requestsRes.data.requests || []);
-        setDonations(donationsRes.data.donations || []);
-        setNotifications(notificationsRes.data.notifications || []);
-      } catch (error) {
-        console.error("Error loading data:", error);
-      } finally {
-        setLoading(false);
+  // Check authentication first
+  const checkAuthentication = async () => {
+    try {
+      const response = await axios.get(`${API_BASE}/blood-bank/verify-auth`, {
+        withCredentials: true // Include cookies for session
+      });
+      
+      if (response.data.success && response.data.authenticated) {
+        setIsAuthenticated(true);
+      } else {
+        // Not authenticated - redirect to login
+        window.location.href = "/api/blood-bank/login";
       }
+    } catch (error) {
+      console.error("Authentication check failed:", error);
+      // Authentication failed - redirect to login
+      window.location.href = "/api/blood-bank/login";
+    } finally {
+      setAuthChecking(false);
     }
-    fetchData();
+  };
+
+  // Fetch functions
+  const fetchBankDetails = () => axios.get(`${API_BASE}/blood-bank/my-bank`, { withCredentials: true });
+  const fetchRequests = () => axios.get(`${API_BASE}/blood-bank-user/blood-requests`, { withCredentials: true });
+  const fetchDonations = () => axios.get(`${API_BASE}/blood-bank-user/donation-requests`, { withCredentials: true });
+  const fetchNotifications = () => axios.get(`${API_BASE}/blood-bank/notifications`, { withCredentials: true });
+
+  // Load all data after authentication is confirmed
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [bankRes, requestsRes, donationsRes, notificationsRes] = await Promise.all([
+        fetchBankDetails(),
+        fetchRequests(),
+        fetchDonations(),
+        fetchNotifications(),
+      ]);
+
+      setBank(bankRes.data.bank || {});
+      setStock(bankRes.data.bank?.blood_groups || {});
+      setRequests(requestsRes.data.requests || []);
+      setDonations(donationsRes.data.donations || []);
+      setNotifications(notificationsRes.data.notifications || []);
+    } catch (error) {
+      console.error("Error loading data:", error);
+      
+      // If 401 unauthorized, redirect to login
+      if (error.response?.status === 401) {
+        window.location.href = "/api/blood-bank/login";
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Run authentication check on component mount
+  useEffect(() => {
+    checkAuthentication();
   }, []);
 
-  // Handlers for actions (implement API calls as needed)
-  const onAcceptRequest = async (id) => {
-    try {
-      await axios.post(`/api/blood-bank-user/accept-request/${id}`);
-      // Refresh requests after accepting
-      const res = await fetchRequests();
-      setRequests(res.data.requests || []);
-    } catch (err) {
-      console.error("Accept request error:", err);
+  // Fetch data once authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchData();
     }
+  }, [isAuthenticated]);
+
+  // Action handlers with error handling for unauthorized access
+  const handleApiCall = async (apiCall, successCallback) => {
+    try {
+      await apiCall();
+      if (successCallback) successCallback();
+    } catch (error) {
+      console.error("API call failed:", error);
+      if (error.response?.status === 401) {
+        window.location.href = "/api/blood-bank/login";
+      }
+    }
+  };
+
+  const onAcceptRequest = async (id) => {
+    await handleApiCall(
+      () => axios.post(`${API_BASE}/blood-bank-user/accept-request/${id}`, {}, { withCredentials: true }),
+      async () => {
+        const res = await fetchRequests();
+        setRequests(res.data.requests || []);
+      }
+    );
   };
 
   const onRejectRequest = async (id) => {
-    try {
-      await axios.put(`/api/blood-bank-user/reject-request/${id}`);
-      const res = await fetchRequests();
-      setRequests(res.data.requests || []);
-    } catch (err) {
-      console.error("Reject request error:", err);
-    }
+    await handleApiCall(
+      () => axios.put(`${API_BASE}/blood-bank-user/reject-request/${id}`, {}, { withCredentials: true }),
+      async () => {
+        const res = await fetchRequests();
+        setRequests(res.data.requests || []);
+      }
+    );
   };
 
   const onAcceptDonation = async (id) => {
-    try {
-      await axios.post(`/api/blood-bank-user/accept-donation/${id}`);
-      const res = await fetchDonations();
-      setDonations(res.data.donations || []);
-    } catch (err) {
-      console.error("Accept donation error:", err);
-    }
+    await handleApiCall(
+      () => axios.post(`${API_BASE}/blood-bank-user/accept-donation/${id}`, {}, { withCredentials: true }),
+      async () => {
+        const res = await fetchDonations();
+        setDonations(res.data.donations || []);
+      }
+    );
   };
 
   const onRejectDonation = async (id) => {
-    try {
-      await axios.put(`/api/blood-bank-user/reject-donation/${id}`);
-      const res = await fetchDonations();
-      setDonations(res.data.donations || []);
-    } catch (err) {
-      console.error("Reject donation error:", err);
-    }
+    await handleApiCall(
+      () => axios.put(`${API_BASE}/blood-bank-user/reject-donation/${id}`, {}, { withCredentials: true }),
+      async () => {
+        const res = await fetchDonations();
+        setDonations(res.data.donations || []);
+      }
+    );
   };
 
   const onLogout = async () => {
     try {
-      await axios.get("/api/blood-bank/bank-logout");
-      // Redirect to login page or clear session
-      window.location.href = "/login";
+      await axios.get(`${API_BASE}/blood-bank/bank-logout`, { withCredentials: true });
+      // Clear local state
+      setIsAuthenticated(false);
+      setBank({});
+      setStock({});
+      setRequests([]);
+      setDonations([]);
+      setNotifications([]);
+      // Redirect to login
+      window.location.href = "/api/blood-bank/login";
     } catch (err) {
       console.error("Logout error:", err);
+      // Even if logout API fails, clear local state and redirect
+      window.location.href = "/api/blood-bank/login";
     }
   };
 
   const onMarkAllNotificationsRead = async () => {
-    try {
-      await axios.put("/api/blood-bank-user/notifications/mark-all-read"); // Implement this API if needed
-      setNotifications((prev) => prev.map(n => ({ ...n, read: true })));
-    } catch (err) {
-      console.error("Mark all notifications read error:", err);
-    }
+    await handleApiCall(
+      () => axios.put(`${API_BASE}/blood-bank/notifications/mark-all-read`, {}, { withCredentials: true }),
+      () => {
+        setNotifications((prev) => prev.map(n => ({ ...n, read: true })));
+      }
+    );
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
+  // Show loading while checking authentication
+  if (authChecking) {
+    return (
+      <div style={{ 
+        display: "flex", 
+        justifyContent: "center", 
+        alignItems: "center", 
+        height: "100vh", 
+        fontSize: "1.2rem",
+        color: "#c0392b"
+      }}>
+        Verifying authentication...
+      </div>
+    );
   }
 
-  return (
+  // Show loading while fetching data (after authentication confirmed)
+  if (loading) {
+    return (
+      <div style={{ 
+        display: "flex", 
+        justifyContent: "center", 
+        alignItems: "center", 
+        height: "100vh", 
+        fontSize: "1.2rem",
+        color: "#c0392b"
+      }}>
+        Loading dashboard...
+      </div>
+    );
+  }
+
+  // Only render dashboard if authenticated
+  return isAuthenticated ? (
     <BloodBankDashboard
       bank={bank}
       stock={stock}
@@ -123,7 +211,7 @@ function BloodBankContainer() {
       onLogout={onLogout}
       onMarkAllNotificationsRead={onMarkAllNotificationsRead}
     />
-  );
+  ) : null;
 }
 
 export default BloodBankContainer;

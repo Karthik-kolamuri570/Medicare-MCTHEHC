@@ -30,6 +30,8 @@ import PaymentCancel from './payments/PaymentCancel';
 import GetSecondOpinion from "./components/forms/GetSecondOpinion";
 import BankHome from "./components/BloodBanks/BankHome";
 import BloodBankContainer from './components/BloodBanks/BloodBankContainer';
+import BloodBankLogin from './components/BloodBanks/BloodBankLogin';
+import UserPortal from './components/BloodBanks/UserPortal'
 const Layout = ({ children }) => (<><Header />{children}<Footer /></>);
 const DLayout = ({ children }) => (<><DHeader />{children}<DFooter /></>);
 
@@ -52,6 +54,8 @@ function App() {
         <Route path="/api/get-second-opinion" element={<Layout><GetSecondOpinion /></Layout>} />
         <Route path="/api/blood-bank" element={<BankHome />} />
         <Route path="/api/blood-bank/bank" element={<BloodBankContainer />} />
+        <Route path="/api/blood-bank/login" element={<BloodBankLogin />} />
+        <Route path="/api/blood-bank/user" element={<UserPortal />} />
         {/* <Route path="/api/chat/:receiverId" element={<Layout><ChatWrapper /></Layout>} /> */}
 
         {/* Doctor Dashboard Routes */}

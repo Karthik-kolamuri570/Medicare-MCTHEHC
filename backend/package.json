@@ -19,6 +19,7 @@
   "homepage": "https://github.com/Karthik-kolamuri570/Medicare-MC#readme",
   "description": "",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
     "body-parser": "^1.20.3",
     "connect-mongodb-session": "^5.0.0",
