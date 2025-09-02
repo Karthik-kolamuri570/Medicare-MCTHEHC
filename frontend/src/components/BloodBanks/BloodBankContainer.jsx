@@ -39,8 +39,8 @@ function BloodBankContainer() {
 
   // Fetch functions
   const fetchBankDetails = () => axios.get(`${API_BASE}/blood-bank/my-bank`, { withCredentials: true });
-  const fetchRequests = () => axios.get(`${API_BASE}/blood-bank-user/blood-requests`, { withCredentials: true });
-  const fetchDonations = () => axios.get(`${API_BASE}/blood-bank-user/donation-requests`, { withCredentials: true });
+  const fetchRequests = () => axios.get(`${API_BASE}/blood-bank/requests`, { withCredentials: true });
+  const fetchDonations = () => axios.get(`${API_BASE}/blood-bank/donations`, { withCredentials: true });
   const fetchNotifications = () => axios.get(`${API_BASE}/blood-bank/notifications`, { withCredentials: true });
 
   // Load all data after authentication is confirmed
@@ -98,7 +98,7 @@ function BloodBankContainer() {
 
   const onAcceptRequest = async (id) => {
     await handleApiCall(
-      () => axios.post(`${API_BASE}/blood-bank-user/accept-request/${id}`, {}, { withCredentials: true }),
+      () => axios.put(`${API_BASE}/blood-bank-user/accept-request/${id}`, { }, { withCredentials: true }),
       async () => {
         const res = await fetchRequests();
         setRequests(res.data.requests || []);
@@ -108,7 +108,7 @@ function BloodBankContainer() {
 
   const onRejectRequest = async (id) => {
     await handleApiCall(
-      () => axios.put(`${API_BASE}/blood-bank-user/reject-request/${id}`, {}, { withCredentials: true }),
+      () => axios.put(`${API_BASE}/blood-bank-user/reject-request/${id}`, { }, { withCredentials: true }),
       async () => {
         const res = await fetchRequests();
         setRequests(res.data.requests || []);
@@ -118,7 +118,7 @@ function BloodBankContainer() {
 
   const onAcceptDonation = async (id) => {
     await handleApiCall(
-      () => axios.post(`${API_BASE}/blood-bank-user/accept-donation/${id}`, {}, { withCredentials: true }),
+      () => axios.put(`${API_BASE}/blood-bank-user/accept-donation/${id}`, { }, { withCredentials: true }),
       async () => {
         const res = await fetchDonations();
         setDonations(res.data.donations || []);
@@ -128,7 +128,7 @@ function BloodBankContainer() {
 
   const onRejectDonation = async (id) => {
     await handleApiCall(
-      () => axios.put(`${API_BASE}/blood-bank-user/reject-donation/${id}`, {}, { withCredentials: true }),
+      () => axios.put(`${API_BASE}/blood-bank-user/reject-donation/${id}`, { }, { withCredentials: true }),
       async () => {
         const res = await fetchDonations();
         setDonations(res.data.donations || []);

@@ -252,6 +252,7 @@ const Request = require('../models/Request');
 const Donate = require('../models/Donate');
 const BloodBank = require('../models/BloodBank');
 const Notification = require('../models/Notification');
+const mongoose = require('mongoose');
 
 // Get All Blood Requests for the Bank
 const getAllBloodRequestsForBank = async (req, res) => {
@@ -299,7 +300,7 @@ const getAllDonationRequestsForBank = async (req, res) => {
 const acceptBloodRequest = async (req, res) => {
     try {
         const requestId = req.params.id;
-        
+        console.log(`Accepting the Request by Id ${requestId}`);
         // Find the request
         const bloodRequest = await Request.findById(requestId);
         if (!bloodRequest) {
@@ -308,9 +309,10 @@ const acceptBloodRequest = async (req, res) => {
                 message: 'Blood request not found'
             });
         }
+        console.log(`Bank ID from session: ${req.session.bankLogin.bankId}, Request's Bank ID: ${bloodRequest.bank_id}`);
 
         // Check if bank owns this request
-        if (bloodRequest.bank_id.toString() !== req.session.bankLogin.bankId) {
+        if (bloodRequest.bank_id.toString() !== req.session.bankLogin.bankId.toString()) {
             return res.status(403).json({
                 success: false,
                 message: 'Not authorized to handle this request'
@@ -326,7 +328,7 @@ const acceptBloodRequest = async (req, res) => {
         }
 
         // Get bank and check stock
-        const bank = await BloodBank.findById(req.bankId);
+        const bank = await BloodBank.findById(req.session.bankLogin.bankId);
         const bloodGroupKey = bloodRequest.blood_group.replace('+', '_pos').replace('-', '_neg');
         const currentStock = bank.blood_groups[bloodGroupKey] || 0;
 
@@ -339,7 +341,7 @@ const acceptBloodRequest = async (req, res) => {
 
         // Update stock and request status
         const newStock = currentStock - bloodRequest.units_requested;
-        await BloodBank.findByIdAndUpdate(req.bankId, {
+        await BloodBank.findByIdAndUpdate(req.session.bankLogin.bankId, {
             [`blood_groups.${bloodGroupKey}`]: newStock
         });
 
@@ -350,7 +352,7 @@ const acceptBloodRequest = async (req, res) => {
 
         // Create notification
         await new Notification({
-            bankId: req.bankId,
+            bankId: req.session.bankLogin.bankId,
             title: 'Blood Request Accepted',
             message: `Accepted ${bloodRequest.units_requested} units of ${bloodRequest.blood_group} blood request`,
             type: 'request_accepted',
@@ -375,6 +377,7 @@ const acceptBloodRequest = async (req, res) => {
 const rejectBloodRequest = async (req, res) => {
     try {
         const requestId = req.params.id;
+        console.log(`Request to Reject Blood Request by Id ${requestId}`);
         
         const bloodRequest = await Request.findById(requestId);
         if (!bloodRequest) {
@@ -385,7 +388,7 @@ const rejectBloodRequest = async (req, res) => {
         }
 
         // Check if bank owns this request
-        if (bloodRequest.bank_id.toString() !== req.session.bankLogin.bankId) {
+        if (bloodRequest.bank_id.toString() !== req.session.bankLogin.bankId.toString()) {
             return res.status(403).json({
                 success: false,
                 message: 'Not authorized to handle this request'
@@ -407,7 +410,7 @@ const rejectBloodRequest = async (req, res) => {
 
         // Create notification
         await new Notification({
-            bankId: req.bankId,
+            bankId: req.session.bankLogin.bankId,
             title: 'Blood Request Rejected',
             message: `Rejected ${bloodRequest.units_requested} units of ${bloodRequest.blood_group} blood request`,
             type: 'request_rejected',
@@ -432,17 +435,18 @@ const rejectBloodRequest = async (req, res) => {
 const acceptDonation = async (req, res) => {
     try {
         const donationId = req.params.id;
-        
-        const donation = await Donate.findById(donationId);
+        console.log(`Accepting Donation by Id ${donationId}`);
+        const donation = await Donate.findById({_id: donationId});
+        console.log(`Donation : ${donation}`);
         if (!donation) {
             return res.status(404).json({
                 success: false,
                 message: 'Donation request not found'
             });
         }
-
+        console.log(`Donation's Bank ID: ${donation.bank_id}, Session Bank ID: ${req.session.bankLogin.bankId}`);
         // Check if bank owns this donation
-        if (donation.bank_id.toString() !== req.bankId) {
+        if (donation.bank_id.toString() !== req.session.bankLogin.bankId.toString()) {
             return res.status(403).json({
                 success: false,
                 message: 'Not authorized to handle this donation'
@@ -458,7 +462,7 @@ const acceptDonation = async (req, res) => {
         }
 
         // Get bank and update stock
-        const bank = await BloodBank.findById(req.bankId);
+        const bank = await BloodBank.findById(req.session.bankLogin.bankId);
         const bloodGroupKey = donation.blood_group.replace('+', '_pos').replace('-', '_neg');
         const currentStock = bank.blood_groups[bloodGroupKey] || 0;
         
@@ -472,7 +476,7 @@ const acceptDonation = async (req, res) => {
         }
 
         const newStock = currentStock + donation.units_donated;
-        await BloodBank.findByIdAndUpdate(req.bankId, {
+        await BloodBank.findByIdAndUpdate(req.session.bankLogin.bankId, {
             [`blood_groups.${bloodGroupKey}`]: newStock
         });
 
@@ -483,7 +487,7 @@ const acceptDonation = async (req, res) => {
 
         // Create notification
         await new Notification({
-            bankId: req.bankId,
+            bankId: req.session.bankLogin.bankId,
             title: 'Donation Accepted',
             message: `Accepted ${donation.units_donated} units of ${donation.blood_group} blood donation`,
             type: 'donation_accepted',
@@ -508,7 +512,7 @@ const acceptDonation = async (req, res) => {
 const rejectDonation = async (req, res) => {
     try {
         const donationId = req.params.id;
-        
+        console.log(`Rejecting Donation by Id ${donationId}`);
         const donation = await Donate.findById(donationId);
         if (!donation) {
             return res.status(404).json({
@@ -518,7 +522,7 @@ const rejectDonation = async (req, res) => {
         }
 
         // Check if bank owns this donation
-        if (donation.bank_id.toString() !== req.bankId) {
+        if (donation.bank_id.toString() !== req.session.bankLogin.bankId.toString()) {
             return res.status(403).json({
                 success: false,
                 message: 'Not authorized to handle this donation'
@@ -540,7 +544,7 @@ const rejectDonation = async (req, res) => {
 
         // Create notification
         await new Notification({
-            bankId: req.bankId,
+            bankId: req.session.bankLogin.bankId,
             title: 'Donation Rejected',
             message: `Rejected ${donation.units_donated} units of ${donation.blood_group} blood donation`,
             type: 'donation_rejected',

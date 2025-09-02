@@ -1,51 +1,178 @@
+// import React, { useState } from "react";
+// import axios from "axios";
+
+// function BloodBankLogin() {
+//   const [formData, setFormData] = useState({
+//     email: "",
+//     password: ""
+//   });
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState("");
+
+//   const handleChange = (e) => {
+//     const { name, value } = e.target;
+//     setFormData(prev => ({
+//       ...prev,
+//       [name]: value
+//     }));
+//     if (error) setError("");
+//   };
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     if (!formData.email || !formData.password) {
+//       setError("Please fill in all fields");
+//       return;
+//     }
+//     try {
+//       setLoading(true);
+//       setError("");
+
+//       const response = await axios.post("http://localhost:1600/api/blood-bank/bank-login", {
+//         email: formData.email,
+//         password: formData.password
+//       });
+
+//       if (response.data.success) {
+//         window.location.href = "/api/blood-bank"; // Confirm this is your dashboard route
+//       } else {
+//         setError(response.data.message || "Login failed");
+//       }
+//     } catch (err) {
+//       setError(
+//         err.response?.data?.message ||
+//         "Login failed. Please check your credentials."
+//       );
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <div style={styles.container}>
+//       <div style={styles.loginBox}>
+//         <div style={styles.header}>
+//           <div style={styles.logo}>🩸</div>
+//           <h1 style={styles.title}>Blood Bank Portal</h1>
+//           <p style={styles.subtitle}>Admin Login</p>
+//         </div>
+
+//         <form onSubmit={handleSubmit} style={styles.form}>
+//           {error && (
+//             <div style={styles.errorBox}>
+//               {error}
+//             </div>
+//           )}
+
+//           <div style={styles.inputGroup}>
+//             <label style={styles.label}>Email Address</label>
+//             <input
+//               className="login-input"
+//               type="email"
+//               name="email"
+//               value={formData.email}
+//               onChange={handleChange}
+//               placeholder="Enter your email"
+//               style={styles.input}
+//               disabled={loading}
+//               required
+//             />
+//           </div>
+
+//           <div style={styles.inputGroup}>
+//             <label style={styles.label}>Password</label>
+//             <input
+//               className="login-input"
+//               type="password"
+//               name="password"
+//               value={formData.password}
+//               onChange={handleChange}
+//               placeholder="Enter your password"
+//               style={styles.input}
+//               disabled={loading}
+//               required
+//             />
+//           </div>
+
+//           <button
+//             type="submit"
+//             className="login-button"
+//             style={{
+//               ...styles.loginButton,
+//               opacity: loading ? 0.7 : 1,
+//               cursor: loading ? "not-allowed" : "pointer"
+//             }}
+//             disabled={loading}
+//           >
+//             {loading ? "Signing In..." : "Sign In"}
+//           </button>
+//         </form>
+
+//         <div style={styles.footer}>
+//           <a href="/forgot-password" className="login-link" style={styles.link}>
+//             Forgot Password?
+//           </a>
+//           <div style={styles.divider}>|</div>
+//           <a href="/register" className="login-link" style={styles.link}>
+//             Register New Blood Bank
+//           </a>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
 import React, { useState } from "react";
 import axios from "axios";
 
 function BloodBankLogin() {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: ""
-  });
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    // Clear error when user starts typing
+    setFormData((prev) => ({ ...prev, [name]: value }));
     if (error) setError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Basic validation
     if (!formData.email || !formData.password) {
       setError("Please fill in all fields");
       return;
     }
-
     try {
       setLoading(true);
       setError("");
-      
-      const response = await axios.post("http://localhost:1600/api/blood-bank/bank-login", {
-        email: formData.email,
-        password: formData.password
-      });
-
+      const response = await axios.post(
+        "http://localhost:1600/api/blood-bank/bank-login",
+        {
+          email: formData.email,
+          password: formData.password,
+        }
+      );
+      console.log(response.data);
       if (response.data.success) {
-        // Redirect to dashboard on successful login
-        window.location.href = "/api/blood-bank/bank";
+        window.location.href = "/api/blood-bank"; // adjust route as per actual app
+      } else {
+        setError(response.data.message || "Login failed");
       }
     } catch (err) {
-      console.error("Login error:", err);
       setError(
-        err.response?.data?.message || 
-        "Login failed. Please check your credentials."
+        err.response?.data?.message  || "Login failed. Please check your credentials."
       );
     } finally {
       setLoading(false);
@@ -55,24 +182,19 @@ function BloodBankLogin() {
   return (
     <div style={styles.container}>
       <div style={styles.loginBox}>
-        {/* Header */}
         <div style={styles.header}>
           <div style={styles.logo}>🩸</div>
           <h1 style={styles.title}>Blood Bank Portal</h1>
           <p style={styles.subtitle}>Admin Login</p>
         </div>
 
-        {/* Login Form */}
         <form onSubmit={handleSubmit} style={styles.form}>
-          {error && (
-            <div style={styles.errorBox}>
-              {error}
-            </div>
-          )}
+          {error && <div style={styles.errorBox}>{error}</div>}
 
           <div style={styles.inputGroup}>
             <label style={styles.label}>Email Address</label>
             <input
+              className="login-input"
               type="email"
               name="email"
               value={formData.email}
@@ -80,12 +202,14 @@ function BloodBankLogin() {
               placeholder="Enter your email"
               style={styles.input}
               disabled={loading}
+              required
             />
           </div>
 
           <div style={styles.inputGroup}>
             <label style={styles.label}>Password</label>
             <input
+              className="login-input"
               type="password"
               name="password"
               value={formData.password}
@@ -93,15 +217,17 @@ function BloodBankLogin() {
               placeholder="Enter your password"
               style={styles.input}
               disabled={loading}
+              required
             />
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
+            className="login-button"
             style={{
               ...styles.loginButton,
               opacity: loading ? 0.7 : 1,
-              cursor: loading ? "not-allowed" : "pointer"
+              cursor: loading ? "not-allowed" : "pointer",
             }}
             disabled={loading}
           >
@@ -109,13 +235,12 @@ function BloodBankLogin() {
           </button>
         </form>
 
-        {/* Footer Links */}
         <div style={styles.footer}>
-          <a href="/forgot-password" style={styles.link}>
+          <a href="/forgot-password" className="login-link" style={styles.link}>
             Forgot Password?
           </a>
           <div style={styles.divider}>|</div>
-          <a href="/register" style={styles.link}>
+          <a href="/register" className="login-link" style={styles.link}>
             Register New Blood Bank
           </a>
         </div>
@@ -123,6 +248,13 @@ function BloodBankLogin() {
     </div>
   );
 }
+
+
+
+// // Styles object and additional injected CSS remain the same as you provided, 
+// // including classes: .login-input, .login-button, and .login-link for hover effects.
+
+
 
 // Styles object
 const styles = {

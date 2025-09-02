@@ -29,10 +29,10 @@ router.get('/blood-requests', userAuth.patientAuth, bloodBankUserController.getA
 router.get('/donation-requests', userAuth.patientAuth, bloodBankUserController.getAllDonationRequestsForBank);
 router.post('/request-blood',bloodBankUserController.requestDonation);
 router.post('/donation-request',bloodBankUserController.donateBlood);
-router.post('/accept-request/:id', bloodBankUserController.acceptBloodRequest);
+router.put('/accept-request/:id', bloodBankUserController.acceptBloodRequest);
 router.put('/reject-request/:id', bloodBankUserController.rejectBloodRequest);
-router.post('/accept-donation/:id', bloodBankUserController.acceptDonation);
+router.put('/accept-donation/:id', bloodBankUserController.acceptDonation);
 router.put('/reject-donation/:id', bloodBankUserController.rejectDonation);
-router.get('/blood/urgent-requests', userAuth.patientAuth, bloodBankUserController.getUrgentRequests);
+router.get('/blood/urgent-requests',  bloodBankUserController.getUrgentRequests);
 
 module.exports = router;

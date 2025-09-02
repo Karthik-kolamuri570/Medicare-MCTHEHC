@@ -33,5 +33,7 @@ router.put('/notifications/mark-all-read', requireBankAuth, bloodBankController.
 router.get('/bank-logout', requireBankAuth, bloodBankController.bankLogout);
 router.put('/update-profile', requireBankAuth, bloodBankController.updateProfile);
 router.get('/banks',bloodBankController.getAllBanks);
+router.get('/requests', requireBankAuth, bloodBankController.getRequests);
+router.get('/donations', requireBankAuth, bloodBankController.getDonations);
 
 module.exports = router;

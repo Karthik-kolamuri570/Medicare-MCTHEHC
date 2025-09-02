@@ -196,10 +196,12 @@
 
 
 
-
+const mongoose = require('mongoose');
 const BloodBank = require('../models/BloodBank');
 const Notification = require('../models/Notification');
 const bcrypt = require('bcrypt');
+const Request = require('./../models/Request');
+const Donation = require('./../models/Donate');
 
 // Bank Login
 const bankLogin = async (req, res) => {
@@ -349,7 +351,7 @@ const verifyAuth = (req, res) => {
 // Get Bank Profile and Stock
 const getMyBank = async (req, res) => {
     try {
-        const bank = await BloodBank.findById(req.bankId).select('-password');
+        const bank = await BloodBank.findById(req.session.bankLogin.bankId).select('-password');
         
         if (!bank) {
             return res.status(404).json({
@@ -375,7 +377,7 @@ const getMyBank = async (req, res) => {
 const getNotifications = async (req, res) => {
     try {
         const notifications = await Notification.find({ 
-            bankId: req.bankId 
+            bankId: req.session.bankLogin.bankId 
         }).sort({ createdAt: -1 }).limit(50);
 
         res.json({
@@ -396,7 +398,7 @@ const getNotifications = async (req, res) => {
 const markNotificationsRead = async (req, res) => {
     try {
         await Notification.updateMany(
-            { bankId: req.bankId, read: false },
+            { bankId: req.session.bankLogin.bankId, read: false },
             { read: true }
         );
 
@@ -419,7 +421,7 @@ const updateProfile = async (req, res) => {
         const { name, location, contact, capacity } = req.body;
         
         const updatedBank = await BloodBank.findByIdAndUpdate(
-            req.bankId,
+            req.session.bankLogin.bankId,
             { name, location, contact, capacity },
             { new: true, select: '-password' }
         );
@@ -471,6 +473,39 @@ const getAllBanks=async (req,res)=>{
     }
 }
 
+const getRequests = async (req, res) => {
+  try {
+    const bankId = req.session.bankLogin.bankId;
+    // Find one donation document with matching bank_id
+    const bank = await Request.find({ bank_id: new mongoose.Types.ObjectId(bankId) });
+    if (!bank) {
+      return res.status(404).json({ message: "Bank not found" });
+    }
+    res.json({ requests: bank });
+  } catch (error) {
+    console.error("Error fetching requests:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+const getDonations = async (req, res) => {
+  try {
+    const bankId = req.session.bankLogin.bankId;
+    // Use findOne with filter, NOT findById
+    const bank = await Donation.find({ bank_id: new mongoose.Types.ObjectId(bankId) });
+    if (!bank) {
+      return res.status(404).json({ message: "Bank not found" });
+    }
+    console.log(bank);
+    res.json({ donations: bank });
+  } catch (error) {
+    console.error("Error fetching donations:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+    
+
 module.exports = {
     bankLogin,
     registerBank,
@@ -480,5 +515,7 @@ module.exports = {
     markNotificationsRead,
     updateProfile,
     bankLogout,
-    getAllBanks
+    getAllBanks,
+    getRequests,
+    getDonations
 };

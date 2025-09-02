@@ -3163,9 +3163,7 @@ const styles = {
   requestCard: {
     backgroundImage: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)"
   },
-  urgentCard: {
-    backgroundImage: "linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)"
-  },
+
   quickCardIcon: {
     fontSize: "3.5rem",
     marginBottom: "1rem"
@@ -3543,6 +3541,7 @@ const styles = {
     gap: "2rem"
   },
   urgentCard: {
+    backgroundImage: "linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)",
     backgroundColor: "white",
     borderRadius: "20px",
     padding: "2rem",
