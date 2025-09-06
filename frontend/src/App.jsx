@@ -32,6 +32,7 @@ import BankHome from "./components/BloodBanks/BankHome";
 import BloodBankContainer from './components/BloodBanks/BloodBankContainer';
 import BloodBankLogin from './components/BloodBanks/BloodBankLogin';
 import UserPortal from './components/BloodBanks/UserPortal'
+import BloodCampAdmin from './components/BloodBanks/BloodCampAdmin';
 const Layout = ({ children }) => (<><Header />{children}<Footer /></>);
 const DLayout = ({ children }) => (<><DHeader />{children}<DFooter /></>);
 
@@ -56,6 +57,7 @@ function App() {
         <Route path="/api/blood-bank/bank" element={<BloodBankContainer />} />
         <Route path="/api/blood-bank/login" element={<BloodBankLogin />} />
         <Route path="/api/blood-bank/user" element={<UserPortal />} />
+        <Route path="/api/doctor/blood-camp/admin" element={<BloodCampAdmin />} />
         {/* <Route path="/api/chat/:receiverId" element={<Layout><ChatWrapper /></Layout>} /> */}
 
         {/* Doctor Dashboard Routes */}
