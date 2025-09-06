@@ -56,7 +56,7 @@ router.get("/success", async (req, res) => {
       const appointmentId = session.metadata.appointmentId;
 
       await Appointment.findByIdAndUpdate(appointmentId, {
-        status: "Confirmed",
+        status: "Pending",
         paymentId: session.payment_intent,
         paymentStatus: "Paid",
       });

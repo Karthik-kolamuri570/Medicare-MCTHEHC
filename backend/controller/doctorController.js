@@ -290,13 +290,17 @@ exports.updateAvailability = async (req, res, next) => {
 exports.getDoctorAppointments = async (req, res, next) => {
     try {
       console.log(req.user._id.toString());
-        const appointments = await Appointment.find({ doctorId: req.user._id }).populate('patientId');
+        const appointments = await Appointment.find({ doctorId: req.session.doctorId }).populate('patientId');
         if(!appointments){
             res.status(500).json({
                 success: false,
                 message: 'No appointments found'
             });
         }
+        //add the doctor name to the appointments
+        appointments.forEach(appointment => {
+            appointment.doctorName = req.user.name; // Assuming req.user contains the doctor's info
+        });
         res.status(200).json({
         success: true,
         data: appointments

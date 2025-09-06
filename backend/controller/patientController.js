@@ -294,6 +294,7 @@ exports.getPatientAppointments = async (req, res) => {
         }
 
         const appointments = await Appointment.find({ patientId }).populate('doctorId', 'name specialization');
+        console.log("Fetched Appointments:", appointments);
         
         if (!appointments || appointments.length === 0) {
             return res.status(404).json({

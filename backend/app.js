@@ -61,6 +61,7 @@ const doctorRoutes = require('./routes/doctorRoutes');
 const paymentRoutes = require('./routes/payment');
 const BloodBankUserRoutes=require('./blood_bank/routes/userRoutes'); 
 const BloodBankRoutes=require('./blood_bank/routes/bankRoute');
+const BloodCampRoutes=require('./blood_bank/routes/bloodCamp');
   
 app.use('/api/patient', patientRoutes);
 
@@ -72,7 +73,7 @@ app.use('/api/blood-bank',BloodBankRoutes);
 
 app.use('/api/blood-bank-user',BloodBankUserRoutes);
 
-// usu
+app.use('/api/blood-camp', BloodCampRoutes);
 
 app.use((req, res, next) => {
     console.log('Session:', req.session);

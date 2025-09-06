@@ -1,0 +1,121 @@
+const BloodCamp = require("../models/BloodCamp");
+
+// CREATE a new blood camp with validations assumed done by Mongoose
+exports.createBloodCamp = async (req, res) => {
+  try {
+    if (!req.session || !req.session.doctorId) {
+      console.log(`Unauthorized access attempt to create blood camp `);
+      return res.status(401).json({ message: "Authentication required" });
+    }
+    const campp=req.body;
+    if(new Date(campp.end_date)<new Date(campp.start_date)){
+      return res.status(400).json({message:"End date must be after start date"});
+    }
+    //check the camp is  registered once or not by using the same name and start location...
+    const existingCamp=await BloodCamp.findOne({name:campp.name,start_location:campp.start_location});
+    if(existingCamp){
+      return res.status(400).json({message:"Camp with same name and location already exists"});
+    }
+    //check the camp is  registered once or not by using the same name and start location...
+    const existingCamps=await BloodCamp.findOne({name:campp.name,start_location:campp.start_location});
+    if(existingCamps){
+      return res.status(400).json({message:"Camp with same name and location already exists"});
+    }
+    const campData = {
+      ...campp,
+      organizer: req.session.doctorId, // The authenticated doctor creating the camp
+    };
+
+    const camp = new BloodCamp(campData);
+    await camp.save();
+    res.status(201).json(camp);
+  } catch (error) {
+    console.error("Failed to create blood camp:", error);
+    // Distinguish validation errors from server errors
+    if (error.name === "ValidationError") {
+      return res.status(400).json({ message: error.message, errors: error.errors });
+    }
+    res.status(500).json({ message: "Failed to create blood camp" });
+  }
+};
+
+// GET all blood camps (public or authenticated)
+exports.getBloodCamps = async (req, res) => {
+  try {
+    const camps = await BloodCamp.find()
+      .populate("organizer", "name email")
+      .populate("blood_bank", "name location");
+    res.json(camps);
+  } catch (error) {
+    console.error("Failed to fetch blood camps:", error);
+    res.status(500).json({ message: "Failed to fetch blood camps" });
+  }
+};
+
+// GET a single camp by ID
+exports.getBloodCampById = async (req, res) => {
+  try {
+    const camp = await BloodCamp.findById(req.params.id)
+      .populate("organizer", "name email")
+      .populate("blood_bank", "name location");
+    if (!camp) return res.status(404).json({ message: "Camp not found" });
+    res.json(camp);
+  } catch (error) {
+    console.error("Failed to fetch camp:", error);
+    res.status(500).json({ message: "Failed to fetch camp" });
+  }
+};
+
+// UPDATE existing camp (only by the organizing doctor)
+exports.updateBloodCamp = async (req, res) => {
+  try {
+    const camp = await BloodCamp.findById(req.params.id);
+    if (!camp) return res.status(404).json({ message: "Camp not found" });
+
+    if (camp.organizer.toString() !== req.session.doctorId.toString()) {
+      return res.status(403).json({ message: "Only the organizing doctor can update this camp." });
+    }
+
+    Object.assign(camp, req.body);
+
+    await camp.save();
+    res.json(camp);
+  } catch (error) {
+    console.error("Failed to update camp:", error);
+    if (error.name === "ValidationError") {
+      return res.status(400).json({ message: error.message, errors: error.errors });
+    }
+    res.status(500).json({ message: "Failed to update camp" });
+  }
+};
+
+// DELETE a camp (only by organizer doctor)
+exports.deleteBloodCamp = async (req, res) => {
+  try {
+    const camp = await BloodCamp.findById(req.params.id);
+    if (!camp) return res.status(404).json({ message: "Camp not found" });
+
+    if (camp.organizer.toString() !== req.session.doctorId.toString()) {
+      console.log(`Unauthorized delete attempt by doctor ${req.session.doctorId} on camp ${camp.organizer}`);
+      return res.status(403).json({ message: "Only the organizing doctor can delete this camp." });
+    }
+
+    await camp.deleteOne();
+    res.json({ message: "Camp deleted successfully" });
+  } catch (error) {
+    console.error("Failed to delete camp:", error);
+    res.status(500).json({ message: "Failed to delete camp" });
+  }
+};
+
+exports.getCampsByDoctor = async (req, res) => {
+  try {
+    console.log(`Fetching camps for doctor ID: ${req.session.doctorId}`);
+    const camps = await BloodCamp.find({ organizer: req.session.doctorId })
+      .populate("blood_bank", "name location");
+    res.json(camps);
+  } catch (error) {
+    console.error("Failed to fetch doctor's camps:", error);
+    res.status(500).json({ message: "Failed to fetch doctor's camps" });
+  }
+};

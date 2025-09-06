@@ -13,6 +13,7 @@ const OnlineConsultation = () => {
         const res = await axios.get("http://localhost:1600/api/patient/appointments", {
           withCredentials: true
         });
+        console.log("Fetched Appointments:", res.data.data);
         setAppointments(res.data.data);
       } catch (err) {
         console.error("Failed to fetch appointments", err);
@@ -35,6 +36,7 @@ const OnlineConsultation = () => {
         <p>No appointments found</p>
       ) : (
         appointments.map((appt) => (
+        
           <div style={{display: "grid",gridTemplateColumns: "repeat(4,1fr)", padding: "20px"}}>
           <div key={appt._id} style={{ border: "1px solid #ccc", padding: "10px", margin: "10px" }}>
             <p><strong>Doctor:</strong> {appt.doctorId.name}</p>
