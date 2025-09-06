@@ -15,5 +15,6 @@ router.delete('/delete-camp/:id',   campController.deleteBloodCamp);
 router.post('/:campId/add-donor', campController.addDonorToCamp);
 // router.post('/:campId/add-donors', campController.addDonorsToCamp);
 router.get('/doctor/camps',  campController.getCampsByDoctor);
+router.get('/:campId/donors', campController.getDonorsByCamp);
 
 module.exports = router;

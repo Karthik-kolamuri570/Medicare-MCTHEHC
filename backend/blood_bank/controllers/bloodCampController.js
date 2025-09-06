@@ -173,11 +173,10 @@ exports.addDonorToCamp = async (req, res) => {
 // Get donors list (doctor/admin only)
 exports.getDonorsByCamp = async (req, res) => {
   try {
-    const camp = await BloodCamp.findById(req.params.campId)
-      .populate('donors', 'name email phone blood_group');
+    const camp = await BloodCamp.findById(req.params.campId).populate('donations', 'name email phone blood_group');
     if (!camp) return res.status(404).json({ message: 'Camp not found' });
-
-    res.json(camp.donors || []);
+    console.log(`Fetched donors for camp ${req.params.campId}:`, camp.donations);
+    res.json(camp.donations.donor || []);
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch donors' });
   }
