@@ -8,17 +8,12 @@ const campController = require('../controllers/bloodCampController');
 
 
 router.post('/create-camps',  campController.createBloodCamp);
-
 router.get('/camps',  campController.getBloodCamps);
-
 router.get('/camps/:id',  campController.getBloodCampById);
-
 router.put('/update-camps/:id',  campController.updateBloodCamp);
-
-router.delete('/delete-camps/:id',   campController.deleteBloodCamp);
-
-// router.get('/doctor/:doctorId/blood-camps',  campController.getCampsByDoctor);
-
-router.get('/doctor',  campController.getCampsByDoctor);
+router.delete('/delete-camp/:id',   campController.deleteBloodCamp);
+router.post('/:campId/add-donor', campController.addDonorToCamp);
+// router.post('/:campId/add-donors', campController.addDonorsToCamp);
+router.get('/doctor/camps',  campController.getCampsByDoctor);
 
 module.exports = router;

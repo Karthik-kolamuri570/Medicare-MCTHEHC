@@ -1,52 +1,3 @@
-// const mongoose = require('mongoose');
-
-// const BloodCampSchema = new mongoose.Schema({
-//   name: { type: String, required: true, trim: true },
-//   organizer: { type: mongoose.Schema.Types.ObjectId, ref: "Doctor", required: true },
-//   location: {
-//     address: { type: String, required: true },
-//     city: String,
-//     state: String,
-//     country: String,
-//     pincode: String,
-//     geo: { lat: Number, lng: Number }
-//   },
-//   start_date: { type: Date, required: true },
-//   end_date: Date,
-//   timings: [{
-//     // Each day/session timing
-//     date: { type: Date, required: true },   // The date for this time slot
-//     start_time: { type: String, required: true }, // e.g. "09:00"
-//     end_time: { type: String, required: true }    // e.g. "14:00"
-//   }],
-//   blood_bank: { type: mongoose.Schema.Types.ObjectId, ref: "BloodBank" },
-//   volunteers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-//   donations: [{
-//     donor: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-//     blood_group: String,
-//     units: Number,
-//     donation_time: Date,
-//     verified: { type: Boolean, default: false }
-//   }],
-//   contact_phone: String,
-//   contact_email: String,
-//   description: String,
-//   status: { type: String, enum: ['upcoming', 'active', 'completed', 'cancelled'], default: 'upcoming' },
-//   created_at: { type: Date, default: Date.now }
-// });
-
-// module.exports = mongoose.model('BloodCamp', BloodCampSchema);
-
-
-
-
-
-
-
-
-
-
-
 
 
 const mongoose = require('mongoose');
@@ -150,10 +101,14 @@ const BloodCampSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Patient"
   }],
-  donors: [{ // <-- NEW FIELD: array of donor (patient/user) IDs
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Patient"
-  }],
+  donations: [{
+  donor: { type: mongoose.Schema.Types.ObjectId, ref: 'Patient' },
+  blood_group: String,
+  units: Number,
+  donation_time: Date,
+  verified: { type: Boolean, default: false }
+}],
+
   contact_phone: String,
   contact_email: {
     type: String,

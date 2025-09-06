@@ -12,15 +12,13 @@ exports.createBloodCamp = async (req, res) => {
       return res.status(400).json({message:"End date must be after start date"});
     }
     //check the camp is  registered once or not by using the same name and start location...
-    const existingCamp=await BloodCamp.findOne({name:campp.name,start_location:campp.start_location});
-    if(existingCamp){
-      return res.status(400).json({message:"Camp with same name and location already exists"});
-    }
-    //check the camp is  registered once or not by using the same name and start location...
-    const existingCamps=await BloodCamp.findOne({name:campp.name,start_location:campp.start_location});
-    if(existingCamps){
-      return res.status(400).json({message:"Camp with same name and location already exists"});
-    }
+    const existingCamp = await BloodCamp.findOne({ 
+  name: campp.name,
+  "location.address": campp.location?.address
+});
+if (existingCamp) {
+  return res.status(400).json({ message: "Camp with same name and location already exists" });
+}
     const campData = {
       ...campp,
       organizer: req.session.doctorId, // The authenticated doctor creating the camp
@@ -117,5 +115,70 @@ exports.getCampsByDoctor = async (req, res) => {
   } catch (error) {
     console.error("Failed to fetch doctor's camps:", error);
     res.status(500).json({ message: "Failed to fetch doctor's camps" });
+  }
+};
+
+
+exports.addDonorToCamp = async (req, res) => {
+  try {
+    const { campId } = req.params;
+    const {
+      donorId,
+      blood_group,   // required string
+      units,         // required number
+      donation_time, // optional ISO date string
+      verified       // optional boolean
+    } = req.body;
+
+    // Validate required fields
+    if (!donorId || !blood_group || !units) {
+      return res.status(400).json({ message: 'donorId, blood_group, and units are required' });
+    }
+
+    const camp = await BloodCamp.findById(campId);
+    if (!camp) {
+      return res.status(404).json({ message: 'Blood camp not found' });
+    }
+
+    if (!camp.donors) camp.donors = [];
+    if (!camp.donations) camp.donations = [];
+
+    // Check if donor already added
+    if (camp.donors.some(d => d.toString() === donorId)) {
+      return res.status(400).json({ message: 'Donor already added to this camp' });
+    }
+
+    // Add donor id
+    camp.donors.push(donorId);
+
+    // Add donation details
+    camp.donations.push({
+      donor: donorId,
+      blood_group,
+      units,
+      donation_time: donation_time ? new Date(donation_time) : new Date(),
+      verified: verified === true
+    });
+
+    await camp.save();
+
+    return res.json({ message: 'Donor added successfully', camp });
+  } catch (error) {
+    console.error('Error adding donor to camp:', error);
+    return res.status(500).json({ message: 'Failed to add donor to camp' });
+  }
+};
+
+
+// Get donors list (doctor/admin only)
+exports.getDonorsByCamp = async (req, res) => {
+  try {
+    const camp = await BloodCamp.findById(req.params.campId)
+      .populate('donors', 'name email phone blood_group');
+    if (!camp) return res.status(404).json({ message: 'Camp not found' });
+
+    res.json(camp.donors || []);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch donors' });
   }
 };

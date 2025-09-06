@@ -218,7 +218,11 @@ exports.bookAppointment = async (req, res) => {
                 message: "Doctor not found"
             });
         }
-
+        //Verifying the patient is booked the apppointment in Doctor Available Time
+        if(doctor.fromTime >time || doctor.toTime<time){
+            console.log("The Time where YOu Book the doctor doesn't available... ");
+            return res.json({success: false, message: " Please Book an Appointment Between the Doctor Available Time"});
+        }
         const patient=await Patient.findOne({_id:patientId});
         if(!patient){return res.status(404).json({success:false,message:"Patient not found"})}
         console.log('all validations are now available');
