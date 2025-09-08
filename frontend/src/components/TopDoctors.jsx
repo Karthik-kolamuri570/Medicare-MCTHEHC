@@ -119,6 +119,7 @@ import { useNavigate } from "react-router-dom";
 import "../styles/TopDoctors.css";
 import axios from 'axios';
 import defaultDoctorImage from "../assets/doctor1.png"; // fallback image
+import Loader from './ui/Loader';
 
 function TopDoctors() {
   const navigate = useNavigate();
@@ -172,7 +173,7 @@ function TopDoctors() {
           </div>
 
           <div className="doctors-grid">
-            {loading && <p>Loading...</p>}
+            {loading && <Loader />}
             {error && <p>Error: {error.message}</p>}
 
             {!loading && filteredDoctors.length === 0 && (

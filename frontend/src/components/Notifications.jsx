@@ -70,6 +70,7 @@ import { useNavigate } from "react-router-dom";
 import axios from 'axios'; // Import Axios for fetching data
 import "../styles/Notifications.css"; // Adjust path based on your structure
 import { FaBell } from 'react-icons/fa';
+import Loading from './ui/Loader';
 
 function Notifications() {
   const navigate = useNavigate();
@@ -114,7 +115,7 @@ function Notifications() {
           <h2 className="notifications-title">Notifications</h2>
 
           {loading ? (
-            <p>Loading notifications...</p>
+            <Loading />
           ) : error ? (
             <p>{error}</p>
           ) : notifications.length > 0 ? (

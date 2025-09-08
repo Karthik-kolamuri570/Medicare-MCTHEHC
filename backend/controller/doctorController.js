@@ -467,6 +467,47 @@ exports.acceptAppointment=async(req,res)=>{
   }
 }
 
+//Reject Appointment by the Doctor...
+exports.rejectAppointment=async(req,res)=>{
+  const appointmentId=req.params.id;
+  const doctorId=req.session.doctorId;
+  try{
+    console.log("Rejecting appointment with ID:", appointmentId);
+    // Check if appointment exists in  the Appointment  Collection...
+    const appointment=await Appointment.findById(appointmentId);
+    if(!appointment){
+      return res.json({
+        success:false,
+        message:'Appointment not found...'
+      })
+    }
+    console.log(`Doctor Id : ${doctorId.toString()}`);
+    //After checking the appointment, we need to check if the appointment belongs to the doctor or not ,if it belongs to doctor then we will give access to Rejecting the Appointment...
+    if(appointment.doctorId.toString() !== doctorId.toString()){
+      return res.json({ 
+        success: false,
+        message: 'You are not authorized to reject this appointment'
+      });
+    }
+    //Updating the status of the appointment to 'Rejected'...
+    appointment.status = 'Rejected';
+    await appointment.save();
+    console.log("Appointment rejected successfully:", appointment);
+    res.status(200).json({
+      success: true,
+      message: 'Appointment rejected successfully',
+      data: appointment
+    });
+
+  }
+  catch(error){
+    console.error("Error rejecting appointment:", error);
+    res.status(500).json({
+      success: false,
+      message: 'Server Error'
+    });
+  }
+}
 
 // exports.getAcceptedAppointments = async (req, res) => {
 //   try {
@@ -605,8 +646,8 @@ exports.getSecondOpinion = async (req, res) => {
   }
 };
 
-// In your backend controller file
 
+//In this Route i actually updating the status of the second opinion request at a time ....
 exports.acceptGetSecondOpinion = async (req, res) => {
   try {
     const doctorId = req.user._id;
@@ -625,22 +666,18 @@ exports.acceptGetSecondOpinion = async (req, res) => {
     if (!secondOpinionRequest) {
       return res.status(404).json({ success: false, message: 'Second opinion request not found' });
     }
-
     // This prevents the server from crashing if doctorId is missing.
     if (!secondOpinionRequest.doctorId) {
         console.error(`Request ${requestId} has no doctorId assigned.`);
         return res.status(403).json({ success: false, message: 'This request is not assigned to any doctor.' });
     }
-    
     // Now we can safely check for authorization
     if (secondOpinionRequest.doctorId.toString() !== doctorId.toString()) {
       return res.status(403).json({ success: false, message: 'You are not authorized to update this request.' });
     }
-
     // Update and save the document
     secondOpinionRequest.status = status.toLowerCase();
     await secondOpinionRequest.save();
-
     return res.json({
       success: true,
       message: `Second opinion request ${status} successfully`,
@@ -652,3 +689,28 @@ exports.acceptGetSecondOpinion = async (req, res) => {
     res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
+
+exports.getAcceptedSecondOpinion = async (req, res) => {
+  try{
+    //Here I Fetching all the second opinion requests which are accepted by the doctor...
+    const doctorId=req.session.doctorId;
+    console.log(`Fetching all the accepted Appointments of Get Second Opinion by the Doctor ${doctorId}`);
+    const doctor=await Doctor.findById(doctorId);
+    if(!doctor){
+      return res.status(403).json({success:false,message:'Doctor Not Found...'});
+    }
+    const appointments=await GetSecondOpinion.find({ doctorId: doctorId, status: "accepted" });
+    console.log("Fetching  the Appointments....")
+    return res.json({
+      success:true,
+      data:appointments
+    })
+  }
+  catch(err){
+    console.log(err);
+    res.json({
+      success: false,
+      message:"Server Error..."
+    })
+  }
+}

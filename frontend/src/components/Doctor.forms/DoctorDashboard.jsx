@@ -81,7 +81,7 @@
 // export default DoctorDashboard;
 
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FaCalendarAlt,
@@ -110,6 +110,25 @@ const chartData = [
 
 function DoctorDashboard() {
   const navigate = useNavigate();
+  const [doctorName, setDoctorName] = useState("Doctor");
+
+useEffect(() => {
+  async function fetchDoctor() {
+    try {
+      const response = await fetch("http://localhost:1600/api/doctor/me", {
+        credentials: "include",
+      });
+      const data = await response.json();
+      if(data.success && data.data && data.data.name) {
+        setDoctorName(data.data.name);
+      }
+    } catch (error) {
+      console.error("Failed to fetch doctor data", error);
+    }
+  }
+  fetchDoctor();
+}, []);
+
 
   const services = [
     { name: "Appointments", icon: <FaCalendarAlt />, path: "/api/doctor/my-appointments" },
@@ -203,7 +222,8 @@ function DoctorDashboard() {
       }}>
         <div style={{ flex: 1 }}>
           <h2 style={{ marginBottom: "1.5rem", fontSize: "1.8rem" }}>
-            Welcome, Dr. John Smith
+            Welcome, {doctorName}
+
           </h2>
           <div style={{
             display: "grid",

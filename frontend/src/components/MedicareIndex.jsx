@@ -28,7 +28,7 @@ const blogData = [
   },
 ];
 
-function MedicareIndex() {
+function   MedicareIndex() {
   
   return (
     <div>
