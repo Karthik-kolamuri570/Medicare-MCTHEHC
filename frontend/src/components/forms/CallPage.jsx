@@ -126,6 +126,7 @@ import {
 import "@stream-io/video-react-sdk/dist/css/styles.css";
 import axios from "axios";
 import toast from "react-hot-toast";
+import Loader from "../ui/Loader"
 
 // Singleton video client
 let globalVideoClient = null;
@@ -231,7 +232,7 @@ const CallPage = () => {
     };
   }, [receiverId]);
 
-  if (!call) return <p>Loading video call...</p>;
+  if (!call) return <Loader />;
 
   return (
     <StreamVideo client={videoClient}>

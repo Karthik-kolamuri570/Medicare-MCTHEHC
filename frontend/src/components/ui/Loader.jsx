@@ -10,9 +10,11 @@ const Loader = () => {
 }
 
 const StyledWrapper = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
     
   .loader {
     width: fit-content;

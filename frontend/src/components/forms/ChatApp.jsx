@@ -108,7 +108,9 @@ import {
   LoadingIndicator
 } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/v2/index.css';
-import CallButton from './CallButton'; // Assuming you have a CallButton component in a separate file
+import CallButton from './CallButton'; 
+import Loader from '../ui/Loader';
+
 
 const generateChannelId = (id1, id2) => [id1, id2].sort().join('-');
 
@@ -170,7 +172,7 @@ const ChatApp = () => {
     };
   }, [receiverId]);
 
-  if (!chatClient || !activeChannel) return <LoadingIndicator />;
+  if (!chatClient || !activeChannel) return <Loader />;
 
 
 
