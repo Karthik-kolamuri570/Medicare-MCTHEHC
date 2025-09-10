@@ -166,7 +166,7 @@ function BloodBankLogin() {
       );
       console.log(response.data);
       if (response.data.success) {
-        window.location.href = "/api/blood-bank"; // adjust route as per actual app
+        window.location.href = "/api/blood-bank/bank"; // adjust route as per actual app
       } else {
         setError(response.data.message || "Login failed");
       }

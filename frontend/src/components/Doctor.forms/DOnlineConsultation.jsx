@@ -182,34 +182,7 @@
 //     </div>
 //   );
 // };
-
 // export default DOnlineConsultation;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

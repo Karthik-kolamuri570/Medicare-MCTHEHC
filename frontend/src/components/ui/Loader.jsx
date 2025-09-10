@@ -26,7 +26,7 @@ const StyledWrapper = styled.div`
   }
 
   .loader::before {
-    content: "MeddiCare...";
+    content: "MediCare...";
     line-height: 1em;
     color: #0000;
     background: inherit;

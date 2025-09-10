@@ -217,21 +217,7 @@ function MedicareIndex() {
               system ensures you get the medical care you need at your
               convenience.
             </p>
-            <ul>
-              <li>
-                Find a Doctor - Search for experienced doctors across various
-                specialties.
-              </li>
-              <li>
-                Online & In-Person Consultations - Book virtual or physical
-                appointments.
-              </li>
-              <li>Instant Confirmation - Receive real-time booking updates.</li>
-              <li>
-                Your health is our priority! Book your appointment today and
-                take a step towards better healthcare.
-              </li>
-            </ul>
+            
           </div>
           <div className="book-appointment-image">
             <img src={bookanappointment} alt="Booking an Appointment" />

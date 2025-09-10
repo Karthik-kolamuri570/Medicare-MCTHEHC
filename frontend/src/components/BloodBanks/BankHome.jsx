@@ -329,7 +329,9 @@ function BankHome() {
     <div style={{ fontFamily: "Arial, sans-serif", background: "#faf6f7", minHeight: "100vh" }}>
       {/* Header */}
       <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1.5rem 2rem", background: "#e74c3c", color: "#fff" }}>
-        <div style={{ fontWeight: "bold", fontSize: "1.5rem" }}>BloodLife</div>
+        <div style={{ fontWeight: "bold", fontSize: "1.5rem" }}> <motion.a
+            href="/api/blood-bank/bank"
+          >BloodLife </motion.a> </div>
         <nav>
           <a href="#blood-bank" style={{ color: "#fff", marginRight: "1.5rem" }}>Blood Bank</a>
           <a href="#blood-camp" style={{ color: "#fff", marginRight: "1.5rem" }}>Blood Camp</a>
@@ -367,7 +369,7 @@ function BankHome() {
         </p>
         <div style={{ display: "flex", justifyContent: "center", gap: "1.5rem" }}>
           <motion.a
-            href="/api/blood-bank/bank"
+            href="/api/blood-bank/user"
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.95 }}
             style={{ background: "#e74c3c", color: "#fff", padding: "0.8rem 2rem", borderRadius: "6px", textDecoration: "none", fontWeight: "bold" }}
@@ -398,7 +400,7 @@ function BankHome() {
             <li>Register as a donor & track history</li>
             <li>Learn about eligibility and safety</li>
           </ul>
-          <a href="#blood-bank-form" style={{ marginTop: "1.5rem", display: "inline-block", background: "#e74c3c", color: "#fff", padding: "0.6rem 1.3rem", borderRadius: "5px", fontWeight: "bold", textDecoration: "none" }}>Access Blood Bank</a>
+          <a href="/api/blood-bank/user" style={{ marginTop: "1.5rem", display: "inline-block", background: "#e74c3c", color: "#fff", padding: "0.6rem 1.3rem", borderRadius: "5px", fontWeight: "bold", textDecoration: "none" }}>Access Blood Bank</a>
         </motion.div>
 
         <motion.div
