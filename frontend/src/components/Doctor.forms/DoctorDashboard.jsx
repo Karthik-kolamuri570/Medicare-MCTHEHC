@@ -134,7 +134,7 @@ useEffect(() => {
     { name: "Appointments", icon: <FaCalendarAlt />, path: "/api/doctor/my-appointments" },
     { name: "Online Consultations", icon: <FaStethoscope />, path: "/api/doctor/my-consultations" },
     { name: "Get Second Opinion", icon: <FaUserMd />, path: "/api/doctor/second-opinion" },
-    { name: "Blogs", icon: <FaBookMedical />, path: "/my-blogs" },
+    { name: "Blogs", icon: <FaBookMedical />, path: "/api/doctor/doc/blogs" },
     // { name: "Our Hospitals", icon: <FaHospitalAlt />, path: "/hospitals" },
   ];
 

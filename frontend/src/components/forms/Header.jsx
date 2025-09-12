@@ -249,7 +249,7 @@ const searchData = [
   {
     id: 8,
     name: "Blogs",
-    link: "/blogs",
+    link: "/api/blogs",
     tags: ["blog", "articles", "health tips", "news", "updates", "stories"],
   },
   {
@@ -373,7 +373,7 @@ function Header() {
               </li>
               <li
                 style={{ cursor: "pointer" }}
-                onClick={() => navigate("/blogs")}
+                onClick={() => navigate("/api/blogs")}
               >
                 Blogs
               </li>

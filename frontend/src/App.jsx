@@ -33,6 +33,10 @@ import BloodBankContainer from './components/BloodBanks/BloodBankContainer';
 import BloodBankLogin from './components/BloodBanks/BloodBankLogin';
 import UserPortal from './components/BloodBanks/UserPortal'
 import BloodCampAdmin from './components/BloodBanks/BloodCampAdmin';
+import BlogListPage from "./components/Blogs/pages/BlogListPage"
+import BlogDetailsPage from "./components/Blogs/pages/BlogDetailsPage";
+import DoctorDashboardPage from "./components/Blogs/pages/DoctorDashboardPage";
+import PatientLikesPage from "./components/Blogs/pages/PatientLikesPage";
 const Layout = ({ children }) => (<><Header />{children}<Footer /></>);
 const DLayout = ({ children }) => (<><DHeader />{children}<DFooter /></>);
 
@@ -58,6 +62,13 @@ function App() {
         <Route path="/api/blood-bank/login" element={<BloodBankLogin />} />
         <Route path="/api/blood-bank/user" element={<UserPortal />} />
         <Route path="/api/doctor/blood-camp/admin" element={<BloodCampAdmin />} />
+
+        {/* Blog Routes */}
+        <Route path="/api/blogs" element={<Layout><BlogListPage /></Layout>} />
+        <Route path="/api/blog/:id" element={<Layout><BlogDetailsPage /></Layout>} />
+        <Route path ="/api/doctor/doc/blogs" element={<DLayout><DoctorDashboardPage /></DLayout>} /> 
+        <Route path="/api/patient/likes" element={<Layout><PatientLikesPage /></Layout>} />
+        
         {/* <Route path="/api/chat/:receiverId" element={<Layout><ChatWrapper /></Layout>} /> */}
 
         {/* Doctor Dashboard Routes */}
