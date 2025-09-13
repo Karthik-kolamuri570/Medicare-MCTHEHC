@@ -200,7 +200,7 @@ function TopDoctors() {
                     </p>
                     <button
                       className="appointment-btn"
-                      onClick={() => navigate("/book-appointment")}
+                      onClick={() => navigate(`/book-appointment/${doc._id}`)}
                     >
                       Book an Appointment
                     </button>

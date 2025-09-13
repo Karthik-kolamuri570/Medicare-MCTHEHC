@@ -47,7 +47,7 @@ function App() {
         {/* Public Routes */}
         <Route path="/" element={<Layout><MedicareIndex /></Layout>} />
         <Route path="/top-doctors" element={<Layout><TopDoctors /></Layout>} />
-        <Route path="/book-appointment" element={<Layout><Bookanappointment /></Layout>} />
+        <Route path="/book-appointment/:doctorId" element={<Layout><Bookanappointment /></Layout>} />
         <Route path="/notifications" element={<Layout><Notifications /></Layout>} />
         <Route path="/SignUp" element={<Layout><Form /></Layout>} />
         <Route path="/api/patient/login" element={<Layout><LoginPatient /></Layout>} />

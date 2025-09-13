@@ -103,7 +103,7 @@ function DHeader() {
         {/* Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <img src={logo} alt="Medicare Logo" style={{ height: '40px' }} />
-          <h1 style={{ margin: 0, fontSize: '1.5rem', cursor: 'pointer' }} onClick={() => navigate('/')}>
+          <h1 style={{ margin: 0, fontSize: '1.5rem', cursor: 'pointer' }} onClick={() => navigate('/api/doctor/')}>
             Medicare
           </h1>
         </div>
