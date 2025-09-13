@@ -9,12 +9,12 @@ router.post('/login',patientController.loginPatient);
 // router.get('/',patientController.getAllPatients);
 router.put('/',auth.patientAuth,patientController.updatePatient);
 router.post('/book-appointment/',auth.patientAuth,patientController.bookAppointment);
-router.get('/appointments/',auth.patientAuth,patientController.getPatientAppointments);
+router.get('/appointments',auth.patientAuth,patientController.getPatientAppointments);
 router.post('/cancel-appointment/:appointmentId',auth.patientAuth,patientController.cancelAppointment);
 router.get('/notifications/',auth.patientAuth,patientController.getNotifications);
 router.post('/notifications/',auth.patientAuth,patientController.markNotificationAsSeen);
 // router.delete('/notifications/:notificationId',patientController.deleteNotification);
-// router.post('/get-second-opinion',auth.patientAuth,patientController.getSecondOpinion);
+router.get('/get-second-opinion/accepted',auth.patientAuth,patientController.getSecondOpinionsAccepted);
 const { uploadFiles, getSecondOpinion } =require('./../controller/patientController');
 router.post('/get-second-opinion', auth.patientAuth, uploadFiles, getSecondOpinion);
 router.get('/logout',patientController.logoutPatient)

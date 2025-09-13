@@ -699,7 +699,7 @@ exports.getAcceptedSecondOpinion = async (req, res) => {
     if(!doctor){
       return res.status(403).json({success:false,message:'Doctor Not Found...'});
     }
-    const appointments=await GetSecondOpinion.find({ doctorId: doctorId, status: "accepted" });
+    const appointments=await GetSecondOpinion.find({ doctorId: doctorId, status: "accepted" }).populate('patientId', 'name contact');
     console.log("Fetching  the Appointments....")
     return res.json({
       success:true,

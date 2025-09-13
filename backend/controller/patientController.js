@@ -297,7 +297,7 @@ exports.getPatientAppointments = async (req, res) => {
             });
         }
 
-        const appointments = await Appointment.find({ patientId }).populate('doctorId', 'name specialization');
+        const appointments = await Appointment.find({ patientId:patientId,status:"Accepted" }).populate('doctorId', 'name specialization');
         console.log("Fetched Appointments:", appointments);
         
         if (!appointments || appointments.length === 0) {
@@ -555,3 +555,28 @@ exports.getSecondOpinion = async (req, res) => {
 
 // Export multer upload middleware for routes
 exports.uploadFiles = upload.array("files", 5); // max 5 files
+
+
+
+//here i need to fetch the Second Opinions  which was accepted by the Doctor...
+exports.getSecondOpinionsAccepted = async (req, res) => {
+    try{
+        const patientId=req.session.patientId;
+        if(!patientId){
+            return res.status(403).json({success:false,message:'Patient Not Logged In...'});
+        }
+        const patient=await Patient.findById(patientId);
+        if(!patient){
+            return res.status(404).json({success:false,message:'Patient Not Found...'});
+        }
+        const secondOpinions=await GetSecondOpinion.find({ patientId: patientId, status: "accepted" }).populate('doctorId', 'name specialization contact');
+        if(!secondOpinions || secondOpinions.length===0){
+            return res.status(404).json({success:false,message:'No Second Opinion Requests Found...'});
+        }
+        return res.json({success:true,data:secondOpinions});
+    }
+    catch(err){
+        console.error("Error in fetching Second Opinions:", err);
+        return res.status(500).json({success:false,message:'Internal Server Error...'});
+    }
+}

@@ -278,6 +278,7 @@ const DOnlineConsultation = () => {
         ]);
 
         // Mark each entry with isSecondOpinion flag
+        console.log("Getting Second Opinion Data:", secondOpinionsRes.data.data);
         const appointments = appointmentsRes.data.data.map((item) => ({
           ...item,
           isSecondOpinion: false,

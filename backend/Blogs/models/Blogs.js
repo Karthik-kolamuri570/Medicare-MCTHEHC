@@ -10,14 +10,14 @@ const blogSchema = new Schema({
     title: {
         type: String,
         required: [true, "Blog title is required"],
-        minlength: [5, "Title should be at least 5 characters"],
-        maxlength: [200, "Title should not exceed 200 characters"]
+        minlength: [20, "Title should be at least 5 characters"],
+        maxlength: [50, "Title should not exceed 200 characters"]
     },
     description: {
         type: String,
         required: [true, "Blog description is required"],
-        minlength: [10, "Description should be at least 10 characters"],
-        maxlength: [500, "Description should not exceed 500 characters"]
+        minlength: [100, "Description should be at least 100 characters"],
+        maxlength: [180, "Description should not exceed 180 characters"]
     },
     content: {
         type: String,
