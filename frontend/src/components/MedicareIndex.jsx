@@ -297,6 +297,7 @@ const DoctorCard = ({ doctor }) => {
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
+        
       }}
     >
       <img
@@ -433,7 +434,7 @@ function MedicareIndex() {
   };
 
   return (
-    <div>
+    <div style={{ paddingTop: 60 }}>
       <div>
         {/* Book an Appointment */}
         <div className="book-appointment-container">
