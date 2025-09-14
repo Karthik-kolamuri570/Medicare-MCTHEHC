@@ -117,6 +117,28 @@ exports.loginPatient = async (req, res) => {
     }
 };
 
+exports.getPatientProfile = async (req, res, next) => {
+  try {
+      const patientId = req.user._id; // Assuming auth middleware sets req.user
+      const patient = await Patient.findById(patientId);
+      if (!patient) {
+          return res.status(404).json({
+              success: false,
+              message: 'Patient not found'
+          });
+      }
+      res.status(200).json({
+          success: true,
+          data: patient
+      });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({
+          success: false,
+          message: 'Server Error'
+      });
+  }
+}; 
 
 // Get patient profile
 exports.getPatientById = async (req, res) => {

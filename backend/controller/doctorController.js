@@ -146,6 +146,9 @@ exports.loginDoctor = async (req, res, next) => {
 };
 
 
+
+
+
 // Update doctor profile
 exports.updateDoctor = async (req, res, next) => {
   try {

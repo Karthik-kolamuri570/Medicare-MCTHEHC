@@ -5,6 +5,7 @@ const auth=require('../middleware/auth');
 const Patient = require('../models/patient'); // Adjust the path as needed
 router.post('/register',patientController.registerPatient);
 router.post('/login',patientController.loginPatient);
+router.get('/me',auth.patientAuth,patientController.getPatientProfile);
 // router.get('/:patientId',auth.patientAuth,patientController.getPatientById);
 // router.get('/',patientController.getAllPatients);
 router.put('/',auth.patientAuth,patientController.updatePatient);

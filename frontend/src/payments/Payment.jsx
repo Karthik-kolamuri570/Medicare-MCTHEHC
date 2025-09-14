@@ -8,6 +8,7 @@ const stripePromise = loadStripe("pk_test_51Rs6m3KeDTOPdy8SRB04YzOvSB4bvxRzzsYcz
 const Payment = ({ appointment }) => {
   const handlePayment = async () => {
     try {
+      console.log("Appointmnt Payment Details...",appointment);
       const res = await axios.post(
         "http://localhost:1600/api/payment/check-out",
         {

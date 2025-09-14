@@ -194,8 +194,197 @@
 
 
 
+// import { useState, useEffect } from "react";
+// import { useNavigate, useParams } from "react-router-dom"; // Added useParams
+// import axios from "axios";
+// import "../styles/Bookanappointment.css";
+// import doc from "../assets/doctor1.png";
+// import toast from "react-hot-toast";
+
+// import Payment from "../payments/Payment";
+
+// function Bookanappointment() {
+//   const navigate = useNavigate();
+//   const { doctorId } = useParams(); // Get doctor ID from route
+//   const [selectedDoctor, setSelectedDoctor] = useState(null);
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState(null);
+
+//   // Form state
+//   const [date, setDate] = useState("");
+//   const [time, setTime] = useState("");
+//   const [problem, setProblem] = useState("");
+
+//   // Payment flow
+//   const [appointmentDetails, setAppointmentDetails] = useState(null);
+
+//   // Fetch single doctor details by id on mount or doctorId change
+//   useEffect(() => {
+//     const fetchDoctor = async () => {
+//       console.log("Fetching doctor with ID:", doctorId); // Debugging
+//       if (!doctorId) {
+//         setError("No doctor selected");
+//         setLoading(false);
+//         return;
+//       }
+//       try {
+//         setLoading(true);
+//         const response = await axios.get(`http://localhost:1600/api/doctor/profile/${doctorId}`);
+//         if (response.data) {
+//           console.log("Doctor data:", response.data); // Debugging
+//           setSelectedDoctor(response.data.data);
+//           setError(null);
+//         } else {
+//           setError("Doctor not found.");
+//         }
+//       } catch (err) {
+//         setError("Failed to fetch doctor details.");
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+//     fetchDoctor();
+//   }, [doctorId]);
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+
+//     if (!selectedDoctor || !date || !time || !problem) {
+//       toast.error("Please fill in all the fields.");
+//       return;
+//     }
+
+//     try {
+//       const response = await axios.post(
+//         "http://localhost:1600/api/patient/book-appointment",
+//         {
+//           doctorId: selectedDoctor._id,
+//           date,
+//           time,
+//           problem,
+//         }
+//       );
+
+//       if (response.status === 201 && response.data.data) {
+//         toast.success("Appointment booked! Proceed to payment.");
+//         setAppointmentDetails({
+//           _id: response.data.data._id,
+//           email: response.data.data.patientEmail,
+//           doctorName: selectedDoctor.name,
+//           date,
+//           price: selectedDoctor.fee || 500,
+//         });
+//       }
+//     } catch (err) {
+//       console.error("Error booking appointment:", err);
+//       toast.error("Error booking appointment.");
+//     }
+//   };
+
+//   if (loading) return <p>Loading doctor details...</p>;
+//   if (error) return <p style={{ color: 'red' }}>{error}</p>;
+
+//   return (
+//     <div className="appointment-container">
+//       <h1>Book an Appointment</h1>
+
+//       {!appointmentDetails ? (
+//         <>
+//           {/* Show selected doctor details */}
+//           {selectedDoctor && (
+//             <div className="doctor-profile">
+//               <img
+//                 src={selectedDoctor.image || doc}
+//                 alt={selectedDoctor.name}
+//                 className="doctor-image"
+//               />
+//               <div className="doctor-details">
+//                 <h2>{selectedDoctor.name}</h2>
+//                 <p><strong>Specialization:</strong> {selectedDoctor.specialization}</p>
+//                 <p><strong>Experience:</strong> {selectedDoctor.experience} years</p>
+//                 <p><strong>Hospital:</strong> {selectedDoctor.hospital}</p>
+//                 {/* You may add more details here */}
+//               </div>
+//             </div>
+//           )}
+
+//           {/* Appointment form */}
+//           <form className="appointment-form" onSubmit={handleSubmit}>
+//             <div className="form-group">
+//               <label>Date:</label>
+//               <input
+//                 type="date"
+//                 value={date}
+//                 onChange={(e) => setDate(e.target.value)}
+//               />
+//             </div>
+
+//             <div className="form-group">
+//               <label>Time:</label>
+//               <input
+//                 type="time"
+//                 value={time}
+//                 onChange={(e) => setTime(e.target.value)}
+//               />
+//             </div>
+
+//             <div className="form-group">
+//               <label>Describe Your Problem:</label>
+//               <textarea
+//                 rows="3"
+//                 value={problem}
+//                 onChange={(e) => setProblem(e.target.value)}
+//                 placeholder="Briefly describe your problem"
+//               ></textarea>
+//             </div>
+
+//             <button type="submit" className="submit-btn">
+//               Book Appointment
+//             </button>
+//           </form>
+//         </>
+//       ) : (
+//         <Payment appointment={appointmentDetails} />
+//       )}
+//     </div>
+//   );
+// }
+
+// export default Bookanappointment;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom"; // Added useParams
+
 import axios from "axios";
 import "../styles/Bookanappointment.css";
 import doc from "../assets/doctor1.png";
@@ -205,7 +394,12 @@ import Payment from "../payments/Payment";
 
 function Bookanappointment() {
   const navigate = useNavigate();
+
+  const { doc_id } = useParams();
+  const [doctors, setDoctors] = useState([]);
+
   const { doctorId } = useParams(); // Get doctor ID from route
+
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -234,6 +428,7 @@ function Bookanappointment() {
           console.log("Doctor data:", response.data); // Debugging
           setSelectedDoctor(response.data.data);
           setError(null);
+
         } else {
           setError("Doctor not found.");
         }
@@ -245,6 +440,7 @@ function Bookanappointment() {
     };
     fetchDoctor();
   }, [doctorId]);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
