@@ -593,7 +593,7 @@ exports.getSecondOpinionsAccepted = async (req, res) => {
         }
         const secondOpinions=await GetSecondOpinion.find({ patientId: patientId, status: "accepted" }).populate('doctorId', 'name specialization contact');
         if(!secondOpinions || secondOpinions.length===0){
-            return res.status(404).json({success:false,message:'No Second Opinion Requests Found...'});
+            return res.status(201).json({success:true,data:[],message:'No Accepted Second Opinions Found...'});
         }
         return res.json({success:true,data:secondOpinions});
     }
