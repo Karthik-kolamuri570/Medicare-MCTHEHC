@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Patient = require('../models/patient');
 const Appointment = require('./../models/appointments');
-const GetSecondOpinion = require('../models/GetSecondOpinion'); // Ensure this is imported
+const GetSecondOpinion = require('./../models/GetSecondOpinion'); // Ensure this is imported
 // const patient = require('../models/patient');
 
 exports.registerDoctor = async (req, res, next) => {
@@ -651,45 +651,152 @@ exports.getSecondOpinion = async (req, res) => {
 
 
 //In this Route i actually updating the status of the second opinion request at a time ....
+// exports.acceptGetSecondOpinion = async (req, res) => {
+//   try {
+//     const doctorId = req.user._id;
+//     const requestId = req.params.id;
+//     const { status } = req.body;
+
+//     // --- Validation: Ensure status is valid ---
+//     if (!status || !['accepted', 'rejected'].includes(status.toLowerCase())) {
+//         return res.status(400).json({ 
+//             success: false, 
+//             message: 'Invalid status provided. Must be "accepted" or "rejected".' 
+//         });
+//     }
+
+//     const secondOpinionRequest = await GetSecondOpinion.findById(requestId);
+//     if (!secondOpinionRequest) {
+//       return res.status(404).json({ success: false, message: 'Second opinion request not found' });
+//     }
+//     // This prevents the server from crashing if doctorId is missing.
+//     if (!secondOpinionRequest.doctorId) {
+//         console.error(`Request ${requestId} has no doctorId assigned.`);
+//         return res.status(403).json({ success: false, message: 'This request is not assigned to any doctor.' });
+//     }
+//     // Now we can safely check for authorization
+//     if (secondOpinionRequest.doctorId.toString() !== doctorId.toString()) {
+//       return res.status(403).json({ success: false, message: 'You are not authorized to update this request.' });
+//     }
+//     // Update and save the document
+//     secondOpinionRequest.status = status.toLowerCase();
+//     await secondOpinionRequest.save();
+//     return res.json({
+//       success: true,
+//       message: `Second opinion request ${status} successfully`,
+//       data: secondOpinionRequest
+//     });
+
+//   } catch (error) {
+//     console.error("Error updating second opinion request:", error);
+//     res.status(500).json({ success: false, message: 'Server Error' });
+//   }
+// };
+
+
+// doctorController.js
 exports.acceptGetSecondOpinion = async (req, res) => {
+  console.log("🔥 CONTROLLER CALLED - acceptGetSecondOpinion");
+  console.log("Request params:", req.params);
+  console.log("Request body:", req.body);
+  console.log("Request user:", req.user);
+  
   try {
-    const doctorId = req.user._id;
-    const requestId = req.params.id;
+    // Step 1: Basic validation
+    const { id } = req.params;
     const { status } = req.body;
-
-    // --- Validation: Ensure status is valid ---
-    if (!status || !['accepted', 'rejected'].includes(status.toLowerCase())) {
-        return res.status(400).json({ 
-            success: false, 
-            message: 'Invalid status provided. Must be "accepted" or "rejected".' 
-        });
+    
+    if (!id || !status) {
+      console.log("❌ Missing id or status");
+      return res.status(400).json({
+        success: false,
+        message: "ID and status are required",
+        received: { id, status }
+      });
     }
-
-    const secondOpinionRequest = await GetSecondOpinion.findById(requestId);
-    if (!secondOpinionRequest) {
-      return res.status(404).json({ success: false, message: 'Second opinion request not found' });
+    
+    // Step 2: Import and test model
+    let GetSecondOpinion;
+    try {
+      GetSecondOpinion = require('../models/GetSecondOpinion'); // Adjust path if needed
+      console.log("✅ GetSecondOpinion model imported successfully");
+    } catch (importError) {
+      console.error("❌ Failed to import GetSecondOpinion model:", importError.message);
+      return res.status(500).json({
+        success: false,
+        message: "Model import failed",
+        error: importError.message
+      });
     }
-    // This prevents the server from crashing if doctorId is missing.
-    if (!secondOpinionRequest.doctorId) {
-        console.error(`Request ${requestId} has no doctorId assigned.`);
-        return res.status(403).json({ success: false, message: 'This request is not assigned to any doctor.' });
+    
+    // Step 3: Test database query
+    console.log("🔍 Searching for record with ID:", id);
+    let existingRecord;
+    try {
+      existingRecord = await GetSecondOpinion.findById(id);
+      console.log("🔍 Record found:", !!existingRecord);
+    } catch (dbError) {
+      console.error("❌ Database query failed:", dbError.message);
+      return res.status(500).json({
+        success: false,
+        message: "Database query failed",
+        error: dbError.message
+      });
     }
-    // Now we can safely check for authorization
-    if (secondOpinionRequest.doctorId.toString() !== doctorId.toString()) {
-      return res.status(403).json({ success: false, message: 'You are not authorized to update this request.' });
+    
+    if (!existingRecord) {
+      console.log("❌ No record found with ID:", id);
+      return res.status(404).json({
+        success: false,
+        message: "Record not found",
+        id: id
+      });
     }
-    // Update and save the document
-    secondOpinionRequest.status = status.toLowerCase();
-    await secondOpinionRequest.save();
-    return res.json({
-      success: true,
-      message: `Second opinion request ${status} successfully`,
-      data: secondOpinionRequest
-    });
-
+    
+    // Step 4: Update record
+    console.log("📝 Updating record...");
+    try {
+      const updatedRequest = await GetSecondOpinion.findByIdAndUpdate(
+        id,
+        { 
+          status: status,
+          respondedAt: new Date()
+        },
+        { 
+          new: true
+        }
+      );
+      
+      console.log("✅ Record updated successfully");
+      
+      res.status(200).json({
+        success: true,
+        message: `Request ${status} successfully`,
+        data: updatedRequest
+      });
+      
+    } catch (updateError) {
+      console.error("❌ Update failed:", updateError.message);
+      return res.status(500).json({
+        success: false,
+        message: "Update failed",
+        error: updateError.message
+      });
+    }
+    
   } catch (error) {
-    console.error("Error updating second opinion request:", error);
-    res.status(500).json({ success: false, message: 'Server Error' });
+    console.error("❌ CONTROLLER ERROR:", error);
+    console.error("Error message:", error.message);
+    console.error("Error stack:", error.stack);
+    
+    res.status(500).json({
+      success: false,
+      message: "Controller error",
+      error: {
+        message: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      }
+    });
   }
 };
 

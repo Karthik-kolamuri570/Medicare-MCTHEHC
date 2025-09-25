@@ -434,7 +434,7 @@ function MedicareIndex() {
   };
 
   return (
-    <div style={{ paddingTop: 60 }}>
+    <div >
       <div>
         {/* Book an Appointment */}
         <div className="book-appointment-container">
