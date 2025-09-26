@@ -408,6 +408,17 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 import React, { useState } from "react";
 
 // Notification bell and dropdown
@@ -864,3 +875,365 @@ function BloodBankDashboard({
 }
 
 export default BloodBankDashboard;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// // BloodBankDashboard.js
+// import React, { useState } from "react";
+
+// // Helper to check if a date is within the last 7 days
+// const isLast7Days = (dateStr) => {
+//   const date = new Date(dateStr);
+//   const now = new Date();
+//   const diff = now - date;
+//   return diff >= 0 && diff <= 7 * 24 * 60 * 60 * 1000;
+// };
+
+// // Notification bell and dropdown
+// function Notifications({ notifications = [], markAllRead }) {
+//   const [open, setOpen] = useState(false);
+//   const unreadCount = notifications.filter((n) => !n.read).length;
+
+//   return (
+//     <div style={{ position: "relative" }}>
+//       <button
+//         onClick={() => setOpen(!open)}
+//         aria-label="Notifications"
+//         title={`${unreadCount} unread notifications`}
+//         style={{
+//           position: "relative",
+//           background: "none",
+//           border: "none",
+//           cursor: "pointer",
+//           fontSize: "1.5rem",
+//           color: "#c0392b",
+//         }}
+//       >
+//         🔔
+//         {unreadCount > 0 && (
+//           <span
+//             style={{
+//               position: "absolute",
+//               top: "-4px",
+//               right: "-6px",
+//               background: "#e74c3c",
+//               borderRadius: "50%",
+//               color: "#fff",
+//               padding: "2px 6px",
+//               fontSize: "0.75rem",
+//               fontWeight: "bold",
+//             }}
+//           >
+//             {unreadCount}
+//           </span>
+//         )}
+//       </button>
+//       {open && (
+//         <div
+//           style={{
+//             position: "absolute",
+//             right: 0,
+//             top: "2.5rem",
+//             width: "320px",
+//             maxHeight: "350px",
+//             overflowY: "auto",
+//             background: "#fff",
+//             border: "1px solid #ddd",
+//             boxShadow: "0 8px 16px rgba(0,0,0,0.1)",
+//             borderRadius: "8px",
+//             zIndex: 100,
+//           }}
+//         >
+//           <div
+//             style={{
+//               padding: "0.75rem 1rem",
+//               borderBottom: "1px solid #eee",
+//               fontWeight: "bold",
+//               display: "flex",
+//               justifyContent: "space-between",
+//             }}
+//           >
+//             Notifications
+//             <button
+//               onClick={markAllRead}
+//               style={{
+//                 background: "none",
+//                 border: "none",
+//                 cursor: "pointer",
+//                 color: "#e74c3c",
+//                 fontSize: "0.9rem",
+//               }}
+//             >
+//               Mark all read
+//             </button>
+//           </div>
+//           {notifications.length === 0 ? (
+//             <p style={{ padding: "1rem", textAlign: "center", color: "#888" }}>
+//               No new notifications
+//             </p>
+//           ) : (
+//             notifications.map((n, idx) => (
+//               <div
+//                 key={idx}
+//                 style={{
+//                   padding: "0.75rem 1rem",
+//                   backgroundColor: n.read ? "white" : "#ffe5e0",
+//                   borderBottom:
+//                     idx === notifications.length - 1 ? "none" : "1px solid #eee",
+//                   fontSize: "0.9rem",
+//                 }}
+//               >
+//                 <strong>{n.title}</strong>
+//                 <p style={{ margin: "0.3rem 0 0", fontSize: "0.8rem", color: "#555" }}>
+//                   {n.message}
+//                 </p>
+//                 <small style={{ color: "#aaa" }}>{new Date(n.date).toLocaleString()}</small>
+//               </div>
+//             ))
+//           )}
+//         </div>
+//       )}
+//     </div>
+//   );
+// }
+
+// function Tab({ label, count = 0, isActive, onClick }) {
+//   return (
+//     <div
+//       onClick={onClick}
+//       style={{
+//         cursor: "pointer",
+//         padding: "0.5rem 1rem",
+//         borderBottom: isActive ? "3px solid #c0392b" : "3px solid transparent",
+//         color: isActive ? "#c0392b" : "#444",
+//         fontWeight: isActive ? "700" : "500",
+//         userSelect: "none",
+//       }}
+//     >
+//       {label}
+//       {count > 0 && (
+//         <span
+//           style={{
+//             marginLeft: "6px",
+//             background: "#e74c3c",
+//             borderRadius: "12px",
+//             padding: "2px 6px",
+//             color: "#fff",
+//             fontSize: "0.75rem",
+//             fontWeight: "bold",
+//           }}
+//         >
+//           {count}
+//         </span>
+//       )}
+//     </div>
+//   );
+// }
+
+// function Table({ data, hideActions = false, onAccept, onReject }) {
+//   const renderUserInfo = (userObj) => {
+//     if (!userObj) return "Unknown";
+//     if (typeof userObj === "string") return userObj;
+//     return userObj.name || userObj.email || userObj._id || "Unknown User";
+//   };
+
+//   // sort descending by date
+//   const sorted = [...data].sort(
+//     (a, b) => new Date(b.requested_date) - new Date(a.requested_date)
+//   );
+
+//   return (
+//     <div style={{ overflowX: "auto" }}>
+//       <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "700px" }}>
+//         <thead style={{ backgroundColor: "#fce4e4" }}>
+//           <tr>
+//             <th style={th}>User</th>
+//             <th style={th}>Blood Group</th>
+//             <th style={thCenter}>Units</th>
+//             <th style={th}>Date</th>
+//             {!hideActions && <th style={thCenter}>Actions</th>}
+//           </tr>
+//         </thead>
+//         <tbody>
+//           {sorted.map((item) => (
+//             <tr key={item._id}>
+//               <td style={td}>{renderUserInfo(item.user_id)}</td>
+//               <td style={td}>{item.blood_group}</td>
+//               <td style={tdCenter}>{item.units_requested}</td>
+//               <td style={td}>{new Date(item.requested_date).toLocaleDateString()}</td>
+//               {!hideActions && (
+//                 <td style={tdCenter}>
+//                   {item.status === "pending" ? (
+//                     <>
+//                       <button onClick={() => onAccept(item._id)} style={btnAccept}>
+//                         Accept
+//                       </button>
+//                       <button onClick={() => onReject(item._id)} style={btnReject}>
+//                         Reject
+//                       </button>
+//                     </>
+//                   ) : (
+//                     <span style={{ color: "#666", fontSize: "0.9rem" }}>
+//                       {item.status === "accepted" ? "✅ Accepted" : "❌ Rejected"}
+//                     </span>
+//                   )}
+//                 </td>
+//               )}
+//             </tr>
+//           ))}
+//         </tbody>
+//       </table>
+//     </div>
+//   );
+// }
+
+// export default function BloodBankDashboard(props) {
+//   const {
+//     bank,
+//     stock,
+//     requests,
+//     donations,
+//     notifications,
+//     onAcceptRequest,
+//     onRejectRequest,
+//     onAcceptDonation,
+//     onRejectDonation,
+//     onLogout,
+//     onMarkAllNotificationsRead,
+//   } = props;
+
+//   const [activeTab, setActiveTab] = useState("week_req");
+
+//   const thisWeekRequests = requests.filter((r) => isLast7Days(r.requested_date));
+//   const requestHistory = requests.filter((r) => !isLast7Days(r.requested_date));
+//   const thisWeekDonations = donations.filter((d) => isLast7Days(d.requested_date));
+//   const donationHistory = donations.filter((d) => !isLast7Days(d.requested_date));
+
+//   const pendingReqCount = thisWeekRequests.filter((r) => r.status === "pending").length;
+//   const pendingDonCount = thisWeekDonations.filter((d) => d.status === "pending").length;
+
+//   return (
+//     <div style={{ maxWidth: "1200px", margin: "auto", padding: "2rem", fontFamily: "Arial, sans-serif" }}>
+//       {/* Header */}
+//       <header
+//         style={{
+//           display: "flex",
+//           justifyContent: "space-between",
+//           alignItems: "center",
+//           marginBottom: "1.5rem",
+//           borderBottom: "2px solid #c0392b",
+//           paddingBottom: "0.5rem",
+//         }}
+//       >
+//         <div>
+//           <h1 style={{ color: "#c0392b", margin: 0 }}>Blood Bank Portal</h1>
+//           <p style={{ color: "#666", fontSize: "0.9rem", margin: 0 }}>Welcome, {bank.name || "Admin"}</p>
+//         </div>
+//         <nav style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+//           <Tab
+//             label="This Week Requests"
+//             count={pendingReqCount}
+//             isActive={activeTab === "week_req"}
+//             onClick={() => setActiveTab("week_req")}
+//           />
+//           <Tab
+//             label="Request History"
+//             count={requestHistory.length}
+//             isActive={activeTab === "hist_req"}
+//             onClick={() => setActiveTab("hist_req")}
+//           />
+//           <Tab
+//             label="This Week Donations"
+//             count={pendingDonCount}
+//             isActive={activeTab === "week_don"}
+//             onClick={() => setActiveTab("week_don")}
+//           />
+//           <Tab
+//             label="Donation History"
+//             count={donationHistory.length}
+//             isActive={activeTab === "hist_don"}
+//             onClick={() => setActiveTab("hist_don")}
+//           />
+//           <Notifications
+//             notifications={notifications}
+//             markAllRead={onMarkAllNotificationsRead}
+//           />
+//           <button
+//             onClick={() => window.confirm("Logout?") && onLogout()}
+//             style={btnLogout}
+//           >
+//             Logout
+//           </button>
+//         </nav>
+//       </header>
+
+//       {/* Content */}
+//       {activeTab === "week_req" && (
+//         <Table
+//           data={thisWeekRequests}
+//           onAccept={onAcceptRequest}
+//           onReject={onRejectRequest}
+//         />
+//       )}
+//       {activeTab === "hist_req" && <Table data={requestHistory} hideActions={true} />}
+//       {activeTab === "week_don" && (
+//         <Table
+//           data={thisWeekDonations.map((d) => ({ ...d, units_requested: d.units_donated }))}
+//           onAccept={onAcceptDonation}
+//           onReject={onRejectDonation}
+//         />
+//       )}
+//       {activeTab === "hist_don" && (
+//         <Table
+//           data={donationHistory.map((d) => ({ ...d, units_requested: d.units_donated }))}
+//           hideActions={true}
+//         />
+//       )}
+//     </div>
+//   );
+// }
+
+// // Styles
+// const th = { border: "1px solid #ccc", padding: "8px", textAlign: "left", backgroundColor: "#fce4e4" };
+// const thCenter = { ...th, textAlign: "center" };
+// const td = { border: "1px solid #ccc", padding: "8px" };
+// const tdCenter = { ...td, textAlign: "center" };
+// const btnAccept = { marginRight: "6px", background: "#27ae60", color: "#fff", border: "none", padding: "4px 8px", borderRadius: "4px", cursor: "pointer" };
+// const btnReject = { background: "#e74c3c", color: "#fff", border: "none", padding: "4px 8px", borderRadius: "4px", cursor: "pointer" };
+// const btnLogout = { background: "#c0392b", color: "#fff", border: "none", borderRadius: "6px", padding: "0.5rem 1.2rem", cursor: "pointer", fontWeight: 500 };

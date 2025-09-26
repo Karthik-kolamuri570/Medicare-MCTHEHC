@@ -697,21 +697,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
@@ -812,7 +797,7 @@ function Bookanappointment() {
           email: response.data.data.patientEmail,
           doctorName: selectedDoctor.name,
           date,
-          price: selectedDoctor.fee || 500,
+          price: selectedDoctor.feePerConsultation || 500,
         });
       }
     } catch (err) {
@@ -1174,7 +1159,7 @@ function Bookanappointment() {
                     </div>
                     <div style={styles.doctorDetail}>
                       <span>💰</span>
-                      <strong>Consultation Fee:</strong> ₹{selectedDoctor.fee || 500}
+                      <strong>Consultation Fee:</strong> ₹{selectedDoctor.feePerConsultation || 500}
                     </div>
                   </div>
                 </div>
