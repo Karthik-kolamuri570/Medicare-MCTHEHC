@@ -317,19 +317,19 @@ const searchData = [
   {
     id: 1,
     name: "Book an Appointment",
-    link: "/appointments",
+    link: "/top-doctors",
     tags: ["appointment", "book", "consultation", "schedule", "meeting", "doctor visit"]
   },
   {
     id: 2,
     name: "Find a Doctor",
-    link: "/find-doctor",
+    link: "/top-doctors",
     tags: ["doctor", "physician", "specialist", "search", "consult", "near me"]
   },
   {
     id: 3,
     name: "Get Second Opinion",
-    link: "/second-opinion",
+    link: "/api/get-second-opinion",
     tags: ["second opinion", "consultation", "diagnosis", "expert advice", "review", "double check"]
   },
   {
@@ -341,7 +341,7 @@ const searchData = [
   {
     id: 5,
     name: "Online Consultation",
-    link: "/online-consultation",
+    link: "/api/patient/online-consultation",
     tags: ["online", "consult", "virtual", "doctor", "chat", "telemedicine"]
   },
   {
@@ -353,13 +353,13 @@ const searchData = [
   {
     id: 7,
     name: "Blood Camps and Banks",
-    link: "/blood-services",
+    link: "/api/blood-bank",
     tags: ["blood", "donation", "camp", "bank", "availability", "blood group", "save life"]
   },
   {
     id: 8,
     name: "Blogs",
-    link: "/blogs",
+    link: "/api/blogs",
     tags: ["blog", "articles", "health tips", "news", "updates", "stories"]
   },
   {

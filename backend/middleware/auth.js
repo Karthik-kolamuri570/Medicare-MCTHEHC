@@ -48,24 +48,49 @@ exports.doctorAuth = async (req, res, next) => {
     }
 };
 
-exports.adminAuth = async (req, res, next) => {
-    console.log("Checking admin authentication");
-    // console.log("Ses   sion:", req.session);
-    if (!req.session || !req.session.isAdminLoggedIn) {
-        console.log("Unauthorized Access - Returning 401");
-        return res.status(401).json({ success: false, message: "Unauthorized access. Please log in as an admin." });
-    }
-    try {
-        const admin = await Admin.findById(req.session.adminId);
-        if (!admin) {
-            return res.status(401).json({ success: false, message: "Unauthorized access. Please log in as an admin." });
-        }
-        req.user = admin;
-        console.log("Admin is authenticated");
-        next();
-    } catch (error) {
-        console.error("Error in admin authentication:", error);
-        res.status(500).json({ success: false, message: "Internal server error" });
-    }
-};
+// exports.adminAuth = async (req, res, next) => {
+//     console.log("Checking admin authentication");
+//     // console.log("Ses   sion:", req.session);
+//     if (!req.session || !req.session.isAdminLoggedIn) {
+//         console.log("Unauthorized Access - Returning 401");
+//         return res.status(401).json({ success: false, message: "Unauthorized access. Please log in as an admin." });
+//     }
+//     try {
+//         const admin = await Admin.findById(req.session.adminId);
+//         if (!admin) {
+//             return res.status(401).json({ success: false, message: "Unauthorized access. Please log in as an admin." });
+//         }
+//         req.user = admin;
+//         console.log("Admin is authenticated");
+//         next();
+//     } catch (error) {
+//         console.error("Error in admin authentication:", error);
+//         res.status(500).json({ success: false, message: "Internal server error" });
+//     }
+// };
 
+
+
+exports.adminAuth = async (req, res, next) => {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    
+    if (!token) {
+      return res.status(401).json({ error: 'No token provided' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const admin = await Admin.findById(decoded._id);
+
+    if (!admin) {
+      return res.status(401).json({ error: 'Admin not found' });
+    }
+
+    req.admin = admin;
+    req.token = token;
+    next();
+  } catch (error) {
+    console.error('Auth error:', error);
+    res.status(401).json({ error: 'Please authenticate as admin' });
+  }
+};

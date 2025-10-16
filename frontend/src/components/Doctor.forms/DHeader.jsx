@@ -209,31 +209,31 @@ const searchData = [
   {
     id: 1,
     name: "My Appointments",
-    link: "/my-appointments",
+    link: "/api/doctor/my-appointments",
     tags: ["appointments", "my visits", "doctor meetings", "scheduled appointments", "consult history", "patient appointments"]
   },
   {
     id: 2,
     name: "My Consultations",
-    link: "/my-consultations",
+    link: "/api/doctor/my-consultations",
     tags: ["consultations", "virtual visits", "medical advice", "doctor chat", "my consults", "consult history"]
   },
   {
     id: 3,
     name: "My Blogs",
-    link: "/my-blogs",
+    link: "/api/doctor/doc/blogs",
     tags: ["my articles", "my health blogs", "my stories", "personal blogs", "health writing", "authored posts"]
   },
   {
     id: 4,
     name: "Get Second Opinion",
-    link: "/second-opinion",
+    link: "/api/doctor/second-opinion",
     tags: ["second opinion", "another diagnosis", "expert review", "confirm diagnosis", "get advice", "reconsult"]
   },
   {
     id: 5,
-    name: "Organize Blood Banks",
-    link: "/organize-blood-bank",
+    name: "Organize Blood Camps",
+    link: "/api/doctor/blood-camp/admin",
     tags: ["blood bank", "organize donation", "host blood camp", "manage donors", "blood service", "blood supply"]
   },
   {

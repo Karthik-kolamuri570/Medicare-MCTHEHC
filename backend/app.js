@@ -20,8 +20,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 app.use(cors({
-    origin: "http://localhost:5173",
-    credentials: true  // This is crucial for cookies to be sent
+  origin: 'http://localhost:5173', // Vite's default port
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 
@@ -63,6 +65,7 @@ const BloodBankUserRoutes=require('./blood_bank/routes/userRoutes');
 const BloodBankRoutes=require('./blood_bank/routes/bankRoute');
 const BloodCampRoutes=require('./blood_bank/routes/bloodCamp');
 const BlogRoutes=require('./Blogs/routes/BlogRoutes');
+const AdminRoutes=require('./routes/adminRoutes');
   
 app.use('/api/patient', patientRoutes);
 
@@ -77,6 +80,8 @@ app.use('/api/blood-bank-user',BloodBankUserRoutes);
 app.use('/api/blood-camp', BloodCampRoutes);
 
 app.use('/api/blogs', BlogRoutes);
+
+app.use('/api/admin', AdminRoutes);
 
 app.use((req, res, next) => {
     console.log('Session:', req.session);

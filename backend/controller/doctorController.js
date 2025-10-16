@@ -20,7 +20,6 @@ exports.registerDoctor = async (req, res, next) => {
     fromTime,
     toTime
   } = req.body;
-
   try {
     // Check if doctor already exists
     let doctor = await Doctor.findOne({ email });

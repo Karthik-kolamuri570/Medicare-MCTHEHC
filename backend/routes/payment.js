@@ -204,20 +204,19 @@ router.get("/success", async (req, res) => {
       }
 
       // Redirect to frontend success page (adjust the URL as per your frontend routing)
-      return res.redirect(`http://localhost:5173/api/payment/success?session_id=${session_id}`);
+      return res.redirect(`http://localhost:5173/payment/success?session_id=${session_id}`);
     } else {
-      return res.redirect(`http://localhost:5173/api/payment/cancel`);
+      return res.redirect(`http://localhost:5173/payment/cancel`);
     }
   } catch (err) {
     console.error("Stripe success error:", err.message);
-    return res.redirect(`http://localhost:5173/api/payment/cancel`);
+    return res.redirect(`http://localhost:5173/payment/cancel`);
   }
 });
 
 // Step 3: Handle Payment Cancel
 router.get("/cancel", (req, res) => {
   console.log("User canceled the payment.");
-  return res.redirect("http://localhost:5173/api/payment/cancel");
-});
-
+  return res.redirect("http://localhost:5173/payment/cancel");
+})
 module.exports = router;

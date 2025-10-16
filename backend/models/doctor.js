@@ -87,6 +87,13 @@ const userSchema=new Schema({
     seenNotifications:{
         type:Array,
         default:[]
-    }
+    },
+    verifiedByAdmin:{
+        type:String,
+        default:"pending",
+        required:true,
+        enum:['pending','approved','rejected']
+        
+    },
 })
 module.exports = mongoose.model('Doctor',userSchema);
