@@ -37,9 +37,7 @@ import BlogListPage from "./components/Blogs/pages/BlogListPage"
 import BlogDetailsPage from "./components/Blogs/pages/BlogDetailsPage";
 import DoctorDashboardPage from "./components/Blogs/pages/DoctorDashboardPage";
 import PatientLikesPage from "./components/Blogs/pages/PatientLikesPage";
-import AdminLayout from './components/admin/AdminLayout';
-import AdminDashboard from './components/admin/AdminDashboard';
-import DoctorApproval from './components/admin/DoctorApproval';
+
 const Layout = ({ children }) => (<><Header />{children}<Footer /></>);
 const DLayout = ({ children }) => (<><DHeader />{children}<DFooter /></>);
 
@@ -90,8 +88,7 @@ function App() {
         {/* Protected Routes */}
 
         {/* Admin Routes */}
-        <Route path="/api/admin" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
-        <Route path="/api/admin/doctors" element={<AdminLayout><DoctorApproval /></AdminLayout>} />
+        
       </Routes>
       <Toaster position="top-center" reverseOrder={false} />
     </Router>
