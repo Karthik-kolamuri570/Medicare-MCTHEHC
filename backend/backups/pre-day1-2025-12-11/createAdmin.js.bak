@@ -1,0 +1,55 @@
+// Script to create an admin user for testing
+const mongoose = require('mongoose');
+const bcryptjs = require('bcryptjs');
+const dotenv = require('dotenv');
+
+dotenv.config();
+
+const Admin = require('../models/admin');
+
+const createAdmin = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log('Connected to MongoDB');
+
+    // Check if admin already exists
+    const existingAdmin = await Admin.findOne({ email: 'admin@medicare.com' });
+    if (existingAdmin) {
+      console.log('Admin already exists');
+      process.exit(0);
+    }
+
+    // Hash password
+    const hashedPassword = await bcryptjs.hash('admin123456', 10);
+
+    // Create admin
+    const admin = new Admin({
+      name: 'Super Admin',
+      email: 'admin@medicare.com',
+      password: hashedPassword,
+      role: 'super-admin',
+      permissions: [
+        'manage_doctors',
+        'manage_patients',
+        'manage_appointments',
+        'manage_payments',
+        'manage_content',
+        'manage_emergency',
+        'manage_analytics'
+      ],
+      status: 'active'
+    });
+
+    await admin.save();
+    console.log('Admin created successfully!');
+    console.log('Email: admin@medicare.com');
+    console.log('Password: admin123456');
+
+    process.exit(0);
+  } catch (error) {
+    console.error('Error creating admin:', error);
+    process.exit(1);
+  }
+};
+
+createAdmin();
