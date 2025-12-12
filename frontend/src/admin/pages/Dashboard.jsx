@@ -1,0 +1,696 @@
+import React, { useState, useEffect } from 'react';
+import {
+  People as UsersIcon,
+  PersonAdd as SignupsIcon,
+  CheckCircle as ApprovalsIcon,
+  EventNote as AppointmentsIcon,
+  AttachMoney as RevenueIcon,
+  BloodtypeOutlined as BloodIcon,
+  TrendingUp as TrendingIcon,
+  Refresh as RefreshIcon
+} from '@mui/icons-material';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import adminService from '../services/adminService';
+import '../styles/Dashboard.css';
+
+const Dashboard = () => {
+  const [dashboardData, setDashboardData] = useState(null);
+  const [patientAnalytics, setPatientAnalytics] = useState([]);
+  const [appointmentAnalytics, setAppointmentAnalytics] = useState([]);
+  const [revenueDetails, setRevenueDetails] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetchAllDashboardData();
+  }, []);
+
+  const fetchAllDashboardData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Fetch all data in parallel
+      const [dashStats, patientAnal, appointmentAnal, revenueAnal] = await Promise.all([
+        adminService.getDashboardStats(),
+        adminService.getPatientAnalytics(),
+        adminService.getAppointmentAnalytics(),
+        adminService.getRevenueDetails()
+      ]);
+
+      setDashboardData(dashStats);
+      setPatientAnalytics(patientAnal || []);
+      setAppointmentAnalytics(appointmentAnal || []);
+      setRevenueDetails(revenueAnal || []);
+
+      console.log('Dashboard data loaded:', {
+        dashStats,
+        patientAnal,
+        appointmentAnal,
+        revenueAnal
+      });
+    } catch (err) {
+      setError('Failed to load dashboard data');
+      console.error('Dashboard fetch error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchDashboardData = () => {
+    fetchAllDashboardData();
+  };
+
+  if (loading) {
+    return (
+      <div className="dashboard-container">
+        <div className="loading">Loading dashboard...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="dashboard-container">
+        <div className="error">
+          {error}
+          <button onClick={fetchDashboardData}>Retry</button>
+        </div>
+      </div>
+    );
+  }
+
+  const stats = dashboardData?.stats || {};
+  const revenue = dashboardData?.revenue || [];
+  const doctorStats = dashboardData?.doctorStats || [];
+
+  // Sample data for charts (replace with actual data from API)
+  const appointmentsPerDay = [
+    { day: 'Jan', appointments: 110 },
+    { day: 'Feb', appointments: 140 },
+    { day: 'Mar', appointments: 120 },
+    { day: 'Apr', appointments: 180 },
+    { day: 'May', appointments: 200 },
+    { day: 'Jun', appointments: 220 },
+    { day: 'Jul', appointments: 210 }
+  ];
+
+  const dailyRevenue = [
+    { day: 'Jan', revenue: 2800 },
+    { day: 'Feb', revenue: 3100 },
+    { day: 'Mar', revenue: 3200 },
+    { day: 'Apr', revenue: 3400 },
+    { day: 'May', revenue: 3600 },
+    { day: 'Jun', revenue: 3800 },
+    { day: 'Jul', revenue: 3700 }
+  ];
+
+  const bloodDonations = [
+    { day: 'Jan', donations: 45 },
+    { day: 'Feb', donations: 55 },
+    { day: 'Mar', donations: 50 },
+    { day: 'Apr', donations: 65 },
+    { day: 'May', donations: 75 },
+    { day: 'Jun', donations: 78 },
+    { day: 'Jul', donations: 72 }
+  ];
+
+  const MetricCard = ({ icon, label, value, change, isPositive = true }) => (
+    <div className="metric-card">
+      <div className="metric-icon" style={{ color: '#1976d2' }}>
+        {icon}
+      </div>
+      <div className="metric-content">
+        <p className="metric-label">{label}</p>
+        <h3 className="metric-value">{value}</h3>
+        {change && (
+          <p className={`metric-change ${isPositive ? 'positive' : 'negative'}`}>
+            {isPositive ? '↑' : '↓'} {change}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="dashboard-container">
+      {/* Welcome Section */}
+      <div className="welcome-section">
+        <div className="welcome-content">
+          <h1>Welcome Back, Admin! 👋</h1>
+          <p>Here's a quick overview of HealthSphere's performance and recent activities.</p>
+        </div>
+        <button className="refresh-btn" onClick={fetchDashboardData}>
+          <RefreshIcon /> Refresh
+        </button>
+      </div>
+
+      {/* Key Metrics */}
+      <section className="metrics-section">
+        <h2>Key Metrics</h2>
+        <div className="metrics-grid">
+          <MetricCard
+            icon={<UsersIcon />}
+            label="Total Users"
+            value={stats.patients + stats.doctors}
+            change="+12% (7d)"
+            isPositive={true}
+          />
+          <MetricCard
+            icon={<SignupsIcon />}
+            label="New Signups (7d)"
+            change="+8% (prev 7d)"
+            value="189"
+            isPositive={true}
+          />
+          <MetricCard
+            icon={<ApprovalsIcon />}
+            label="Pending Doctor Approvals"
+            value={stats.pendingApprovals}
+            change="No change"
+            isPositive={true}
+          />
+          <MetricCard
+            icon={<AppointmentsIcon />}
+            label="Pending Appointments"
+            value={stats.appointments}
+            change="-5% (today)"
+            isPositive={false}
+          />
+          <MetricCard
+            icon={<RevenueIcon />}
+            label="Revenue (Last 30d)"
+            value="$12,450"
+            change="+15% (prev 30d)"
+            isPositive={true}
+          />
+          <MetricCard
+            icon={<BloodIcon />}
+            label="Blood Inventory (Units)"
+            value="850"
+            change="+20 (today)"
+            isPositive={true}
+          />
+        </div>
+      </section>
+
+      {/* Operational Trends */}
+      <section className="trends-section">
+        <h2>Operational Trends</h2>
+        <div className="charts-grid">
+          {/* Appointments per Day */}
+          <div className="chart-card">
+            <h3>Appointments per Day</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={appointmentsPerDay}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="day" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="appointments" fill="#1976d2" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Daily Revenue */}
+          <div className="chart-card">
+            <h3>Daily Revenue</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={dailyRevenue}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="day" />
+                <YAxis />
+                <Tooltip />
+                <Line type="monotone" dataKey="revenue" stroke="#4caf50" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Blood Donations */}
+          <div className="chart-card">
+            <h3>Blood Donations (Units)</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={bloodDonations}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="day" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="donations" fill="#f44336" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </section>
+
+      {/* Quick Actions & Activity Feed */}
+      <div className="actions-activity-grid">
+        {/* Quick Actions */}
+        <section className="quick-actions-section">
+          <h2>Quick Actions</h2>
+          <div className="actions-grid">
+            <div className="action-card">
+              <div className="action-icon">📋</div>
+              <h4>Review Pending Doctors</h4>
+              <p>Approve or reject new doctor applications.</p>
+              <button className="action-btn">Go to Doctors</button>
+            </div>
+            <div className="action-card">
+              <div className="action-icon">👥</div>
+              <h4>Manage Users</h4>
+              <p>View and edit user profiles.</p>
+              <button className="action-btn">Go to Users</button>
+            </div>
+            <div className="action-card">
+              <div className="action-icon">📅</div>
+              <h4>Schedule Appointment</h4>
+              <p>Create or modify patient appointments.</p>
+              <button className="action-btn">Go to Appointments</button>
+            </div>
+            <div className="action-card">
+              <div className="action-icon">🩸</div>
+              <h4>Check Blood Stock</h4>
+              <p>Monitor blood inventory levels.</p>
+              <button className="action-btn">Go to Blood Bank</button>
+            </div>
+          </div>
+        </section>
+
+        {/* Activity Feed */}
+        <section className="activity-feed-section">
+          <h2>Latest Events</h2>
+          <div className="activity-list">
+            <div className="activity-item">
+              <div className="activity-icon">👤</div>
+              <div className="activity-content">
+                <p><strong>New user registered</strong> by Jane Doe</p>
+                <span className="activity-time">2 minutes ago</span>
+              </div>
+            </div>
+            <div className="activity-item">
+              <div className="activity-icon">📋</div>
+              <div className="activity-content">
+                <p><strong>Doctor application submitted</strong> by Dr. Smith</p>
+                <span className="activity-time">1 hour ago</span>
+              </div>
+            </div>
+            <div className="activity-item">
+              <div className="activity-icon">📅</div>
+              <div className="activity-content">
+                <p><strong>Appointment booked</strong> by John Doe (Dr. Ava Sharma)</p>
+                <span className="activity-time">3 hours ago</span>
+              </div>
+            </div>
+            <div className="activity-item">
+              <div className="activity-icon">🩸</div>
+              <div className="activity-content">
+                <p><strong>Blood unit added to stock</strong> by Admin (A+ unit #789)</p>
+                <span className="activity-time">Yesterday</span>
+              </div>
+            </div>
+            <div className="activity-item">
+              <div className="activity-icon">💳</div>
+              <div className="activity-content">
+                <p><strong>Payment processed</strong> System (TXN123456)</p>
+                <span className="activity-time">Yesterday</span>
+              </div>
+            </div>
+            <div className="activity-item">
+              <div className="activity-icon">📝</div>
+              <div className="activity-content">
+                <p><strong>Blog post published</strong> by Alice Johnson (Healthy Living Tips)</p>
+                <span className="activity-time">2 days ago</span>
+              </div>
+            </div>
+            <div className="activity-item">
+              <div className="activity-icon">👤</div>
+              <div className="activity-content">
+                <p><strong>User profile updated</strong> by Admin (Jane Doe)</p>
+                <span className="activity-time">3 days ago</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import React, { useState, useEffect } from 'react';
+// import { useNavigate } from 'react-router-dom';
+// import {
+//   People as UsersIcon,
+//   PersonAdd as SignupsIcon,
+//   CheckCircle as ApprovalsIcon,
+//   EventNote as AppointmentsIcon,
+//   AttachMoney as RevenueIcon,
+//   BloodtypeOutlined as BloodIcon,
+//   TrendingUp as TrendingIcon,
+//   Refresh as RefreshIcon
+// } from '@mui/icons-material';
+// import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+// import adminService from '../services/adminService';
+// import '../styles/Dashboard.css';
+
+// const Dashboard = () => {
+//   const navigate = useNavigate();
+//   const [dashboardData, setDashboardData] = useState(null);
+//   const [patientAnalytics, setPatientAnalytics] = useState([]);
+//   const [appointmentAnalytics, setAppointmentAnalytics] = useState([]);
+//   const [revenueDetails, setRevenueDetails] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState(null);
+
+//   useEffect(() => {
+//     fetchAllDashboardData();
+//   }, []);
+
+//   const fetchAllDashboardData = async () => {
+//     try {
+//       setLoading(true);
+//       setError(null);
+
+//       // Fetch all data in parallel
+//       const [dashStats, patientAnal, appointmentAnal, revenueAnal] = await Promise.all([
+//         adminService.getDashboardStats(),
+//         adminService.getPatientAnalytics(),
+//         adminService.getAppointmentAnalytics(),
+//         adminService.getRevenueDetails()
+//       ]);
+
+//       setDashboardData(dashStats);
+//       setPatientAnalytics(patientAnal || []);
+//       setAppointmentAnalytics(appointmentAnal || []);
+//       setRevenueDetails(revenueAnal || []);
+
+//       console.log('Dashboard data loaded:', {
+//         dashStats,
+//         patientAnal,
+//         appointmentAnal,
+//         revenueAnal
+//       });
+//     } catch (err) {
+//       setError('Failed to load dashboard data');
+//       console.error('Dashboard fetch error:', err);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const fetchDashboardData = () => {
+//     fetchAllDashboardData();
+//   };
+
+//   if (loading) {
+//     return (
+//       <div className="dashboard-container">
+//         <div className="loading">Loading dashboard...</div>
+//       </div>
+//     );
+//   }
+
+//   if (error) {
+//     return (
+//       <div className="dashboard-container">
+//         <div className="error">
+//           {error}
+//           <button onClick={fetchDashboardData}>Retry</button>
+//         </div>
+//       </div>
+//     );
+//   }
+
+//   const stats = dashboardData?.stats || {};
+//   const revenue = dashboardData?.revenue || [];
+//   const doctorStats = dashboardData?.doctorStats || [];
+
+//   // Convert analytics data to chart format
+//   const appointmentsPerDay = appointmentAnalytics.map(item => ({
+//     day: item._id || 'Unknown',
+//     appointments: item.count || 0
+//   }));
+
+//   // Convert revenue data to chart format (already formatted from backend)
+//   const dailyRevenue = revenue.map(item => ({
+//     day: item.month || 'Unknown',
+//     revenue: item.total || 0
+//   }));
+
+//   // Convert doctor stats to blood donations visualization
+//   const bloodDonations = doctorStats.map(item => ({
+//     day: item._id || 'Unknown',
+//     donations: item.count || 0
+//   }));
+
+//   const MetricCard = ({ icon, label, value, change, isPositive = true }) => (
+//     <div className="metric-card">
+//       <div className="metric-icon" style={{ color: '#1976d2' }}>
+//         {icon}
+//       </div>
+//       <div className="metric-content">
+//         <p className="metric-label">{label}</p>
+//         <h3 className="metric-value">{value}</h3>
+//         {change && (
+//           <p className={`metric-change ${isPositive ? 'positive' : 'negative'}`}>
+//             {isPositive ? '↑' : '↓'} {change}
+//           </p>
+//         )}
+//       </div>
+//     </div>
+//   );
+
+//   return (
+//     <div className="dashboard-container">
+//       {/* Welcome Section */}
+//       <div className="welcome-section">
+//         <div className="welcome-content">
+//           <h1>Welcome Back, Admin! 👋</h1>
+//           <p>Here's a quick overview of HealthSphere's performance and recent activities.</p>
+//         </div>
+//         <button className="refresh-btn" onClick={fetchDashboardData}>
+//           <RefreshIcon /> Refresh
+//         </button>
+//       </div>
+
+//       {/* Key Metrics */}
+//       <section className="metrics-section">
+//         <h2>Key Metrics</h2>
+//         <div className="metrics-grid">
+//           <MetricCard
+//             icon={<UsersIcon />}
+//             label="Total Users"
+//             value={stats.patients ? stats.patients + stats.doctors : 0}
+//             change="+12% (7d)"
+//             isPositive={true}
+//           />
+//           <MetricCard
+//             icon={<SignupsIcon />}
+//             label="Total Doctors"
+//             change="+8% (prev 7d)"
+//             value={stats.doctors || 0}
+//             isPositive={true}
+//           />
+//           <MetricCard
+//             icon={<ApprovalsIcon />}
+//             label="Pending Doctor Approvals"
+//             value={stats.pendingApprovals || 0}
+//             change="Action needed"
+//             isPositive={stats.pendingApprovals === 0}
+//           />
+//           <MetricCard
+//             icon={<AppointmentsIcon />}
+//             label="Total Appointments"
+//             value={stats.appointments || 0}
+//             change={`${stats.appointments > 100 ? '+' : ''}${(stats.appointments / 10).toFixed(1)}% activity`}
+//             isPositive={true}
+//           />
+//           <MetricCard
+//             icon={<RevenueIcon />}
+//             label="Revenue (Last 30d)"
+//             value={`$${(dailyRevenue.reduce((sum, item) => sum + item.revenue, 0)).toLocaleString()}`}
+//             change="+15% (prev 30d)"
+//             isPositive={true}
+//           />
+//           <MetricCard
+//             icon={<BloodIcon />}
+//             label="Doctor Specializations"
+//             value={doctorStats.length || 0}
+//             change="Tracked"
+//             isPositive={true}
+//           />
+//         </div>
+//       </section>
+
+//       {/* Operational Trends */}
+//       <section className="trends-section">
+//         <h2>Operational Trends</h2>
+//         <div className="charts-grid">
+//           {/* Appointments per Day */}
+//           <div className="chart-card">
+//             <h3>Appointments per Day</h3>
+//             <ResponsiveContainer width="100%" height={300}>
+//               <BarChart data={appointmentsPerDay}>
+//                 <CartesianGrid strokeDasharray="3 3" />
+//                 <XAxis dataKey="day" />
+//                 <YAxis />
+//                 <Tooltip />
+//                 <Bar dataKey="appointments" fill="#1976d2" />
+//               </BarChart>
+//             </ResponsiveContainer>
+//           </div>
+
+//           {/* Daily Revenue */}
+//           <div className="chart-card">
+//             <h3>Daily Revenue</h3>
+//             <ResponsiveContainer width="100%" height={300}>
+//               <LineChart data={dailyRevenue}>
+//                 <CartesianGrid strokeDasharray="3 3" />
+//                 <XAxis dataKey="day" />
+//                 <YAxis />
+//                 <Tooltip />
+//                 <Line type="monotone" dataKey="revenue" stroke="#4caf50" />
+//               </LineChart>
+//             </ResponsiveContainer>
+//           </div>
+
+//           {/* Blood Donations */}
+//           <div className="chart-card">
+//             <h3>Blood Donations (Units)</h3>
+//             <ResponsiveContainer width="100%" height={300}>
+//               <BarChart data={bloodDonations}>
+//                 <CartesianGrid strokeDasharray="3 3" />
+//                 <XAxis dataKey="day" />
+//                 <YAxis />
+//                 <Tooltip />
+//                 <Bar dataKey="donations" fill="#f44336" />
+//               </BarChart>
+//             </ResponsiveContainer>
+//           </div>
+//         </div>
+//       </section>
+
+//       {/* Quick Actions & Activity Feed */}
+//       <div className="actions-activity-grid">
+//         {/* Quick Actions */}
+//         <section className="quick-actions-section">
+//           <h2>Quick Actions</h2>
+//           <div className="actions-grid">
+//             <div className="action-card">
+//               <div className="action-icon">📋</div>
+//               <h4>Review Pending Doctors</h4>
+//               <p>Approve or reject new doctor applications.</p>
+//               <button className="action-btn" onClick={() => navigate('/admin/doctors')}>Go to Doctors</button>
+//             </div>
+//             <div className="action-card">
+//               <div className="action-icon">👥</div>
+//               <h4>Manage Users</h4>
+//               <p>View and edit user profiles.</p>
+//               <button className="action-btn" onClick={() => navigate('/admin/users')}>Go to Users</button>
+//             </div>
+//             <div className="action-card">
+//               <div className="action-icon">📅</div>
+//               <h4>Manage Appointments</h4>
+//               <p>Create or modify patient appointments.</p>
+//               <button className="action-btn" onClick={() => navigate('/admin/appointments')}>Go to Appointments</button>
+//             </div>
+//             <div className="action-card">
+//               <div className="action-icon">🩸</div>
+//               <h4>Check Blood Stock</h4>
+//               <p>Monitor blood inventory levels.</p>
+//               <button className="action-btn" onClick={() => navigate('/admin/blood-banks')}>Go to Blood Bank</button>
+//             </div>
+//           </div>
+//         </section>
+
+//         {/* Activity Feed */}
+//         <section className="activity-feed-section">
+//           <h2>Latest Events</h2>
+//           <div className="activity-list">
+//             <div className="activity-item">
+//               <div className="activity-icon">👤</div>
+//               <div className="activity-content">
+//                 <p><strong>New user registered</strong> by Jane Doe</p>
+//                 <span className="activity-time">2 minutes ago</span>
+//               </div>
+//             </div>
+//             <div className="activity-item">
+//               <div className="activity-icon">📋</div>
+//               <div className="activity-content">
+//                 <p><strong>Doctor application submitted</strong> by Dr. Smith</p>
+//                 <span className="activity-time">1 hour ago</span>
+//               </div>
+//             </div>
+//             <div className="activity-item">
+//               <div className="activity-icon">📅</div>
+//               <div className="activity-content">
+//                 <p><strong>Appointment booked</strong> by John Doe (Dr. Ava Sharma)</p>
+//                 <span className="activity-time">3 hours ago</span>
+//               </div>
+//             </div>
+//             <div className="activity-item">
+//               <div className="activity-icon">🩸</div>
+//               <div className="activity-content">
+//                 <p><strong>Blood unit added to stock</strong> by Admin (A+ unit #789)</p>
+//                 <span className="activity-time">Yesterday</span>
+//               </div>
+//             </div>
+//             <div className="activity-item">
+//               <div className="activity-icon">💳</div>
+//               <div className="activity-content">
+//                 <p><strong>Payment processed</strong> System (TXN123456)</p>
+//                 <span className="activity-time">Yesterday</span>
+//               </div>
+//             </div>
+//             <div className="activity-item">
+//               <div className="activity-icon">📝</div>
+//               <div className="activity-content">
+//                 <p><strong>Blog post published</strong> by Alice Johnson (Healthy Living Tips)</p>
+//                 <span className="activity-time">2 days ago</span>
+//               </div>
+//             </div>
+//             <div className="activity-item">
+//               <div className="activity-icon">👤</div>
+//               <div className="activity-content">
+//                 <p><strong>User profile updated</strong> by Admin (Jane Doe)</p>
+//                 <span className="activity-time">3 days ago</span>
+//               </div>
+//             </div>
+//           </div>
+//         </section>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Dashboard;

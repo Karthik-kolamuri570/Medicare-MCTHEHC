@@ -1,5 +1,5 @@
 
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import MedicareIndex from "./components/MedicareIndex";
 import TopDoctors from "./components/TopDoctors";
 import Bookanappointment from "./components/Bookanappointment";
@@ -37,6 +37,10 @@ import BlogListPage from "./components/Blogs/pages/BlogListPage"
 import BlogDetailsPage from "./components/Blogs/pages/BlogDetailsPage";
 import DoctorDashboardPage from "./components/Blogs/pages/DoctorDashboardPage";
 import PatientLikesPage from "./components/Blogs/pages/PatientLikesPage";
+import AdminLayout from "./admin/components/AdminLayout";
+import ProtectedAdminRoute from "./admin/components/ProtectedAdminRoute";
+import AdminLogin from "./admin/pages/AdminLogin";
+import Dashboard from "./admin/pages/Dashboard";
 
 const Layout = ({ children }) => (<><Header />{children}<Footer /></>);
 const DLayout = ({ children }) => (<><DHeader />{children}<DFooter /></>);
@@ -88,6 +92,10 @@ function App() {
         {/* Protected Routes */}
 
         {/* Admin Routes */}
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/dashboard" element={<ProtectedAdminRoute><Dashboard /></ProtectedAdminRoute>} />
+        <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+
         
       </Routes>
       <Toaster position="top-center" reverseOrder={false} />

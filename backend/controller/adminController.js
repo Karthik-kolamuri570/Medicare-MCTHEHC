@@ -46,6 +46,7 @@ const adminController = {
       admin.lastLogin = new Date();
       await admin.save();
       req.session.adminLogin=admin;
+      req.session.save();
       res.json({
         success: true,
         message: 'Admin logged in successfully',
