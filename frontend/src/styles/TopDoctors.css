@@ -57,6 +57,11 @@
           grid-template-columns: repeat(4, 1fr);
           gap: 20px;
         }
+
+        /* Ensure TopDoctors always renders 4 columns (more specific to avoid overrides) */
+        .top-doctors-container .doctors-grid {
+          grid-template-columns: repeat(4, 1fr) !important;
+        }
         
         /* .doctor-card {
           background-color: #f9f9f9;

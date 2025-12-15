@@ -1,0 +1,29 @@
+.admin-appointments-page { padding: 20px; }
+.appointments-header { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:14px }
+.appointments-toolbar { display:flex; gap:12px; align-items:center }
+.appointments-toolbar .filters { display:flex; gap:8px; align-items:center }
+.filter-input { padding:10px 12px; border-radius:10px; border:1px solid #e8e8e8; background:#fff; min-width:160px }
+.filter-input[placeholder] { color:#666 }
+.actions { display:flex; gap:8px; align-items:center }
+.btn { padding:8px 12px; border-radius:8px; border:1px solid #e6e6e6; background:#fff; cursor:pointer; font-size:14px }
+.btn.muted { background:#f5f7fa; color:#333 }
+.btn.small { padding:6px 8px; font-size:13px }
+.btn.danger { background:#ff4d4f; color:#fff; border:0 }
+
+.appointments-table-wrapper { overflow-x:auto; margin-top:12px; background:#fff; border-radius:10px; border:1px solid #eee; box-shadow:0 2px 6px rgba(0,0,0,0.03); }
+.appointments-table { width:100%; border-collapse: collapse; min-width: 880px }
+.appointments-table thead th { text-align:left; padding:14px 12px; background:#fafafa; font-weight:600; font-size:13px; color:#333; border-bottom:1px solid #eee }
+.appointments-table tbody td { padding:12px; border-bottom:1px solid #f2f4f6; vertical-align:middle }
+.table-row:hover { background: #fafcff }
+.status-badge { display:inline-block; padding:6px 10px; border-radius:14px; font-size:13px; font-weight:600 }
+.status-scheduled { background: #fff7e6; color:#b06f00; border:1px solid #f0d9ad }
+.status-completed { background:#e6ffed; color:#0a8a3a; border:1px solid #bfecc2 }
+.status-cancelled { background:#ffe6e6; color:#c92a2a; border:1px solid #f1bdbd }
+.status-pending { background:#fff4e6; color:#b36a00; border:1px solid #f3d3a8 }
+
+.appointments-footer { display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-top:1px solid #f2f4f6 }
+.summary { color:#666 }
+.pagination { display:flex; gap:8px; align-items:center }
+.page { padding:6px 8px; color:#666 }
+
+.error { color:#c00 }

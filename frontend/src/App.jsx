@@ -41,6 +41,9 @@ import AdminLayout from "./admin/components/AdminLayout";
 import ProtectedAdminRoute from "./admin/components/ProtectedAdminRoute";
 import AdminLogin from "./admin/pages/AdminLogin";
 import Dashboard from "./admin/pages/Dashboard";
+import Users from "./admin/pages/Users";
+import Doctors from "./admin/pages/Doctors";
+import Appointments from "./admin/pages/Appointments";
 
 const Layout = ({ children }) => (<><Header />{children}<Footer /></>);
 const DLayout = ({ children }) => (<><DHeader />{children}<DFooter /></>);
@@ -94,6 +97,9 @@ function App() {
         {/* Admin Routes */}
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={<ProtectedAdminRoute><Dashboard /></ProtectedAdminRoute>} />
+        <Route path="/admin/users" element={<ProtectedAdminRoute><Users /></ProtectedAdminRoute>} />
+        <Route path="/admin/doctors" element={<ProtectedAdminRoute><Doctors /></ProtectedAdminRoute>} />
+        <Route path="/admin/appointments" element={<ProtectedAdminRoute><Appointments /></ProtectedAdminRoute>} />
         <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
 
         

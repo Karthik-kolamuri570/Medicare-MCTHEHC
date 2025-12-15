@@ -1,0 +1,13 @@
+.admin-users-page { padding: 20px; }
+.users-table-wrapper { overflow-x: auto; margin-top: 12px; }
+.users-table { width: 100%; border-collapse: collapse; }
+.users-table th, .users-table td { padding: 10px; border-bottom: 1px solid #e8e8e8; text-align: left; }
+.users-row { cursor: pointer; }
+.view-btn { background:#0b74de;color:#fff;border:none;padding:6px 10px;border-radius:4px;cursor:pointer }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:9999 }
+.modal { background:#fff; border-radius:8px; width: 480px; max-width:94%; padding:20px; position:relative }
+.modal-close { position:absolute; top:8px; right:10px; background:transparent;border:0;font-size:20px;cursor:pointer }
+.modal-content p { margin:6px 0 }
+.modal-actions { margin-top:12px; text-align:right }
+.btn { background:#f3f3f3;border:1px solid #ccc;padding:8px 12px;border-radius:6px;cursor:pointer }
+.error { color: #c00 }
