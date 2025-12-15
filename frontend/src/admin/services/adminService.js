@@ -126,6 +126,47 @@ const adminService = {
     });
     return response.data;
   }
+,
+
+  // Flexible get with query params (page, limit, status, doctorId, fromDate, toDate, q)
+  getAppointments: async (params = {}) => {
+    const token = localStorage.getItem('adminToken');
+    const response = await axios.get(`${API_BASE_URL}/appointments`, {
+      headers: { Authorization: `Bearer ${token}` },
+      params
+    });
+    return response.data;
+  },
+
+  cancelAppointment: async (appointmentId) => {
+    const token = localStorage.getItem('adminToken');
+    const response = await axios.put(`${API_BASE_URL}/appointments/${appointmentId}/cancel`, {}, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return response.data;
+  },
+
+  bulkCancelAppointments: async (appointmentIds) => {
+    const token = localStorage.getItem('adminToken');
+    const response = await axios.put(`${API_BASE_URL}/appointments/bulk-cancel`, { appointmentIds }, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return response.data;
+  },
+
+  rescheduleAppointment: async (appointmentId, date, time) => {
+    const token = localStorage.getItem('adminToken');
+    const response = await axios.put(`${API_BASE_URL}/appointments/${appointmentId}/reschedule`, { date, time }, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return response.data;
+  },
+
+  // Fetch doctors list for filters (uses public doctor endpoint)
+  getDoctors: async (params = {}) => {
+    const response = await axios.get(`http://localhost:1600/api/doctor`, { params });
+    return response.data;
+  }
 };
 
 export default adminService;

@@ -396,16 +396,128 @@ const adminController = {
   ,
 
   // ===== APPOINTMENTS (Admin) =====
-  // Get all appointments with patient & doctor info
+  // Get all appointments with patient & doctor info (supports filters & pagination)
   getAllAppointments: async (req, res) => {
     try {
-      const appointments = await Appointment.find()
-        .populate('doctorId', 'name specialization')
-        .populate('patientId', 'name email');
+      const { page = 1, limit = 20, status, doctorId, fromDate, toDate, q } = req.query;
+      const skip = (Math.max(1, Number(page)) - 1) * Number(limit);
 
-      res.json({ success: true, data: appointments });
+      const baseMatch = {};
+      if (status) baseMatch.status = status;
+      if (doctorId) baseMatch.doctorId = doctorId;
+      if (fromDate || toDate) {
+        baseMatch.date = {};
+        if (fromDate) baseMatch.date.$gte = fromDate;
+        if (toDate) baseMatch.date.$lte = toDate;
+      }
+
+      // Build aggregation to support text search and total count
+      const pipeline = [
+        { $match: baseMatch },
+        {
+          $lookup: {
+            from: 'doctors',
+            localField: 'doctorId',
+            foreignField: '_id',
+            as: 'doctor'
+          }
+        },
+        { $unwind: { path: '$doctor', preserveNullAndEmptyArrays: true } },
+        {
+          $lookup: {
+            from: 'patients',
+            localField: 'patientId',
+            foreignField: '_id',
+            as: 'patient'
+          }
+        },
+        { $unwind: { path: '$patient', preserveNullAndEmptyArrays: true } },
+        {
+          $addFields: {
+            doctorName: '$doctor.name',
+            patientName: '$patient.name'
+          }
+        }
+      ];
+
+      // If free-text search 'q' is provided, match after adding fields
+      if (q) {
+        pipeline.push({ $match: { $or: [ { doctorName: { $regex: q, $options: 'i' } }, { patientName: { $regex: q, $options: 'i' } } ] } });
+      }
+
+      const countPipeline = [...pipeline, { $count: 'total' }];
+      const dataPipeline = [...pipeline, { $sort: { date: -1 } }, { $skip: skip }, { $limit: Number(limit) }];
+
+      const [countRes, dataRes] = await Promise.all([
+        Appointment.aggregate(countPipeline),
+        Appointment.aggregate(dataPipeline)
+      ]);
+
+      const total = (countRes[0] && countRes[0].total) || 0;
+
+      res.json({ success: true, data: dataRes, meta: { total, page: Number(page), limit: Number(limit) } });
     } catch (error) {
       console.error('Error in getAllAppointments:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  },
+
+  // Cancel a single appointment
+  cancelAppointment: async (req, res) => {
+    try {
+      const { appointmentId } = req.params;
+      const appt = await Appointment.findByIdAndUpdate(appointmentId, { status: 'Cancelled' }, { new: true });
+      if (appt) {
+        // notify patient and doctor
+        const patientNotify = { type: 'appointment-cancelled', message: `Your appointment on ${appt.date} ${appt.time} was cancelled by admin`, data: { appointmentId: appt._id } };
+        const doctorNotify = { type: 'appointment-cancelled', message: `An appointment on ${appt.date} ${appt.time} was cancelled by admin`, data: { appointmentId: appt._id } };
+        await Patient.findByIdAndUpdate(appt.patientId, { $push: { unseenNotifications: patientNotify } }).catch(()=>{});
+        await Doctor.findByIdAndUpdate(appt.doctorId, { $push: { unseenNotifications: doctorNotify } }).catch(()=>{});
+      }
+      res.json({ success: true, data: appt });
+    } catch (error) {
+      console.error('Error in cancelAppointment:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  },
+
+  // Bulk cancel appointments
+  bulkCancelAppointments: async (req, res) => {
+    try {
+      const { appointmentIds } = req.body;
+      if (!Array.isArray(appointmentIds) || appointmentIds.length === 0) return res.status(400).json({ success: false, message: 'appointmentIds array required' });
+      const result = await Appointment.updateMany({ _id: { $in: appointmentIds } }, { $set: { status: 'Cancelled' } });
+      // Optionally push notifications in background
+      const appts = await Appointment.find({ _id: { $in: appointmentIds } });
+      for (const appt of appts) {
+        const pNotify = { type: 'appointment-cancelled', message: `Your appointment on ${appt.date} ${appt.time} was cancelled by admin`, data: { appointmentId: appt._id } };
+        const dNotify = { type: 'appointment-cancelled', message: `An appointment on ${appt.date} ${appt.time} was cancelled by admin`, data: { appointmentId: appt._id } };
+        await Patient.findByIdAndUpdate(appt.patientId, { $push: { unseenNotifications: pNotify } }).catch(()=>{});
+        await Doctor.findByIdAndUpdate(appt.doctorId, { $push: { unseenNotifications: dNotify } }).catch(()=>{});
+      }
+      res.json({ success: true, modifiedCount: result.nModified || result.modifiedCount || 0 });
+    } catch (error) {
+      console.error('Error in bulkCancelAppointments:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  },
+
+  // Reschedule an appointment (update date/time)
+  rescheduleAppointment: async (req, res) => {
+    try {
+      const { appointmentId } = req.params;
+      const { date, time } = req.body;
+      if (!date || !time) return res.status(400).json({ success: false, message: 'date and time are required' });
+      const appt = await Appointment.findByIdAndUpdate(appointmentId, { date, time, status: 'Scheduled' }, { new: true });
+      if (appt) {
+        const pNotify = { type: 'appointment-rescheduled', message: `Your appointment was rescheduled to ${date} ${time}`, data: { appointmentId: appt._id } };
+        const dNotify = { type: 'appointment-rescheduled', message: `An appointment was rescheduled to ${date} ${time}`, data: { appointmentId: appt._id } };
+        await Patient.findByIdAndUpdate(appt.patientId, { $push: { unseenNotifications: pNotify } }).catch(()=>{});
+        await Doctor.findByIdAndUpdate(appt.doctorId, { $push: { unseenNotifications: dNotify } }).catch(()=>{});
+      }
+      res.json({ success: true, data: appt });
+    } catch (error) {
+      console.error('Error in rescheduleAppointment:', error);
       res.status(500).json({ success: false, error: error.message });
     }
   }

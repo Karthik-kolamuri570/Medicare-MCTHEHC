@@ -48,6 +48,9 @@ router.put('/approve-doctor/:doctorId', adminAuth, ensureRole('super-admin', 'ad
 router.put('/reject-doctor/:doctorId', adminAuth, ensureRole('super-admin', 'admin'), adminController.rejectDoctorRegistration);
 // Appointments
 router.get('/appointments', adminAuth, ensureRole('super-admin', 'admin'), adminController.getAllAppointments);
+router.put('/appointments/:appointmentId/cancel', adminAuth, ensureRole('super-admin', 'admin'), adminController.cancelAppointment);
+router.put('/appointments/bulk-cancel', adminAuth, ensureRole('super-admin', 'admin'), adminController.bulkCancelAppointments);
+router.put('/appointments/:appointmentId/reschedule', adminAuth, ensureRole('super-admin', 'admin'), adminController.rescheduleAppointment);
 
 // ===== USER MANAGEMENT =====
 router.get('/users', adminAuth, ensureRole('super-admin', 'admin'), adminController.getAllUsers);
