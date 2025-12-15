@@ -185,7 +185,9 @@ exports.updateDoctor = async (req, res, next) => {
 // Get all doctors
 exports.getAllDoctors = async (req, res, next) => {
     try {
-        const doctors = await Doctor.find();
+        const filter = {};
+        if (req.query.verified === 'approved') filter.verifiedByAdmin = 'approved';
+        const doctors = await Doctor.find(filter);
         
         res.status(200).json({
           success: true,

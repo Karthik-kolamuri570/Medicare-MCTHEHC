@@ -207,8 +207,15 @@ const adminController = {
   getPendingDoctors: async (req, res) => {
     try {
       const pendingDoctors = await Doctor.find({ verifiedByAdmin: 'pending' })
-        .select('name email specialization experience');
-      res.json(pendingDoctors);
+        .select('name email specialization experience hospital location feePerConsultation fromTime toTime contact');
+
+      // Add createdAt timestamp derived from ObjectId if not present
+      const enriched = pendingDoctors.map(d => ({
+        ...d.toObject(),
+        createdAt: d.createdAt || (d._id ? d._id.getTimestamp() : null)
+      }));
+
+      res.json(enriched);
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
@@ -219,9 +226,42 @@ const adminController = {
       const { doctorId } = req.params;
       const doctor = await Doctor.findByIdAndUpdate(
         doctorId,
-        { verifiedByAdmin: 'approved' },
+        { verifiedByAdmin: 'approved', status: 'active' },
         { new: true }
       );
+      // Notify doctor about approval
+      if (doctor) {
+        const notification = {
+          type: 'doctor-approved',
+          message: 'Your application has been approved. You can now receive appointments.',
+          data: { doctorId: doctor._id }
+        };
+        await Doctor.findByIdAndUpdate(doctorId, { $push: { unseenNotifications: notification } });
+      }
+      res.json(doctor);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  // Reject doctor application
+  rejectDoctorRegistration: async (req, res) => {
+    try {
+      const { doctorId } = req.params;
+      const doctor = await Doctor.findByIdAndUpdate(
+        doctorId,
+        { verifiedByAdmin: 'rejected', status: 'rejected' },
+        { new: true }
+      );
+      // Notify doctor about rejection
+      if (doctor) {
+        const notification = {
+          type: 'doctor-rejected',
+          message: 'Your application has been rejected. Contact support for more details.',
+          data: { doctorId: doctor._id }
+        };
+        await Doctor.findByIdAndUpdate(doctorId, { $push: { unseenNotifications: notification } });
+      }
       res.json(doctor);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -311,6 +351,62 @@ const adminController = {
       res.json(appointmentStats);
     } catch (error) {
       res.status(500).json({ error: error.message });
+    }
+  }
+,
+
+  // ===== USER MANAGEMENT =====
+  // Get all patients (users)
+  getAllUsers: async (req, res) => {
+    try {
+      const users = await Patient.find().select('name email contact address gender age').lean();
+
+      // Add a createdAt value derived from the ObjectId timestamp if not present
+      const usersWithCreatedAt = users.map(u => ({
+        ...u,
+        createdAt: u.createdAt || (u._id ? u._id.getTimestamp() : null)
+      }));
+
+      res.json({ success: true, users: usersWithCreatedAt });
+    } catch (error) {
+      console.error('Error in getAllUsers:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  },
+
+  // Get single user by id
+  getUserById: async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const user = await Patient.findById(userId).lean();
+      if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+      // Add createdAt if missing
+      const result = {
+        ...user,
+        createdAt: user.createdAt || (user._id ? user._id.getTimestamp() : null)
+      };
+
+      res.json({ success: true, user: result });
+    } catch (error) {
+      console.error('Error in getUserById:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+  ,
+
+  // ===== APPOINTMENTS (Admin) =====
+  // Get all appointments with patient & doctor info
+  getAllAppointments: async (req, res) => {
+    try {
+      const appointments = await Appointment.find()
+        .populate('doctorId', 'name specialization')
+        .populate('patientId', 'name email');
+
+      res.json({ success: true, data: appointments });
+    } catch (error) {
+      console.error('Error in getAllAppointments:', error);
+      res.status(500).json({ success: false, error: error.message });
     }
   }
 };

@@ -45,6 +45,13 @@ router.get('/dashboard-stats', adminAuth, ensureRole('super-admin', 'admin'), ad
 // ===== DOCTOR MANAGEMENT =====
 router.get('/pending-doctors', adminAuth, ensureRole('super-admin', 'admin'), adminController.getPendingDoctors);
 router.put('/approve-doctor/:doctorId', adminAuth, ensureRole('super-admin', 'admin'), adminController.approveDoctorRegistration);
+router.put('/reject-doctor/:doctorId', adminAuth, ensureRole('super-admin', 'admin'), adminController.rejectDoctorRegistration);
+// Appointments
+router.get('/appointments', adminAuth, ensureRole('super-admin', 'admin'), adminController.getAllAppointments);
+
+// ===== USER MANAGEMENT =====
+router.get('/users', adminAuth, ensureRole('super-admin', 'admin'), adminController.getAllUsers);
+router.get('/users/:userId', adminAuth, ensureRole('super-admin', 'admin'), adminController.getUserById);
 
 // ===== ANALYTICS =====
 router.get('/patient-analytics', adminAuth, ensureRole('super-admin', 'admin'), adminController.getPatientAnalytics);

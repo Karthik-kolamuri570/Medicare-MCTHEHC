@@ -223,7 +223,7 @@ exports.bookAppointment = async (req, res) => {
 
         // Check if appointment already exists & fetch doctor info in parallel
         const [existingAppointment, doctor] = await Promise.all([
-            Appointment.findOne({ patient: new mongoose.Types.ObjectId(patientId), doctor: new mongoose.Types.ObjectId(doctorId), date, time }),
+            Appointment.findOne({ patientId: new mongoose.Types.ObjectId(patientId), doctorId: new mongoose.Types.ObjectId(doctorId), date, time }),
             Doctor.findById(doctorId)
         ]);
 
@@ -239,6 +239,10 @@ exports.bookAppointment = async (req, res) => {
                 success: false,
                 message: "Doctor not found"
             });
+        }
+        // Only allow bookings with admin-approved doctors
+        if (doctor.verifiedByAdmin !== 'approved') {
+            return res.status(403).json({ success: false, message: 'Doctor is not approved for appointments' });
         }
         //Verifying the patient is booked the apppointment in Doctor Available Time
         if(doctor.fromTime >time || doctor.toTime<time){
