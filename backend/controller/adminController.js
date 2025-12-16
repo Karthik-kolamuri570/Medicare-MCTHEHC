@@ -9,6 +9,8 @@ const Appointment = require('../models/appointments');
 const Admin = require('../models/admin');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const Stripe = require('stripe');
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 const adminController = {
   // ===== AUTHENTICATION =====
@@ -218,6 +220,156 @@ const adminController = {
       res.json(enriched);
     } catch (error) {
       res.status(500).json({ error: error.message });
+    }
+  },
+
+  // ===== PAYMENTS =====
+  // List payments derived from appointments (supports filters, search, pagination)
+  getPayments: async (req, res) => {
+    try {
+      const { page = 1, limit = 10, q, status, transactionId, customer, fromDate, toDate } = req.query;
+      console.log('getPayments request query:', req.query);
+      const match = {};
+
+      // By default include records which have a paymentStatus set (paid/refunded/etc)
+      match.paymentStatus = { $exists: true };
+
+      if (status && status !== 'All') match.paymentStatus = status;
+      if (transactionId) match.paymentId = { $regex: transactionId, $options: 'i' };
+
+      // Date filters (assume appointment.date is ISO string or parsable)
+      if (fromDate || toDate) {
+        match.date = {};
+        if (fromDate) match.date.$gte = new Date(fromDate).toISOString();
+        if (toDate) match.date.$lte = new Date(toDate).toISOString();
+      }
+
+      const pipeline = [
+        { $match: match },
+        // Lookup patient and doctor
+        {
+          $lookup: {
+            from: 'patients',
+            localField: 'patientId',
+            foreignField: '_id',
+            as: 'patient'
+          }
+        },
+        {
+          $lookup: {
+            from: 'doctors',
+            localField: 'doctorId',
+            foreignField: '_id',
+            as: 'doctor'
+          }
+        },
+        { $addFields: {
+            patient: { $arrayElemAt: ['$patient', 0] },
+            doctor: { $arrayElemAt: ['$doctor', 0] },
+            // Use fields that actually exist in schema
+            patientName: { $ifNull: ['$patient.name', ''] },
+            patientEmail: { $ifNull: ['$patient.email', ''] },
+            doctorName: { $ifNull: ['$doctor.name', ''] },
+            doctorFee: { $ifNull: ['$doctor.feePerConsultation', 0] },
+            amount: { $ifNull: ['$fee', { $ifNull: ['$price', { $ifNull: ['$doctor.feePerConsultation', 0] }] }] }
+        } },
+      ];
+
+      console.log('payments pipeline initial stages', pipeline);
+
+      // Free-text search (customer name/email or doctor)
+      if (q || customer) {
+        const search = q || customer;
+        pipeline.push({ $match: { $or: [ { patientName: { $regex: search, $options: 'i' } }, { patientEmail: { $regex: search, $options: 'i' } }, { doctorName: { $regex: search, $options: 'i' } } ] } });
+      }
+
+      // Count total
+      const countPipeline = [...pipeline, { $count: 'total' }];
+      const countResult = await Appointment.aggregate(countPipeline);
+      const total = (countResult[0] && countResult[0].total) || 0;
+
+      // Pagination & sort (most recent first)
+      pipeline.push({ $sort: { date: -1, _id: -1 } });
+      pipeline.push({ $skip: (Number(page) - 1) * Number(limit) });
+      pipeline.push({ $limit: Number(limit) });
+
+      // Final projection
+      pipeline.push({ $project: {
+        _id: 1,
+        paymentId: 1,
+        paymentStatus: 1,
+        amount: 1,
+        date: 1,
+        status: 1,
+        patientName: 1,
+        patientEmail: 1,
+        doctorName: 1
+      } });
+
+      console.log('payments pipeline final stages', pipeline);
+
+      const results = await Appointment.aggregate(pipeline);
+
+      // Add reconciliation status: simple heuristic
+      const data = results.map(r => ({
+        ...r,
+        reconciliation: (r.paymentStatus === 'Paid' && r.amount && r.amount > 0) ? 'Matched' : (r.paymentStatus === 'Refunded' ? 'Matched' : (r.paymentStatus === 'Paid' ? 'Mismatched' : 'Pending'))
+      }));
+
+      res.json({ success: true, data, meta: { total, page: Number(page), limit: Number(limit) } });
+    } catch (error) {
+      console.error('Error in getPayments:', error);
+      res.status(500).json({ success: false, error: error.message, stack: error.stack });
+    }
+  },
+
+  // Refund a payment (via Stripe) and update appointment status
+  refundPayment: async (req, res) => {
+    try {
+      const { paymentId } = req.params;
+      if (!paymentId) return res.status(400).json({ success: false, message: 'paymentId required' });
+
+      // Create refund on Stripe
+      const refund = await stripe.refunds.create({ payment_intent: paymentId });
+
+      // Update any appointments with this paymentId
+      const updated = await Appointment.updateMany({ paymentId }, { $set: { paymentStatus: 'Refunded', status: 'Refunded' } });
+
+      // Optionally notify patient(s) - best-effort: push a notification to the patient document
+      const affected = await Appointment.find({ paymentId });
+      for (const appt of affected) {
+        if (appt.patientId) {
+          await Patient.findByIdAndUpdate(appt.patientId, { $push: { unseenNotifications: { type: 'payment-refund', message: `Payment for appointment ${appt._id} has been refunded.`, data: { appointmentId: appt._id, refundId: refund.id } } } });
+        }
+      }
+
+      res.json({ success: true, message: 'Refund issued', refund, updatedCount: updated.nModified || updated.modifiedCount || 0 });
+    } catch (error) {
+      console.error('Error in refundPayment:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  },
+
+  // Debug helper: return a few appointments with payment fields (no aggregation)
+  getPaymentsDebug: async (req, res) => {
+    try {
+      const docs = await Appointment.find({ paymentStatus: { $exists: true } }).sort({ _id: -1 }).limit(20).populate('patientId', 'name email').populate('doctorId', 'name feePerConsultation');
+      const data = docs.map(d => ({
+        _id: d._id,
+        paymentId: d.paymentId,
+        paymentStatus: d.paymentStatus,
+        // show appointment fee/price and fall back to doctor's fee
+        amount: d.fee || d.price || (d.doctorId && d.doctorId.feePerConsultation) || 0,
+        date: d.date,
+        patientName: d.patientId ? d.patientId.name : null,
+        patientEmail: d.patientId ? d.patientId.email : null,
+        doctorName: d.doctorId ? d.doctorId.name : null,
+        doctorFee: d.doctorId ? d.doctorId.feePerConsultation : null
+      }));
+      res.json({ success: true, data });
+    } catch (error) {
+      console.error('Error in getPaymentsDebug:', error);
+      res.status(500).json({ success: false, error: error.message, stack: error.stack });
     }
   },
 

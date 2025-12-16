@@ -61,4 +61,9 @@ router.get('/patient-analytics', adminAuth, ensureRole('super-admin', 'admin'), 
 router.get('/appointment-analytics', adminAuth, ensureRole('super-admin', 'admin'), adminController.getAppointmentAnalytics);
 router.get('/revenue-details', adminAuth, ensureRole('super-admin', 'admin'), adminController.getRevenueDetails);
 
+// Payments
+router.get('/payments', adminAuth, ensureRole('super-admin', 'admin'), adminController.getPayments);
+router.post('/payments/:paymentId/refund', adminAuth, ensureRole('super-admin', 'admin'), adminController.refundPayment);
+router.get('/payments/debug', adminAuth, ensureRole('super-admin', 'admin'), adminController.getPaymentsDebug);
+
 module.exports = router;

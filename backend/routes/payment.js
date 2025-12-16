@@ -174,6 +174,9 @@ router.get("/success", async (req, res) => {
     if (session.payment_status === "paid") {
       const appointmentId = session.metadata.appointmentId;
 
+      // Persist paid amount (Stripe reports in smallest currency unit, paise for INR)
+      const paidAmount = session.amount_total ? (session.amount_total / 100) : null;
+
       // Update appointment if found
       const updatedAppointment = await Appointment.findByIdAndUpdate(
         appointmentId,
@@ -181,6 +184,7 @@ router.get("/success", async (req, res) => {
           status: "Pending",
           paymentId: session.payment_intent,
           paymentStatus: "Paid",
+          ...(paidAmount != null ? { price: paidAmount, fee: paidAmount } : {})
         },
         { new: true }
       );
@@ -192,6 +196,7 @@ router.get("/success", async (req, res) => {
           status: "Pending",
           paymentId: session.payment_intent,
           paymentStatus: "Paid",
+          ...(paidAmount != null ? { price: paidAmount, fee: paidAmount } : {})
         },
         { new: true }
       );

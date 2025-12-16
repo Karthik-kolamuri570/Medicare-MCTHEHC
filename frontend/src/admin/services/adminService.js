@@ -167,6 +167,25 @@ const adminService = {
     const response = await axios.get(`http://localhost:1600/api/doctor`, { params });
     return response.data;
   }
+,
+
+  // Payments
+  getPayments: async (params = {}) => {
+    const token = localStorage.getItem('adminToken');
+    const response = await axios.get(`${API_BASE_URL}/payments`, {
+      headers: { Authorization: `Bearer ${token}` },
+      params
+    });
+    return response.data;
+  },
+
+  refundPayment: async (paymentId) => {
+    const token = localStorage.getItem('adminToken');
+    const response = await axios.post(`${API_BASE_URL}/payments/${paymentId}/refund`, {}, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return response.data;
+  }
 };
 
 export default adminService;
