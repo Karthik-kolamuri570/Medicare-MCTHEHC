@@ -6,6 +6,8 @@ const Admin = require('../models/admin');
 const Blog = require('../Blogs/models/Blogs');
 const Comment = require('../Blogs/models/Comment');
 const BloodBank = require('../blood_bank/models/BloodBank');
+const BloodCamp = require('../blood_bank/models/BloodCamp');
+const GetSecondOpinion = require('../models/GetSecondOpinion');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Stripe = require('stripe');
@@ -471,6 +473,33 @@ const adminController = {
     }
   },
 
+  // ===== BLOOD CAMPS (ADMIN) =====
+  getBloodCampsAdmin: async (req, res) => {
+    try {
+      const camps = await BloodCamp.find()
+        .populate("organizer", "name email contact")
+        .sort({ start_date: 1 });
+      res.json({ success: true, data: camps });
+    } catch (error) {
+      console.error("Failed to fetch blood camps for admin:", error);
+      res.status(500).json({ success: false, message: "Failed to fetch blood camps" });
+    }
+  },
+
+  deleteBloodCampAdmin: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const camp = await BloodCamp.findById(id);
+      if (!camp) return res.status(404).json({ success: false, message: "Camp not found" });
+
+      await camp.deleteOne();
+      res.json({ success: true, message: "Blood camp deleted successfully" });
+    } catch (error) {
+      console.error("Failed to delete blood camp:", error);
+      res.status(500).json({ success: false, message: "Failed to delete blood camp" });
+    }
+  },
+
   // Get all blood banks with inventory
   getBloodBanksAdmin: async (req, res) => {
     try {
@@ -723,6 +752,28 @@ const adminController = {
     }
   },
 
+  // Delete a single appointment
+  deleteAppointment: async (req, res) => {
+    try {
+      const { appointmentId } = req.params;
+      const appointment = await Appointment.findById(appointmentId);
+
+      if (!appointment) {
+        return res.status(404).json({ success: false, message: 'Appointment not found' });
+      }
+
+      await Appointment.findByIdAndDelete(appointmentId);
+
+      res.json({
+        success: true,
+        message: 'Appointment deleted successfully'
+      });
+    } catch (error) {
+      console.error('Error in deleteAppointment:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  },
+
   // Cancel a single appointment
   cancelAppointment: async (req, res) => {
     try {
@@ -759,6 +810,83 @@ const adminController = {
       res.json({ success: true, modifiedCount: result.nModified || result.modifiedCount || 0 });
     } catch (error) {
       console.error('Error in bulkCancelAppointments:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  },
+
+  // ===== SECOND OPINIONS (Admin) =====
+  // Get all second opinion requests with patient & doctor info
+  getAllSecondOpinions: async (req, res) => {
+    try {
+      const { page = 1, limit = 20, status, q } = req.query;
+      const skip = (Math.max(1, Number(page)) - 1) * Number(limit);
+
+      const query = {};
+      if (status && status !== 'all') query.status = status;
+
+      const data = await GetSecondOpinion.find(query)
+        .populate('patientId', 'name email contact')
+        .populate('doctorId', 'name specialization')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(Number(limit));
+
+      const total = await GetSecondOpinion.countDocuments(query);
+
+      // Map to a consistent format for the frontend
+      const formatted = data.map(item => ({
+        ...item.toObject(),
+        patient: item.patientId,
+        doctor: item.doctorId,
+        type: 'Second Opinion'
+      }));
+
+      res.json({
+        success: true,
+        data: formatted,
+        meta: { total, page: Number(page), limit: Number(limit), totalPages: Math.ceil(total / limit) }
+      });
+    } catch (error) {
+      console.error('Error in getAllSecondOpinions:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  },
+
+  // Cancel a second opinion request
+  cancelSecondOpinion: async (req, res) => {
+    try {
+      const { opinionId } = req.params;
+      const opinion = await GetSecondOpinion.findByIdAndUpdate(opinionId, { status: 'rejected' }, { new: true });
+
+      if (!opinion) {
+        return res.status(404).json({ success: false, message: 'Second opinion request not found' });
+      }
+
+      res.json({ success: true, data: opinion, message: 'Second opinion request cancelled' });
+    } catch (error) {
+      console.error('Error in cancelSecondOpinion:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  },
+
+  // Delete a second opinion request
+  deleteSecondOpinion: async (req, res) => {
+    try {
+      const { opinionId } = req.params;
+      const opinion = await GetSecondOpinion.findById(opinionId);
+
+      if (!opinion) {
+        return res.status(404).json({ success: false, message: 'Second opinion request not found' });
+      }
+
+      await GetSecondOpinion.findByIdAndDelete(opinionId);
+
+      res.json({
+        success: true,
+        message: 'Second opinion request deleted successfully'
+      });
+    } catch (error) {
+      console.error('Error in deleteSecondOpinion:', error);
       res.status(500).json({ success: false, error: error.message });
     }
   },

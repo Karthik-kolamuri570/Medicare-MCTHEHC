@@ -47,6 +47,8 @@ import Appointments from "./admin/pages/Appointments";
 import Payments from "./admin/pages/Payments";
 import BlogModeration from "./admin/pages/BlogModeration";
 import FlameBankAdmin from "./admin/pages/FlameBankAdmin";
+import BloodCamps from "./admin/pages/BloodCamps";
+import Settings from "./admin/pages/Settings";
 
 const Layout = ({ children }) => (<><Header />{children}<Footer /></>);
 const DLayout = ({ children }) => (<><DHeader />{children}<DFooter /></>);
@@ -67,8 +69,13 @@ function App() {
         <Route path="/admin/appointments" element={<ProtectedAdminRoute><Appointments /></ProtectedAdminRoute>} />
         <Route path="/admin/payments" element={<ProtectedAdminRoute><Payments /></ProtectedAdminRoute>} />
         <Route path="/admin/blogs" element={<ProtectedAdminRoute><BlogModeration /></ProtectedAdminRoute>} />
+        <Route path="/admin/blood-camps" element={<ProtectedAdminRoute><BloodCamps /></ProtectedAdminRoute>} />
         <Route path="/admin/blood-banks" element={<ProtectedAdminRoute><FlameBankAdmin /></ProtectedAdminRoute>} />
+        <Route path="/admin/settings" element={<ProtectedAdminRoute><Settings /></ProtectedAdminRoute>} />
         <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+
+
+
         <Route path="/top-doctors" element={<Layout><TopDoctors /></Layout>} />
         <Route path="/book-appointment/:doctorId" element={<Layout><Bookanappointment /></Layout>} />
         <Route path="/notifications" element={<Layout><Notifications /></Layout>} />
@@ -107,18 +114,6 @@ function App() {
 
         <Route path="/payment/success" element={<Layout><PaymentSuccess /></Layout>} />
         <Route path="/payment/cancel" element={<Layout><PaymentCancel /></Layout>} />
-        {/* Protected Routes */}
-
-        {/* Admin Routes */}
-        <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin/dashboard" element={<ProtectedAdminRoute><Dashboard /></ProtectedAdminRoute>} />
-        <Route path="/admin/users" element={<ProtectedAdminRoute><Users /></ProtectedAdminRoute>} />
-        <Route path="/admin/doctors" element={<ProtectedAdminRoute><Doctors /></ProtectedAdminRoute>} />
-        <Route path="/admin/appointments" element={<ProtectedAdminRoute><Appointments /></ProtectedAdminRoute>} />
-        <Route path="/admin/payments" element={<ProtectedAdminRoute><Payments /></ProtectedAdminRoute>} />
-        <Route path="/admin/blogs" element={<ProtectedAdminRoute><BlogModeration /></ProtectedAdminRoute>} />
-        <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-
 
       </Routes>
       <Toaster position="top-center" reverseOrder={false} />

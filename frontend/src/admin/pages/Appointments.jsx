@@ -1,300 +1,529 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  Search as SearchIcon,
+  FilterList as FilterIcon,
+  Refresh as RefreshIcon,
+  CalendarMonth as CalendarIcon,
+  AccessTime as TimeIcon,
+  Person as PatientIcon,
+  LocalHospital as DoctorIcon,
+  CheckCircle as CompletedIcon,
+  Schedule as ScheduledIcon,
+  Cancel as CancelledIcon,
+  Visibility as ViewIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  AttachMoney as PaymentIcon
+} from '@mui/icons-material';
 import adminService from '../services/adminService';
 import './Appointments.css';
 
-const formatName = (appt) => {
-  return appt.patientName || appt.patient?.name || appt.patient?.email || (appt.patient && appt.patient[0] && appt.patient[0].name) || 'Unknown';
-};
-
-const formatDoctor = (appt) => {
-  return appt.doctorName || appt.doctor?.name || (appt.doctor && appt.doctor[0] && appt.doctor[0].name) || appt.doctor?.specialization || 'Unknown';
-};
-
-const formatDate = (dateStr) => {
-  if (!dateStr) return '';
-  const d = new Date(dateStr);
-  if (!isNaN(d)) return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  // fallback for YYYY-MM-DD strings
-  const parts = dateStr.split('-');
-  if (parts.length === 3) {
-    const dd = new Date(`${parts[0]}-${parts[1]}-${parts[2]}T00:00:00`);
-    if (!isNaN(dd)) return dd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  }
-  return dateStr;
-};
-
-const formatTime = (timeStr) => {
-  if (!timeStr) return '';
-  // timeStr like '16:19' or '11:53'
-  const m = timeStr.match(/^(\d{1,2}):(\d{2})/);
-  if (!m) return timeStr;
-  let hr = parseInt(m[1], 10);
-  const min = m[2];
-  const ampm = hr >= 12 ? 'PM' : 'AM';
-  hr = hr % 12 || 12;
-  return `${hr}:${min} ${ampm}`;
-};
-
 const Appointments = () => {
+  const navigate = useNavigate();
   const [appointments, setAppointments] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selected, setSelected] = useState(new Set());
-  const [selectAll, setSelectAll] = useState(false);
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
-  const [total, setTotal] = useState(0);
-  const [filters, setFilters] = useState({ status: '', doctorId: '', fromDate: '', toDate: '', q: '' });
-  const [doctors, setDoctors] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalData, setModalData] = useState(null);
-  const [rescheduleValues, setRescheduleValues] = useState({ date: '', time: '' });
-
-  useEffect(() => {
-    const fetchDoctors = async () => {
-      try {
-        const res = await adminService.getDoctors({ verified: 'approved' });
-        let data = [];
-        if (!res) data = [];
-        else if (res && res.success) data = res.data || [];
-        else if (Array.isArray(res)) data = res;
-        else if (res.data && Array.isArray(res.data)) data = res.data;
-        setDoctors(data || []);
-      } catch (e) { console.error(e); }
-    };
-    fetchDoctors();
-  }, []);
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalResults, setTotalResults] = useState(0);
+  const [limit] = useState(10);
+  const [globalStats, setGlobalStats] = useState({});
+  const [activeTab, setActiveTab] = useState('regular'); // 'regular' or 'opinion'
 
   useEffect(() => {
-    const fetch = async () => {
+    fetchAppointments();
+  }, [currentPage, filterStatus, searchTerm, activeTab]);
+
+  const fetchAppointments = async () => {
+    try {
       setLoading(true);
-      try {
-        const res = await adminService.getAppointments({ page, limit, ...filters });
-        if (res && res.success) {
-          setAppointments(res.data || []);
-          setTotal(res.meta?.total || 0);
-        } else setError('Failed to load appointments');
-      } catch (err) {
-        console.error(err);
-        setError('Error while fetching appointments');
-      } finally { setLoading(false); }
-    };
-    fetch();
-  }, [page, limit, filters]);
+      const params = {
+        page: currentPage,
+        limit,
+        status: filterStatus !== 'all' ? filterStatus : undefined,
+        q: searchTerm || undefined
+      };
 
-  useEffect(() => {
-    // when page data changes, clear select all
-    setSelectAll(false);
-    setSelected(new Set());
-  }, [appointments]);
+      let response;
+      if (activeTab === 'regular') {
+        response = await adminService.getAppointments(params);
 
-  const toggleSelect = (id) => {
-    setSelected(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
-    });
-  };
+        // Also fetch global status stats
+        const statsResponse = await adminService.getAppointmentAnalytics();
+        if (Array.isArray(statsResponse)) {
+          const statsObj = {};
+          statsResponse.forEach(item => {
+            statsObj[item._id?.toLowerCase()] = item.count;
+          });
+          setGlobalStats(statsObj);
+        }
+      } else {
+        response = await adminService.getSecondOpinions(params);
+        // For second opinions, update global total
+        setGlobalStats({ total: response.meta?.total || 0 });
+      }
 
-  const toggleSelectAll = () => {
-    if (selectAll) {
-      setSelected(new Set());
-      setSelectAll(false);
-    } else {
-      const ids = new Set(appointments.map(a => a._id));
-      setSelected(ids);
-      setSelectAll(true);
+      if (response.success) {
+        setAppointments(response.data || []);
+        setTotalPages(response.meta?.totalPages || Math.ceil((response.meta?.total || 0) / limit) || 1);
+        setTotalResults(response.meta?.total || 0);
+      } else {
+        setAppointments(response.data || response || []);
+      }
+    } catch (err) {
+      setError('Failed to load appointments');
+      console.error('Error fetching appointments:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const doBulkCancel = async () => {
-    if (selected.size === 0) return;
-    if (!confirm(`Cancel ${selected.size} appointment(s)?`)) return;
-    setLoading(true);
-    try {
-      const res = await adminService.bulkCancelAppointments(Array.from(selected));
-      if (res && res.success) {
-        setSelected(new Set());
-        setSelectAll(false);
-        // refresh
-        const r2 = await adminService.getAppointments({ page, limit, ...filters });
-        if (r2 && r2.success) {
-          setAppointments(r2.data || []);
-          setTotal(r2.meta?.total || 0);
+  const handleDeleteAppointment = async (id) => {
+    if (window.confirm('Are you sure you want to permanently delete this record?')) {
+      try {
+        let response;
+        if (activeTab === 'regular') {
+          response = await adminService.deleteAppointment(id);
+        } else {
+          response = await adminService.deleteSecondOpinion(id);
         }
-      } else alert('Failed to cancel');
-    } catch (e) { console.error(e); alert('Error while cancelling'); }
-    finally { setLoading(false); }
-  };
 
-  const doCancel = async (id) => {
-    if (!confirm('Cancel this appointment?')) return;
-    setLoading(true);
-    try {
-      const res = await adminService.cancelAppointment(id);
-      if (res && res.success) {
-        const r2 = await adminService.getAppointments({ page, limit, ...filters });
-        if (r2 && r2.success) {
-          setAppointments(r2.data || []);
-          setTotal(r2.meta?.total || 0);
+        if (response.success) {
+          fetchAppointments();
+        } else {
+          alert('Failed to delete: ' + (response.message || 'Unknown error'));
         }
-      } else alert('Failed to cancel');
-    } catch (e) { console.error(e); alert('Error while cancelling'); }
-    finally { setLoading(false); }
+      } catch (err) {
+        console.error('Delete error:', err);
+        alert('Failed to delete record');
+      }
+    }
   };
 
-  const openModal = (appt) => {
-    setModalData(appt);
-    setRescheduleValues({ date: appt.date || '', time: appt.time || '' });
-    setModalOpen(true);
-  };
-
-  const closeModal = () => { setModalOpen(false); setModalData(null); };
-
-  const submitReschedule = async () => {
-    if (!modalData) return;
-    const { date, time } = rescheduleValues;
-    if (!date || !time) { alert('Date and time required'); return; }
-    setLoading(true);
-    try {
-      const res = await adminService.rescheduleAppointment(modalData._id, date, time);
-      if (res && res.success) {
-        closeModal();
-        const r2 = await adminService.getAppointments({ page, limit, ...filters });
-        if (r2 && r2.success) {
-          setAppointments(r2.data || []);
-          setTotal(r2.meta?.total || 0);
+  const handleCancelAppointment = async (id) => {
+    if (window.confirm(`Are you sure you want to cancel this ${activeTab === 'regular' ? 'appointment' : 'request'}?`)) {
+      try {
+        let response;
+        if (activeTab === 'regular') {
+          response = await adminService.cancelAppointment(id);
+        } else {
+          response = await adminService.cancelSecondOpinion(id);
         }
-      } else alert('Failed to reschedule');
-    } catch (e) { console.error(e); alert('Error while rescheduling'); }
-    finally { setLoading(false); }
+
+        if (response.success) {
+          fetchAppointments();
+        } else {
+          alert('Failed to cancel: ' + (response.message || 'Unknown error'));
+        }
+      } catch (err) {
+        console.error('Cancel error:', err);
+        alert('Failed to cancel');
+      }
+    }
   };
 
-  const exportCSV = () => {
-    const rows = appointments.map(a => ({
-      Date: a.date,
-      Time: a.time,
-      Patient: formatName(a),
-      Doctor: formatDoctor(a),
-      Status: a.status
-    }));
-    const csv = [Object.keys(rows[0] || {}).join(','), ...rows.map(r => Object.values(r).map(v => `"${String(v).replace(/"/g,'""')}"`).join(','))].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = `appointments_page_${page}.csv`; a.click();
-    URL.revokeObjectURL(url);
+  const getStatusIcon = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'completed': return <CompletedIcon className="status-icon completed" />;
+      case 'scheduled': return <ScheduledIcon className="status-icon scheduled" />;
+      case 'cancelled': return <CancelledIcon className="status-icon cancelled" />;
+      default: return <ScheduledIcon className="status-icon pending" />;
+
+    }
   };
+
+  const getStatusClass = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'completed': return 'status-completed';
+      case 'scheduled': return 'status-scheduled';
+      case 'cancelled': return 'status-cancelled';
+      default: return 'status-pending';
+    }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-IN', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    });
+  };
+
+  // No longer needed client-side filter as we use server-side paging/filtering
+  const filteredAppointments = appointments;
+
+  const stats = {
+    total: totalResults,
+    scheduled: globalStats['scheduled'] || 0,
+    completed: globalStats['completed'] || 0,
+    cancelled: globalStats['cancelled'] || 0
+  };
+
+  const handleViewDetails = (appointment) => {
+    setSelectedAppointment(appointment);
+    setShowModal(true);
+  };
+
+  if (loading) {
+    return (
+      <div className="appointments-container">
+        <div className="loading-state">
+          <div className="loader"></div>
+          <p>Loading appointments...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="appointments-container">
+        <div className="error-state">
+          <p>{error}</p>
+          <button onClick={fetchAppointments}>Try Again</button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="admin-appointments-page">
+    <div className="appointments-container">
+      {/* Header */}
       <div className="appointments-header">
-        <h2>Appointments</h2>
-        <div className="appointments-toolbar">
-          <div className="filters">
-            <input type="date" className="filter-input" value={filters.fromDate} onChange={(e)=>{ setFilters(f=>({...f, fromDate: e.target.value})); setPage(1); }} />
-            <input type="date" className="filter-input" value={filters.toDate} onChange={(e)=>{ setFilters(f=>({...f, toDate: e.target.value})); setPage(1); }} />
-            <select className="filter-input" value={filters.status} onChange={(e)=>{ setFilters(f=>({...f, status: e.target.value})); setPage(1); }}>
-              <option value="">All Statuses</option>
-              <option value="Scheduled">Scheduled</option>
-              <option value="Completed">Completed</option>
-              <option value="Cancelled">Cancelled</option>
-              <option value="Pending">Pending</option>
-              <option value="Accepted">Accepted</option>
-            </select>
-            <input className="filter-input" placeholder="Search patient or doctor" value={filters.q} onChange={(e)=>{ setFilters(f=>({...f, q: e.target.value})); setPage(1); }} />
-            <select className="filter-input" value={filters.doctorId} onChange={(e)=>{ setFilters(f=>({...f, doctorId: e.target.value})); setPage(1); }}>
-              <option value="">All Doctors</option>
-              {doctors.map(d => (<option key={d._id} value={d._id}>{d.name || d.email || d.specialization}</option>))}
-            </select>
+        <div className="header-content">
+          <h1>{activeTab === 'regular' ? 'Appointments' : 'Second Opinions'} Management</h1>
+          <p className="subtitle">View and manage all {activeTab === 'regular' ? 'patient appointments' : 'second opinion requests'}</p>
+        </div>
+        <button className="refresh-btn" onClick={fetchAppointments}>
+          <RefreshIcon /> Refresh
+        </button>
+      </div>
+
+      {/* Tabs */}
+      <div className="appointments-tabs">
+        <button
+          className={`tab-btn ${activeTab === 'regular' ? 'active' : ''}`}
+          onClick={() => { setActiveTab('regular'); setCurrentPage(1); }}
+        >
+          <CalendarIcon /> Regular Appointments
+        </button>
+        <button
+          className={`tab-btn ${activeTab === 'opinion' ? 'active' : ''}`}
+          onClick={() => { setActiveTab('opinion'); setCurrentPage(1); }}
+        >
+          <DoctorIcon /> Get Second Opinions
+        </button>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="stats-grid">
+        <div className="stat-card total">
+          <div className="stat-icon"><CalendarIcon /></div>
+          <div className="stat-info">
+            <h3>{stats.total}</h3>
+            <p>Total Appointments</p>
           </div>
-            <div className="toolbar-right">
-              <div className="total-count">{total} appointment(s)</div>
-              <div className="actions">
-                <button className="btn muted" onClick={() => {
-                  if (selected.size === 0) return; const id = Array.from(selected)[0]; const appt = appointments.find(a=>a._id===id); if (appt) openModal(appt);
-                }}>Reschedule Selected</button>
-                <button className="btn danger" onClick={doBulkCancel}>Cancel Selected</button>
-                <button className="btn" onClick={exportCSV}>Export Data</button>
-                <button className="btn">Table View</button>
-                <button className="btn">Calendar View</button>
-              </div>
-            </div>
+        </div>
+        <div className="stat-card scheduled">
+          <div className="stat-icon"><ScheduledIcon /></div>
+          <div className="stat-info">
+            <h3>{stats.scheduled}</h3>
+            <p>Scheduled</p>
+          </div>
+        </div>
+        <div className="stat-card completed">
+          <div className="stat-icon"><CompletedIcon /></div>
+          <div className="stat-info">
+            <h3>{stats.completed}</h3>
+            <p>Completed</p>
+          </div>
+        </div>
+        <div className="stat-card cancelled">
+          <div className="stat-icon"><CancelledIcon /></div>
+          <div className="stat-info">
+            <h3>{stats.cancelled}</h3>
+            <p>Cancelled</p>
+          </div>
         </div>
       </div>
-      {loading && <p>Loading appointments...</p>}
-      {error && <p className="error">{error}</p>}
 
+      {/* Search & Filter Bar */}
+      <div className="controls-bar">
+        <div className="search-box">
+          <SearchIcon className="search-icon" />
+          <input
+            type="text"
+            placeholder="Search by patient, doctor, or ID..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <div className="filter-group">
+          <FilterIcon className="filter-icon" />
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+          >
+            <option value="all">All Status</option>
+            <option value="scheduled">Scheduled</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Appointments Table */}
       <div className="appointments-table-wrapper">
-        <table className="appointments-table">
-          <thead>
-            <tr>
-              <th style={{ width: 40 }}><input type="checkbox" checked={selectAll} onChange={toggleSelectAll} /></th>
-              <th style={{ width: 140 }}>Date</th>
-              <th style={{ width: 120 }}>Time</th>
-              <th>Patient</th>
-              <th>Doctor</th>
-              <th style={{ width: 120 }}>Status</th>
-              <th style={{ width: 140 }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {appointments.map((a) => (
-              <tr key={a._id} className={`table-row ${selected.has(a._id) ? 'selected' : ''}`}>
-                <td><input type="checkbox" checked={selected.has(a._id)} onChange={() => toggleSelect(a._id)} /></td>
-                <td className="cell-date">{formatDate(a.date)}</td>
-                <td className="cell-time">{formatTime(a.time)}</td>
-                <td>{formatName(a)}</td>
-                <td>{formatDoctor(a)}</td>
-                <td>
-                  <span className={`status-badge status-${(a.status || '').toLowerCase()}`}>{a.status}</span>
-                </td>
-                <td>
-                  <button className="btn icon-btn" title="View" onClick={() => openModal(a)}><span className="icon">👁️</span></button>
-                  <button className="btn icon-btn" title="Reschedule" onClick={() => openModal(a)}><span className="icon">✏️</span></button>
-                  <button className="btn icon-btn danger" title="Cancel" onClick={() => doCancel(a._id)}><span className="icon">🗑️</span></button>
-                </td>
+        {filteredAppointments.length === 0 ? (
+          <div className="empty-state">
+            <CalendarIcon className="empty-icon" />
+            <h3>No Appointments Found</h3>
+            <p>There are no appointments matching your criteria.</p>
+          </div>
+        ) : (
+          <table className="appointments-table">
+            <thead>
+              <tr>
+                <th>Patient</th>
+                <th>Doctor</th>
+                <th>Date & Time</th>
+                <th>Type</th>
+                <th>Payment</th>
+                <th>Status</th>
+                <th>Actions</th>
               </tr>
-            ))}
-            {appointments.length === 0 && !loading && (
-              <tr><td colSpan={7}>No appointments found</td></tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredAppointments.map((apt) => (
+                <tr key={apt._id}>
+                  <td>
+                    <div className="cell-with-avatar">
+                      <div className="avatar patient-avatar">
+                        {apt.patient?.name?.charAt(0) || 'P'}
+                      </div>
+                      <div className="cell-info">
+                        <span className="primary">{apt.patient?.name || 'Unknown'}</span>
+                        <span className="secondary">{apt.patient?.email || ''}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div className="cell-with-avatar">
+                      <div className="avatar doctor-avatar">
+                        {apt.doctor?.name?.charAt(0) || 'D'}
+                      </div>
+                      <div className="cell-info">
+                        <span className="primary">{apt.doctor?.name || 'Unknown'}</span>
+                        <span className="secondary">{apt.doctor?.specialization || ''}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div className="date-time-cell">
+                      <span className="date"><CalendarIcon /> {formatDate(apt.date)}</span>
+                      <span className="time"><TimeIcon /> {apt.time || 'N/A'}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span className={`type-badge ${apt.type?.toLowerCase() || 'consultation'}`}>
+                      {apt.type || 'Consultation'}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="payment-cell">
+                      <PaymentIcon />
+                      <span className={`payment-status ${apt.paymentStatus?.toLowerCase() || 'pending'}`}>
+                        {apt.paymentStatus || 'Pending'}
+                      </span>
+                    </div>
+                  </td>
+                  <td>
+                    <span className={`status-badge ${getStatusClass(apt.status)}`}>
+                      {getStatusIcon(apt.status)}
+                      {apt.status || 'Pending'}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="action-buttons">
+                      <button
+                        className="action-btn view"
+                        title="View Details"
+                        onClick={() => handleViewDetails(apt)}
+                      >
+                        <ViewIcon />
+                      </button>
 
-        <div className="appointments-footer">
-          <div className="summary">{selected.size} of {total} row(s) selected.</div>
-          <div className="pagination">
-            <button className="btn small" disabled={page <= 1} onClick={() => setPage(p => Math.max(1, p - 1))}>◀</button>
-            <span className="page">Page {page} of {Math.max(1, Math.ceil(total / limit))}</span>
-            <button className="btn small" disabled={page >= Math.ceil(total / limit)} onClick={() => setPage(p => p + 1)}>▶</button>
+                      {(apt.status?.toLowerCase() === 'scheduled' || apt.status?.toLowerCase() === 'pending') && (
+                        <button
+                          className="action-btn cancel"
+                          title="Cancel Record"
+                          onClick={() => handleCancelAppointment(apt._id)}
+                        >
+                          <CancelledIcon />
+                        </button>
+                      )}
+
+                      <button
+                        className="action-btn delete"
+                        title="Delete Record"
+                        onClick={() => handleDeleteAppointment(apt._id)}
+                      >
+                        <DeleteIcon />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="pagination-container">
+          <div className="pagination-info">
+            Showing <span>{(currentPage - 1) * limit + 1}</span> to <span>{Math.min(currentPage * limit, totalResults)}</span> of <span>{totalResults}</span> results
+          </div>
+          <div className="pagination-controls">
+            <button
+              className="page-btn"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            >
+              Previous
+            </button>
+
+            {[...Array(totalPages)].map((_, i) => (
+              <button
+                key={i + 1}
+                className={`page-btn ${currentPage === i + 1 ? 'active' : ''}`}
+                onClick={() => setCurrentPage(i + 1)}
+              >
+                {i + 1}
+              </button>
+            ))}
+
+            <button
+              className="page-btn"
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            >
+              Next
+            </button>
           </div>
         </div>
-      </div>
+      )}
 
-      <div className="appointments-actions">
-        <button className="btn muted" disabled={selected.size === 0}>Reschedule Selected</button>
-        <button className="btn danger" disabled={selected.size === 0} onClick={doBulkCancel}>Cancel Selected</button>
-        <button className="btn" onClick={exportCSV}>Export Data</button>
-      </div>
+      {/* Modal */}
+      {showModal && selectedAppointment && (
+        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Appointment Details</h2>
+              <button className="close-btn" onClick={() => setShowModal(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <div className="detail-section">
+                <h4><PatientIcon /> Patient Information</h4>
+                <div className="detail-grid">
+                  <div className="detail-item">
+                    <label>Name</label>
+                    <span>{selectedAppointment.patient?.name || 'N/A'}</span>
+                  </div>
+                  <div className="detail-item">
+                    <label>Email</label>
+                    <span>{selectedAppointment.patient?.email || 'N/A'}</span>
+                  </div>
+                  <div className="detail-item">
+                    <label>Contact</label>
+                    <span>{selectedAppointment.patient?.contact || 'N/A'}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="detail-section">
+                <h4><DoctorIcon /> Doctor Information</h4>
+                <div className="detail-grid">
+                  <div className="detail-item">
+                    <label>Name</label>
+                    <span>{selectedAppointment.doctor?.name || 'N/A'}</span>
+                  </div>
+                  <div className="detail-item">
+                    <label>Specialization</label>
+                    <span>{selectedAppointment.doctor?.specialization || 'N/A'}</span>
+                  </div>
+                  <div className="detail-item">
+                    <label>Fee</label>
+                    <span>₹{selectedAppointment.fee || selectedAppointment.doctor?.feePerConsultation || 0}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="detail-section">
+                <h4><CalendarIcon /> Appointment Details</h4>
+                <div className="detail-grid">
+                  <div className="detail-item">
+                    <label>Date</label>
+                    <span>{formatDate(selectedAppointment.date)}</span>
+                  </div>
+                  <div className="detail-item">
+                    <label>Time</label>
+                    <span>{selectedAppointment.time || 'N/A'}</span>
+                  </div>
+                  <div className="detail-item">
+                    <label>Status</label>
+                    <span className={`status-badge ${getStatusClass(selectedAppointment.status)}`}>
+                      {selectedAppointment.status}
+                    </span>
+                  </div>
+                  <div className="detail-item">
+                    <label>Payment Status</label>
+                    <span className={`payment-status ${selectedAppointment.paymentStatus?.toLowerCase()}`}>
+                      {selectedAppointment.paymentStatus || 'Pending'}
+                    </span>
+                  </div>
+                </div>
+              </div>
 
-      {modalOpen && modalData && (
-        <div className="modal-backdrop" onClick={closeModal}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h3>Appointment Details</h3>
-            <div className="modal-row"><strong>Date:</strong> {modalData.date}</div>
-            <div className="modal-row"><strong>Time:</strong> {modalData.time}</div>
-            <div className="modal-row"><strong>Patient:</strong> {formatName(modalData)}</div>
-            <div className="modal-row"><strong>Doctor:</strong> {formatDoctor(modalData)}</div>
-            <div className="modal-row"><strong>Status:</strong> {modalData.status}</div>
-
-            <h4>Reschedule</h4>
-            <div className="modal-row"><input type="date" value={rescheduleValues.date} onChange={(e)=>setRescheduleValues(s=>({...s,date:e.target.value}))} /></div>
-            <div className="modal-row"><input type="time" value={rescheduleValues.time} onChange={(e)=>setRescheduleValues(s=>({...s,time:e.target.value}))} /></div>
-            <div className="modal-actions">
-              <button className="btn" onClick={submitReschedule}>Save</button>
-              <button className="btn muted" onClick={closeModal}>Close</button>
+              {activeTab === 'opinion' && (
+                <div className="detail-section">
+                  <h4><FilterIcon /> Second Opinion Details</h4>
+                  <div className="detail-grid" style={{ gridTemplateColumns: '1fr' }}>
+                    <div className="detail-item">
+                      <label>Problem Description</label>
+                      <span>{selectedAppointment.problem || 'N/A'}</span>
+                    </div>
+                    <div className="detail-item">
+                      <label>Proposed Treatment</label>
+                      <span>{selectedAppointment.treatment || 'N/A'}</span>
+                    </div>
+                    <div className="detail-item">
+                      <label>Consultation Mode</label>
+                      <span style={{ textTransform: 'capitalize' }}>{selectedAppointment.mode || 'N/A'}</span>
+                    </div>
+                    {selectedAppointment.files && selectedAppointment.files.length > 0 && (
+                      <div className="detail-item">
+                        <label>Attached Files</label>
+                        <div className="files-list">
+                          {selectedAppointment.files.map((file, idx) => (
+                            <a key={idx} href={file} target="_blank" rel="noopener noreferrer" className="file-link">
+                              View Document {idx + 1}
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

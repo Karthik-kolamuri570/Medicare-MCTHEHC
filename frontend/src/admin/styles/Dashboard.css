@@ -325,3 +325,157 @@
     flex-direction: row;
   }
 }
+
+/* Blood Camps Section - Premium Design */
+.blood-camps-section {
+  margin-top: 40px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.section-header h2 {
+  font-size: 22px;
+  color: #1a237e;
+  font-weight: 700;
+  margin: 0;
+  position: relative;
+  display: inline-block;
+}
+
+.badge-count {
+  background: #e8eaf6;
+  color: #3f51b5;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.camp-list {
+  display: grid;
+  gap: 16px;
+}
+
+.camp-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.03);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.camp-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  border-color: rgba(25, 118, 210, 0.2);
+}
+
+.camp-info {
+  flex: 1;
+}
+
+.camp-name {
+  margin: 0 0 8px 0;
+  font-size: 17px;
+  color: #2c3e50;
+  font-weight: 700;
+}
+
+.camp-meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #7f8c8d;
+}
+
+.meta-item svg {
+  color: #95a5a6;
+  font-size: 18px;
+}
+
+.camp-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-pill {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+  letter-spacing: 0.5px;
+}
+
+.status-pill.upcoming {
+  background-color: #e3f2fd;
+  color: #1565c0;
+}
+
+.status-pill.completed {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-pill.active {
+  background-color: #fff3e0;
+  color: #e65100;
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.delete-btn {
+  color: #e74c3c;
+  background-color: #fff5f5;
+}
+
+.delete-btn:hover {
+  background-color: #ffebee;
+  transform: scale(1.1);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  color: #7f8c8d;
+}
+
+.empty-icon {
+  font-size: 40px;
+  margin-bottom: 10px;
+  opacity: 0.5;
+}
+
+/* Enhancing general dashboard feel */
+.dashboard-container {
+  padding: 20px;
+}

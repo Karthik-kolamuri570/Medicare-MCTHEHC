@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import AdminLayout from './AdminLayout';
+import { ThemeProvider } from '../context/ThemeContext';
 
 const ProtectedAdminRoute = ({ children }) => {
   const adminToken = localStorage.getItem('adminToken');
@@ -11,8 +12,12 @@ const ProtectedAdminRoute = ({ children }) => {
     return <Navigate to="/admin/login" replace />;
   }
 
-  // Render AdminLayout with children (the actual page component)
-  return <AdminLayout>{children}</AdminLayout>;
+  // Render AdminLayout with children wrapped in ThemeProvider
+  return (
+    <ThemeProvider>
+      <AdminLayout>{children}</AdminLayout>
+    </ThemeProvider>
+  );
 };
 
 export default ProtectedAdminRoute;

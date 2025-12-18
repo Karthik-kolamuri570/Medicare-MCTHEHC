@@ -13,16 +13,22 @@ import {
   History as AuditIcon,
   Settings as SettingsIcon,
   Logout as LogoutIcon,
-  AccountCircle as ProfileIcon
+  AccountCircle as ProfileIcon,
+  VolunteerActivism as CampIcon,
+  Brightness4 as DarkModeIcon,
+  Brightness7 as LightModeIcon
 } from '@mui/icons-material';
 import '../styles/AdminLayout.css';
+import '../styles/theme.css';
 import adminService from '../services/adminService';
+import { useTheme } from '../context/ThemeContext';
 
 const AdminLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { theme, toggleTheme } = useTheme();
 
   const adminUser = JSON.parse(localStorage.getItem('adminUser') || '{}');
 
@@ -30,11 +36,11 @@ const AdminLayout = ({ children }) => {
     { label: 'Dashboard', icon: <DashboardIcon />, path: '/admin/dashboard' },
     { label: 'Users', icon: <PeopleIcon />, path: '/admin/users' },
     { label: 'Doctor Approvals', icon: <PersonAddIcon />, path: '/admin/doctors' },
+    { label: 'Blood Camps', icon: <CampIcon />, path: '/admin/blood-camps' },
     { label: 'Flame Bank Admin', icon: <BloodIcon />, path: '/admin/blood-banks' },
     { label: 'Appointments', icon: <AppointmentIcon />, path: '/admin/appointments' },
     { label: 'Payments', icon: <PaymentIcon />, path: '/admin/payments' },
     { label: 'Blog Moderation', icon: <BlogIcon />, path: '/admin/blogs' },
-    { label: 'Audit Logs', icon: <AuditIcon />, path: '/admin/audit-logs' },
     { label: 'Settings', icon: <SettingsIcon />, path: '/admin/settings' }
   ];
 
@@ -129,6 +135,13 @@ const AdminLayout = ({ children }) => {
           </div>
 
           <div className="header-right">
+            <button
+              className="theme-toggle-btn"
+              onClick={toggleTheme}
+              title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+            >
+              {theme === 'light' ? <DarkModeIcon /> : <LightModeIcon />}
+            </button>
             <div className="profile-section">
               <button
                 className="profile-btn"

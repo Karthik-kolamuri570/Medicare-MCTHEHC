@@ -1,4 +1,5 @@
 const BloodCamp = require("../models/BloodCamp");
+const Doctor = require("../../models/doctor");
 
 // CREATE a new blood camp with validations assumed done by Mongoose
 exports.createBloodCamp = async (req, res) => {
@@ -7,18 +8,27 @@ exports.createBloodCamp = async (req, res) => {
       console.log(`Unauthorized access attempt to create blood camp `);
       return res.status(401).json({ message: "Authentication required" });
     }
-    const campp=req.body;
-    if(new Date(campp.end_date)<new Date(campp.start_date)){
-      return res.status(400).json({message:"End date must be after start date"});
+
+    // Check if doctor is verified
+    const doctor = await Doctor.findById(req.session.doctorId);
+    if (!doctor) {
+      return res.status(404).json({ message: "Doctor account not found" });
+    }
+    if (doctor.verifiedByAdmin !== 'approved') {
+      return res.status(403).json({ message: "Only approved doctors can create blood camps" });
+    }
+    const campp = req.body;
+    if (new Date(campp.end_date) < new Date(campp.start_date)) {
+      return res.status(400).json({ message: "End date must be after start date" });
     }
     //check the camp is  registered once or not by using the same name and start location...
-    const existingCamp = await BloodCamp.findOne({ 
-  name: campp.name,
-  "location.address": campp.location?.address
-});
-if (existingCamp) {
-  return res.status(400).json({ message: "Camp with same name and location already exists" });
-}
+    const existingCamp = await BloodCamp.findOne({
+      name: campp.name,
+      "location.address": campp.location?.address
+    });
+    if (existingCamp) {
+      return res.status(400).json({ message: "Camp with same name and location already exists" });
+    }
     const campData = {
       ...campp,
       organizer: req.session.doctorId, // The authenticated doctor creating the camp

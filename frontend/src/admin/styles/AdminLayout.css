@@ -314,3 +314,32 @@
     padding: 15px;
   }
 }
+
+/* Theme Toggle Button */
+.theme-toggle-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  margin-right: 15px;
+}
+
+.theme-toggle-btn:hover {
+  background-color: rgba(25, 118, 210, 0.1);
+  color: #1976d2;
+}
+
+[data-theme="dark"] .theme-toggle-btn {
+  color: #90caf9;
+}
+
+[data-theme="dark"] .theme-toggle-btn:hover {
+  background-color: rgba(144, 202, 249, 0.1);
+}

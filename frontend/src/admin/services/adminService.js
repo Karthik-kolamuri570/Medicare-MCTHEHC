@@ -138,6 +138,39 @@ const adminService = {
     return response.data;
   },
 
+  deleteAppointment: async (appointmentId) => {
+    const token = localStorage.getItem('adminToken');
+    const response = await axios.delete(`${API_BASE_URL}/appointments/${appointmentId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return response.data;
+  },
+
+  getSecondOpinions: async (params = {}) => {
+    const token = localStorage.getItem('adminToken');
+    const response = await axios.get(`${API_BASE_URL}/second-opinions`, {
+      headers: { Authorization: `Bearer ${token}` },
+      params
+    });
+    return response.data;
+  },
+
+  cancelSecondOpinion: async (opinionId) => {
+    const token = localStorage.getItem('adminToken');
+    const response = await axios.put(`${API_BASE_URL}/second-opinions/${opinionId}/cancel`, {}, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return response.data;
+  },
+
+  deleteSecondOpinion: async (opinionId) => {
+    const token = localStorage.getItem('adminToken');
+    const response = await axios.delete(`${API_BASE_URL}/second-opinions/${opinionId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return response.data;
+  },
+
   cancelAppointment: async (appointmentId) => {
     const token = localStorage.getItem('adminToken');
     const response = await axios.put(`${API_BASE_URL}/appointments/${appointmentId}/cancel`, {}, {
@@ -225,6 +258,23 @@ const adminService = {
   getBloodBanks: async () => {
     const token = localStorage.getItem('adminToken');
     const response = await axios.get(`${API_BASE_URL}/blood-banks`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return response.data;
+  },
+
+  // Blood Camps (Admin)
+  getBloodCamps: async () => {
+    const token = localStorage.getItem('adminToken');
+    const response = await axios.get(`${API_BASE_URL}/blood-camps`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return response.data;
+  },
+
+  deleteBloodCamp: async (id) => {
+    const token = localStorage.getItem('adminToken');
+    const response = await axios.delete(`${API_BASE_URL}/blood-camps/${id}`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     return response.data;

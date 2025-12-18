@@ -51,6 +51,12 @@ router.get('/appointments', adminAuth, ensureRole('super-admin', 'admin'), admin
 router.put('/appointments/:appointmentId/cancel', adminAuth, ensureRole('super-admin', 'admin'), adminController.cancelAppointment);
 router.put('/appointments/bulk-cancel', adminAuth, ensureRole('super-admin', 'admin'), adminController.bulkCancelAppointments);
 router.put('/appointments/:appointmentId/reschedule', adminAuth, ensureRole('super-admin', 'admin'), adminController.rescheduleAppointment);
+router.delete('/appointments/:appointmentId', adminAuth, ensureRole('super-admin', 'admin'), adminController.deleteAppointment);
+
+// Second Opinions
+router.get('/second-opinions', adminAuth, ensureRole('super-admin', 'admin'), adminController.getAllSecondOpinions);
+router.put('/second-opinions/:opinionId/cancel', adminAuth, ensureRole('super-admin', 'admin'), adminController.cancelSecondOpinion);
+router.delete('/second-opinions/:opinionId', adminAuth, ensureRole('super-admin', 'admin'), adminController.deleteSecondOpinion);
 
 // ===== USER MANAGEMENT =====
 router.get('/users', adminAuth, ensureRole('super-admin', 'admin'), adminController.getAllUsers);
@@ -73,5 +79,9 @@ router.delete('/comments/:commentId', adminAuth, ensureRole('super-admin', 'admi
 
 // Blood Bank Admin
 router.get('/blood-banks', adminAuth, ensureRole('super-admin', 'admin'), adminController.getBloodBanksAdmin);
+
+// Blood Camp Admin
+router.get('/blood-camps', adminAuth, ensureRole('super-admin', 'admin'), adminController.getBloodCampsAdmin);
+router.delete('/blood-camps/:id', adminAuth, ensureRole('super-admin', 'admin'), adminController.deleteBloodCampAdmin);
 
 module.exports = router;

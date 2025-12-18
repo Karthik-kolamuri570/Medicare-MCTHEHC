@@ -1,16 +1,255 @@
-.admin-doctors-page { padding: 20px }
-.doctors-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap:16px; margin-top:12px }
-.doctor-card { background:#fff;border:1px solid #eee;border-radius:8px;padding:12px }
-.doctor-card-body { display:flex; gap:12px; align-items:center }
-.doctor-avatar { width:64px;height:64px;border-radius:50%;background:#f0f4ff;display:flex;align-items:center;justify-content:center;font-weight:600 }
-.doctor-info h4{margin:0}
-.muted{color:#666;font-size:13px}
-.doctor-actions{margin-top:10px;display:flex;gap:8px}
-.btn{padding:8px 12px;border-radius:6px;border:1px solid #ddd;background:#fff;cursor:pointer}
-.btn.small{padding:6px 8px;font-size:13px}
-.btn.success{background:#28a745;color:#fff;border:0}
-.btn.danger{background:#d9534f;color:#fff;border:0}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center}
-.modal{background:#fff;padding:20px;border-radius:8px;width:480px;max-width:94%;position:relative}
-.modal .close{position:absolute;right:8px;top:8px;border:0;background:transparent;font-size:18px;cursor:pointer}
-.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+/* Premium Doctor Approval UI */
+.admin-doctors-page {
+    padding: 20px;
+}
+
+.page-header {
+    margin-bottom: 24px;
+}
+
+.page-header h2 {
+    font-size: 24px;
+    color: #1a237e;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    color: #666;
+    font-size: 14px;
+}
+
+.doctors-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+}
+
+.doctor-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+}
+
+.doctor-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+    border-color: rgba(25, 118, 210, 0.2);
+}
+
+.doctor-card-body {
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.doctor-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 600;
+    box-shadow: 0 4px 10px rgba(25, 118, 210, 0.3);
+}
+
+.doctor-info {
+    flex: 1;
+}
+
+.doctor-info h4 {
+    margin: 0 0 4px 0;
+    font-size: 18px;
+    color: #2c3e50;
+    font-weight: 700;
+}
+
+.specialization {
+    color: #1976d2 !important;
+    font-weight: 600 !important;
+    font-size: 16px !important;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.meta-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #7f8c8d;
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+
+.meta-row svg {
+    font-size: 16px;
+    color: #95a5a6;
+}
+
+.card-footer {
+    padding: 16px 20px;
+    background: #f8f9fa;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.btn {
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.btn-view {
+    color: #555;
+    background: transparent;
+    padding: 6px 12px;
+    font-size: 13px;
+    border: 1px solid #ddd;
+}
+
+.btn-view:hover {
+    background: #f0f0f0;
+}
+
+.btn-approve {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.btn-approve:hover {
+    background: #c8e6c9;
+    transform: scale(1.05);
+}
+
+.btn-reject {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.btn-reject:hover {
+    background: #ffcdd2;
+    transform: scale(1.05);
+}
+
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal {
+    background: white;
+    width: 500px;
+    max-width: 90%;
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 20px;
+}
+
+.close-btn {
+    border: none;
+    background: transparent;
+    font-size: 24px;
+    color: #999;
+    cursor: pointer;
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+.detail-row {
+    display: flex;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #f9f9f9;
+    padding-bottom: 8px;
+}
+
+.detail-row strong {
+    width: 140px;
+    color: #7f8c8d;
+    font-weight: 500;
+}
+
+.detail-row span {
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.modal-actions {
+    padding: 20px 24px;
+    background: #f8f9fa;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.btn-full {
+    padding: 10px 24px;
+    border-radius: 8px;
+}
