@@ -1,7 +1,3 @@
-
-
-
-
 // controllers/adminController.js
 const Doctor = require('../models/doctor');
 const Patient = require('../models/patient');
@@ -9,6 +5,7 @@ const Appointment = require('../models/appointments');
 const Admin = require('../models/admin');
 const Blog = require('../Blogs/models/Blogs');
 const Comment = require('../Blogs/models/Comment');
+const BloodBank = require('../blood_bank/models/BloodBank');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Stripe = require('stripe');
@@ -454,19 +451,34 @@ const adminController = {
   deleteCommentAdmin: async (req, res) => {
     try {
       const { commentId } = req.params;
-      const comment = await Comment.findByIdAndDelete(commentId);
+      const comment = await Comment.findById(commentId);
 
       if (!comment) {
         return res.status(404).json({ success: false, message: 'Comment not found' });
       }
 
-      // Update comment count on the blog
-      await Blog.findByIdAndUpdate(comment.blog_id, { $inc: { comments_count: -1 } });
+      // Decrement the comment count on the blog
+      await Blog.findByIdAndUpdate(comment.blog_id, {
+        $inc: { comments_count: -1 }
+      });
 
-      res.json({ success: true, message: 'Comment deleted successfully' });
+      await Comment.findByIdAndDelete(commentId);
+
+      res.status(200).json({ success: true, message: 'Comment deleted successfully' });
     } catch (error) {
-      console.error('Error deleting comment:', error);
-      res.status(500).json({ success: false, error: error.message });
+      console.error('Delete comment error:', error);
+      res.status(500).json({ success: false, message: 'Failed to delete comment' });
+    }
+  },
+
+  // Get all blood banks with inventory
+  getBloodBanksAdmin: async (req, res) => {
+    try {
+      const banks = await BloodBank.find().select('-password');
+      res.status(200).json({ success: true, count: banks.length, data: banks });
+    } catch (error) {
+      console.error('Get blood banks error:', error);
+      res.status(500).json({ success: false, message: 'Failed to fetch blood banks' });
     }
   },
 

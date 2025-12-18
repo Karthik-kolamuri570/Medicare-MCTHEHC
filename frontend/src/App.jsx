@@ -23,8 +23,8 @@ import LogoutDoctor from "./components/Doctor.forms/LogoutDoctor";
 import OnlineConsultation from './components/forms/OnlineConsultation'
 // import ChatApp from "./components/forms/ChatApp";
 import ChatWrapper from "./components/forms/ChatWrapper";
-import CallPage from "./components/forms/CallPage";''
-import {Toaster} from 'react-hot-toast';
+import CallPage from "./components/forms/CallPage"; ''
+import { Toaster } from 'react-hot-toast';
 import PaymentSuccess from './payments/PaymentSuccess';
 import PaymentCancel from './payments/PaymentCancel';
 import GetSecondOpinion from "./components/forms/GetSecondOpinion";
@@ -46,6 +46,7 @@ import Doctors from "./admin/pages/Doctors";
 import Appointments from "./admin/pages/Appointments";
 import Payments from "./admin/pages/Payments";
 import BlogModeration from "./admin/pages/BlogModeration";
+import FlameBankAdmin from "./admin/pages/FlameBankAdmin";
 
 const Layout = ({ children }) => (<><Header />{children}<Footer /></>);
 const DLayout = ({ children }) => (<><DHeader />{children}<DFooter /></>);
@@ -56,6 +57,18 @@ function App() {
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Layout><MedicareIndex /></Layout>} />
+        {/* ... existing routes ... */}
+
+        {/* Admin Routes */}
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/dashboard" element={<ProtectedAdminRoute><Dashboard /></ProtectedAdminRoute>} />
+        <Route path="/admin/users" element={<ProtectedAdminRoute><Users /></ProtectedAdminRoute>} />
+        <Route path="/admin/doctors" element={<ProtectedAdminRoute><Doctors /></ProtectedAdminRoute>} />
+        <Route path="/admin/appointments" element={<ProtectedAdminRoute><Appointments /></ProtectedAdminRoute>} />
+        <Route path="/admin/payments" element={<ProtectedAdminRoute><Payments /></ProtectedAdminRoute>} />
+        <Route path="/admin/blogs" element={<ProtectedAdminRoute><BlogModeration /></ProtectedAdminRoute>} />
+        <Route path="/admin/blood-banks" element={<ProtectedAdminRoute><FlameBankAdmin /></ProtectedAdminRoute>} />
+        <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
         <Route path="/top-doctors" element={<Layout><TopDoctors /></Layout>} />
         <Route path="/book-appointment/:doctorId" element={<Layout><Bookanappointment /></Layout>} />
         <Route path="/notifications" element={<Layout><Notifications /></Layout>} />
@@ -64,7 +77,7 @@ function App() {
         <Route path="/api/doctor/login" element={<Layout><LoginDoctor /></Layout>} />
         <Route path="/api/patient/register" element={<Layout><User /></Layout>} />
         <Route path="/api/doctor/register" element={<Layout><Doctor /></Layout>} />
-        <Route path="/api/patient/logout" element={<LogoutPatient/>} />
+        <Route path="/api/patient/logout" element={<LogoutPatient />} />
         <Route path="/api/patient/online-consultation" element={<Layout><OnlineConsultation /></Layout>} />
         <Route path="/api/get-second-opinion" element={<Layout><GetSecondOpinion /></Layout>} />
         <Route path="/api/blood-bank" element={<BankHome />} />
@@ -76,9 +89,9 @@ function App() {
         {/* Blog Routes */}
         <Route path="/api/blogs" element={<Layout><BlogListPage /></Layout>} />
         <Route path="/api/blog/:id" element={<Layout><BlogDetailsPage /></Layout>} />
-        <Route path ="/api/doctor/doc/blogs" element={<DLayout><DoctorDashboardPage /></DLayout>} /> 
+        <Route path="/api/doctor/doc/blogs" element={<DLayout><DoctorDashboardPage /></DLayout>} />
         <Route path="/api/patient/likes" element={<Layout><PatientLikesPage /></Layout>} />
-        
+
         {/* <Route path="/api/chat/:receiverId" element={<Layout><ChatWrapper /></Layout>} /> */}
 
         {/* Doctor Dashboard Routes */}
@@ -87,13 +100,13 @@ function App() {
         <Route path="/api/doctor/my-consultations" element={<DLayout><DOnlineConsultation /></DLayout>} />
         <Route path="/api/doctor/second-opinion" element={<DLayout><DSecondOpinions /></DLayout>} />
         <Route path="/my-blogs" element={<DLayout><DBlogs /></DLayout>} />
-        <Route path="/api/doctor/logout" element={<LogoutDoctor/>} />
+        <Route path="/api/doctor/logout" element={<LogoutDoctor />} />
         {/* <Route path="/chat/:patientId" element={<DLayout><ChatApp /></DLayout>} /> */}
         <Route path="/api/chat/:receiverId" element={<ChatWrapper />} />
         <Route path="/api/video-call/:receiverId" element={<CallPage />} />
 
-         <Route path="/payment/success" element={<Layout><PaymentSuccess /></Layout>} />
-         <Route path="/payment/cancel" element={<Layout><PaymentCancel /></Layout>} />
+        <Route path="/payment/success" element={<Layout><PaymentSuccess /></Layout>} />
+        <Route path="/payment/cancel" element={<Layout><PaymentCancel /></Layout>} />
         {/* Protected Routes */}
 
         {/* Admin Routes */}
@@ -106,7 +119,7 @@ function App() {
         <Route path="/admin/blogs" element={<ProtectedAdminRoute><BlogModeration /></ProtectedAdminRoute>} />
         <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
 
-        
+
       </Routes>
       <Toaster position="top-center" reverseOrder={false} />
     </Router>

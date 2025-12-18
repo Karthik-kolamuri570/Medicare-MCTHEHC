@@ -236,18 +236,17 @@ const BlogModeration = () => {
                           <div className="comment-item">
                             <img className="comment-avatar" src={'/avatar-placeholder.png'} alt={comment.patient_id?.name || 'User'} />
                             <div className="comment-body">
-                              <div className="comment-header-row" style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                                <div>
-                                  <div className="comment-author">{comment.patient_id?.name || 'Anonymous'}</div>
-                                  <div className="comment-time muted">{comment.createdAt ? new Date(comment.createdAt).toLocaleString() : ''}</div>
+                              <div className="comment-header-row">
+                                <div className="comment-author">
+                                  {comment.patient_id?.name || 'Anonymous'}
+                                  <span className="comment-time">{comment.createdAt ? new Date(comment.createdAt).toLocaleString() : ''}</span>
                                 </div>
                                 <button
                                   className="icon-btn delete-small"
                                   title="Delete Comment"
                                   onClick={() => handleDeleteComment(comment._id)}
-                                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#dc2626' }}
                                 >
-                                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                                   </svg>
                                 </button>
@@ -258,31 +257,28 @@ const BlogModeration = () => {
 
                           {/* Replies */}
                           {replies.length > 0 && (
-                            <div className="replies-list" style={{ marginLeft: '3rem', borderLeft: '2px solid #f0f0f0', paddingLeft: '1rem', marginTop: '0.5rem' }}>
+                            <div className="replies-list">
                               {replies.map(reply => (
-                                <div className="comment-item reply-item" key={reply._id} style={{ marginBottom: '0.75rem' }}>
-                                  <img className="comment-avatar" src={'/avatar-placeholder.png'} alt={reply.patient_id?.name || 'User'} style={{ width: '24px', height: '24px' }} />
+                                <div className="comment-item reply-item" key={reply._id}>
+                                  <img className="comment-avatar" src={'/avatar-placeholder.png'} alt={reply.patient_id?.name || 'User'} />
                                   <div className="comment-body">
-                                    <div className="comment-header-row" style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                                      <div>
-                                        <div className="comment-author" style={{ fontSize: '0.85rem' }}>
-                                          {reply.patient_id?.name || 'Anonymous'}
-                                          <span className="muted" style={{ fontWeight: 'normal', marginLeft: '5px' }}>replied</span>
-                                        </div>
-                                        <div className="comment-time muted" style={{ fontSize: '0.75rem' }}>{reply.createdAt ? new Date(reply.createdAt).toLocaleString() : ''}</div>
+                                    <div className="comment-header-row">
+                                      <div className="comment-author">
+                                        {reply.patient_id?.name || 'Anonymous'}
+                                        <span className="muted">replied</span>
+                                        <span className="comment-time" style={{ marginLeft: 'auto' }}>{reply.createdAt ? new Date(reply.createdAt).toLocaleString() : ''}</span>
                                       </div>
                                       <button
                                         className="icon-btn delete-small"
                                         title="Delete Reply"
                                         onClick={() => handleDeleteComment(reply._id)}
-                                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#dc2626' }}
                                       >
-                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                           <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                                         </svg>
                                       </button>
                                     </div>
-                                    <div className="comment-text" style={{ fontSize: '0.9rem' }}>{reply.comment_text}</div>
+                                    <div className="comment-text">{reply.comment_text}</div>
                                   </div>
                                 </div>
                               ))}

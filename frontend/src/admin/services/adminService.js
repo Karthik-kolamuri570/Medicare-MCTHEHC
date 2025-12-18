@@ -212,10 +212,19 @@ const adminService = {
     });
     return response.data;
   },
-
+  // Delete a comment
   deleteComment: async (commentId) => {
     const token = localStorage.getItem('adminToken');
     const response = await axios.delete(`${API_BASE_URL}/comments/${commentId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return response.data;
+  },
+
+  // Get all blood banks (Flame Bank Admin)
+  getBloodBanks: async () => {
+    const token = localStorage.getItem('adminToken');
+    const response = await axios.get(`${API_BASE_URL}/blood-banks`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     return response.data;

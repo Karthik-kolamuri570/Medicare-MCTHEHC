@@ -71,4 +71,7 @@ router.delete('/blogs/:id', adminAuth, ensureRole('super-admin', 'admin'), admin
 router.get('/blogs/:id/comments', adminAuth, ensureRole('super-admin', 'admin'), adminController.getBlogCommentsAdmin);
 router.delete('/comments/:commentId', adminAuth, ensureRole('super-admin', 'admin'), adminController.deleteCommentAdmin);
 
+// Blood Bank Admin
+router.get('/blood-banks', adminAuth, ensureRole('super-admin', 'admin'), adminController.getBloodBanksAdmin);
+
 module.exports = router;
