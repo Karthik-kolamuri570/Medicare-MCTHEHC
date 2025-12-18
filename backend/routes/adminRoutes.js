@@ -68,5 +68,7 @@ router.get('/payments/debug', adminAuth, ensureRole('super-admin', 'admin'), adm
 // Blog moderation (admin)
 router.get('/blogs', adminAuth, ensureRole('super-admin', 'admin'), adminController.getBlogsAdmin);
 router.delete('/blogs/:id', adminAuth, ensureRole('super-admin', 'admin'), adminController.deleteBlogAdmin);
+router.get('/blogs/:id/comments', adminAuth, ensureRole('super-admin', 'admin'), adminController.getBlogCommentsAdmin);
+router.delete('/comments/:commentId', adminAuth, ensureRole('super-admin', 'admin'), adminController.deleteCommentAdmin);
 
 module.exports = router;

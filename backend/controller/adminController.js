@@ -8,6 +8,7 @@ const Patient = require('../models/patient');
 const Appointment = require('../models/appointments');
 const Admin = require('../models/admin');
 const Blog = require('../Blogs/models/Blogs');
+const Comment = require('../Blogs/models/Comment');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Stripe = require('stripe');
@@ -15,7 +16,7 @@ const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 const adminController = {
   // ===== AUTHENTICATION =====
-  
+
   // Admin Login
   login: async (req, res) => {
     try {
@@ -37,7 +38,7 @@ const adminController = {
       if (!isPasswordValid) {
         return res.status(401).json({ success: false, message: 'Invalid email or password' });
       }
-    
+
       // Generate JWT token
       const token = jwt.sign(
         { _id: admin._id, email: admin.email, role: admin.role },
@@ -48,7 +49,7 @@ const adminController = {
       // Update last login
       admin.lastLogin = new Date();
       await admin.save();
-      req.session.adminLogin=admin;
+      req.session.adminLogin = admin;
       req.session.save();
       res.json({
         success: true,
@@ -60,7 +61,7 @@ const adminController = {
           email: admin.email,
           role: admin.role,
           permissions: admin.permissions,
-          lastLogin:admin.lastLogin
+          lastLogin: admin.lastLogin
         }
       });
     } catch (error) {
@@ -72,41 +73,41 @@ const adminController = {
   // Admin Logout
   logout: async (req, res) => {
     try {
-    const sessionId = req.sessionID;
-    console.log("Logging out session ID:", sessionId);
+      const sessionId = req.sessionID;
+      console.log("Logging out session ID:", sessionId);
 
-    req.session.destroy((err) => {
+      req.session.destroy((err) => {
         if (err) {
-            console.error('Error destroying session:', err);
-            return res.status(500).json({
-                success: false,
-                message: 'Logout failed'
-            });
+          console.error('Error destroying session:', err);
+          return res.status(500).json({
+            success: false,
+            message: 'Logout failed'
+          });
         }
 
         // Manually remove session from MongoDB store (belt & suspenders approach)
         req.sessionStore.destroy(sessionId, (err) => {
-            if (err) {
-                console.error('Manual store destroy failed:', err);
-            } else {
-                console.log('Session manually removed from MongoDB store:', sessionId);
-            }
+          if (err) {
+            console.error('Manual store destroy failed:', err);
+          } else {
+            console.log('Session manually removed from MongoDB store:', sessionId);
+          }
 
-            // Clear cookie from client
-            res.clearCookie('connect.sid', {
-                path: '/',
-                httpOnly: true,
-                sameSite: 'lax'
-            });
-            res.json({
-                success: true,
-                message: ' Admin Logout successful'
-            });
+          // Clear cookie from client
+          res.clearCookie('connect.sid', {
+            path: '/',
+            httpOnly: true,
+            sameSite: 'lax'
+          });
+          res.json({
+            success: true,
+            message: ' Admin Logout successful'
+          });
 
-            // res.redirect('/api/patient/login'); // Redirect to login page
+          // res.redirect('/api/patient/login'); // Redirect to login page
         });
-    });
-     
+      });
+
     } catch (error) {
       console.error('Error in admin logout:', error);
       res.status(500).json({ success: false, error: error.message });
@@ -117,7 +118,7 @@ const adminController = {
   refreshToken: async (req, res) => {
     try {
       const { token } = req.body;
-      
+
       if (!token) {
         return res.status(400).json({ success: false, message: 'Token is required' });
       }
@@ -167,7 +168,7 @@ const adminController = {
         },
         {
           $group: {
-            _id: { 
+            _id: {
               month: { $month: "$date" },
               year: { $year: "$date" }
             },
@@ -175,9 +176,9 @@ const adminController = {
           }
         },
         {
-          $sort: { 
-            "_id.year": 1, 
-            "_id.month": 1 
+          $sort: {
+            "_id.year": 1,
+            "_id.month": 1
           }
         }
       ]);
@@ -264,7 +265,8 @@ const adminController = {
             as: 'doctor'
           }
         },
-        { $addFields: {
+        {
+          $addFields: {
             patient: { $arrayElemAt: ['$patient', 0] },
             doctor: { $arrayElemAt: ['$doctor', 0] },
             // Use fields that actually exist in schema
@@ -273,7 +275,8 @@ const adminController = {
             doctorName: { $ifNull: ['$doctor.name', ''] },
             doctorFee: { $ifNull: ['$doctor.feePerConsultation', 0] },
             amount: { $ifNull: ['$fee', { $ifNull: ['$price', { $ifNull: ['$doctor.feePerConsultation', 0] }] }] }
-        } },
+          }
+        },
       ];
 
       console.log('payments pipeline initial stages', pipeline);
@@ -281,7 +284,7 @@ const adminController = {
       // Free-text search (customer name/email or doctor)
       if (q || customer) {
         const search = q || customer;
-        pipeline.push({ $match: { $or: [ { patientName: { $regex: search, $options: 'i' } }, { patientEmail: { $regex: search, $options: 'i' } }, { doctorName: { $regex: search, $options: 'i' } } ] } });
+        pipeline.push({ $match: { $or: [{ patientName: { $regex: search, $options: 'i' } }, { patientEmail: { $regex: search, $options: 'i' } }, { doctorName: { $regex: search, $options: 'i' } }] } });
       }
 
       // Count total
@@ -295,17 +298,19 @@ const adminController = {
       pipeline.push({ $limit: Number(limit) });
 
       // Final projection
-      pipeline.push({ $project: {
-        _id: 1,
-        paymentId: 1,
-        paymentStatus: 1,
-        amount: 1,
-        date: 1,
-        status: 1,
-        patientName: 1,
-        patientEmail: 1,
-        doctorName: 1
-      } });
+      pipeline.push({
+        $project: {
+          _id: 1,
+          paymentId: 1,
+          paymentStatus: 1,
+          amount: 1,
+          date: 1,
+          status: 1,
+          patientName: 1,
+          patientEmail: 1,
+          doctorName: 1
+        }
+      });
 
       console.log('payments pipeline final stages', pipeline);
 
@@ -426,6 +431,41 @@ const adminController = {
       res.json({ success: true, message: 'Blog deleted by admin' });
     } catch (error) {
       console.error('Error in deleteBlogAdmin:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  },
+
+  // Get comments for a specific blog (Admin)
+  getBlogCommentsAdmin: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const comments = await Comment.find({ blog_id: id })
+        .populate('patient_id', 'name email') // Populate patient details
+        .sort({ createdAt: -1 });
+
+      res.json({ success: true, comments });
+    } catch (error) {
+      console.error('Error fetching comments for admin:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  },
+
+  // Delete a comment (Admin)
+  deleteCommentAdmin: async (req, res) => {
+    try {
+      const { commentId } = req.params;
+      const comment = await Comment.findByIdAndDelete(commentId);
+
+      if (!comment) {
+        return res.status(404).json({ success: false, message: 'Comment not found' });
+      }
+
+      // Update comment count on the blog
+      await Blog.findByIdAndUpdate(comment.blog_id, { $inc: { comments_count: -1 } });
+
+      res.json({ success: true, message: 'Comment deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting comment:', error);
       res.status(500).json({ success: false, error: error.message });
     }
   },
@@ -562,7 +602,7 @@ const adminController = {
       res.status(500).json({ error: error.message });
     }
   }
-,
+  ,
 
   // ===== USER MANAGEMENT =====
   // Get all patients (users)
@@ -651,7 +691,7 @@ const adminController = {
 
       // If free-text search 'q' is provided, match after adding fields
       if (q) {
-        pipeline.push({ $match: { $or: [ { doctorName: { $regex: q, $options: 'i' } }, { patientName: { $regex: q, $options: 'i' } } ] } });
+        pipeline.push({ $match: { $or: [{ doctorName: { $regex: q, $options: 'i' } }, { patientName: { $regex: q, $options: 'i' } }] } });
       }
 
       const countPipeline = [...pipeline, { $count: 'total' }];
@@ -680,8 +720,8 @@ const adminController = {
         // notify patient and doctor
         const patientNotify = { type: 'appointment-cancelled', message: `Your appointment on ${appt.date} ${appt.time} was cancelled by admin`, data: { appointmentId: appt._id } };
         const doctorNotify = { type: 'appointment-cancelled', message: `An appointment on ${appt.date} ${appt.time} was cancelled by admin`, data: { appointmentId: appt._id } };
-        await Patient.findByIdAndUpdate(appt.patientId, { $push: { unseenNotifications: patientNotify } }).catch(()=>{});
-        await Doctor.findByIdAndUpdate(appt.doctorId, { $push: { unseenNotifications: doctorNotify } }).catch(()=>{});
+        await Patient.findByIdAndUpdate(appt.patientId, { $push: { unseenNotifications: patientNotify } }).catch(() => { });
+        await Doctor.findByIdAndUpdate(appt.doctorId, { $push: { unseenNotifications: doctorNotify } }).catch(() => { });
       }
       res.json({ success: true, data: appt });
     } catch (error) {
@@ -701,8 +741,8 @@ const adminController = {
       for (const appt of appts) {
         const pNotify = { type: 'appointment-cancelled', message: `Your appointment on ${appt.date} ${appt.time} was cancelled by admin`, data: { appointmentId: appt._id } };
         const dNotify = { type: 'appointment-cancelled', message: `An appointment on ${appt.date} ${appt.time} was cancelled by admin`, data: { appointmentId: appt._id } };
-        await Patient.findByIdAndUpdate(appt.patientId, { $push: { unseenNotifications: pNotify } }).catch(()=>{});
-        await Doctor.findByIdAndUpdate(appt.doctorId, { $push: { unseenNotifications: dNotify } }).catch(()=>{});
+        await Patient.findByIdAndUpdate(appt.patientId, { $push: { unseenNotifications: pNotify } }).catch(() => { });
+        await Doctor.findByIdAndUpdate(appt.doctorId, { $push: { unseenNotifications: dNotify } }).catch(() => { });
       }
       res.json({ success: true, modifiedCount: result.nModified || result.modifiedCount || 0 });
     } catch (error) {
@@ -721,8 +761,8 @@ const adminController = {
       if (appt) {
         const pNotify = { type: 'appointment-rescheduled', message: `Your appointment was rescheduled to ${date} ${time}`, data: { appointmentId: appt._id } };
         const dNotify = { type: 'appointment-rescheduled', message: `An appointment was rescheduled to ${date} ${time}`, data: { appointmentId: appt._id } };
-        await Patient.findByIdAndUpdate(appt.patientId, { $push: { unseenNotifications: pNotify } }).catch(()=>{});
-        await Doctor.findByIdAndUpdate(appt.doctorId, { $push: { unseenNotifications: dNotify } }).catch(()=>{});
+        await Patient.findByIdAndUpdate(appt.patientId, { $push: { unseenNotifications: pNotify } }).catch(() => { });
+        await Doctor.findByIdAndUpdate(appt.doctorId, { $push: { unseenNotifications: dNotify } }).catch(() => { });
       }
       res.json({ success: true, data: appt });
     } catch (error) {

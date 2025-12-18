@@ -89,7 +89,7 @@ const adminService = {
     });
     return response.data;
   }
-,
+  ,
 
   // Users
   getAllUsers: async () => {
@@ -107,7 +107,7 @@ const adminService = {
     });
     return response.data;
   }
-,
+  ,
 
   // Fetch doctor profile (used by admin view details)
   getDoctorProfile: async (doctorId) => {
@@ -117,7 +117,7 @@ const adminService = {
     });
     return response.data;
   }
-,
+  ,
 
   getAllAppointments: async () => {
     const token = localStorage.getItem('adminToken');
@@ -126,7 +126,7 @@ const adminService = {
     });
     return response.data;
   }
-,
+  ,
 
   // Flexible get with query params (page, limit, status, doctorId, fromDate, toDate, q)
   getAppointments: async (params = {}) => {
@@ -167,7 +167,7 @@ const adminService = {
     const response = await axios.get(`http://localhost:1600/api/doctor`, { params });
     return response.data;
   }
-,
+  ,
 
   // Payments
   getPayments: async (params = {}) => {
@@ -200,6 +200,22 @@ const adminService = {
   deleteBlog: async (id) => {
     const token = localStorage.getItem('adminToken');
     const response = await axios.delete(`${API_BASE_URL}/blogs/${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return response.data;
+  },
+
+  getBlogComments: async (blogId) => {
+    const token = localStorage.getItem('adminToken');
+    const response = await axios.get(`${API_BASE_URL}/blogs/${blogId}/comments`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return response.data;
+  },
+
+  deleteComment: async (commentId) => {
+    const token = localStorage.getItem('adminToken');
+    const response = await axios.delete(`${API_BASE_URL}/comments/${commentId}`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     return response.data;
