@@ -45,6 +45,7 @@ import Users from "./admin/pages/Users";
 import Doctors from "./admin/pages/Doctors";
 import Appointments from "./admin/pages/Appointments";
 import Payments from "./admin/pages/Payments";
+import BlogModeration from "./admin/pages/BlogModeration";
 
 const Layout = ({ children }) => (<><Header />{children}<Footer /></>);
 const DLayout = ({ children }) => (<><DHeader />{children}<DFooter /></>);
@@ -102,6 +103,7 @@ function App() {
         <Route path="/admin/doctors" element={<ProtectedAdminRoute><Doctors /></ProtectedAdminRoute>} />
         <Route path="/admin/appointments" element={<ProtectedAdminRoute><Appointments /></ProtectedAdminRoute>} />
         <Route path="/admin/payments" element={<ProtectedAdminRoute><Payments /></ProtectedAdminRoute>} />
+        <Route path="/admin/blogs" element={<ProtectedAdminRoute><BlogModeration /></ProtectedAdminRoute>} />
         <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
 
         

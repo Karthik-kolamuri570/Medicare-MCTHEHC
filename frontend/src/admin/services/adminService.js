@@ -185,6 +185,24 @@ const adminService = {
       headers: { Authorization: `Bearer ${token}` }
     });
     return response.data;
+  },
+
+  // Blogs (admin moderation)
+  getBlogs: async (params = {}) => {
+    const token = localStorage.getItem('adminToken');
+    const response = await axios.get(`${API_BASE_URL}/blogs`, {
+      headers: { Authorization: `Bearer ${token}` },
+      params
+    });
+    return response.data;
+  },
+
+  deleteBlog: async (id) => {
+    const token = localStorage.getItem('adminToken');
+    const response = await axios.delete(`${API_BASE_URL}/blogs/${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return response.data;
   }
 };
 

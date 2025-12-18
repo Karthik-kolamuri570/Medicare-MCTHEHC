@@ -7,6 +7,7 @@ const Doctor = require('../models/doctor');
 const Patient = require('../models/patient');
 const Appointment = require('../models/appointments');
 const Admin = require('../models/admin');
+const Blog = require('../Blogs/models/Blogs');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Stripe = require('stripe');
@@ -370,6 +371,62 @@ const adminController = {
     } catch (error) {
       console.error('Error in getPaymentsDebug:', error);
       res.status(500).json({ success: false, error: error.message, stack: error.stack });
+    }
+  },
+
+  // ===== BLOGS (ADMIN) =====
+  // List blogs (all doctors) with filters for status, search, pagination
+  getBlogsAdmin: async (req, res) => {
+    try {
+      const { page = 1, limit = 10, status, q, doctorId } = req.query;
+      const filter = {};
+
+      if (status && status !== 'All') filter.status = status;
+      if (doctorId) filter.doctor_id = doctorId;
+
+      if (q) {
+        const regex = new RegExp(q, 'i');
+        filter.$or = [
+          { title: regex },
+          { description: regex },
+          { content: regex }
+        ];
+      }
+
+      const pageNum = Math.max(1, Number(page));
+      const lim = Math.min(100, Math.max(1, Number(limit)));
+      const skip = (pageNum - 1) * lim;
+
+      const [blogs, total] = await Promise.all([
+        Blog.find(filter)
+          .populate('doctor_id', 'name email profileImage')
+          .sort({ published_at: -1, createdAt: -1 })
+          .skip(skip).limit(lim),
+        Blog.countDocuments(filter)
+      ]);
+
+      res.json({ success: true, blogs, meta: { total, page: pageNum, limit: lim } });
+    } catch (error) {
+      console.error('Error in getBlogsAdmin:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  },
+
+  // Delete a blog as admin (removes authored blog regardless of owner)
+  deleteBlogAdmin: async (req, res) => {
+    try {
+      const { id } = req.params;
+      if (!id) return res.status(400).json({ success: false, message: 'Blog id required' });
+      const blog = await Blog.findById(id);
+      if (!blog) return res.status(404).json({ success: false, message: 'Blog not found' });
+
+      await blog.deleteOne();
+      // Note: optionally remove associated comments/likes in their collections if needed
+
+      res.json({ success: true, message: 'Blog deleted by admin' });
+    } catch (error) {
+      console.error('Error in deleteBlogAdmin:', error);
+      res.status(500).json({ success: false, error: error.message });
     }
   },
 

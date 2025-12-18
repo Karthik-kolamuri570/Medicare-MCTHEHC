@@ -65,5 +65,8 @@ router.get('/revenue-details', adminAuth, ensureRole('super-admin', 'admin'), ad
 router.get('/payments', adminAuth, ensureRole('super-admin', 'admin'), adminController.getPayments);
 router.post('/payments/:paymentId/refund', adminAuth, ensureRole('super-admin', 'admin'), adminController.refundPayment);
 router.get('/payments/debug', adminAuth, ensureRole('super-admin', 'admin'), adminController.getPaymentsDebug);
+// Blog moderation (admin)
+router.get('/blogs', adminAuth, ensureRole('super-admin', 'admin'), adminController.getBlogsAdmin);
+router.delete('/blogs/:id', adminAuth, ensureRole('super-admin', 'admin'), adminController.deleteBlogAdmin);
 
 module.exports = router;
