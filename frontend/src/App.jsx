@@ -1,4 +1,5 @@
 
+import axios from "axios";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import MedicareIndex from "./components/MedicareIndex";
 import TopDoctors from "./components/TopDoctors";
@@ -52,6 +53,26 @@ import Settings from "./admin/pages/Settings";
 
 const Layout = ({ children }) => (<><Header />{children}<Footer /></>);
 const DLayout = ({ children }) => (<><DHeader />{children}<DFooter /></>);
+
+// Configure axios global interceptor for token expiry
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      // Check if it's an admin API call
+      const isAdminApi = error.config.url.includes('/api/admin');
+      if (isAdminApi) {
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminUser');
+        // Redirect to admin login if not already there
+        if (!window.location.pathname.includes('/admin/login')) {
+          window.location.href = '/admin/login';
+        }
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
 function App() {
   return (

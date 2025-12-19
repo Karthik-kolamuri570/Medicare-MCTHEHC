@@ -268,29 +268,37 @@ const Dashboard = () => {
         <section className="quick-actions-section">
           <h2>Quick Actions</h2>
           <div className="actions-grid">
-            <div className="action-card">
-              <div className="action-icon">📋</div>
+            <div className="action-card" onClick={() => navigate('/admin/doctors')}>
+              <div className="action-icon doc-icon">
+                <ApprovalsIcon fontSize="large" />
+              </div>
               <h4>Review Pending Doctors</h4>
               <p>Approve or reject new doctor applications.</p>
-              <button className="action-btn" onClick={() => navigate('/admin/doctors')}>Go to Doctors</button>
+              <button className="action-btn">Go to Doctors</button>
             </div>
-            <div className="action-card">
-              <div className="action-icon">👥</div>
+            <div className="action-card" onClick={() => navigate('/admin/users')}>
+              <div className="action-icon user-icon">
+                <UsersIcon fontSize="large" />
+              </div>
               <h4>Manage Users</h4>
               <p>View and edit user profiles.</p>
-              <button className="action-btn" onClick={() => navigate('/admin/users')}>Go to Users</button>
+              <button className="action-btn">Go to Users</button>
             </div>
-            <div className="action-card">
-              <div className="action-icon">📅</div>
+            <div className="action-card" onClick={() => navigate('/admin/appointments')}>
+              <div className="action-icon apt-icon">
+                <AppointmentsIcon fontSize="large" />
+              </div>
               <h4>Schedule Appointment</h4>
               <p>Create or modify patient appointments.</p>
-              <button className="action-btn" onClick={() => navigate('/admin/appointments')}>Go to Appointments</button>
+              <button className="action-btn">Go to Appointments</button>
             </div>
-            <div className="action-card">
-              <div className="action-icon">🩸</div>
+            <div className="action-card" onClick={() => navigate('/admin/blood-banks')}>
+              <div className="action-icon bank-icon">
+                <BloodIcon fontSize="large" />
+              </div>
               <h4>Check Blood Stock</h4>
               <p>Monitor blood inventory levels.</p>
-              <button className="action-btn" onClick={() => navigate('/admin/blood-banks')}>Go to Blood Bank</button>
+              <button className="action-btn">Go to Blood Bank</button>
             </div>
           </div>
         </section>

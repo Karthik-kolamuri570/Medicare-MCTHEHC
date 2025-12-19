@@ -196,49 +196,111 @@
 
 .action-card {
   background: white;
-  border-radius: 8px;
-  padding: 20px;
+  border-radius: 16px;
+  padding: 24px;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.03);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
 }
 
 .action-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-8px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+  border-color: rgba(25, 118, 210, 0.2);
+}
+
+.action-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #1976d2, #64b5f6);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.action-card:hover::after {
+  opacity: 1;
 }
 
 .action-icon {
-  font-size: 32px;
-  margin-bottom: 10px;
+  width: 64px;
+  height: 64px;
+  background: #f8f9fa;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+}
+
+.action-card:hover .action-icon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.doc-icon {
+  color: #1976d2;
+  background: rgba(25, 118, 210, 0.1);
+}
+
+.user-icon {
+  color: #4caf50;
+  background: rgba(76, 175, 80, 0.1);
+}
+
+.apt-icon {
+  color: #ff9800;
+  background: rgba(255, 152, 0, 0.1);
+}
+
+.bank-icon {
+  color: #f44336;
+  background: rgba(244, 67, 54, 0.1);
 }
 
 .action-card h4 {
-  margin: 0 0 8px 0;
-  font-size: 14px;
-  color: #333;
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  color: #2c3e50;
+  font-weight: 700;
 }
 
 .action-card p {
-  margin: 0 0 15px 0;
-  font-size: 12px;
-  color: #999;
+  margin: 0 0 20px 0;
+  font-size: 13px;
+  color: #7f8c8d;
+  line-height: 1.5;
 }
 
 .action-btn {
-  padding: 8px 15px;
-  background-color: #1976d2;
+  width: auto;
+  min-width: 160px;
+  padding: 12px 24px;
+  background: #1976d2;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 10px;
   cursor: pointer;
-  font-size: 12px;
-  font-weight: 500;
-  transition: background 0.2s;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(25, 118, 210, 0.2);
+  white-space: nowrap;
 }
 
-.action-btn:hover {
-  background-color: #1565c0;
+.action-card:hover .action-btn {
+  background: #1565c0;
+  box-shadow: 0 6px 15px rgba(25, 118, 210, 0.4);
 }
 
 /* Activity Feed */
@@ -255,7 +317,7 @@
   padding: 15px 20px;
   border-bottom: 1px solid #f0f0f0;
   align-items: flex-start;
-  transition: background 0.2s;
+  transition: background-color 0.2s;
 }
 
 .activity-item:last-child {

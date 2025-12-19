@@ -281,103 +281,88 @@ const Appointments = () => {
         </div>
       </div>
 
-      {/* Appointments Table */}
-      <div className="appointments-table-wrapper">
+      {/* Pro Table Section */}
+      <div className="pro-table-wrapper">
         {filteredAppointments.length === 0 ? (
-          <div className="empty-state">
-            <CalendarIcon className="empty-icon" />
-            <h3>No Appointments Found</h3>
-            <p>There are no appointments matching your criteria.</p>
+          <div className="empty-state-v2">
+            <div className="empty-icon-glow">
+              <CalendarIcon fontSize="large" />
+            </div>
+            <h3>No Appointments</h3>
+            <p>Your filter returned empty results.</p>
           </div>
         ) : (
-          <table className="appointments-table">
+          <table className="elite-pro-table">
             <thead>
               <tr>
-                <th>Patient</th>
-                <th>Doctor</th>
-                <th>Date & Time</th>
-                <th>Type</th>
-                <th>Payment</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th className="th-patient">Patient Information</th>
+                <th className="th-doctor">Doctor Details</th>
+                <th className="th-schedule">Schedule</th>
+                <th className="th-type">Type</th>
+                <th className="th-payment">Billing</th>
+                <th className="th-status">Live Status</th>
+                <th className="th-actions">Operations</th>
               </tr>
             </thead>
             <tbody>
               {filteredAppointments.map((apt) => (
-                <tr key={apt._id}>
+                <tr key={apt._id} className={`pro-row ${getStatusClass(apt.status)}`}>
                   <td>
-                    <div className="cell-with-avatar">
-                      <div className="avatar patient-avatar">
+                    <div className="elite-cell identity">
+                      <div className="avatar-v2 p-avatar">
                         {apt.patient?.name?.charAt(0) || 'P'}
                       </div>
-                      <div className="cell-info">
-                        <span className="primary">{apt.patient?.name || 'Unknown'}</span>
-                        <span className="secondary">{apt.patient?.email || ''}</span>
+                      <div className="info-v2">
+                        <span className="main-text">{apt.patient?.name || 'Unknown'}</span>
+                        <span className="sub-text">{apt.patient?.email || 'N/A'}</span>
                       </div>
                     </div>
                   </td>
                   <td>
-                    <div className="cell-with-avatar">
-                      <div className="avatar doctor-avatar">
+                    <div className="elite-cell identity">
+                      <div className="avatar-v2 d-avatar">
                         {apt.doctor?.name?.charAt(0) || 'D'}
                       </div>
-                      <div className="cell-info">
-                        <span className="primary">{apt.doctor?.name || 'Unknown'}</span>
-                        <span className="secondary">{apt.doctor?.specialization || ''}</span>
+                      <div className="info-v2">
+                        <span className="main-text">Dr. {apt.doctor?.name || 'Unknown'}</span>
+                        <span className="sub-text">{apt.doctor?.specialization || 'N/A'}</span>
                       </div>
                     </div>
                   </td>
                   <td>
-                    <div className="date-time-cell">
-                      <span className="date"><CalendarIcon /> {formatDate(apt.date)}</span>
-                      <span className="time"><TimeIcon /> {apt.time || 'N/A'}</span>
+                    <div className="elite-cell schedule">
+                      <span className="dt-date"><CalendarIcon fontSize="inherit" /> {formatDate(apt.date)}</span>
+                      <span className="dt-time"><TimeIcon fontSize="inherit" /> {apt.time || 'N/A'}</span>
                     </div>
                   </td>
                   <td>
-                    <span className={`type-badge ${apt.type?.toLowerCase() || 'consultation'}`}>
+                    <span className={`elite-type-badge ${apt.type?.toLowerCase()}`}>
                       {apt.type || 'Consultation'}
                     </span>
                   </td>
                   <td>
-                    <div className="payment-cell">
-                      <PaymentIcon />
-                      <span className={`payment-status ${apt.paymentStatus?.toLowerCase() || 'pending'}`}>
-                        {apt.paymentStatus || 'Pending'}
-                      </span>
-                    </div>
-                  </td>
-                  <td>
-                    <span className={`status-badge ${getStatusClass(apt.status)}`}>
-                      {getStatusIcon(apt.status)}
-                      {apt.status || 'Pending'}
+                    <span className={`elite-pay-badge ${apt.paymentStatus?.toLowerCase()}`}>
+                      {apt.paymentStatus || 'Pending'}
                     </span>
                   </td>
                   <td>
-                    <div className="action-buttons">
-                      <button
-                        className="action-btn view"
-                        title="View Details"
-                        onClick={() => handleViewDetails(apt)}
-                      >
-                        <ViewIcon />
+                    <div className={`elite-status-pill ${getStatusClass(apt.status)}`}>
+                      <span className="status-dot"></span>
+                      <span className="status-label">{apt.status || 'Pending'}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div className="elite-actions">
+                      <button className="elite-btn v2-view" onClick={() => handleViewDetails(apt)} title="View Detail">
+                        <ViewIcon fontSize="small" />
                       </button>
-
                       {(apt.status?.toLowerCase() === 'scheduled' || apt.status?.toLowerCase() === 'pending') && (
-                        <button
-                          className="action-btn cancel"
-                          title="Cancel Record"
-                          onClick={() => handleCancelAppointment(apt._id)}
-                        >
-                          <CancelledIcon />
+                        <button className="elite-btn v2-cancel" onClick={() => handleCancelAppointment(apt._id)} title="Cancel">
+                          <CancelledIcon fontSize="small" />
                         </button>
                       )}
-
-                      <button
-                        className="action-btn delete"
-                        title="Delete Record"
-                        onClick={() => handleDeleteAppointment(apt._id)}
-                      >
-                        <DeleteIcon />
+                      <button className="elite-btn v2-delete" onClick={() => handleDeleteAppointment(apt._id)} title="Remove">
+                        <DeleteIcon fontSize="small" />
                       </button>
                     </div>
                   </td>
@@ -424,106 +409,129 @@ const Appointments = () => {
         </div>
       )}
 
-      {/* Modal */}
+      {/* Elite Modal */}
       {showModal && selectedAppointment && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Appointment Details</h2>
-              <button className="close-btn" onClick={() => setShowModal(false)}>×</button>
+        <div className="elite-modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="elite-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className={`modal-status-bar ${getStatusClass(selectedAppointment.status)}`}></div>
+
+            <div className="elite-modal-header">
+              <div className="header-ident">
+                <div className="header-icon-box">
+                  <CalendarIcon />
+                </div>
+                <div>
+                  <h2>Appointment Details</h2>
+                  <p className="modal-subtitle">ID: {selectedAppointment._id?.slice(-8).toUpperCase()}</p>
+                </div>
+              </div>
+              <button className="elite-close-x" onClick={() => setShowModal(false)}>×</button>
             </div>
-            <div className="modal-body">
-              <div className="detail-section">
-                <h4><PatientIcon /> Patient Information</h4>
-                <div className="detail-grid">
-                  <div className="detail-item">
-                    <label>Name</label>
-                    <span>{selectedAppointment.patient?.name || 'N/A'}</span>
-                  </div>
-                  <div className="detail-item">
-                    <label>Email</label>
-                    <span>{selectedAppointment.patient?.email || 'N/A'}</span>
-                  </div>
-                  <div className="detail-item">
-                    <label>Contact</label>
-                    <span>{selectedAppointment.patient?.contact || 'N/A'}</span>
+
+            <div className="elite-modal-body">
+              {/* Top Row: User & Doctor Ident */}
+              <div className="modal-info-grid">
+                <div className="modal-section-v2 patient-zone">
+                  <h3><PatientIcon fontSize="small" /> Patient</h3>
+                  <div className="zone-content">
+                    <div className="avatar-large">{selectedAppointment.patient?.name?.charAt(0)}</div>
+                    <div className="zone-details">
+                      <strong className="name-big">{selectedAppointment.patient?.name}</strong>
+                      <span>{selectedAppointment.patient?.email}</span>
+                      <span>{selectedAppointment.patient?.contact}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="detail-section">
-                <h4><DoctorIcon /> Doctor Information</h4>
-                <div className="detail-grid">
-                  <div className="detail-item">
-                    <label>Name</label>
-                    <span>{selectedAppointment.doctor?.name || 'N/A'}</span>
-                  </div>
-                  <div className="detail-item">
-                    <label>Specialization</label>
-                    <span>{selectedAppointment.doctor?.specialization || 'N/A'}</span>
-                  </div>
-                  <div className="detail-item">
-                    <label>Fee</label>
-                    <span>₹{selectedAppointment.fee || selectedAppointment.doctor?.feePerConsultation || 0}</span>
-                  </div>
-                </div>
-              </div>
-              <div className="detail-section">
-                <h4><CalendarIcon /> Appointment Details</h4>
-                <div className="detail-grid">
-                  <div className="detail-item">
-                    <label>Date</label>
-                    <span>{formatDate(selectedAppointment.date)}</span>
-                  </div>
-                  <div className="detail-item">
-                    <label>Time</label>
-                    <span>{selectedAppointment.time || 'N/A'}</span>
-                  </div>
-                  <div className="detail-item">
-                    <label>Status</label>
-                    <span className={`status-badge ${getStatusClass(selectedAppointment.status)}`}>
-                      {selectedAppointment.status}
-                    </span>
-                  </div>
-                  <div className="detail-item">
-                    <label>Payment Status</label>
-                    <span className={`payment-status ${selectedAppointment.paymentStatus?.toLowerCase()}`}>
-                      {selectedAppointment.paymentStatus || 'Pending'}
-                    </span>
+
+                <div className="modal-section-v2 doctor-zone">
+                  <h3><DoctorIcon fontSize="small" /> Medical Provider</h3>
+                  <div className="zone-content">
+                    <div className="avatar-large d-bg">{selectedAppointment.doctor?.name?.charAt(0)}</div>
+                    <div className="zone-details">
+                      <strong className="name-big">Dr. {selectedAppointment.doctor?.name}</strong>
+                      <span>{selectedAppointment.doctor?.specialization}</span>
+                      <span className="fee-tag">Consultation Fee: ₹{selectedAppointment.fee || selectedAppointment.doctor?.feePerConsultation}</span>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {activeTab === 'opinion' && (
-                <div className="detail-section">
-                  <h4><FilterIcon /> Second Opinion Details</h4>
-                  <div className="detail-grid" style={{ gridTemplateColumns: '1fr' }}>
-                    <div className="detail-item">
-                      <label>Problem Description</label>
-                      <span>{selectedAppointment.problem || 'N/A'}</span>
-                    </div>
-                    <div className="detail-item">
-                      <label>Proposed Treatment</label>
-                      <span>{selectedAppointment.treatment || 'N/A'}</span>
-                    </div>
-                    <div className="detail-item">
-                      <label>Consultation Mode</label>
-                      <span style={{ textTransform: 'capitalize' }}>{selectedAppointment.mode || 'N/A'}</span>
-                    </div>
-                    {selectedAppointment.files && selectedAppointment.files.length > 0 && (
-                      <div className="detail-item">
-                        <label>Attached Files</label>
-                        <div className="files-list">
-                          {selectedAppointment.files.map((file, idx) => (
-                            <a key={idx} href={file} target="_blank" rel="noopener noreferrer" className="file-link">
-                              View Document {idx + 1}
-                            </a>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
+              {/* Middle Row: Schedule & Billing */}
+              <div className="modal-data-strip">
+                <div className="data-bit">
+                  <label><TimeIcon fontSize="inherit" /> Date & Time</label>
+                  <span>{formatDate(selectedAppointment.date)} at {selectedAppointment.time}</span>
                 </div>
-              )}
+                <div className="data-bit">
+                  <label><PaymentIcon fontSize="inherit" /> Billing Status</label>
+                  <span className={`billing-pill ${selectedAppointment.paymentStatus?.toLowerCase()}`}>
+                    {selectedAppointment.paymentStatus || 'Pending'}
+                  </span>
+                </div>
+                <div className="data-bit">
+                  <label>Current Status</label>
+                  <span className={`status-pill-v2 ${getStatusClass(selectedAppointment.status)}`}>
+                    {selectedAppointment.status}
+                  </span>
+                </div>
+              </div>
+
+              {/* Bottom Row: Details & Analysis */}
+              <div className="modal-special-section">
+                <h3>
+                  {activeTab === 'opinion' ? <FilterIcon fontSize="small" /> : <CalendarIcon fontSize="small" />}
+                  {activeTab === 'opinion' ? ' Second Opinion Analysis' : ' Appointment Particulars'}
+                </h3>
+                <div className="special-grid">
+                  <div className="special-item full">
+                    <label>Reported Problem / Reason for Visit</label>
+                    <p className="problem-text">{selectedAppointment.problem || 'No description provided.'}</p>
+                  </div>
+
+                  {activeTab === 'regular' && selectedAppointment.specialization && (
+                    <div className="special-item">
+                      <label>Requested Specialization</label>
+                      <span className="mode-badge">{selectedAppointment.specialization}</span>
+                    </div>
+                  )}
+
+                  {activeTab === 'opinion' && (
+                    <>
+                      <div className="special-item full">
+                        <label>Proposed Treatment (Previous Physician)</label>
+                        <p>{selectedAppointment.treatment || 'No treatment details.'}</p>
+                      </div>
+                      <div className="special-item">
+                        <label>Consultation Mode</label>
+                        <span className="mode-badge">{selectedAppointment.mode}</span>
+                      </div>
+                      {selectedAppointment.files && selectedAppointment.files.length > 0 && (
+                        <div className="special-item">
+                          <label>Medical Records</label>
+                          <div className="elite-files">
+                            {selectedAppointment.files.map((file, idx) => (
+                              <a key={idx} href={file} target="_blank" rel="noopener noreferrer" className="elite-file-link">
+                                Record #{idx + 1}
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {selectedAppointment.createdAt && (
+                    <div className="special-item">
+                      <label>Request Date</label>
+                      <span className="timestamp-text">{new Date(selectedAppointment.createdAt).toLocaleString()}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="elite-modal-footer">
+              <button className="footer-close-btn" onClick={() => setShowModal(false)}>Dismiss Details</button>
             </div>
           </div>
         </div>
