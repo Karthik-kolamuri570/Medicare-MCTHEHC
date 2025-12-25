@@ -1,0 +1,210 @@
+/* Payment.css - Professional Checkout UI */
+
+:root {
+    --primary: #2563eb;
+    --primary-dark: #1e3a8a;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --bg-page: #f8fafc;
+    --white: #ffffff;
+    --border: #e2e8f0;
+    --success: #10b981;
+    --error: #ef4444;
+}
+
+.payment-page-container {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-page);
+    padding: 40px 20px;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.checkout-card {
+    background: var(--white);
+    width: 100%;
+    max-width: 480px;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    text-align: center;
+    /* Center content for status pages */
+}
+
+/* Header */
+.checkout-header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    padding: 30px;
+    text-align: center;
+    color: white;
+}
+
+.checkout-header.success {
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+}
+
+.checkout-header.error {
+    background: linear-gradient(135deg, #b91c1c 0%, #ef4444 100%);
+}
+
+.checkout-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.checkout-header p {
+    margin: 8px 0 0;
+    opacity: 0.9;
+    font-size: 0.95rem;
+}
+
+/* Body */
+.checkout-body {
+    padding: 40px 30px;
+}
+
+/* Status Icon (Large) */
+.status-icon-large {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+}
+
+.status-icon-large.success {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.status-icon-large.error {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+/* Message Text */
+.status-message {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+/* Doctor Summary */
+.doctor-summary {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    text-align: left;
+}
+
+.doc-avatar-circle {
+    width: 50px;
+    height: 50px;
+    background: #bfdbfe;
+    color: #2563eb;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+
+.doc-info h4 {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--text-main);
+    font-weight: 700;
+}
+
+.doc-info span {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+/* Bill Details */
+.bill-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+}
+
+.bill-total {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px dashed #e2e8f0;
+    font-weight: 800;
+    color: var(--text-main);
+    font-size: 1.2rem;
+}
+
+/* Actions */
+.pay-btn {
+    width: 100%;
+    margin-top: 10px;
+    padding: 16px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.pay-btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+}
+
+.pay-btn.secondary {
+    background: white;
+    color: var(--text-muted);
+    border: 2px solid #e2e8f0;
+    margin-top: 15px;
+}
+
+.pay-btn.secondary:hover {
+    background: #f1f5f9;
+    color: var(--text-main);
+    box-shadow: none;
+}
+
+.secure-badge {
+    text-align: center;
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.secure-icon {
+    color: #10b981;
+}

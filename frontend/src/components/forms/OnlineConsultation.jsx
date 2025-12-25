@@ -2,173 +2,307 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { MessageSquare, Calendar, Clock, AlertCircle, Search, Filter, History, FileText, CheckCircle, XCircle } from 'lucide-react';
+import "../../styles/OnlineConsultation.css";
 
 const OnlineConsultation = () => {
-  const [appointments, setAppointments] = useState([]);
-  const [hovered, setHovered] = useState(null);
+  const [filter, setFilter] = useState('all'); // all, appointments, second-opinions, history
+  const [searchTerm, setSearchTerm] = useState("");
+  const [allItems, setAllItems] = useState([]); // Combined list
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  // Helper to check if date/time is present or future
+  const isPresentOrFuture = (dateString, timeString) => {
+    if (!dateString) return true; // Fallback
+    try {
+      // Normalizing date formats if needed, assuming YYYY-MM-DD
+      const appointmentDateTime = new Date(`${dateString}T${timeString || '00:00'}`);
+      const now = new Date();
+      // Reset seconds/milliseconds for cleaner comparison
+      now.setSeconds(0);
+      now.setMilliseconds(0);
+      appointmentDateTime.setSeconds(0);
+      appointmentDateTime.setMilliseconds(0);
+
+      return appointmentDateTime >= now;
+    } catch {
+      return true; // Keep if parsing fails to avoid hiding valid data
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [appointmentsRes, secondOpinionsRes] = await Promise.all([
-          axios.get("http://localhost:1600/api/patient/appointments", { withCredentials: true }),
-          axios.get("http://localhost:1600/api/patient/get-second-opinion/accepted", { withCredentials: true }),
-        ]);
-        setAppointments([
-          ...appointmentsRes.data.data.map(item => ({ ...item, isSecondOpinion: false })),
-          ...secondOpinionsRes.data.data.map(item => ({ ...item, isSecondOpinion: true })),
-        ]);
+        setLoading(true);
+
+        // 1. Fetch Appointments
+        const apptRes = await axios.get("http://localhost:1600/api/patient/appointments", { withCredentials: true });
+        const appointments = (apptRes.data.data || []).map(item => ({
+          ...item,
+          type: 'appointment',
+          // Ensure status is normalized
+          status: item.status || 'Pending'
+        }));
+
+        // 2. Fetch Second Opinions
+        let secondOpinions = [];
+        try {
+          const soRes = await axios.get("http://localhost:1600/api/patient/get-second-opinion", { withCredentials: true });
+          secondOpinions = (soRes.data.data || []).map(item => ({
+            ...item,
+            type: 'second-opinion',
+            status: item.status || 'Pending',
+            // Ensure date is YYYY-MM-DD for consistency
+            date: typeof item.date === 'string' ? item.date.split('T')[0] : (item.date ? new Date(item.date).toISOString().split('T')[0] : item.createdAt?.split('T')[0]),
+            time: item.time || '10:00' // Default if missing
+          }));
+        } catch (err) {
+          console.warn("Could not fetch all second opinions, trying /accepted");
+          try {
+            const soResAccepted = await axios.get("http://localhost:1600/api/patient/get-second-opinion/accepted", { withCredentials: true });
+            secondOpinions = (soResAccepted.data.data || []).map(item => ({
+              ...item,
+              type: 'second-opinion',
+              status: item.status || 'Accepted', // Endpoint returns accepted
+              date: item.date || item.createdAt?.split('T')[0],
+              time: item.time || '10:00'
+            }));
+          } catch (fallbackErr) { console.error("Second opinion fetch failed", fallbackErr); }
+        }
+
+        // Combine and Sort (Newest first)
+        const combined = [...appointments, ...secondOpinions].sort((a, b) => {
+          const dateA = new Date(`${a.date || '2025-01-01'}T${a.time || '00:00'}`);
+          const dateB = new Date(`${b.date || '2025-01-01'}T${b.time || '00:00'}`);
+          return dateB - dateA;
+        });
+
+        setAllItems(combined);
+
       } catch (error) {
         console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
   }, []);
 
   const handleStartChat = (pid, did) => {
+    if (!did) return;
     navigate(`/api/chat/${did}-${pid}`);
   };
 
-  // --- UI STYLES ONLY ---
-  const outerDiv = {
-    minHeight: "100vh",
-    background: "linear-gradient(120deg, #e0e7ff 10%, #f7fbff 90%)",
-    padding: "32px 0"
+  // --- Filtering Logic ---
+  const getFilteredItems = () => {
+    return allItems.filter(item => {
+      const isFuture = isPresentOrFuture(item.date, item.time);
+
+      // Tab Filters
+      if (filter === 'all') {
+        // All PRESENT/FUTURE items of both types
+        if (!isFuture) return false;
+      } else if (filter === 'appointments') {
+        if (item.type !== 'appointment') return false;
+        if (!isFuture) return false;
+      } else if (filter === 'second-opinions') {
+        if (item.type !== 'second-opinion') return false;
+        if (!isFuture) return false;
+      } else if (filter === 'history') {
+        // ONLY Past items (any type)
+        if (isFuture) return false;
+      }
+
+      // Search Filter
+      if (searchTerm) {
+        const term = searchTerm.toLowerCase();
+        const docName = item.doctorId?.name?.toLowerCase() || "";
+        const prob = item.problem?.toLowerCase() || "";
+        if (!docName.includes(term) && !prob.includes(term)) return false;
+      }
+
+      return true;
+    });
   };
-  const container = {
-    padding: "1rem",
-    maxWidth: 1200,
-    margin: "0 auto"
-  };
-  const header = {
-    fontSize: "2.3rem",
-    fontWeight: 800,
-    color: "#18357B",
-    margin: "1.5rem 0 2rem 0",
-    textAlign: "left",
-    letterSpacing: 1
-  };
-  const grid = {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))",
-    gap: "2.4rem"
-  };
-  const frosted = "rgba(255,255,255,0.82)";
-  const cardBase = {
-    position: "relative",
-    borderRadius: "22px",
-    background: frosted,
-    backdropFilter: "blur(4px)",
-    border: "1.5px solid #e0e5ef",
-    boxShadow: "0 8px 36px 0 rgba(34,70,160,0.11)",
-    padding: "30px 20px 25px 20px",
-    transition: "transform 0.22s cubic-bezier(.27,.92,.24,1.12), box-shadow .18s",
-    overflow: "hidden",
-    willChange: "transform, box-shadow",
-    cursor: "pointer",
-    paddingTop: "50px" // Added padding top to reserve space for badge
-  };
-  const cardHover = {
-    transform: "scale(1.035) translateY(-7px)",
-    boxShadow: "0 18px 54px 0 #295bffa1"
-  };
-  const badgeStyle = (isSecond) => ({
-    position: "absolute",
-    top: 12, // moved higher inside padding-top
-    right: 20,
-    zIndex: 2,
-    padding: "5px 18px",
-    background: isSecond ? "linear-gradient(90deg,#ffe6eb 70%,#fff6fa 100%)" : "linear-gradient(90deg,#eafff6 70%,#ebfefc 100%)",
-    color: isSecond ? "#ea225a" : "#27bb8c",
-    borderRadius: 40,
-    fontWeight: 800,
-    fontSize: 15,
-    letterSpacing: ".5px",
-    boxShadow: "0 1px 7px 0 #ff567016",
-    border: isSecond ? "1px solid #ffb4cd" : "1.5px solid #aaffd4"
-  });
-  const avatar = {
-    width: 70,
-    height: 70,
-    fontSize: 36,
-    fontWeight: 900,
-    borderRadius: "50%",
-    background: "linear-gradient(135deg,#eaf6ff 80%,#d9def9 100%)",
-    color: "#295bff",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 22,
-    boxShadow: "0 2px 8px #a6beff13"
-  };
-  const name = { fontWeight: 800, fontSize: 22, color: "#214085", letterSpacing: ".6px" };
-  const spec = { color: "#5c6f8c", fontWeight: 500, marginBottom: 11, fontSize: 16 };
-  const info = { fontSize: 16.3, color: "#354159", marginBottom: 7.7, fontWeight: 600 };
-  const infoAccent = { color: "#083d90", fontWeight: 800, marginRight: 5 };
-  const button = {
-    marginTop: 13,
-    padding: "11px 30px",
-    background: "linear-gradient(90deg,#2657d9 85%,#09e7cf 130%)",
-    color: "#fff",
-    border: "none",
-    borderRadius: "8px",
-    letterSpacing: ".8px",
-    fontWeight: 800,
-    fontSize: 17.2,
-    outline: "none",
-    boxShadow: "0 2px 13px 0 #80b8fb20,0 1px 6px 0 #00ffe411",
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    gap: "9px",
-    transition: "background .12s, transform .09s"
+
+  const filteredItems = getFilteredItems();
+
+  // --- Stats Calculation ---
+  const stats = {
+    total: filteredItems.length,
+    appointments: filteredItems.filter(i => i.type === 'appointment').length,
+    secondOpinions: filteredItems.filter(i => i.type === 'second-opinion').length
   };
 
   return (
-    <div style={outerDiv}>
-      <div style={container}>
-        <h2 style={header}>My Consultations</h2>
-        {appointments.length === 0 ? (
-          <p style={{ color: "#254", fontWeight: 600, fontSize: "1.2rem" }}>No appointments found</p>
+    <div className="oc-container">
+      <div className="oc-wrapper">
+        <div className="oc-header">
+          <h1 className="oc-title">My Consultations</h1>
+          <p className="oc-subtitle">Track your appointments and expert opinions</p>
+        </div>
+
+        {/* Controls Bar */}
+        <div className="oc-controls">
+          <div className="oc-search-wrapper">
+            <Search className="oc-search-icon" size={18} />
+            <input
+              type="text"
+              placeholder="Search doctor or problem..."
+              className="oc-search-input"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          <div className="oc-tabs">
+            <button
+              className={`oc-tab ${filter === 'all' ? 'active' : ''}`}
+              onClick={() => setFilter('all')}
+            >
+              All
+            </button>
+            <button
+              className={`oc-tab ${filter === 'appointments' ? 'active' : ''}`}
+              onClick={() => setFilter('appointments')}
+            >
+              Appointments
+            </button>
+            <button
+              className={`oc-tab ${filter === 'second-opinions' ? 'active' : ''}`}
+              onClick={() => setFilter('second-opinions')}
+            >
+              Get Second Opinions
+            </button>
+            <button
+              className={`oc-tab ${filter === 'history' ? 'active' : ''}`}
+              onClick={() => setFilter('history')}
+            >
+              <History size={14} style={{ marginRight: 5 }} /> History
+            </button>
+          </div>
+        </div>
+
+        {/* Stats Row (Dynamic based on filter) */}
+        <div className="oc-stats">
+          <div className="oc-stat-card">
+            <div className="oc-stat-number">{stats.total}</div>
+            <div className="oc-stat-label">Showing</div>
+          </div>
+          <div className="oc-stat-card">
+            <div className="oc-stat-number" style={{ color: '#3b82f6' }}>{stats.appointments}</div>
+            <div className="oc-stat-label">Appointments</div>
+          </div>
+          <div className="oc-stat-card">
+            <div className="oc-stat-number" style={{ color: '#db2777' }}>{stats.secondOpinions}</div>
+            <div className="oc-stat-label">Second Opinions</div>
+          </div>
+        </div>
+
+        {/* Loading / Empty / Grid */}
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>Loading consultations...</div>
+        ) : filteredItems.length === 0 ? (
+          <div className="oc-empty">
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📭</div>
+            <h3>No consultations found</h3>
+            <p>Try adjusting your search or filters</p>
+          </div>
         ) : (
-          <div style={grid}>
-            {appointments.map(appt => (
-              <div
-                key={appt._id}
-                style={hovered === appt._id
-                  ? { ...cardBase, ...cardHover, border: appt.isSecondOpinion ? "2.5px solid #ffb4cd" : "2.5px solid #aaffd9" }
-                  : { ...cardBase, border: appt.isSecondOpinion ? "2.5px solid #ffb4cd" : "2.5px solid #aaffd9" }
-                }
-                onMouseEnter={() => setHovered(appt._id)}
-                onMouseLeave={() => setHovered(null)}
-              >
-                <span style={badgeStyle(appt.isSecondOpinion)}>
-                  {appt.isSecondOpinion ? "Second Opinion" : "Appointment"}
-                </span>
-                <div style={{ display: "flex", alignItems: "center", gap: 18, marginBottom: 6 }}>
-                  <div style={avatar}>{appt.doctorId?.name?.[0]?.toUpperCase() || "D"}</div>
-                  <div style={{ flex: 1 }}>
-                    <div style={name}>{appt.doctorId?.name}</div>
-                    <div style={spec}>{appt.doctorId?.specialization || "Doctor"}</div>
+          <div className="oc-grid">
+            {filteredItems.map(item => {
+              const isAppt = item.type === 'appointment';
+              const docName = item.doctorId?.name || "Pending Assignment";
+              const initial = docName[0] || "?";
+              const status = item.status;
+              const canChat = status.toLowerCase() === 'accepted';
+              const doctorId = item.doctorId?._id || item.doctorId;
+
+              return (
+                <div key={item._id} className="oc-card">
+                  <div className={`oc-card-header-stripe ${isAppt ? 'stripe-appointment' : 'stripe-second-opinion'}`}></div>
+                  <div className="oc-card-body">
+                    {/* Type Badge */}
+                    <span className={`oc-type-badge ${isAppt ? 'type-appointment' : 'type-second-opinion'}`}>
+                      {isAppt ? 'Appointment' : 'Second Opinion'}
+                    </span>
+
+                    {/* Status Badge */}
+                    <span className={`oc-status-badge status-${status.toLowerCase()}`}>
+                      {status.toLowerCase() === 'accepted' && <CheckCircle size={14} />}
+                      {status}
+                    </span>
+
+                    <div className="oc-doctor-info">
+                      <div className="oc-avatar">{initial}</div>
+                      <div className="oc-details">
+                        <h3>{docName}</h3>
+                        <p>{item.doctorId?.specialization || (isAppt ? "Specialist" : "Second Opinion")}</p>
+                      </div>
+                    </div>
+
+                    <div className="oc-meta">
+                      <div className="oc-meta-row">
+                        <span className="oc-meta-label">
+                          <AlertCircle size={14} /> Problem
+                        </span>
+                        <span className="oc-meta-value">
+                          {item.problem?.substring(0, 20) || "N/A"}{item.problem?.length > 20 ? "..." : ""}
+                        </span>
+                      </div>
+                      <div className="oc-meta-row">
+                        <span className="oc-meta-label">
+                          <Calendar size={14} /> Date
+                        </span>
+                        <span className="oc-meta-value">{item.date || "N/A"}</span>
+                      </div>
+                      <div className="oc-meta-row">
+                        <span className="oc-meta-label">
+                          <Clock size={14} /> Time
+                        </span>
+                        <span className="oc-meta-value">{item.time || "N/A"}</span>
+                      </div>
+                    </div>
+
+                    <div className="oc-actions">
+                      {!isPresentOrFuture(item.date, item.time) ? (
+                        <div className="oc-status-display">
+                          <span className="oc-status-label">Status:</span>
+                          <span className={`oc-status-value status-text-${status.toLowerCase()}`}>{status}</span>
+                        </div>
+                      ) : (
+                        <>
+                          {canChat ? (
+                            <button
+                              className="oc-btn-chat"
+                              onClick={() => handleStartChat(item.patientId, doctorId)}
+                            >
+                              <MessageSquare size={18} /> Start Chat
+                            </button>
+                          ) : (
+                            <div className={status === 'Pending' ? "oc-btn-wait" : "oc-btn-disabled"}>
+                              {status === 'Pending' ? (
+                                <>
+                                  <Clock size={18} /> Wait for Doctor Acceptance
+                                </>
+                              ) : (
+                                <>
+                                  <XCircle size={18} /> {status}
+                                </>
+                              )}
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
-                <div style={info}><span style={infoAccent}>Date:</span> {appt.date}</div>
-                <div style={info}><span style={infoAccent}>Time:</span> {appt.time}</div>
-                <button
-                  onClick={() => handleStartChat(appt.patientId, appt.doctorId._id)}
-                  style={button}
-                  onMouseDown={e => (e.currentTarget.style.transform = "scale(0.97)")}
-                  onMouseUp={e => (e.currentTarget.style.transform = "scale(1)")}
-                  onMouseLeave={e => (e.currentTarget.style.transform = "scale(1)")}
-                >
-                  <span role="img" aria-label="chat">💬</span>
-                  Start Chat
-                </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
+
       </div>
     </div>
   );

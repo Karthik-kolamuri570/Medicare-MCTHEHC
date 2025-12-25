@@ -1,6 +1,6 @@
 const Patient = require('../models/patient');
-const Doctor=require('../models/doctor');
-const Appointment=require('../models/appointments');
+const Doctor = require('../models/doctor');
+const Appointment = require('../models/appointments');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
@@ -8,7 +8,7 @@ const GetSecondOpinion = require('../models/GetSecondOpinion');
 exports.registerPatient = async (req, res) => {
     try {
         console.log('Under Register Patient Controller');
-        
+
         const { name, email, password, contact, age, gender, address } = req.body;
         // Check if patient already exists
         const existingPatient = await Patient.findOne({ email });
@@ -34,9 +34,9 @@ exports.registerPatient = async (req, res) => {
 
         // Save patient
         await newPatient.save();
-        req.session.patientRegister=req.body;
+        req.session.patientRegister = req.body;
         req.session.save();
-        
+
 
         res.status(201).json({
             success: true,
@@ -75,7 +75,7 @@ exports.loginPatient = async (req, res) => {
                 message: "Invalid credentials"
             });
         }
-        if(req.body.email ==="kart91801@gmail.com") {
+        if (req.body.email === "kart91801@gmail.com") {
             req.session.isAdminLoggedIn = true;
             req.session.adminId = patient._id;
         }
@@ -105,9 +105,9 @@ exports.loginPatient = async (req, res) => {
                 role: 'patient',
             }
         });
-        console.log("req.user:",req.user._id.toString());    
-    } 
-        catch (error) {
+        console.log("req.user:", req.user._id.toString());
+    }
+    catch (error) {
         console.error(error);
         res.status(500).json({
             success: false,
@@ -118,27 +118,27 @@ exports.loginPatient = async (req, res) => {
 };
 
 exports.getPatientProfile = async (req, res, next) => {
-  try {
-      const patientId = req.user._id; // Assuming auth middleware sets req.user
-      const patient = await Patient.findById(patientId);
-      if (!patient) {
-          return res.status(404).json({
-              success: false,
-              message: 'Patient not found'
-          });
-      }
-      res.status(200).json({
-          success: true,
-          data: patient
-      });
-  } catch (error) {
-      console.error(error);
-      res.status(500).json({
-          success: false,
-          message: 'Server Error'
-      });
-  }
-}; 
+    try {
+        const patientId = req.user._id; // Assuming auth middleware sets req.user
+        const patient = await Patient.findById(patientId);
+        if (!patient) {
+            return res.status(404).json({
+                success: false,
+                message: 'Patient not found'
+            });
+        }
+        res.status(200).json({
+            success: true,
+            data: patient
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: 'Server Error'
+        });
+    }
+};
 
 // Get patient profile
 exports.getPatientById = async (req, res) => {
@@ -170,7 +170,7 @@ exports.updatePatient = async (req, res) => {
     try {
         const patientId = req.user._id; // Extract patientId from params
         const { name, contact, age, gender, address } = req.body;
-        
+
         if (!patientId) {
             return res.status(400).json({
                 success: false,
@@ -210,7 +210,7 @@ exports.updatePatient = async (req, res) => {
 exports.bookAppointment = async (req, res) => {
     try {
         console.log('Under Booked Appointment Controller');
-        const patientId  = req.user._id.toString();
+        const patientId = req.user._id.toString();
         const { doctorId, problem, date, time } = req.body;
         console.log(patientId, doctorId, problem, date, time);
         console.log(req.user._id.toString())
@@ -245,14 +245,14 @@ exports.bookAppointment = async (req, res) => {
             return res.status(403).json({ success: false, message: 'Doctor is not approved for appointments' });
         }
         //Verifying the patient is booked the apppointment in Doctor Available Time
-        if(doctor.fromTime >time || doctor.toTime<time){
+        if (doctor.fromTime > time || doctor.toTime < time) {
             console.log("The Time where YOu Book the doctor doesn't available... ");
-            return res.json({success: false, message: " Please Book an Appointment Between the Doctor Available Time"});
+            return res.json({ success: false, message: " Please Book an Appointment Between the Doctor Available Time" });
         }
-        const patient=await Patient.findOne({_id:patientId});
-        if(!patient){return res.status(404).json({success:false,message:"Patient not found"})}
+        const patient = await Patient.findOne({ _id: patientId });
+        if (!patient) { return res.status(404).json({ success: false, message: "Patient not found" }) }
         console.log('all validations are now available');
-        
+
         // Create new appointment
         const newAppointment = await Appointment.create({
             doctorId: doctorId,
@@ -274,7 +274,7 @@ exports.bookAppointment = async (req, res) => {
                 time
             }
         };
-        
+
         // Update doctor's unseenNotifications
         await Doctor.findByIdAndUpdate(doctorId, {
             $push: { unseenNotifications: notification }
@@ -282,9 +282,9 @@ exports.bookAppointment = async (req, res) => {
 
         //sending nootifiaction to patient for confirmation
         const patientNotification = {
-            type:'successfully Booked the Appointment',
-            message:`Appointment booked successfully with ${doctor.name}`,
-            data:{
+            type: 'successfully Booked the Appointment',
+            message: `Appointment booked successfully with ${doctor.name}`,
+            data: {
                 doctorId: doctor._id,
                 doctorName: doctor.name,
                 date,
@@ -323,9 +323,9 @@ exports.getPatientAppointments = async (req, res) => {
             });
         }
 
-        const appointments = await Appointment.find({ patientId:patientId,status:"Accepted" }).populate('doctorId', 'name specialization');
+        const appointments = await Appointment.find({ patientId: patientId }).populate('doctorId', 'name specialization');
         console.log("Fetched Appointments:", appointments);
-        
+
         if (!appointments || appointments.length === 0) {
             return res.status(404).json({
                 success: false,
@@ -346,72 +346,72 @@ exports.getPatientAppointments = async (req, res) => {
         });
     }
 }
-exports.cancelAppointment=async(req,res)=>{
-    const {appointmentId}=req.params;
+exports.cancelAppointment = async (req, res) => {
+    const { appointmentId } = req.params;
     try {
-        const appointment=await Appointment.findById(appointmentId);
-        if(!appointment){
+        const appointment = await Appointment.findById(appointmentId);
+        if (!appointment) {
             return res.status(404).json({
-                success:false,
-                message:"Appointment not found"
+                success: false,
+                message: "Appointment not found"
             });
         }
-        appointment.status="Cancelled";
+        appointment.status = "Cancelled";
         await appointment.save();
-        
-        const patient=await Patient.findById(appointment.patientId);
-        if(!patient){
+
+        const patient = await Patient.findById(appointment.patientId);
+        if (!patient) {
             return res.status(404).json({
-                success:false,
-                message:"Patient not found"
+                success: false,
+                message: "Patient not found"
             });
         }
         // Add notification to doctor
-                const notification = {
-                    type: 'appointment-cancelled',
-                    message: `Appointment cancelled by ${patient.name}`,
-                    data: {
-                        patientId: patient._id,
-                        patientName: patient.name,
-                        date: appointment.date,
-                        time: appointment.time
-                    }
-                };
-        
-                // Update doctor's unseenNotifications
-                await Doctor.findByIdAndUpdate(appointment.doctorId, {
-                    $push: { unseenNotifications: notification }
-                });
+        const notification = {
+            type: 'appointment-cancelled',
+            message: `Appointment cancelled by ${patient.name}`,
+            data: {
+                patientId: patient._id,
+                patientName: patient.name,
+                date: appointment.date,
+                time: appointment.time
+            }
+        };
+
+        // Update doctor's unseenNotifications
+        await Doctor.findByIdAndUpdate(appointment.doctorId, {
+            $push: { unseenNotifications: notification }
+        });
 
 
-                const doctor=await Doctor.findById(appointment.doctorId);
-        if(!doctor){
+        const doctor = await Doctor.findById(appointment.doctorId);
+        if (!doctor) {
             return res.status(404).json({
-                success:false,
-                message:"Patient not found"
+                success: false,
+                message: "Patient not found"
             });
         }
 
-                const patientNotification = {
-                    type:'successfully Cancelled the Appointment',
-                    message:`Appointment Cancelled successfully with ${doctor.name}`,
-                    data:{
-                        doctorId: doctor._id,
-                        doctorName: doctor.name,
-                        date: appointment.date,
-                        time: appointment.time
-                    }
-                }
-                await Patient.findByIdAndUpdate(patient._id, {
-                    $push: { unseenNotifications: patientNotification }
-                });
-        
+        const patientNotification = {
+            type: 'successfully Cancelled the Appointment',
+            message: `Appointment Cancelled successfully with ${doctor.name}`,
+            data: {
+                doctorId: doctor._id,
+                doctorName: doctor.name,
+                date: appointment.date,
+                time: appointment.time
+            }
+        }
+        await Patient.findByIdAndUpdate(patient._id, {
+            $push: { unseenNotifications: patientNotification }
+        });
+
 
         return res.status(200).json({
-            success:true,
-            message:"Appointment cancelled successfully"
+            success: true,
+            message: "Appointment cancelled successfully"
         });
-    } 
+    }
     catch (err) {
         console.error("Error in cancelling appointment:", err);
         return res.status(500).json({
@@ -419,24 +419,24 @@ exports.cancelAppointment=async(req,res)=>{
             message: "Error in cancelling appointment",
             error: err.message
         });
-    }   
+    }
 }
-exports.getNotifications=async(req,res)=>{
-    try{
-        const patientId=req.user._id;
-        const patient=await Patient.findById(patientId);
-        if(!patient){
+exports.getNotifications = async (req, res) => {
+    try {
+        const patientId = req.user._id;
+        const patient = await Patient.findById(patientId);
+        if (!patient) {
             return res.status(404).json({
-                success:false,
-                message:"Patient not found"
+                success: false,
+                message: "Patient not found"
             });
         }
         res.status(200).json({
-            success:true,
-            data:patient.unseenNotifications
+            success: true,
+            data: patient.unseenNotifications
         });
     }
-    catch(err){
+    catch (err) {
         console.error("Error in fetching notifications:", err);
         return res.status(500).json({
             success: false,
@@ -446,25 +446,25 @@ exports.getNotifications=async(req,res)=>{
     }
 }
 
-exports.markNotificationAsSeen=async(req,res)=>{
-    try{
-        const {patientId}=req.user._id;
-        const patient=await Patient.findById(patientId);
-        if(!patient){
+exports.markNotificationAsSeen = async (req, res) => {
+    try {
+        const { patientId } = req.user._id;
+        const patient = await Patient.findById(patientId);
+        if (!patient) {
             return res.status(404).json({
-                success:false,
-                message:"Patient not found"
+                success: false,
+                message: "Patient not found"
             });
         }
         patient.seenNotifications = patient.unseenNotifications
-        patient.unseenNotifications=[];
+        patient.unseenNotifications = [];
         await patient.save();
         res.status(200).json({
-            success:true,
-            message:"All notifications marked as seen"
+            success: true,
+            message: "All notifications marked as seen"
         });
     }
-    catch(err){
+    catch (err) {
         console.error("Error in marking notifications as seen:", err);
         return res.status(500).json({
             success: false,
@@ -518,65 +518,65 @@ const path = require("path");
 
 // Multer config for multiple files
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/");
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname));
-  },
+    destination: function (req, file, cb) {
+        cb(null, "uploads/");
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+        cb(null, file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname));
+    },
 });
 const upload = multer({ storage: storage });
 
 // Controller function
 exports.getSecondOpinion = async (req, res) => {
-  const userId = req.user?._id;
-  const { problem, doctorId, treatment, date, time, mode } = req.body;
-  const files = req.files; // Expecting multiple files under 'files' field
+    const userId = req.user?._id;
+    const { problem, doctorId, treatment, date, time, mode } = req.body;
+    const files = req.files; // Expecting multiple files under 'files' field
 
-  // Validation
-  if (!problem || !doctorId || !treatment || !date || !time || !mode) {
-    return res.status(400).json({ success: false, message: "All fields except files are required" });
-  }
-
-  if (!files || files.length === 0) {
-    return res.status(400).json({ success: false, message: "At least one file is required" });
-  }
-
-  try {
-    const [doctor, patient] = await Promise.all([
-      Doctor.findById(doctorId),
-      Patient.findById(userId),
-    ]);
-
-    if (!doctor) return res.status(404).json({ success: false, message: "Doctor not found" });
-    if (!patient) return res.status(404).json({ success: false, message: "Patient not found" });
-
-    // Map filenames from uploaded files array
-    const uploadedFiles = files.map((file) => file.filename);
-
-    // Convert date string to Date object
-    const appointmentDate = new Date(date);
-    if (isNaN(appointmentDate)) {
-      return res.status(400).json({ success: false, message: "Invalid date format" });
+    // Validation
+    if (!problem || !doctorId || !treatment || !date || !time || !mode) {
+        return res.status(400).json({ success: false, message: "All fields except files are required" });
     }
 
-    const newSecondOpinion = await GetSecondOpinion.create({
-      patientId: userId,
-      doctorId,
-      problem,
-      files: uploadedFiles,
-      treatment,
-      mode,
-      date: appointmentDate,
-      time,
-    });
+    if (!files || files.length === 0) {
+        return res.status(400).json({ success: false, message: "At least one file is required" });
+    }
 
-    res.status(201).json({ success: true, message: "Second opinion request created", data: newSecondOpinion });
-  } catch (err) {
-    console.error("Error in getSecondOpinion:", err);
-    res.status(500).json({ success: false, message: "Internal server error" });
-  }
+    try {
+        const [doctor, patient] = await Promise.all([
+            Doctor.findById(doctorId),
+            Patient.findById(userId),
+        ]);
+
+        if (!doctor) return res.status(404).json({ success: false, message: "Doctor not found" });
+        if (!patient) return res.status(404).json({ success: false, message: "Patient not found" });
+
+        // Map filenames from uploaded files array
+        const uploadedFiles = files.map((file) => file.filename);
+
+        // Convert date string to Date object
+        const appointmentDate = new Date(date);
+        if (isNaN(appointmentDate)) {
+            return res.status(400).json({ success: false, message: "Invalid date format" });
+        }
+
+        const newSecondOpinion = await GetSecondOpinion.create({
+            patientId: userId,
+            doctorId,
+            problem,
+            files: uploadedFiles,
+            treatment,
+            mode,
+            date: appointmentDate,
+            time,
+        });
+
+        res.status(201).json({ success: true, message: "Second opinion request created", data: newSecondOpinion });
+    } catch (err) {
+        console.error("Error in getSecondOpinion:", err);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
 };
 
 // Export multer upload middleware for routes
@@ -586,23 +586,43 @@ exports.uploadFiles = upload.array("files", 5); // max 5 files
 
 //here i need to fetch the Second Opinions  which was accepted by the Doctor...
 exports.getSecondOpinionsAccepted = async (req, res) => {
-    try{
-        const patientId=req.session.patientId;
-        if(!patientId){
-            return res.status(403).json({success:false,message:'Patient Not Logged In...'});
+    try {
+        const patientId = req.session.patientId;
+        if (!patientId) {
+            return res.status(403).json({ success: false, message: 'Patient Not Logged In...' });
         }
-        const patient=await Patient.findById(patientId);
-        if(!patient){
-            return res.status(404).json({success:false,message:'Patient Not Found...'});
+        const patient = await Patient.findById(patientId);
+        if (!patient) {
+            return res.status(404).json({ success: false, message: 'Patient Not Found...' });
         }
-        const secondOpinions=await GetSecondOpinion.find({ patientId: patientId, status: "accepted" }).populate('doctorId', 'name specialization contact');
-        if(!secondOpinions || secondOpinions.length===0){
-            return res.status(201).json({success:true,data:[],message:'No Accepted Second Opinions Found...'});
+        const secondOpinions = await GetSecondOpinion.find({ patientId: patientId, status: "accepted" }).populate('doctorId', 'name specialization contact');
+        if (!secondOpinions || secondOpinions.length === 0) {
+            return res.status(201).json({ success: true, data: [], message: 'No Accepted Second Opinions Found...' });
         }
-        return res.json({success:true,data:secondOpinions});
+        return res.json({ success: true, data: secondOpinions });
     }
-    catch(err){
+    catch (err) {
         console.error("Error in fetching Second Opinions:", err);
-        return res.status(500).json({success:false,message:'Internal Server Error...'});
+        return res.status(500).json({ success: false, message: 'Internal Server Error...' });
+    }
+}
+
+exports.getAllSecondOpinions = async (req, res) => {
+    try {
+        const patientId = req.user._id;
+        if (!patientId) {
+            return res.status(403).json({ success: false, message: 'Patient Not Logged In...' });
+        }
+        const patient = await Patient.findById(patientId);
+        if (!patient) {
+            return res.status(404).json({ success: false, message: 'Patient Not Found...' });
+        }
+        // Fetch ALL second opinions (no status filter)
+        const secondOpinions = await GetSecondOpinion.find({ patientId: patientId }).populate('doctorId', 'name specialization contact');
+
+        return res.json({ success: true, data: secondOpinions || [] });
+    } catch (err) {
+        console.error("Error in fetching All Second Opinions:", err);
+        return res.status(500).json({ success: false, message: 'Internal Server Error...' });
     }
 }
