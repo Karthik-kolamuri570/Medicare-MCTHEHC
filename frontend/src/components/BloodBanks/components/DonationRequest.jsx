@@ -28,7 +28,7 @@ export default function DonationRequest({ isOpen, onClose }) {
     setSubmitMessage("")
 
     try {
-      const response = await fetch("http://localhost:1600/api/blood-bank-user/donation-request", {
+      const response = await fetch("/api/blood-bank-user/donation-request", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -19,7 +19,7 @@ function Login() {
     try {
       // Send login request to the backend
       const response = await axios.post(
-        "http://localhost:1600/api/doctor/login",
+        "/api/doctor/login",
         { email, password },
         { withCredentials: true } // 🔥 Ensures cookies are sent
       );

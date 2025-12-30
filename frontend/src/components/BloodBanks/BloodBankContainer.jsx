@@ -13,7 +13,7 @@ function BloodBankContainer() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authChecking, setAuthChecking] = useState(true);
 
-  const API_BASE = "http://localhost:1600/api";
+  const API_BASE = "/api";
 
   const checkAuthentication = async () => {
     try {

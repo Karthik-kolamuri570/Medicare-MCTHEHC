@@ -143,7 +143,7 @@ function Doctor() {
 
     try {
       // Sending POST request to register the doctor
-      const response = await axios.post('http://localhost:1600/api/doctor/register', formData);
+      const response = await axios.post('/api/doctor/register', formData);
 
       if (response.status === 201) {
         // Redirect to login on successful registration

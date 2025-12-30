@@ -36,7 +36,7 @@ const GetSecondOpinion = () => {
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const res = await axios.get("http://localhost:1600/api/doctor/");
+        const res = await axios.get("/api/doctor/");
         if (res.data && res.data.data) {
           setDoctors(res.data.data);
         }
@@ -86,7 +86,7 @@ const GetSecondOpinion = () => {
       });
 
       const response = await axios.post(
-        "http://localhost:1600/api/patient/get-second-opinion",
+        "/api/patient/get-second-opinion",
         data,
         {
           withCredentials: true,

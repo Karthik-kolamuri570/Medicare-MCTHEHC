@@ -24,7 +24,7 @@
 //     async function fetchRequests() {
 //       try {
 //         console.log("🔍 Fetching second opinion requests...");
-//         const res = await axios.get("http://localhost:1600/api/doctor/get-second-opinion", { 
+//         const res = await axios.get("/api/doctor/get-second-opinion", { 
 //           withCredentials: true 
 //         });
         
@@ -58,12 +58,12 @@
     
 //     try {
 //       // Enhanced logging
-//       console.log("📡 Making PUT request to:", `http://localhost:1600/api/doctor/get-second-opinion/${id}`);
+//       console.log("📡 Making PUT request to:", `/api/doctor/get-second-opinion/${id}`);
 //       console.log("📦 Request payload:", { status: action });
 //       console.log("🍪 Request cookies will be sent with withCredentials: true");
       
 //       const response = await axios.put(
-//         `http://localhost:1600/api/doctor/get-second-opinion/${id}`, 
+//         `/api/doctor/get-second-opinion/${id}`, 
 //         { status: action }, 
 //         { 
 //           withCredentials: true,
@@ -1030,7 +1030,7 @@
 //   useEffect(() => {
 //     async function fetchRequests() {
 //       try {
-//         const res = await axios.get("http://localhost:1600/api/doctor/get-second-opinion", { withCredentials: true });
+//         const res = await axios.get("/api/doctor/get-second-opinion", { withCredentials: true });
 //         const sortedData = (res.data?.data || []).sort((a, b) => {
 //           if (a.status === "pending" && b.status !== "pending") return -1;
 //           if (a.status !== "pending" && b.status === "pending") return 1;
@@ -1051,7 +1051,7 @@
 //     setUpdatingId(id);
 //     setError(null);
 //     try {
-//       await axios.put(`http://localhost:1600/api/doctor/get-second-opinion/${id}`, { status: action }, { withCredentials: true, headers: { "Content-Type": "application/json" } });
+//       await axios.put(`/api/doctor/get-second-opinion/${id}`, { status: action }, { withCredentials: true, headers: { "Content-Type": "application/json" } });
 //       setRequests((prev) => prev.map((r) => (r._id === id ? { ...r, status: action } : r)));
 //       alert(`✅ Request ${action} successfully!`);
 //     } catch (err) {
@@ -1995,7 +1995,7 @@ export default function DSecondOpinions() {
   useEffect(() => {
     async function fetchRequests() {
       try {
-        const res = await axios.get("http://localhost:1600/api/doctor/get-second-opinion", { withCredentials: true });
+        const res = await axios.get("/api/doctor/get-second-opinion", { withCredentials: true });
         const sortedData = (res.data?.data || []).sort((a, b) => {
           if (a.status === "pending" && b.status !== "pending") return -1;
           if (a.status !== "pending" && b.status === "pending") return 1;
@@ -2016,7 +2016,7 @@ export default function DSecondOpinions() {
     setUpdatingId(id);
     setError(null);
     try {
-      await axios.put(`http://localhost:1600/api/doctor/get-second-opinion/${id}`, { status: action }, { withCredentials: true, headers: { "Content-Type": "application/json" } });
+      await axios.put(`/api/doctor/get-second-opinion/${id}`, { status: action }, { withCredentials: true, headers: { "Content-Type": "application/json" } });
       setRequests((prev) => prev.map((r) => (r._id === id ? { ...r, status: action } : r)));
       alert(`✅ Request ${action} successfully!`);
     } catch (err) {

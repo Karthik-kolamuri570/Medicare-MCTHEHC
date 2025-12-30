@@ -22,7 +22,7 @@ function TopDoctors() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("http://localhost:1600/api/doctor/");
+        const response = await axios.get("/api/doctor/");
         if (response.data && Array.isArray(response.data.data)) {
           setAllDoctors(response.data.data);
         } else {

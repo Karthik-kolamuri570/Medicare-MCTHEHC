@@ -35,7 +35,7 @@
 
 //     const initChat = async () => {
 //       try {
-//         const res = await fetch("http://localhost:1600/api/stream/token", {
+//         const res = await fetch("/api/stream/token", {
 //           credentials: "include",
 //         });
 //         const { token, userId, apiKey } = await res.json();
@@ -55,7 +55,7 @@
 //         await client.connectUser({ id: userId }, token);
 
 //         await axios.post(
-//           "http://localhost:1600/api/stream/upsert-users",
+//           "/api/stream/upsert-users",
 //           { users: [{ id: userId }, { id: peerId }] },
 //           { withCredentials: true }
 //         );
@@ -385,7 +385,7 @@ const ChatApp = () => {
 
     const initChat = async () => {
       try {
-        const res = await fetch("http://localhost:1600/api/stream/token", {
+        const res = await fetch("/api/stream/token", {
           credentials: "include",
         });
         const { token, userId, apiKey } = await res.json();
@@ -404,7 +404,7 @@ const ChatApp = () => {
         await client.connectUser({ id: userId }, token);
 
         await axios.post(
-          "http://localhost:1600/api/stream/upsert-users",
+          "/api/stream/upsert-users",
           { users: [{ id: userId }, { id: peerId }] },
           { withCredentials: true }
         );

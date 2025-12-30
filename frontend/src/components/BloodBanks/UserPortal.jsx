@@ -33,10 +33,10 @@
       
 //       // Using your exact API endpoints
 //       const [banksRes, urgentRes, donationsRes, requestsRes] = await Promise.all([
-//         axios.get('http://localhost:1600/api/blood-bank/banks', { withCredentials: true }),
-//         axios.get('http://localhost:1600/api/blood-bank-user/blood/urgent-requests', { withCredentials: true }),
-//         axios.get('http://localhost:1600/api/blood-bank-user/donation-requests', { withCredentials: true }),
-//         axios.get('http://localhost:1600/api/blood-bank-user/blood-requests', { withCredentials: true })
+//         axios.get('/api/blood-bank/banks', { withCredentials: true }),
+//         axios.get('/api/blood-bank-user/blood/urgent-requests', { withCredentials: true }),
+//         axios.get('/api/blood-bank-user/donation-requests', { withCredentials: true }),
+//         axios.get('/api/blood-bank-user/blood-requests', { withCredentials: true })
 //       ]);
 
 //       // Calculate stats from the data
@@ -114,7 +114,7 @@
 //   const handleDonationSubmit = async (donationData) => {
 //     try {
 //       console.log('Submitting donation data:', donationData);
-//       const response = await axios.post('http://localhost:1600/api/blood-bank-user/donation-request', donationData);
+//       const response = await axios.post('/api/blood-bank-user/donation-request', donationData);
 
 //       if (response.data.message) {
 //         alert('🎉 ' + response.data.message);
@@ -129,7 +129,7 @@
 //   const handleRequestSubmit = async (requestData) => {
 //     try {
 //       console.log('Submitting request data:', requestData);
-//       const response = await axios.post('http://localhost:1600/api/blood-bank-user/request-blood', requestData);
+//       const response = await axios.post('/api/blood-bank-user/request-blood', requestData);
 
 //       if (response.data.message) {
 //         alert('🙏 ' + response.data.message);
@@ -1534,10 +1534,10 @@ function BloodPortal() {
       setLoading(true);
       
       const [banksRes, urgentRes, donationsRes, requestsRes] = await Promise.all([
-        axios.get('http://localhost:1600/api/blood-bank/banks', { withCredentials: true }),
-        axios.get('http://localhost:1600/api/blood-bank-user/blood/urgent-requests', { withCredentials: true }),
-        axios.get('http://localhost:1600/api/blood-bank-user/donation-requests', { withCredentials: true }),
-        axios.get('http://localhost:1600/api/blood-bank-user/blood-requests', { withCredentials: true })
+        axios.get('/api/blood-bank/banks', { withCredentials: true }),
+        axios.get('/api/blood-bank-user/blood/urgent-requests', { withCredentials: true }),
+        axios.get('/api/blood-bank-user/donation-requests', { withCredentials: true }),
+        axios.get('/api/blood-bank-user/blood-requests', { withCredentials: true })
       ]);
 
       const donations = donationsRes.data.donations || [];
@@ -1613,7 +1613,7 @@ function BloodPortal() {
   const handleDonationSubmit = async (donationData) => {
     try {
       console.log('Submitting donation data:', donationData);
-      const response = await axios.post('http://localhost:1600/api/blood-bank-user/donation-request', donationData);
+      const response = await axios.post('/api/blood-bank-user/donation-request', donationData);
 
       if (response.data.message) {
         alert('🎉 ' + response.data.message);
@@ -1628,7 +1628,7 @@ function BloodPortal() {
   const handleRequestSubmit = async (requestData) => {
     try {
       console.log('Submitting request data:', requestData);
-      const response = await axios.post('http://localhost:1600/api/blood-bank-user/request-blood', requestData);
+      const response = await axios.post('/api/blood-bank-user/request-blood', requestData);
 
       if (response.data.message) {
         alert('🙏 ' + response.data.message);

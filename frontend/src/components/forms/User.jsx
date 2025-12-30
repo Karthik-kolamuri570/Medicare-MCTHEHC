@@ -73,7 +73,7 @@ const User = () => {
 
     try {
       // Send the registration request to the backend
-      const response = await axios.post('http://localhost:1600/api/patient/register', formData);
+      const response = await axios.post('/api/patient/register', formData);
 
       if (response.status === 201) {
         // Redirect to login page on success

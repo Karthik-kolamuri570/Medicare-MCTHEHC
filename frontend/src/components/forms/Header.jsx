@@ -312,6 +312,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import logo from "../../assets/logo.png"; // keep your original path
+import ContactModal from "../ContactModal";
 
 const searchData = [
   {
@@ -376,6 +377,7 @@ function Header() {
   const [showSecondaryNavbar, setShowSecondaryNavbar] = useState(true);
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -383,7 +385,7 @@ function Header() {
   // Function to check user login status
   const checkUserLogin = async () => {
     try {
-      const response = await fetch("http://localhost:1600/api/patient/me", {
+      const response = await fetch("/api/patient/me", {
         method: "GET",
         credentials: "include",
         headers: {
@@ -391,7 +393,7 @@ function Header() {
         },
       });
       const data = await response.json();
-      
+
       if (data.success && data.data) {
         setUser(data.data);
       } else {
@@ -489,14 +491,14 @@ function Header() {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch("http://localhost:1600/api/patient/logout/", {
+      const response = await fetch("/api/patient/logout/", {
         method: "GET",
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
       });
-      
+
       if (response.ok) {
         setUser(null);
         localStorage.removeItem("token");
@@ -514,7 +516,7 @@ function Header() {
   };
 
   return (
-    <header style={{ marginBottom: 140 }}>
+    <header style={{ marginBottom: 70 }}>
       <div
         style={{
           position: "fixed",
@@ -560,7 +562,7 @@ function Header() {
               <li style={{ cursor: "pointer" }} onClick={() => navigate("/api/blogs")}>
                 Blogs
               </li>
-              <li style={{ cursor: "pointer" }} onClick={() => navigate("/contact")}>
+              <li style={{ cursor: "pointer" }} onClick={() => setIsContactModalOpen(true)}>
                 Contact Us
               </li>
               {!isLoading && (
@@ -662,13 +664,13 @@ function Header() {
             // fontSize: "1rem",
           }}
         >
-          <a href="#" style={{ textDecoration: "none", color: "#222" }}>
+          <a href="/hospitals" style={{ textDecoration: "none", color: "#222" }}>
             Our Hospitals
           </a>
           <a href="/api/patient/online-consultation" style={{ textDecoration: "none", color: "#222" }}>
             Online Consultancy
           </a>
-          <a href="#" style={{ textDecoration: "none", color: "#222" }}>
+          <a href="/treatments" style={{ textDecoration: "none", color: "#222" }}>
             Treatments
           </a>
           <a href="/api/blood-bank" style={{ textDecoration: "none", color: "#222" }}>
@@ -676,6 +678,9 @@ function Header() {
           </a>
         </div>
       </div>
+
+      {/* Contact Modal */}
+      <ContactModal isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} />
     </header>
   );
 }

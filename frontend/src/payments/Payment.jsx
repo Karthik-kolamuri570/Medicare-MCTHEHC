@@ -13,7 +13,7 @@ const Payment = ({ appointment }) => {
     try {
       console.log("Processing Payment...", appointment);
       const res = await axios.post(
-        "http://localhost:1600/api/payment/check-out",
+        "/api/payment/check-out",
         {
           appointmentId: appointment._id,
           patientEmail: appointment.email,

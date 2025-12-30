@@ -83,7 +83,7 @@ function Notifications() {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await axios.get(`http://localhost:1600/api/patient/notifications/`);
+        const response = await axios.get(`/api/patient/notifications/`);
         console.log(response.data.data[1].data.doctorName); // Debugging
         if (response.data && Array.isArray(response.data.data)) {
           setNotifications(response.data.data); // Store fetched notifications in state

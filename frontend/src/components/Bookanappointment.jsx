@@ -43,7 +43,7 @@ function Bookanappointment() {
 
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:1600/api/doctor/profile/${doctorId}`);
+        const response = await axios.get(`/api/doctor/profile/${doctorId}`);
         if (response.data && response.data.data) {
           setSelectedDoctor(response.data.data);
         } else {
@@ -157,7 +157,7 @@ function Bookanappointment() {
 
     try {
       const response = await axios.post(
-        "http://localhost:1600/api/patient/book-appointment",
+        "/api/patient/book-appointment",
         {
           doctorId: selectedDoctor._id,
           date,

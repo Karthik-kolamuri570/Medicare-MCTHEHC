@@ -256,7 +256,7 @@ function DHeader() {
   useEffect(() => {
     const checkDoctorLogin = async () => {
       try {
-        const response = await fetch("http://localhost:1600/api/doctor/me", {
+        const response = await fetch("/api/doctor/me", {
           method: "GET",
           credentials: "include",
           headers: { "Content-Type": "application/json" }
@@ -317,7 +317,7 @@ function DHeader() {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch("http://localhost:1600/api/doctor/logout/", {
+      const response = await fetch("/api/doctor/logout/", {
         method: "GET",
         credentials: "include",
         headers: { "Content-Type": "application/json" }

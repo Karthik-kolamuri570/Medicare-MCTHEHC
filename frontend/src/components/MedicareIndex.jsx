@@ -29,8 +29,8 @@
 //     const fetchData = async () => {
 //       try {
 //         const [blogsResp, doctorsResp] = await Promise.all([
-//           axios.get("http://localhost:1600/api/blogs/blogs"),
-//           axios.get("http://localhost:1600/api/doctor/") // example endpoint for top doctors
+//           axios.get("/api/blogs/blogs"),
+//           axios.get("/api/doctor/") // example endpoint for top doctors
 //         ]);
 //         setBlogData(blogsResp.data || []);
 //         setDoctorData(doctorsResp.data || []);
@@ -254,7 +254,7 @@
 //             )}
 //           </div>
 //         </section>
-        
+
 //       </div>
 //     </div>
 //   );
@@ -297,7 +297,7 @@ const DoctorCard = ({ doctor }) => {
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        
+
       }}
     >
       <img
@@ -358,8 +358,8 @@ function MedicareIndex() {
     const fetchData = async () => {
       try {
         const [blogsResp, doctorsResp] = await Promise.all([
-          axios.get("http://localhost:1600/api/blogs/blogs"),
-          axios.get("http://localhost:1600/api/doctor"),
+          axios.get("/api/blogs/blogs"),
+          axios.get("/api/doctor"),
         ]);
         setBlogData(blogsResp.data || []);
         setDoctorData(doctorsResp.data.data || []);
@@ -434,7 +434,7 @@ function MedicareIndex() {
   };
 
   return (
-    <div >
+    <div style={{ marginTop: '150px' }}>
       <div>
         {/* Book an Appointment */}
         <div className="book-appointment-container">

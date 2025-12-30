@@ -54,7 +54,8 @@ const BlogListPage = () => {
   const styles = {
     container: {
       maxWidth: 960,
-      margin: '2rem auto',
+      margin: '0 auto',
+      marginTop: '140px',
       padding: '0 1rem',
       fontFamily: 'Arial, sans-serif',
       color: '#333',

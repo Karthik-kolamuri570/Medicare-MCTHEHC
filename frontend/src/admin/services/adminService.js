@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:1600/api/admin';
+const API_BASE_URL = '/api/admin';
 
 const adminService = {
   // Authentication
@@ -112,7 +112,7 @@ const adminService = {
   // Fetch doctor profile (used by admin view details)
   getDoctorProfile: async (doctorId) => {
     const token = localStorage.getItem('adminToken');
-    const response = await axios.get(`http://localhost:1600/api/doctor/profile/${doctorId}`, {
+    const response = await axios.get(`/api/doctor/profile/${doctorId}`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     return response.data;
@@ -197,7 +197,7 @@ const adminService = {
 
   // Fetch doctors list for filters (uses public doctor endpoint)
   getDoctors: async (params = {}) => {
-    const response = await axios.get(`http://localhost:1600/api/doctor`, { params });
+    const response = await axios.get(`/api/doctor`, { params });
     return response.data;
   }
   ,

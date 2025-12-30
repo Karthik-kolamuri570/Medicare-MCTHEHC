@@ -115,7 +115,7 @@ function DoctorDashboard() {
 useEffect(() => {
   async function fetchDoctor() {
     try {
-      const response = await fetch("http://localhost:1600/api/doctor/me", {
+      const response = await fetch("/api/doctor/me", {
         credentials: "include",
       });
       const data = await response.json();

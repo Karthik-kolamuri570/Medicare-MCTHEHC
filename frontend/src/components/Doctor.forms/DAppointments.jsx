@@ -11,7 +11,7 @@
 //     const fetchAppointments = async () => {
 //       setLoading(true);  // Start loading
 //       try {
-//         const response = await axios.get("http://localhost:1600/api/doctor/appointments/");
+//         const response = await axios.get("/api/doctor/appointments/");
 //         const data = response.data.data;
 //         console.log("Fetched Appointments:", data);
 //         toast.success("Appointments fetched successfully!");
@@ -29,7 +29,7 @@
 
 //   const acceptResponse = async (id) => {
 //     try {
-//       const response = await axios.put(`http://localhost:1600/api/doctor/accept-appointment/${id}`);
+//       const response = await axios.put(`/api/doctor/accept-appointment/${id}`);
 
 //       const result = response.data;
 //       if (result.success) {
@@ -51,7 +51,7 @@
 
 //   const rejectResponse = async (id) => {
 //     try {
-//       const response = await axios.put(`http://localhost:1600/api/doctor/reject-appointment/${id}`);
+//       const response = await axios.put(`/api/doctor/reject-appointment/${id}`);
 //       const result = response.data;
 //       if (result.success) {
 //         const updated = result.data;
@@ -705,7 +705,7 @@
 //     const fetchAppointments = async () => {
 //       setLoading(true);
 //       try {
-//         const response = await axios.get("http://localhost:1600/api/doctor/appointments/");
+//         const response = await axios.get("/api/doctor/appointments/");
 //         const data = response.data.data;
 //         console.log("Fetched Appointments:", data);
 //         toast.success("Appointments fetched successfully!");
@@ -723,7 +723,7 @@
 
 //   const acceptResponse = async (id) => {
 //     try {
-//       const response = await axios.put(`http://localhost:1600/api/doctor/accept-appointment/${id}`);
+//       const response = await axios.put(`/api/doctor/accept-appointment/${id}`);
 //       const result = response.data;
 //       if (result.success) {
 //         const updated = result.data;
@@ -742,7 +742,7 @@
 
 //   const rejectResponse = async (id) => {
 //     try {
-//       const response = await axios.put(`http://localhost:1600/api/doctor/reject-appointment/${id}`);
+//       const response = await axios.put(`/api/doctor/reject-appointment/${id}`);
 //       const result = response.data;
 //       if (result.success) {
 //         const updated = result.data;
@@ -1509,7 +1509,7 @@ function DAppointments() {
     const fetchAppointments = async () => {
       setLoading(true);
       try {
-        const response = await axios.get("http://localhost:1600/api/doctor/appointments/");
+        const response = await axios.get("/api/doctor/appointments/");
         const data = response.data.data;
         console.log("Fetched Appointments:", data);
         
@@ -1532,7 +1532,7 @@ function DAppointments() {
 
   const acceptResponse = async (id) => {
     try {
-      const response = await axios.put(`http://localhost:1600/api/doctor/accept-appointment/${id}`);
+      const response = await axios.put(`/api/doctor/accept-appointment/${id}`);
       const result = response.data;
       if (result.success) {
         const updated = result.data;
@@ -1551,7 +1551,7 @@ function DAppointments() {
 
   const rejectResponse = async (id) => {
     try {
-      const response = await axios.put(`http://localhost:1600/api/doctor/reject-appointment/${id}`);
+      const response = await axios.put(`/api/doctor/reject-appointment/${id}`);
       const result = response.data;
       if (result.success) {
         const updated = result.data;

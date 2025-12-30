@@ -38,6 +38,9 @@ import BlogListPage from "./components/Blogs/pages/BlogListPage"
 import BlogDetailsPage from "./components/Blogs/pages/BlogDetailsPage";
 import DoctorDashboardPage from "./components/Blogs/pages/DoctorDashboardPage";
 import PatientLikesPage from "./components/Blogs/pages/PatientLikesPage";
+import Treatments from "./components/Treatments";
+import ProtectedPatientRoute from "./components/ProtectedPatientRoute";
+import OurHospitals from "./components/OurHospitals";
 import AdminLayout from "./admin/components/AdminLayout";
 import ProtectedAdminRoute from "./admin/components/ProtectedAdminRoute";
 import AdminLogin from "./admin/pages/AdminLogin";
@@ -98,7 +101,9 @@ function App() {
 
 
         <Route path="/top-doctors" element={<Layout><TopDoctors /></Layout>} />
-        <Route path="/book-appointment/:doctorId" element={<Layout><Bookanappointment /></Layout>} />
+        <Route path="/treatments" element={<Layout><Treatments /></Layout>} />
+        <Route path="/hospitals" element={<Layout><OurHospitals /></Layout>} />
+        <Route path="/book-appointment/:doctorId" element={<ProtectedPatientRoute><Layout><Bookanappointment /></Layout></ProtectedPatientRoute>} />
         <Route path="/notifications" element={<Layout><Notifications /></Layout>} />
         <Route path="/SignUp" element={<Layout><Form /></Layout>} />
         <Route path="/api/patient/login" element={<Layout><LoginPatient /></Layout>} />
@@ -106,8 +111,8 @@ function App() {
         <Route path="/api/patient/register" element={<Layout><User /></Layout>} />
         <Route path="/api/doctor/register" element={<Layout><Doctor /></Layout>} />
         <Route path="/api/patient/logout" element={<LogoutPatient />} />
-        <Route path="/api/patient/online-consultation" element={<Layout><OnlineConsultation /></Layout>} />
-        <Route path="/api/get-second-opinion" element={<Layout><GetSecondOpinion /></Layout>} />
+        <Route path="/api/patient/online-consultation" element={<ProtectedPatientRoute><Layout><OnlineConsultation /></Layout></ProtectedPatientRoute>} />
+        <Route path="/api/get-second-opinion" element={<ProtectedPatientRoute><Layout><GetSecondOpinion /></Layout></ProtectedPatientRoute>} />
         <Route path="/api/blood-bank" element={<BankHome />} />
         <Route path="/api/blood-bank/bank" element={<BloodBankContainer />} />
         <Route path="/api/blood-bank/login" element={<BloodBankLogin />} />

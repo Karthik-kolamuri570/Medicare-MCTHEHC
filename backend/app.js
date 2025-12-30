@@ -20,7 +20,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 app.use(cors({
-  origin: 'http://localhost:5173', // Vite's default port
+  origin: ["http://localhost:5173", "http://127.0.0.1:5173"], // Allow both localhost and 127.0.0.1
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -29,53 +29,53 @@ app.use(cors({
 
 const PORT = 1600;
 mongoose.connect(process.env.MONGO_URI)
-    .then(async (result) => {
-        // console.log(result);
-        await app.listen(PORT, () => {
-            console.log(`Server is running on PORT: ${PORT}`);
-        });
-        console.log("Data Base is connected... ");
-    })
-    .catch(err => console.log(err));
+  .then(async (result) => {
+    // console.log(result);
+    await app.listen(PORT, () => {
+      console.log(`Server is running on PORT: ${PORT}`);
+    });
+    console.log("Data Base is connected... ");
+  })
+  .catch(err => console.log(err));
 
 const store = new mongoDBStore({
-    uri: process.env.MONGO_URI,
-    collection: "sessions",
-    autoRemove: true
+  uri: process.env.MONGO_URI,
+  collection: "sessions",
+  autoRemove: true
 });
 
 
 app.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false, 
-    store: store,
-    cookie: { 
-        httpOnly: true,  
-        secure: false,  // Set to `true` if using HTTPS
-        sameSite: 'lax', // Set to 'none' if using cross-origin
-        maxAge: 24 * 60 * 60 * 1000 // 1 day expiration
-    } 
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  store: store,
+  cookie: {
+    httpOnly: true,
+    secure: false,  // Set to `true` if using HTTPS
+    sameSite: 'lax', // Lax is good for localhost
+    maxAge: 24 * 60 * 60 * 1000 // 1 day expiration
+  }
 }));
 
 const patientRoutes = require('./routes/patientRoutes');
 const doctorRoutes = require('./routes/doctorRoutes');
 const paymentRoutes = require('./routes/payment');
-const BloodBankUserRoutes=require('./blood_bank/routes/userRoutes'); 
-const BloodBankRoutes=require('./blood_bank/routes/bankRoute');
-const BloodCampRoutes=require('./blood_bank/routes/bloodCamp');
-const BlogRoutes=require('./Blogs/routes/BlogRoutes');
-const AdminRoutes=require('./routes/adminRoutes');
-  
+const BloodBankUserRoutes = require('./blood_bank/routes/userRoutes');
+const BloodBankRoutes = require('./blood_bank/routes/bankRoute');
+const BloodCampRoutes = require('./blood_bank/routes/bloodCamp');
+const BlogRoutes = require('./Blogs/routes/BlogRoutes');
+const AdminRoutes = require('./routes/adminRoutes');
+
 app.use('/api/patient', patientRoutes);
 
 app.use('/api/doctor', doctorRoutes);
 
-app.use('/api/payment',paymentRoutes );
+app.use('/api/payment', paymentRoutes);
 
-app.use('/api/blood-bank',BloodBankRoutes); 
+app.use('/api/blood-bank', BloodBankRoutes);
 
-app.use('/api/blood-bank-user',BloodBankUserRoutes);
+app.use('/api/blood-bank-user', BloodBankUserRoutes);
 
 app.use('/api/blood-camp', BloodCampRoutes);
 
@@ -84,9 +84,9 @@ app.use('/api/blogs', BlogRoutes);
 app.use('/api/admin', AdminRoutes);
 
 app.use((req, res, next) => {
-    console.log('Session:', req.session);
-    console.log(req.user);
-    next();
+  console.log('Session:', req.session);
+  console.log(req.user);
+  next();
 });
 const auth = require('./middleware/auth');
 
@@ -115,7 +115,7 @@ const auth = require('./middleware/auth');
 //     }
 
 // })
-const Doctor=require('./models/doctor')
+const Doctor = require('./models/doctor')
 const Patient = require('./models/patient');   // adjust path as needed
 
 app.get('/api/me', async (req, res) => {
@@ -163,24 +163,24 @@ const streamApiSecret = process.env.STREAM_API_SECRET;
 const streamClient = StreamChat.getInstance(streamApiKey, streamApiSecret);
 
 app.get('/api/stream/token', async (req, res) => {
-    try {
-        const userId = req.session.doctorId || req.session.patientId;
+  try {
+    const userId = req.session.doctorId || req.session.patientId;
 
-        if (!userId) {
-            return res.status(401).json({ error: "User not authenticated" });
-        }
-
-        const token = streamClient.createToken(userId.toString());
-        return res.json({ token, userId: userId.toString(), apiKey: streamApiKey });
-    } catch (err) {
-        console.error("Stream Token Generation Error:", err);
-        return res.status(500).json({ error: "Internal server error" });
+    if (!userId) {
+      return res.status(401).json({ error: "User not authenticated" });
     }
+
+    const token = streamClient.createToken(userId.toString());
+    return res.json({ token, userId: userId.toString(), apiKey: streamApiKey });
+  } catch (err) {
+    console.error("Stream Token Generation Error:", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 });
 app.post('/api/stream/upsert-users', async (req, res) => {
   try {
     let { users } = req.body;
-    
+
     if (!Array.isArray(users) || users.length === 0) {
       return res.status(400).json({ error: 'Users array is required' });
     }

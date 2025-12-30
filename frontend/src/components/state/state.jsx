@@ -13,7 +13,7 @@ function State() {
       console.log("Fetching data...");  // Log when fetch starts
 
       // Make the API request using Axios
-      const response = await axios.get("http://localhost:1600/api/doctor/");
+      const response = await axios.get("/api/doctor/");
       
       console.log('Fetched Data:', response.data);  // Log the fetched data to check its structure
 

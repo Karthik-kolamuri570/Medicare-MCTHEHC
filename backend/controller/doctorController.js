@@ -10,7 +10,7 @@ exports.registerDoctor = async (req, res, next) => {
   const {
     name,
     contact,
-    email, 
+    email,
     password,
     specialization,
     experience,
@@ -23,7 +23,7 @@ exports.registerDoctor = async (req, res, next) => {
   try {
     // Check if doctor already exists
     let doctor = await Doctor.findOne({ email });
-    
+
     if (doctor) {
       return res.status(400).json({
         success: false,
@@ -31,32 +31,32 @@ exports.registerDoctor = async (req, res, next) => {
       });
     }
     const hashedPassword = await bcrypt.hash(password, 12);
-    
+
     // Create new doctor
     doctor = new Doctor({
-        name,
-        contact,
-        email,
-        password:hashedPassword,
-        specialization,
-        experience,
-        location,
-        hospital,
-        feePerConsultation,
-        fromTime,
-        toTime
+      name,
+      contact,
+      email,
+      password: hashedPassword,
+      specialization,
+      experience,
+      location,
+      hospital,
+      feePerConsultation,
+      fromTime,
+      toTime
     });
-    req.session.DoctorRegister=req.body;
+    req.session.DoctorRegister = req.body;
     await doctor.save();
     req.session.save();
-    
+
     // Create token
     const token = jwt.sign(
       { id: doctor._id, role: 'doctor' },
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
     );
-    
+
     res.status(201).json({
       success: true,
       token,
@@ -85,39 +85,39 @@ exports.registerDoctor = async (req, res, next) => {
 // Login doctor
 exports.loginDoctor = async (req, res, next) => {
   const { email, password } = req.body;
-  
+
   try {
     console.log("Doctor login attempt with email:", email);
-    
+
     // Check if doctor exists
     const doctor = await Doctor.findOne({ email });
-    
+
     if (!doctor) {
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials'
       });
     }
-    
+
     // Check if password matches
     const isMatch = await bcrypt.compare(password, doctor.password);
-    
+
     if (!isMatch) {
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials'
       });
     }
-    
+
     // Create token
     const token = jwt.sign(
       { id: doctor._id, role: 'doctor' },
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
     );
-    req.session.doctorLogin=req.body;
-    req.session.isDoctorLoggedIn=true;
-    req.session.doctorId=doctor._id;
+    req.session.doctorLogin = req.body;
+    req.session.isDoctorLoggedIn = true;
+    req.session.doctorId = doctor._id;
     req.session.save();
     res.status(200).json({
       success: true,
@@ -160,14 +160,14 @@ exports.updateDoctor = async (req, res, next) => {
       { $set: req.body },
       { new: true, runValidators: true, select: '-password' }
     );
-    
+
     if (!doctor) {
       return res.status(404).json({
         success: false,
         message: 'Doctor not found'
       });
     }
-    
+
     res.status(200).json({
       success: true,
       data: doctor
@@ -184,47 +184,47 @@ exports.updateDoctor = async (req, res, next) => {
 
 // Get all doctors
 exports.getAllDoctors = async (req, res, next) => {
-    try {
-        const filter = {};
-        if (req.query.verified === 'approved') filter.verifiedByAdmin = 'approved';
-        const doctors = await Doctor.find(filter);
-        
-        res.status(200).json({
-          success: true,
-          data: doctors
-        });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({
-          success: false,
-          message: 'Server Error'
-        });
-      }
+  try {
+    const filter = {};
+    if (req.query.verified === 'approved') filter.verifiedByAdmin = 'approved';
+    const doctors = await Doctor.find(filter);
+
+    res.status(200).json({
+      success: true,
+      data: doctors
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Server Error'
+    });
+  }
 }
 
 //get doctor by id
 exports.getDoctorById = async (req, res, next) => {
-    try {
-        const doctor = await Doctor.findById(req.params.id);
-        
-        if (!doctor) {
-            return res.status(404).json({
-                success: false,
-                message: 'Doctor not found'
-            });
-        }
-        
-        res.status(200).json({
-            success: true,
-            data: doctor
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            success: false,
-            message: 'Server Error'
-        });
+  try {
+    const doctor = await Doctor.findById(req.params.id);
+
+    if (!doctor) {
+      return res.status(404).json({
+        success: false,
+        message: 'Doctor not found'
+      });
     }
+
+    res.status(200).json({
+      success: true,
+      data: doctor
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Server Error'
+    });
+  }
 };
 
 
@@ -232,14 +232,14 @@ exports.getDoctorById = async (req, res, next) => {
 exports.deleteDoctor = async (req, res, next) => {
   try {
     const doctor = await Doctor.findByIdAndDelete(req.params.id);
-    
+
     if (!doctor) {
       return res.status(404).json({
         success: false,
         message: 'Doctor not found'
       });
     }
-    
+
     res.status(200).json({
       success: true,
       message: 'Doctor deleted successfully'
@@ -254,147 +254,147 @@ exports.deleteDoctor = async (req, res, next) => {
 };
 
 exports.updateAvailability = async (req, res, next) => {
-    try {
-        const { fromTime, toTime } = req.body;
-        const doctorId = req.user._id;
+  try {
+    const { fromTime, toTime } = req.body;
+    const doctorId = req.user._id;
 
-        if (!fromTime || !toTime) {
-            return res.status(400).json({
-                success: false,
-                message: 'Please provide fromTime and toTime'
-            });
-        }
-
-        const doctor = await Doctor.findByIdAndUpdate(
-            doctorId,
-            { fromTime, toTime },
-            { new: true, runValidators: true }
-        );
-
-        if (!doctor) {
-            return res.status(404).json({
-                success: false,
-                message: 'Doctor not found'
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            data: doctor
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            success: false,
-            message: 'Server Error'
-        });
+    if (!fromTime || !toTime) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide fromTime and toTime'
+      });
     }
+
+    const doctor = await Doctor.findByIdAndUpdate(
+      doctorId,
+      { fromTime, toTime },
+      { new: true, runValidators: true }
+    );
+
+    if (!doctor) {
+      return res.status(404).json({
+        success: false,
+        message: 'Doctor not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: doctor
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Server Error'
+    });
+  }
 };
 // Get all appointments for a doctor
 exports.getDoctorAppointments = async (req, res, next) => {
-    try {
-      console.log(req.user._id.toString());
-        const appointments = await Appointment.find({ doctorId: req.session.doctorId }).populate('patientId');
-        if(!appointments){
-            res.status(500).json({
-                success: false,
-                message: 'No appointments found'
-            });
-        }
-        //add the doctor name to the appointments
-        appointments.forEach(appointment => {
-            appointment.doctorName = req.user.name; // Assuming req.user contains the doctor's info
-        });
-        res.status(200).json({
-        success: true,
-        data: appointments
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({
+  try {
+    console.log(req.user._id.toString());
+    const appointments = await Appointment.find({ doctorId: req.session.doctorId }).populate('patientId');
+    if (!appointments) {
+      res.status(500).json({
         success: false,
-        message: 'Server Error'
-        });
+        message: 'No appointments found'
+      });
     }
+    //add the doctor name to the appointments
+    appointments.forEach(appointment => {
+      appointment.doctorName = req.user.name; // Assuming req.user contains the doctor's info
+    });
+    res.status(200).json({
+      success: true,
+      data: appointments
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Server Error'
+    });
+  }
 }
 
 exports.getDoctorPatients = async (req, res, next) => {
-    try {
-        const patients = await Appointment.find({ doctorId: req.user._id }).select('patientId')
-        if(!patients){
-            res.status(500).json({
-                success: false,
-                message: 'No patients found'
-            });
-        }
-        console.log(patients);
-        
-        res.status(200).json({
-        success: true,
-        data: patients
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({
+  try {
+    const patients = await Appointment.find({ doctorId: req.user._id }).select('patientId')
+    if (!patients) {
+      res.status(500).json({
         success: false,
-        message: 'Server Error'
-        });
+        message: 'No patients found'
+      });
     }
+    console.log(patients);
+
+    res.status(200).json({
+      success: true,
+      data: patients
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Server Error'
+    });
+  }
 }
 
 exports.getDoctorBySpecialization = async (req, res, next) => {
-    try {
-        const specialization = req.params.specialization;
-        const doctors = await Doctor.find({ specialization });
-        if (!doctors || doctors.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: 'No doctors found with this specialization'
-            });
-        }
-        res.status(200).json({
-            success: true,
-            data: doctors
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            success: false,
-            message: 'Server Error'
-        });
+  try {
+    const specialization = req.params.specialization;
+    const doctors = await Doctor.find({ specialization });
+    if (!doctors || doctors.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'No doctors found with this specialization'
+      });
     }
+    res.status(200).json({
+      success: true,
+      data: doctors
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Server Error'
+    });
+  }
 };
 
 exports.getDoctorByLocation = async (req, res, next) => {
-    try {
-        const doctors = await Doctor.find({ location: req.params.location });
-        if (!doctors) {
-          res.status(500).json({
-            success: false,
-            message: 'No doctors found in this location'
-          })
-          
-        }
-        res.status(200).json({
-            success: true,
-            data: doctors
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            success: false,
-            message: 'Server Error'
-        });
+  try {
+    const doctors = await Doctor.find({ location: req.params.location });
+    if (!doctors) {
+      res.status(500).json({
+        success: false,
+        message: 'No doctors found in this location'
+      })
+
     }
+    res.status(200).json({
+      success: true,
+      data: doctors
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Server Error'
+    });
+  }
 };
 
 exports.logoutDoctor = async (req, res, next) => {
-  req.session.destroy((err)=>{
-    if (err){
+  req.session.destroy((err) => {
+    if (err) {
       console.log("Error in destroying session:", err);
       return res.json({
         success: false,
-        message : 'Error in logging out'  
+        message: 'Error in logging out'
       })
     }
     res.clearCookie('connect.sid'); // Clear the session cookie
@@ -408,24 +408,24 @@ exports.logoutDoctor = async (req, res, next) => {
 }
 
 //Accepted Appointments for the Doctor... Storing in the Doctor's Collection as appointments
-exports.acceptAppointment=async(req,res)=>{
-  const appointmentId=req.params.id;
-  const doctorId=req.session.doctorId;
-  try{
+exports.acceptAppointment = async (req, res) => {
+  const appointmentId = req.params.id;
+  const doctorId = req.session.doctorId;
+  try {
     console.log("Accepting appointment with ID:", appointmentId);
 
     // Check if appointment exists in  the Appointment  Collection...
-    const appointment=await Appointment.findById(appointmentId);
-    if(!appointment){
+    const appointment = await Appointment.findById(appointmentId);
+    if (!appointment) {
       return res.json({
-        success:false,
-        message:'Appointment not found...'
+        success: false,
+        message: 'Appointment not found...'
       })
     }
     console.log(`Doctor Id : ${doctorId.toString()}`);
 
     //After checking the appointment, we need to check if the appointment belongs to the doctor or not ,if it belongs to doctor then we will give access to Accepting the Appointment...
-    if(appointment.doctorId.toString() !== doctorId.toString()){
+    if (appointment.doctorId.toString() !== doctorId.toString()) {
       return res.json({
         success: false,
         message: 'You are not authorized to accept this appointment'
@@ -462,7 +462,7 @@ exports.acceptAppointment=async(req,res)=>{
       data: appointment
     });
   }
-  catch(error){
+  catch (error) {
     console.error("Error accepting appointment:", error);
     res.status(500).json({
       success: false,
@@ -472,23 +472,23 @@ exports.acceptAppointment=async(req,res)=>{
 }
 
 //Reject Appointment by the Doctor...
-exports.rejectAppointment=async(req,res)=>{
-  const appointmentId=req.params.id;
-  const doctorId=req.session.doctorId;
-  try{
+exports.rejectAppointment = async (req, res) => {
+  const appointmentId = req.params.id;
+  const doctorId = req.session.doctorId;
+  try {
     console.log("Rejecting appointment with ID:", appointmentId);
     // Check if appointment exists in  the Appointment  Collection...
-    const appointment=await Appointment.findById(appointmentId);
-    if(!appointment){
+    const appointment = await Appointment.findById(appointmentId);
+    if (!appointment) {
       return res.json({
-        success:false,
-        message:'Appointment not found...'
+        success: false,
+        message: 'Appointment not found...'
       })
     }
     console.log(`Doctor Id : ${doctorId.toString()}`);
     //After checking the appointment, we need to check if the appointment belongs to the doctor or not ,if it belongs to doctor then we will give access to Rejecting the Appointment...
-    if(appointment.doctorId.toString() !== doctorId.toString()){
-      return res.json({ 
+    if (appointment.doctorId.toString() !== doctorId.toString()) {
+      return res.json({
         success: false,
         message: 'You are not authorized to reject this appointment'
       });
@@ -504,7 +504,7 @@ exports.rejectAppointment=async(req,res)=>{
     });
 
   }
-  catch(error){
+  catch (error) {
     console.error("Error rejecting appointment:", error);
     res.status(500).json({
       success: false,
@@ -623,19 +623,19 @@ exports.getSecondOpinion = async (req, res) => {
     if (!doctorId) {
       return res.status(400).json({ success: false, message: 'Doctor ID is required' });
     }
-    
+
     const doctor = await Doctor.findById(doctorId);
     if (!doctor) {
       return res.status(404).json({ success: false, message: 'Doctor not found' });
     }
-    
+
     const secondOpinionRequests = await GetSecondOpinion.find({ doctorId: doctorId })
       .populate('patientId', 'name contact')
       .sort({ createdAt: -1 }); // Sort by most recent first  
     if (!secondOpinionRequests || secondOpinionRequests.length === 0) {
       return res.status(404).json({ success: false, message: 'No second opinion requests found' });
     }
-    
+
     res.status(200).json({
       success: true,
       data: secondOpinionRequests
@@ -701,12 +701,12 @@ exports.acceptGetSecondOpinion = async (req, res) => {
   console.log("Request params:", req.params);
   console.log("Request body:", req.body);
   console.log("Request user:", req.user);
-  
+
   try {
     // Step 1: Basic validation
     const { id } = req.params;
     const { status } = req.body;
-    
+
     if (!id || !status) {
       console.log("❌ Missing id or status");
       return res.status(400).json({
@@ -715,7 +715,7 @@ exports.acceptGetSecondOpinion = async (req, res) => {
         received: { id, status }
       });
     }
-    
+
     // Step 2: Import and test model
     let GetSecondOpinion;
     try {
@@ -729,7 +729,7 @@ exports.acceptGetSecondOpinion = async (req, res) => {
         error: importError.message
       });
     }
-    
+
     // Step 3: Test database query
     console.log("🔍 Searching for record with ID:", id);
     let existingRecord;
@@ -744,7 +744,7 @@ exports.acceptGetSecondOpinion = async (req, res) => {
         error: dbError.message
       });
     }
-    
+
     if (!existingRecord) {
       console.log("❌ No record found with ID:", id);
       return res.status(404).json({
@@ -753,29 +753,29 @@ exports.acceptGetSecondOpinion = async (req, res) => {
         id: id
       });
     }
-    
+
     // Step 4: Update record
     console.log("📝 Updating record...");
     try {
       const updatedRequest = await GetSecondOpinion.findByIdAndUpdate(
         id,
-        { 
+        {
           status: status,
           respondedAt: new Date()
         },
-        { 
+        {
           new: true
         }
       );
-      
+
       console.log("✅ Record updated successfully");
-      
+
       res.status(200).json({
         success: true,
         message: `Request ${status} successfully`,
         data: updatedRequest
       });
-      
+
     } catch (updateError) {
       console.error("❌ Update failed:", updateError.message);
       return res.status(500).json({
@@ -784,12 +784,13 @@ exports.acceptGetSecondOpinion = async (req, res) => {
         error: updateError.message
       });
     }
-    
+
+
   } catch (error) {
     console.error("❌ CONTROLLER ERROR:", error);
     console.error("Error message:", error.message);
     console.error("Error stack:", error.stack);
-    
+
     res.status(500).json({
       success: false,
       message: "Controller error",
@@ -801,27 +802,43 @@ exports.acceptGetSecondOpinion = async (req, res) => {
   }
 };
 
+exports.getAllSpecializations = async (req, res) => {
+  try {
+    const specializations = await Doctor.distinct('specialization');
+    res.status(200).json({
+      success: true,
+      data: specializations.filter(s => s) // Filter out null/empty strings
+    });
+  } catch (error) {
+    console.error("Error fetching specializations:", error);
+    res.status(500).json({
+      success: false,
+      message: 'Server Error'
+    });
+  }
+};
+
 exports.getAcceptedSecondOpinion = async (req, res) => {
-  try{
+  try {
     //Here I Fetching all the second opinion requests which are accepted by the doctor...
-    const doctorId=req.session.doctorId;
+    const doctorId = req.session.doctorId;
     console.log(`Fetching all the accepted Appointments of Get Second Opinion by the Doctor ${doctorId}`);
-    const doctor=await Doctor.findById(doctorId);
-    if(!doctor){
-      return res.status(403).json({success:false,message:'Doctor Not Found...'});
+    const doctor = await Doctor.findById(doctorId);
+    if (!doctor) {
+      return res.status(403).json({ success: false, message: 'Doctor Not Found...' });
     }
-    const appointments=await GetSecondOpinion.find({ doctorId: doctorId, status: "accepted" }).populate('patientId', 'name contact');
+    const appointments = await GetSecondOpinion.find({ doctorId: doctorId, status: "accepted" }).populate('patientId', 'name contact');
     console.log("Fetching  the Appointments....")
     return res.json({
-      success:true,
-      data:appointments
+      success: true,
+      data: appointments
     })
   }
-  catch(err){
+  catch (err) {
     console.log(err);
     res.json({
       success: false,
-      message:"Server Error..."
+      message: "Server Error..."
     })
   }
 }

@@ -8,7 +8,7 @@ const ChatWrapper = () => {
 
   useEffect(() => {
     // Fetch the doctor ID from session via backend
-    fetch("http://localhost:1600/api/me", {
+    fetch("/api/me", {
       credentials: "include",
     })
       .then((res) => res.json())

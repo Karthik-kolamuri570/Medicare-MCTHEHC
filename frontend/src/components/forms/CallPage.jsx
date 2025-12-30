@@ -64,7 +64,7 @@ const CallPage = () => {
 
       try {
         // 🔑 Step 1: Get token & user info
-        const res = await fetch("http://localhost:1600/api/stream/token", {
+        const res = await fetch("/api/stream/token", {
           credentials: "include",
         });
 
@@ -81,7 +81,7 @@ const CallPage = () => {
 
         //  Step 3: Sync users with Stream
         await axios.post(
-          "http://localhost:1600/api/stream/upsert-users",
+          "/api/stream/upsert-users",
           {
             users: [{ id: userId }, { id: peerId }],
           },
@@ -221,7 +221,7 @@ export default CallPage;
 //   useEffect(() => {
 //     const getUserRole = async () => {
 //       try {
-//         const res = await fetch("http://localhost:1600/api/stream/token", {
+//         const res = await fetch("/api/stream/token", {
 //           credentials: "include",
 //         });
 //         const { userId } = await res.json();
@@ -780,7 +780,7 @@ export default CallPage;
 //       hasJoinedRef.current = true;
 
 //       try {
-//         const res = await fetch("http://localhost:1600/api/stream/token", {
+//         const res = await fetch("/api/stream/token", {
 //           credentials: "include",
 //         });
 
@@ -796,7 +796,7 @@ export default CallPage;
 //         const userRole = userId === doctorId ? 'doctor' : 'patient';
 
 //         await axios.post(
-//           "http://localhost:1600/api/stream/upsert-users",
+//           "/api/stream/upsert-users",
 //           {
 //             users: [{ id: userId }, { id: peerId }],
 //           },

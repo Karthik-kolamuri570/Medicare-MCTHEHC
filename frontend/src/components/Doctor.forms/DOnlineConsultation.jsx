@@ -70,7 +70,7 @@
 //     const fetchAppointments = async () => {
 //       try {
 //         const response = await axios.get(
-//           "http://localhost:1600/api/doctor/accepted-appointments",
+//           "/api/doctor/accepted-appointments",
 //           {
 //             withCredentials: true, // Important if using cookies/session
 //           }
@@ -269,10 +269,10 @@ const DOnlineConsultation = () => {
     const fetchData = async () => {
       try {
         const [appointmentsRes, secondOpinionsRes] = await Promise.all([
-          axios.get("http://localhost:1600/api/doctor/accepted-appointments", {
+          axios.get("/api/doctor/accepted-appointments", {
             withCredentials: true,
           }),
-          axios.get("http://localhost:1600/api/doctor/get-second-opinion/accept", {
+          axios.get("/api/doctor/get-second-opinion/accept", {
             withCredentials: true,
           }),
         ]);
@@ -927,10 +927,10 @@ export default DOnlineConsultation;
 //       setIsLoading(true);
 //       try {
 //         const [appointmentsRes, secondOpinionsRes] = await Promise.all([
-//           axios.get("http://localhost:1600/api/doctor/accepted-appointments", {
+//           axios.get("/api/doctor/accepted-appointments", {
 //             withCredentials: true,
 //           }),
-//           axios.get("http://localhost:1600/api/doctor/get-second-opinion/accept", {
+//           axios.get("/api/doctor/get-second-opinion/accept", {
 //             withCredentials: true,
 //           }),
 //         ]);

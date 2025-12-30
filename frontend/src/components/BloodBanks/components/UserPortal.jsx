@@ -53,7 +53,7 @@ export default function UserPortal({ onBack }) {
   const fetchBloodRequests = async () => {
     try {
       setLoading(true)
-      const response = await fetch("http://localhost:1600/api/blood-bank-user/blood-requests", {
+      const response = await fetch("/api/blood-bank-user/blood-requests", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -79,7 +79,7 @@ export default function UserPortal({ onBack }) {
   const fetchDonationRequests = async () => {
     try {
       setLoading(true)
-      const response = await fetch("http://localhost:1600/api/blood-bank-user/donation-requests", {
+      const response = await fetch("/api/blood-bank-user/donation-requests", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -106,7 +106,7 @@ export default function UserPortal({ onBack }) {
     e.preventDefault()
     try {
       setLoading(true)
-      const response = await fetch("http://localhost:1600/api/blood-bank-user/request-blood", {
+      const response = await fetch("/api/blood-bank-user/request-blood", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -147,7 +147,7 @@ export default function UserPortal({ onBack }) {
   const acceptBloodRequest = async (requestId) => {
     try {
       setLoading(true)
-      const response = await fetch(`http://localhost:1600/api/blood-bank-user/accept-request/${requestId}`, {
+      const response = await fetch(`/api/blood-bank-user/accept-request/${requestId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -185,7 +185,7 @@ export default function UserPortal({ onBack }) {
   const rejectBloodRequest = async (requestId) => {
     try {
       setLoading(true)
-      const response = await fetch(`http://localhost:1600/api/blood-bank-user/reject-request/${requestId}`, {
+      const response = await fetch(`/api/blood-bank-user/reject-request/${requestId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -212,7 +212,7 @@ export default function UserPortal({ onBack }) {
   const acceptDonation = async (donationId) => {
     try {
       setLoading(true)
-      const response = await fetch(`http://localhost:1600/api/blood-bank-user/accept-donation/${donationId}`, {
+      const response = await fetch(`/api/blood-bank-user/accept-donation/${donationId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -250,7 +250,7 @@ export default function UserPortal({ onBack }) {
   const rejectDonation = async (donationId) => {
     try {
       setLoading(true)
-      const response = await fetch(`http://localhost:1600/api/blood-bank-user/reject-donation/${donationId}`, {
+      const response = await fetch(`/api/blood-bank-user/reject-donation/${donationId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

@@ -20,7 +20,7 @@ function Login() {
 
     try {
       const response = await axios.post(
-        'http://localhost:1600/api/patient/login',
+        '/api/patient/login',
         { email, password },
         { withCredentials: true } // Ensure session cookie is stored
       );

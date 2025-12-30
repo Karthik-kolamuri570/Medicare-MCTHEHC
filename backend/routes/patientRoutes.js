@@ -20,11 +20,11 @@ const { uploadFiles, getSecondOpinion } = require('./../controller/patientContro
 router.get('/get-second-opinion', auth.patientAuth, patientController.getAllSecondOpinions);
 router.post('/get-second-opinion', auth.patientAuth, uploadFiles, getSecondOpinion);
 router.get('/logout', patientController.logoutPatient)
-router.get("/test-session", (req, res) => {
+router.get("/test-session", async (req, res) => {
     console.log("Session Data:", req.session);
     console.log("Session User:", req.session.user);
 
-    if (!req.session || !req.session.user) {
+    if (!req.session || !req.session.isPatientLoggedIn) {
         return res.status(401).json({ message: "Unauthorized - No session found" });
     }
 

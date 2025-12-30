@@ -28,7 +28,7 @@
 //       setLoading(true);
 //       setError("");
 
-//       const response = await axios.post("http://localhost:1600/api/blood-bank/bank-login", {
+//       const response = await axios.post("/api/blood-bank/bank-login", {
 //         email: formData.email,
 //         password: formData.password
 //       });
@@ -158,7 +158,7 @@ function BloodBankLogin() {
       setLoading(true);
       setError("");
       const response = await axios.post(
-        "http://localhost:1600/api/blood-bank/bank-login",
+        "/api/blood-bank/bank-login",
         {
           email: formData.email,
           password: formData.password,

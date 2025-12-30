@@ -3,7 +3,7 @@
 // import React, { useEffect, useState } from "react";
 // import axios from "axios";
 
-// const API_BASE = "http://localhost:1600/api/blood-camp";
+// const API_BASE = "/api/blood-camp";
 
 // export default function DoctorAdminCampPortal() {
 //   const [camps, setCamps] = useState([]);
@@ -630,7 +630,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const API_BASE = "http://localhost:1600/api/blood-camp";
+const API_BASE = "/api/blood-camp";
 
 export default function DoctorAdminCampPortal() {
   const [camps, setCamps] = useState([]);
