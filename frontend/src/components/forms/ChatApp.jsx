@@ -47,10 +47,10 @@
 
 //         const [doctorId, patientId] = receiverId.split("-");
 //         const peerId = userId === doctorId ? patientId : doctorId;
-        
+
 //         // Determine user role based on userId
 //         const role = userId === doctorId ? 'doctor' : 'patient';
-        
+
 //         const client = StreamChat.getInstance(apiKey);
 //         await client.connectUser({ id: userId }, token);
 
@@ -94,7 +94,7 @@
 //       console.error("❌ No active channel to initiate a video call");
 //       return;
 //     }
-    
+
 //     // Only doctors can start video calls
 //     if (userRole !== 'doctor') {
 //       toast.error("Only doctors can initiate video calls!");
@@ -107,7 +107,7 @@
 //       text: `📞 Video call started by doctor! Join here: ${callUrl}`,
 //     });
 //     toast.success("Video call initiated!");
-    
+
 //     // Redirect doctor to video call page
 //     window.open(callUrl, '_blank');
 //   };
@@ -253,7 +253,7 @@
 //               </div>
 //             </div>
 //           </div>
-          
+
 //           {/* Video Call Button - Only show for doctors */}
 //           <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
 //             {userRole === 'doctor' && (
@@ -276,7 +276,7 @@
 //                 📹
 //               </button>
 //             )}
-            
+
 //             {userRole === 'patient' && (
 //               <div style={{ 
 //                 fontSize: "12px", 
@@ -450,7 +450,7 @@ const ChatApp = () => {
     }
 
     const channelId = activeChannel.id;
-    const callUrl = `${window.location.origin}/api/video-call/${channelId}`;
+    const callUrl = `${window.location.origin}/video-call/${channelId}`;
     activeChannel.sendMessage({
       text: `📞 Video call started by doctor! Join here: ${callUrl}`,
     });

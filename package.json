@@ -1,0 +1,13 @@
+{
+    "name": "medicare-mcthehc",
+    "version": "1.0.0",
+    "description": "Medicare-MC: Advanced Healthcare Management System",
+    "main": "backend/app.js",
+    "scripts": {
+        "build": "cd frontend && npm install && npm run build",
+        "vercel-build": "npm run build",
+        "install-all": "npm install && cd frontend && npm install && cd ../backend && npm install"
+    },
+    "author": "Karthik Kolamuri",
+    "license": "ISC"
+}

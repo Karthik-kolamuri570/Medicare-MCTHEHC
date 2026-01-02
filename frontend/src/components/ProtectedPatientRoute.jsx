@@ -43,7 +43,7 @@ const ProtectedPatientRoute = ({ children }) => {
     if (!isAuthenticated) {
         // Redirect to login, optionally passing the current location so we can redirect back after login
         // The user requirement said: "just navigate to the patient login form"
-        return <Navigate to="/api/patient/login" state={{ from: location }} replace />;
+        return <Navigate to="/patient/login" state={{ from: location }} replace />;
     }
 
     return children;

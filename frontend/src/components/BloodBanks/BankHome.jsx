@@ -330,8 +330,8 @@ function BankHome() {
       {/* Header */}
       <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1.5rem 2rem", background: "#e74c3c", color: "#fff" }}>
         <div style={{ fontWeight: "bold", fontSize: "1.5rem" }}> <motion.a
-            href="/api/blood-bank/bank"
-          >BloodLife </motion.a> </div>
+          href="/blood-bank/bank"
+        >BloodLife </motion.a> </div>
         <nav>
           <a href="#blood-bank" style={{ color: "#fff", marginRight: "1.5rem" }}>Blood Bank</a>
           <a href="#blood-camp" style={{ color: "#fff", marginRight: "1.5rem" }}>Blood Camp</a>
@@ -339,7 +339,7 @@ function BankHome() {
           <a href="#contact" style={{ color: "#fff" }}>Contact</a>
         </nav>
       </header>
-      
+
       {/* Hero Section */}
       <section style={{ padding: "3rem 2rem", textAlign: "center", position: "relative" }}>
         {/* Animated Blood Drop */}
@@ -369,7 +369,7 @@ function BankHome() {
         </p>
         <div style={{ display: "flex", justifyContent: "center", gap: "1.5rem" }}>
           <motion.a
-            href="/api/blood-bank/user"
+            href="/blood-bank/user"
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.95 }}
             style={{ background: "#e74c3c", color: "#fff", padding: "0.8rem 2rem", borderRadius: "6px", textDecoration: "none", fontWeight: "bold" }}
@@ -386,7 +386,7 @@ function BankHome() {
           </motion.a>
         </div>
       </section>
-      
+
       {/* Features */}
       <section style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "2rem", padding: "2rem" }}>
         <motion.div
@@ -400,7 +400,7 @@ function BankHome() {
             <li>Register as a donor & track history</li>
             <li>Learn about eligibility and safety</li>
           </ul>
-          <a href="/api/blood-bank/user" style={{ marginTop: "1.5rem", display: "inline-block", background: "#e74c3c", color: "#fff", padding: "0.6rem 1.3rem", borderRadius: "5px", fontWeight: "bold", textDecoration: "none" }}>Access Blood Bank</a>
+          <a href="/blood-bank/user" style={{ marginTop: "1.5rem", display: "inline-block", background: "#e74c3c", color: "#fff", padding: "0.6rem 1.3rem", borderRadius: "5px", fontWeight: "bold", textDecoration: "none" }}>Access Blood Bank</a>
         </motion.div>
 
         <motion.div
@@ -417,7 +417,7 @@ function BankHome() {
           <a href="#blood-camp-list" style={{ marginTop: "1.5rem", display: "inline-block", background: "#fff", color: "#e74c3c", padding: "0.6rem 1.3rem", borderRadius: "5px", fontWeight: "bold", border: "2px solid #e74c3c", textDecoration: "none" }}>View Blood Camps</a>
         </motion.div>
       </section>
-      
+
       {/* Trust & Compliance */}
       <section style={{ padding: "2rem", textAlign: "center", background: "#ffe5e0" }}>
         <h3 style={{ color: "#e74c3c" }}>Why Donate?</h3>
@@ -435,7 +435,7 @@ function BankHome() {
           <span>100% Privacy</span>
         </div>
       </section>
-      
+
       {/* Footer */}
       <footer style={{ background: "#e74c3c", color: "#fff", textAlign: "center", padding: "1.2rem", marginTop: "2rem" }}>
         <div>Emergency Helpline: 1800-000-000 | contact@bloodlife.org</div>

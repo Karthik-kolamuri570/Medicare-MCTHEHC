@@ -1,4 +1,4 @@
-
+import React from "react";
 import axios from "axios";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import MedicareIndex from "./components/MedicareIndex";
@@ -24,7 +24,7 @@ import LogoutDoctor from "./components/Doctor.forms/LogoutDoctor";
 import OnlineConsultation from './components/forms/OnlineConsultation'
 // import ChatApp from "./components/forms/ChatApp";
 import ChatWrapper from "./components/forms/ChatWrapper";
-import CallPage from "./components/forms/CallPage"; ''
+import CallPage from "./components/forms/CallPage";
 import { Toaster } from 'react-hot-toast';
 import PaymentSuccess from './payments/PaymentSuccess';
 import PaymentCancel from './payments/PaymentCancel';
@@ -106,37 +106,34 @@ function App() {
         <Route path="/book-appointment/:doctorId" element={<ProtectedPatientRoute><Layout><Bookanappointment /></Layout></ProtectedPatientRoute>} />
         <Route path="/notifications" element={<Layout><Notifications /></Layout>} />
         <Route path="/SignUp" element={<Layout><Form /></Layout>} />
-        <Route path="/api/patient/login" element={<Layout><LoginPatient /></Layout>} />
-        <Route path="/api/doctor/login" element={<Layout><LoginDoctor /></Layout>} />
-        <Route path="/api/patient/register" element={<Layout><User /></Layout>} />
-        <Route path="/api/doctor/register" element={<Layout><Doctor /></Layout>} />
-        <Route path="/api/patient/logout" element={<LogoutPatient />} />
-        <Route path="/api/patient/online-consultation" element={<ProtectedPatientRoute><Layout><OnlineConsultation /></Layout></ProtectedPatientRoute>} />
-        <Route path="/api/get-second-opinion" element={<ProtectedPatientRoute><Layout><GetSecondOpinion /></Layout></ProtectedPatientRoute>} />
-        <Route path="/api/blood-bank" element={<BankHome />} />
-        <Route path="/api/blood-bank/bank" element={<BloodBankContainer />} />
-        <Route path="/api/blood-bank/login" element={<BloodBankLogin />} />
-        <Route path="/api/blood-bank/user" element={<UserPortal />} />
-        <Route path="/api/doctor/blood-camp/admin" element={<BloodCampAdmin />} />
+        <Route path="/patient/login" element={<Layout><LoginPatient /></Layout>} />
+        <Route path="/doctor/login" element={<Layout><LoginDoctor /></Layout>} />
+        <Route path="/patient/register" element={<Layout><User /></Layout>} />
+        <Route path="/doctor/register" element={<Layout><Doctor /></Layout>} />
+        <Route path="/patient/logout" element={<LogoutPatient />} />
+        <Route path="/patient/online-consultation" element={<ProtectedPatientRoute><Layout><OnlineConsultation /></Layout></ProtectedPatientRoute>} />
+        <Route path="/get-second-opinion" element={<ProtectedPatientRoute><Layout><GetSecondOpinion /></Layout></ProtectedPatientRoute>} />
+        <Route path="/blood-bank" element={<BankHome />} />
+        <Route path="/blood-bank/bank" element={<BloodBankContainer />} />
+        <Route path="/blood-bank/login" element={<BloodBankLogin />} />
+        <Route path="/blood-bank/user" element={<UserPortal />} />
+        <Route path="/doctor/blood-camp/admin" element={<BloodCampAdmin />} />
 
         {/* Blog Routes */}
-        <Route path="/api/blogs" element={<Layout><BlogListPage /></Layout>} />
-        <Route path="/api/blog/:id" element={<Layout><BlogDetailsPage /></Layout>} />
-        <Route path="/api/doctor/doc/blogs" element={<DLayout><DoctorDashboardPage /></DLayout>} />
-        <Route path="/api/patient/likes" element={<Layout><PatientLikesPage /></Layout>} />
-
-        {/* <Route path="/api/chat/:receiverId" element={<Layout><ChatWrapper /></Layout>} /> */}
+        <Route path="/blogs" element={<Layout><BlogListPage /></Layout>} />
+        <Route path="/blog/:id" element={<Layout><BlogDetailsPage /></Layout>} />
+        <Route path="/doctor/doc/blogs" element={<DLayout><DoctorDashboardPage /></DLayout>} />
+        <Route path="/patient/likes" element={<Layout><PatientLikesPage /></Layout>} />
 
         {/* Doctor Dashboard Routes */}
-        <Route path="/api/doctor" element={<DLayout><DoctorDashboard /></DLayout>} />
-        <Route path="/api/doctor/my-appointments" element={<DLayout><DAppointments /></DLayout>} />
-        <Route path="/api/doctor/my-consultations" element={<DLayout><DOnlineConsultation /></DLayout>} />
-        <Route path="/api/doctor/second-opinion" element={<DLayout><DSecondOpinions /></DLayout>} />
+        <Route path="/doctor" element={<DLayout><DoctorDashboard /></DLayout>} />
+        <Route path="/doctor/my-appointments" element={<DLayout><DAppointments /></DLayout>} />
+        <Route path="/doctor/my-consultations" element={<DLayout><DOnlineConsultation /></DLayout>} />
+        <Route path="/doctor/second-opinion" element={<DLayout><DSecondOpinions /></DLayout>} />
         <Route path="/my-blogs" element={<DLayout><DBlogs /></DLayout>} />
-        <Route path="/api/doctor/logout" element={<LogoutDoctor />} />
-        {/* <Route path="/chat/:patientId" element={<DLayout><ChatApp /></DLayout>} /> */}
-        <Route path="/api/chat/:receiverId" element={<ChatWrapper />} />
-        <Route path="/api/video-call/:receiverId" element={<CallPage />} />
+        <Route path="/doctor/logout" element={<LogoutDoctor />} />
+        <Route path="/chat/:receiverId" element={<ChatWrapper />} />
+        <Route path="/video-call/:receiverId" element={<CallPage />} />
 
         <Route path="/payment/success" element={<Layout><PaymentSuccess /></Layout>} />
         <Route path="/payment/cancel" element={<Layout><PaymentCancel /></Layout>} />

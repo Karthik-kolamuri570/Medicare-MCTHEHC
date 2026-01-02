@@ -9,7 +9,17 @@ export default defineConfig({
     react(),        // React plugin (JSX, fast refresh, auto runtime)
     tailwindcss(),
     // Tailwind plugin
-  ], resolve: {
+  ],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:1600',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
+  resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },

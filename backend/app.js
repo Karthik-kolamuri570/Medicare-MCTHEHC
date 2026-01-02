@@ -20,20 +20,28 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 app.use(cors({
-  origin: ["http://localhost:5173", "http://127.0.0.1:5173"], // Allow both localhost and 127.0.0.1
+  origin: [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    /\.vercel\.app$/, // Allow Vercel preview deployments
+    process.env.FRONTEND_URL // Future production URL
+  ].filter(Boolean),
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 
-const PORT = 1600;
+const PORT = process.env.PORT || 1600;
 mongoose.connect(process.env.MONGO_URI)
   .then(async (result) => {
     // console.log(result);
-    await app.listen(PORT, () => {
-      console.log(`Server is running on PORT: ${PORT}`);
-    });
+    // Only start the server if we are running the script directly (not via Vercel serverless)
+    if (require.main === module) {
+      app.listen(PORT, () => {
+        console.log(`Server is running on PORT: ${PORT}`);
+      });
+    }
     console.log("Data Base is connected... ");
   })
   .catch(err => console.log(err));
@@ -44,6 +52,7 @@ const store = new mongoDBStore({
   autoRemove: true
 });
 
+app.set('trust proxy', 1); // Required for secure cookies on Vercel/proxies
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
@@ -52,8 +61,8 @@ app.use(session({
   store: store,
   cookie: {
     httpOnly: true,
-    secure: false,  // Set to `true` if using HTTPS
-    sameSite: 'lax', // Lax is good for localhost
+    secure: process.env.NODE_ENV === 'production',  // Set to `true` in production
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     maxAge: 24 * 60 * 60 * 1000 // 1 day expiration
   }
 }));
@@ -157,6 +166,11 @@ app.get('/api/me', async (req, res) => {
   }
 });
 
+// ✅ Legacy Redirect: If someone clicks an old /api/video-call link from chat, redirect to frontend
+app.get('/api/video-call/:id', (req, res) => {
+  res.redirect(`/video-call/${req.params.id}`);
+});
+
 
 const streamApiKey = process.env.STREAM_API_KEY;
 const streamApiSecret = process.env.STREAM_API_SECRET;
@@ -206,3 +220,5 @@ app.post('/api/stream/upsert-users', async (req, res) => {
     return res.status(500).json({ error: 'Failed to upsert users', details: err.message });
   }
 });
+
+module.exports = app;

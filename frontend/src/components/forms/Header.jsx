@@ -330,7 +330,7 @@ const searchData = [
   {
     id: 3,
     name: "Get Second Opinion",
-    link: "/api/get-second-opinion",
+    link: "/get-second-opinion",
     tags: ["second opinion", "consultation", "diagnosis", "expert advice", "review", "double check"]
   },
   {
@@ -342,7 +342,7 @@ const searchData = [
   {
     id: 5,
     name: "Online Consultation",
-    link: "/api/patient/online-consultation",
+    link: "/patient/online-consultation",
     tags: ["online", "consult", "virtual", "doctor", "chat", "telemedicine"]
   },
   {
@@ -354,13 +354,13 @@ const searchData = [
   {
     id: 7,
     name: "Blood Camps and Banks",
-    link: "/api/blood-bank",
+    link: "/blood-bank",
     tags: ["blood", "donation", "camp", "bank", "availability", "blood group", "save life"]
   },
   {
     id: 8,
     name: "Blogs",
-    link: "/api/blogs",
+    link: "/blogs",
     tags: ["blog", "articles", "health tips", "news", "updates", "stories"]
   },
   {
@@ -503,7 +503,7 @@ function Header() {
         setUser(null);
         localStorage.removeItem("token");
         sessionStorage.removeItem("token");
-        navigate("/api/patient/login");
+        navigate("/patient/login");
         setTimeout(() => {
           checkUserLogin();
         }, 100);
@@ -556,10 +556,10 @@ function Header() {
               <li style={{ cursor: "pointer" }} onClick={() => navigate("/top-doctors")}>
                 Find a Doctor
               </li>
-              <li style={{ cursor: "pointer" }} onClick={() => navigate("/api/get-second-opinion")}>
+              <li style={{ cursor: "pointer" }} onClick={() => navigate("/get-second-opinion")}>
                 Get Second Opinion
               </li>
-              <li style={{ cursor: "pointer" }} onClick={() => navigate("/api/blogs")}>
+              <li style={{ cursor: "pointer" }} onClick={() => navigate("/blogs")}>
                 Blogs
               </li>
               <li style={{ cursor: "pointer" }} onClick={() => setIsContactModalOpen(true)}>
@@ -667,13 +667,13 @@ function Header() {
           <a href="/hospitals" style={{ textDecoration: "none", color: "#222" }}>
             Our Hospitals
           </a>
-          <a href="/api/patient/online-consultation" style={{ textDecoration: "none", color: "#222" }}>
+          <a href="/patient/online-consultation" style={{ textDecoration: "none", color: "#222" }}>
             Online Consultancy
           </a>
           <a href="/treatments" style={{ textDecoration: "none", color: "#222" }}>
             Treatments
           </a>
-          <a href="/api/blood-bank" style={{ textDecoration: "none", color: "#222" }}>
+          <a href="/blood-bank" style={{ textDecoration: "none", color: "#222" }}>
             Blood Camps and Banks
           </a>
         </div>

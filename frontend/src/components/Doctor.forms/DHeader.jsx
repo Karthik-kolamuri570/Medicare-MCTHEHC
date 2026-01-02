@@ -47,7 +47,7 @@
 //   const [searchInput, setSearchInput] = useState('');
 //   const [searchedData, setSearchedData] = useState([]);
 //   const dropdownRef = useRef(null);
-  
+
 //   useEffect(() => {
 //     const handleClickOutside = (e) => {
 //       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -209,31 +209,31 @@ const searchData = [
   {
     id: 1,
     name: "My Appointments",
-    link: "/api/doctor/my-appointments",
+    link: "/doctor/my-appointments",
     tags: ["appointments", "my visits", "doctor meetings", "scheduled appointments", "consult history", "patient appointments"]
   },
   {
     id: 2,
     name: "My Consultations",
-    link: "/api/doctor/my-consultations",
+    link: "/doctor/my-consultations",
     tags: ["consultations", "virtual visits", "medical advice", "doctor chat", "my consults", "consult history"]
   },
   {
     id: 3,
     name: "My Blogs",
-    link: "/api/doctor/doc/blogs",
+    link: "/doctor/doc/blogs",
     tags: ["my articles", "my health blogs", "my stories", "personal blogs", "health writing", "authored posts"]
   },
   {
     id: 4,
     name: "Get Second Opinion",
-    link: "/api/doctor/second-opinion",
+    link: "/doctor/second-opinion",
     tags: ["second opinion", "another diagnosis", "expert review", "confirm diagnosis", "get advice", "reconsult"]
   },
   {
     id: 5,
     name: "Organize Blood Camps",
-    link: "/api/doctor/blood-camp/admin",
+    link: "/doctor/blood-camp/admin",
     tags: ["blood bank", "organize donation", "host blood camp", "manage donors", "blood service", "blood supply"]
   },
   {
@@ -326,7 +326,7 @@ function DHeader() {
         setDoctor(null);
         // Clear tokens if applicable
         // Navigate to login
-        navigate("/api/doctor/login");
+        navigate("/doctor/login");
       } else {
         console.error("Logout failed");
       }
@@ -348,22 +348,22 @@ function DHeader() {
           {/* Logo */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <img src={logo} alt="Medicare Logo" style={{ height: '40px' }} />
-            <h1 style={{ margin: 0, fontSize: '1.5rem', cursor: 'pointer' }} onClick={() => navigate('/api/doctor')}>
+            <h1 style={{ margin: 0, fontSize: '1.5rem', cursor: 'pointer' }} onClick={() => navigate('/doctor')}>
               Medicare
             </h1>
           </div>
 
           {/* Navigation Links */}
           <ul style={{ display: 'flex', listStyle: 'none', gap: '1.5rem', margin: 0, padding: 0 }}>
-            
-            <li style={{ cursor: 'pointer' }} onClick={() => navigate("/api/doctor/my-appointments")}>My Appointments</li>
-            <li style={{ cursor: 'pointer' }} onClick={() => navigate("/api/doctor/my-consultations")}>My Consultations</li>
-            <li style={{ cursor: 'pointer' }} onClick={() => navigate("/api/doctor/doc/blogs")}>My Blogs</li>
-            <li style={{ cursor: 'pointer' }} onClick={() => navigate("/api/doctor/blood-camp/admin")}>Blood Camp</li>
+
+            <li style={{ cursor: 'pointer' }} onClick={() => navigate("/doctor/my-appointments")}>My Appointments</li>
+            <li style={{ cursor: 'pointer' }} onClick={() => navigate("/doctor/my-consultations")}>My Consultations</li>
+            <li style={{ cursor: 'pointer' }} onClick={() => navigate("/doctor/doc/blogs")}>My Blogs</li>
+            <li style={{ cursor: 'pointer' }} onClick={() => navigate("/doctor/blood-camp/admin")}>Blood Camp</li>
             <li style={{ cursor: 'pointer' }} onClick={() => navigate("/contact")}>Notifications</li>
             {!isLoading && (doctor ?
               <li style={{ cursor: 'pointer' }} onClick={handleLogout}>Logout</li> :
-              <li style={{ cursor: 'pointer' }} onClick={() => navigate("/api/doctor/login")}>Login</li>)}
+              <li style={{ cursor: 'pointer' }} onClick={() => navigate("/doctor/login")}>Login</li>)}
           </ul>
 
           {/* Search Box */}

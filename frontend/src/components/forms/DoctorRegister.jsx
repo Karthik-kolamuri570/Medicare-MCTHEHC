@@ -102,11 +102,11 @@ function Doctor() {
   // Validate form fields
   const validateForm = () => {
     const errors = {};
-    
+
     if (!formData.name) errors.name = 'Name is required';
-    if (!formData.contact || formData.contact.length !== 10 || !/^\d{10}$/.test(formData.contact)) 
+    if (!formData.contact || formData.contact.length !== 10 || !/^\d{10}$/.test(formData.contact))
       errors.contact = 'Contact must be a 10-digit number';
-    
+
     if (!formData.email) errors.email = 'Email is required';
     if (!formData.password) errors.password = 'Password is required';
     if (!formData.confirmPassword) errors.confirmPassword = 'Confirm password is required';
@@ -118,7 +118,7 @@ function Doctor() {
     if (!formData.experience || formData.experience <= 0) errors.experience = 'Experience must be greater than 0';
     if (!formData.location) errors.location = 'Location is required';
     if (!formData.hospital) errors.hospital = 'Hospital is required';
-    if (!formData.feePerConsultation || formData.feePerConsultation <= 0) 
+    if (!formData.feePerConsultation || formData.feePerConsultation <= 0)
       errors.feePerConsultation = 'Fee per consultation must be greater than 0';
     if (!formData.fromTime) errors.fromTime = 'From time is required';
     if (!formData.toTime) errors.toTime = 'To time is required';
@@ -147,7 +147,7 @@ function Doctor() {
 
       if (response.status === 201) {
         // Redirect to login on successful registration
-        navigate('/api/doctor/login');
+        navigate('/doctor/login');
       } else {
         setErrorMessage('Registration failed. Please try again.');
       }
@@ -305,7 +305,7 @@ function Doctor() {
 
       <p className="login-link">
         Already registered?{" "}
-        <a href="#" onClick={() => navigate("/api/doctor/login")}>
+        <a href="#" onClick={() => navigate("/doctor/login")}>
           Login
         </a>
       </p>

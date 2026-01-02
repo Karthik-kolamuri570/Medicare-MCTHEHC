@@ -91,7 +91,7 @@ const OnlineConsultation = () => {
 
   const handleStartChat = (pid, did) => {
     if (!did) return;
-    navigate(`/api/chat/${did}-${pid}`);
+    navigate(`/chat/${did}-${pid}`);
   };
 
   // --- Filtering Logic ---

@@ -41,7 +41,7 @@ const PaymentSuccess = () => {
           </p>
 
           {/* Actions */}
-          <button onClick={() => navigate("/api/patient/online-consultation")} className="pay-btn">
+          <button onClick={() => navigate("/patient/online-consultation")} className="pay-btn">
             <Calendar size={18} />
             View My Appointments
           </button>

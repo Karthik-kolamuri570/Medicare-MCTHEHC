@@ -286,7 +286,7 @@ const DoctorDashboardPage = () => {
                         </button>
                         {blog.status === 'published' && (
                           <a
-                            href={`/api/blog/${blog._id}`}
+                            href={`/blog/${blog._id}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             style={styles.viewButton}

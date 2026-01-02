@@ -77,7 +77,7 @@ const User = () => {
 
       if (response.status === 201) {
         // Redirect to login page on success
-        navigate('/api/patient/login');
+        navigate('/patient/login');
       } else {
         setErrorMessage('Registration failed. Please try again.');
       }
@@ -213,7 +213,7 @@ const User = () => {
       {errorMessage && <p className="error-message">{errorMessage}</p>}
 
       <p className="login-link">
-        Already registered? <a href="#" onClick={() => navigate('/api/patient/login')}>Login</a>
+        Already registered? <a href="#" onClick={() => navigate('/patient/login')}>Login</a>
       </p>
     </div>
   );

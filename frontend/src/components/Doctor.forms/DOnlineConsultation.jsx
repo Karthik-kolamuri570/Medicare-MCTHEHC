@@ -310,7 +310,7 @@ const DOnlineConsultation = () => {
   }, []);
 
   const handleVirtualCardClick = (doctorId, patientId) => {
-    navigate(`/api/chat/${doctorId}-${patientId}`);
+    navigate(`/chat/${doctorId}-${patientId}`);
   };
 
   const handleScheduleCardClick = (patient) => {

@@ -166,13 +166,13 @@ function BloodBankLogin() {
       );
       console.log(response.data);
       if (response.data.success) {
-        window.location.href = "/api/blood-bank/bank"; // adjust route as per actual app
+        window.location.href = "/blood-bank/bank"; // adjust route as per actual app
       } else {
         setError(response.data.message || "Login failed");
       }
     } catch (err) {
       setError(
-        err.response?.data?.message  || "Login failed. Please check your credentials."
+        err.response?.data?.message || "Login failed. Please check your credentials."
       );
     } finally {
       setLoading(false);
@@ -240,7 +240,7 @@ function BloodBankLogin() {
             Forgot Password?
           </a>
           <div style={styles.divider}>|</div>
-          <a href="/register" className="login-link" style={styles.link}>
+          <a href="/SignUp" className="login-link" style={styles.link}>
             Register New Blood Bank
           </a>
         </div>

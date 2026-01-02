@@ -13,15 +13,15 @@ function Form() {
 
         {/* Buttons to navigate to either Doctor or Patient Registration */}
         <div className="form-buttons">
-          <button 
-            className="registration-btn" 
-            onClick={() => navigate('/api/doctor/register')}
+          <button
+            className="registration-btn"
+            onClick={() => navigate('/doctor/register')}
           >
             Go to Doctor Registration
           </button>
-          <button 
-            className="registration-btn" 
-            onClick={() => navigate('/api/patient/register')}
+          <button
+            className="registration-btn"
+            onClick={() => navigate('/patient/register')}
           >
             Go to Patient Registration
           </button>

@@ -211,7 +211,7 @@ const BlogDetailsPage = () => {
   return (
     <div style={styles.page}>
       <div style={styles.header}>
-        <Link to="/api/blogs" style={styles.backLink}>← Back to Blogs</Link>
+        <Link to="/blogs" style={styles.backLink}>← Back to Blogs</Link>
       </div>
 
       <article style={styles.article}>

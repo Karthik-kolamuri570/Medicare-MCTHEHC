@@ -30,7 +30,7 @@ function Bookanappointment() {
     const token = localStorage.getItem("token"); // Changed to 'token' based on LoginPatient.jsx
     if (!token) {
       toast.error("Please login to book an appointment.");
-      navigate("/api/patient/login");
+      navigate("/patient/login");
       return;
     }
 

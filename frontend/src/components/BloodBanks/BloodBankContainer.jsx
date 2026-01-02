@@ -23,11 +23,11 @@ function BloodBankContainer() {
       if (response.data.success && response.data.authenticated) {
         setIsAuthenticated(true);
       } else {
-        window.location.href = "/api/blood-bank/login";
+        window.location.href = "/blood-bank/login";
       }
     } catch (error) {
       console.error("Authentication check failed:", error);
-      window.location.href = "/api/blood-bank/login";
+      window.location.href = "/blood-bank/login";
     } finally {
       setAuthChecking(false);
     }
@@ -61,7 +61,7 @@ function BloodBankContainer() {
     } catch (error) {
       console.error("Error loading data:", error);
       if (error.response?.status === 401) {
-        window.location.href = "/api/blood-bank/login";
+        window.location.href = "/blood-bank/login";
       }
     } finally {
       setLoading(false);
@@ -111,7 +111,7 @@ function BloodBankContainer() {
     } catch (error) {
       console.error("API call failed:", error);
       if (error.response?.status === 401) {
-        window.location.href = "/api/blood-bank/login";
+        window.location.href = "/blood-bank/login";
       }
     }
   };
@@ -187,10 +187,10 @@ function BloodBankContainer() {
       setRequests([]);
       setDonations([]);
       setNotifications([]);
-      window.location.href = "/api/blood-bank/login";
+      window.location.href = "/blood-bank/login";
     } catch (err) {
       console.error("Logout error:", err);
-      window.location.href = "/api/blood-bank/login";
+      window.location.href = "/blood-bank/login";
     }
   };
 

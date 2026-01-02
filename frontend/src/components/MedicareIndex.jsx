@@ -511,7 +511,7 @@ function MedicareIndex() {
                   <h3>{blog.title}</h3>
                   <p>{blog.description}</p>
                   <button>
-                    <a href={`/api/blog/${blog._id}`}>Read More</a>
+                    <a href={`/blog/${blog._id}`}>Read More</a>
                   </button>
                 </div>
               ))}

@@ -131,7 +131,7 @@ const BlogCard = ({ blog }) => {
       <div style={styles.content}>
         <h3 style={styles.title}>
           <Link
-            to={`/api/blog/${blog._id}`}
+            to={`/blog/${blog._id}`}
             title={blog.title}
             style={styles.titleLink}
             onMouseEnter={e => (e.currentTarget.style.color = '#0077cc')}

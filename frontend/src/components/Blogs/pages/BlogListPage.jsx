@@ -156,7 +156,7 @@ const BlogListPage = () => {
         {/* Button to navigate to patient liked blogs page */}
         <button
           style={styles.likedButton}
-          onClick={() => navigate('/api/patient/likes')}
+          onClick={() => navigate('/patient/likes')}
           onMouseOver={e => (e.currentTarget.style.backgroundColor = '#005fa3')}
           onMouseOut={e => (e.currentTarget.style.backgroundColor = '#007acc')}
         >
