@@ -208,20 +208,56 @@ router.get("/success", async (req, res) => {
         console.log(`SecondOpinion payment status updated for ID ${appointmentId}`);
       }
 
-      // Redirect to frontend success page (adjust the URL as per your frontend routing)
-      return res.redirect(`http://localhost:5173/payment/success?session_id=${session_id}`);
+      // Redirect to frontend success page
+      let frontendUrl = process.env.FRONTEND_URL;
+      if (!frontendUrl) {
+        const host = req.get("host");
+        if (host.includes("localhost") || host.includes("127.0.0.1")) {
+          frontendUrl = "http://localhost:5173";
+        } else {
+          frontendUrl = `${req.protocol}://${host}`;
+        }
+      }
+      return res.redirect(`${frontendUrl}/payment/success?session_id=${session_id}`);
     } else {
-      return res.redirect(`http://localhost:5173/payment/cancel`);
+      let frontendUrl = process.env.FRONTEND_URL;
+      if (!frontendUrl) {
+        const host = req.get("host");
+        if (host.includes("localhost") || host.includes("127.0.0.1")) {
+          frontendUrl = "http://localhost:5173";
+        } else {
+          frontendUrl = `${req.protocol}://${host}`;
+        }
+      }
+      return res.redirect(`${frontendUrl}/payment/cancel`);
     }
   } catch (err) {
     console.error("Stripe success error:", err.message);
-    return res.redirect(`http://localhost:5173/payment/cancel`);
+    let frontendUrl = process.env.FRONTEND_URL;
+    if (!frontendUrl) {
+      const host = req.get("host");
+      if (host.includes("localhost") || host.includes("127.0.0.1")) {
+        frontendUrl = "http://localhost:5173";
+      } else {
+        frontendUrl = `${req.protocol}://${host}`;
+      }
+    }
+    return res.redirect(`${frontendUrl}/payment/cancel`);
   }
 });
 
 // Step 3: Handle Payment Cancel
 router.get("/cancel", (req, res) => {
   console.log("User canceled the payment.");
-  return res.redirect("http://localhost:5173/payment/cancel");
-})
+  let frontendUrl = process.env.FRONTEND_URL;
+  if (!frontendUrl) {
+    const host = req.get("host");
+    if (host.includes("localhost") || host.includes("127.0.0.1")) {
+      frontendUrl = "http://localhost:5173";
+    } else {
+      frontendUrl = `${req.protocol}://${host}`;
+    }
+  }
+  return res.redirect(`${frontendUrl}/payment/cancel`);
+});
 module.exports = router;

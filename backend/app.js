@@ -97,6 +97,16 @@ app.use((req, res, next) => {
   console.log(req.user);
   next();
 });
+
+// Serving static files
+const os = require('os');
+const isVercel = process.env.VERCEL || process.env.NODE_ENV === 'production';
+if (isVercel) {
+  app.use('/uploads', express.static(path.join(os.tmpdir(), 'uploads')));
+} else {
+  app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+}
+
 const auth = require('./middleware/auth');
 
 // app.get('/api/stream/token', (req, res) => {

@@ -105,7 +105,8 @@ const GetSecondOpinion = () => {
 
     } catch (error) {
       console.error(error);
-      alert(error.response?.data?.message || 'Something went wrong. Please try again.');
+      const errorMsg = error.response?.data?.message || error.response?.data?.error || 'Something went wrong. Please try again.';
+      alert(`Error: ${errorMsg}`);
     } finally {
       setLoading(false);
     }

@@ -517,9 +517,20 @@ const path = require("path");
 
 
 // Multer config for multiple files
+const os = require('os');
+const fs = require('fs');
+
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, "uploads/");
+        // Vercel's filesystem is read-only except for /tmp
+        const isVercel = process.env.VERCEL || process.env.NODE_ENV === 'production';
+        const uploadPath = isVercel ? path.join(os.tmpdir(), 'uploads') : "uploads/";
+
+        // Ensure the directory exists
+        if (!fs.existsSync(uploadPath)) {
+            fs.mkdirSync(uploadPath, { recursive: true });
+        }
+        cb(null, uploadPath);
     },
     filename: function (req, file, cb) {
         const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
@@ -575,7 +586,12 @@ exports.getSecondOpinion = async (req, res) => {
         res.status(201).json({ success: true, message: "Second opinion request created", data: newSecondOpinion });
     } catch (err) {
         console.error("Error in getSecondOpinion:", err);
-        res.status(500).json({ success: false, message: "Internal server error" });
+        res.status(500).json({
+            success: false,
+            message: "Internal server error occurred while processing your request",
+            error: err.message,
+            stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+        });
     }
 };
 
