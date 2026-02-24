@@ -28,12 +28,13 @@ export default function DonationRequest({ isOpen, onClose }) {
     setSubmitMessage("")
 
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch("/api/blood-bank-user/donation-request", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
-        credentials: "include", // Include session cookies
         body: JSON.stringify({
           bankId: formData.bankId,
           units: Number.parseInt(formData.units),
@@ -136,11 +137,10 @@ export default function DonationRequest({ isOpen, onClose }) {
 
           {submitMessage && (
             <div
-              className={`p-3 rounded-md text-sm ${
-                submitMessage.includes("successfully")
+              className={`p-3 rounded-md text-sm ${submitMessage.includes("successfully")
                   ? "bg-green-50 text-green-700 border border-green-200"
                   : "bg-red-50 text-red-700 border border-red-200"
-              }`}
+                }`}
             >
               {submitMessage}
             </div>

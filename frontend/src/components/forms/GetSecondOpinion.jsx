@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
+import api from '../../utils/api';
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FiUpload, FiLoader, FiCheckCircle, FiArrowRight, FiArrowLeft,
@@ -36,7 +36,7 @@ const GetSecondOpinion = () => {
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const res = await axios.get("/api/doctor/");
+        const res = await api.get("/api/doctor/");
         if (res.data && res.data.data) {
           setDoctors(res.data.data);
         }
@@ -85,11 +85,10 @@ const GetSecondOpinion = () => {
         }
       });
 
-      const response = await axios.post(
+      const response = await api.post(
         "/api/patient/get-second-opinion",
         data,
         {
-          withCredentials: true,
           headers: { 'Content-Type': 'multipart/form-data' }
         }
       );

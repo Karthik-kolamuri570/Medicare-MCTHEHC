@@ -256,10 +256,18 @@ function DHeader() {
   useEffect(() => {
     const checkDoctorLogin = async () => {
       try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          setDoctor(null);
+          setIsLoading(false);
+          return;
+        }
         const response = await fetch("/api/doctor/me", {
           method: "GET",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" }
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          }
         });
         const data = await response.json();
         if (data.success && data.data) setDoctor(data.data);
@@ -317,15 +325,19 @@ function DHeader() {
 
   const handleLogout = async () => {
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch("/api/doctor/logout/", {
         method: "GET",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" }
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        }
       });
       if (response.ok) {
         setDoctor(null);
-        // Clear tokens if applicable
-        // Navigate to login
+        localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("user");
         navigate("/doctor/login");
       } else {
         console.error("Logout failed");

@@ -30,7 +30,7 @@
 //   const initializeBloodPortal = async () => {
 //     try {
 //       setLoading(true);
-      
+
 //       // Using your exact API endpoints
 //       const [banksRes, urgentRes, donationsRes, requestsRes] = await Promise.all([
 //         axios.get('/api/blood-bank/banks', { withCredentials: true }),
@@ -42,7 +42,7 @@
 //       // Calculate stats from the data
 //       const donations = donationsRes.data.donations || [];
 //       const requests = requestsRes.data.requests || [];
-      
+
 //       const acceptedDonations = donations.filter(d => d.status === 'accepted').length;
 //       const acceptedRequests = requests.filter(r => r.status === 'accepted').length;
 //       const pendingDonations = donations.filter(d => d.status === 'pending').length;
@@ -164,7 +164,7 @@
 //             <span style={styles.logoIcon}>🩸</span>
 //             <span style={styles.logoText}>BloodBank Portal</span>
 //           </div>
-          
+
 //           <div style={styles.headerActions}>
 //             {/* Notifications Dropdown */}
 //             <div style={styles.headerActionItem}>
@@ -178,7 +178,7 @@
 //                   <span style={styles.notificationBadge}>{bloodData.notifications.length}</span>
 //                 )}
 //               </button>
-              
+
 //               {showNotifications && (
 //                 <div style={styles.dropdown}>
 //                   <div style={styles.dropdownHeader}>
@@ -227,7 +227,7 @@
 //                 <span style={styles.headerButtonText}>My Donations</span>
 //                 <span style={styles.countBadge}>{bloodData.userStats.acceptedDonations}</span>
 //               </button>
-              
+
 //               {showMyDonations && (
 //                 <div style={styles.dropdown}>
 //                   <div style={styles.dropdownHeader}>
@@ -293,7 +293,7 @@
 //                 <span style={styles.headerButtonText}>My Requests</span>
 //                 <span style={styles.countBadge}>{bloodData.userStats.acceptedRequests}</span>
 //               </button>
-              
+
 //               {showMyRequests && (
 //                 <div style={styles.dropdown}>
 //                   <div style={styles.dropdownHeader}>
@@ -526,7 +526,7 @@
 //           <p style={styles.welcomeText}>
 //             Track your life-saving contributions and make a real difference in your community!
 //           </p>
-          
+
 //           <div style={styles.achievementShowcase}>
 //             <div style={styles.achievementItem}>
 //               <div style={styles.achievementNumber}>{userStats.acceptedDonations}</div>
@@ -575,7 +575,7 @@
 //           <p style={styles.quickCardDesc}>Save up to 3 lives with one donation</p>
 //           <div style={styles.quickCardArrow}>→</div>
 //         </div>
-        
+
 //         <div 
 //           onClick={() => setActiveSection('request')}
 //           style={{...styles.quickCard, ...styles.requestCard}}
@@ -585,7 +585,7 @@
 //           <p style={styles.quickCardDesc}>Get help when you need it most</p>
 //           <div style={styles.quickCardArrow}>→</div>
 //         </div>
-        
+
 //         <div 
 //           onClick={() => setActiveSection('urgent')}
 //           style={{...styles.quickCard, ...styles.urgentCard}}
@@ -1402,44 +1402,44 @@
 //     0%, 100% { transform: scale(1); }
 //     50% { transform: scale(1.1); }
 //   }
-  
+
 //   @keyframes slideIn {
 //     0% { transform: translateX(-100%); }
 //     100% { transform: translateX(100%); }
 //   }
-  
+
 //   @keyframes heartbeat {
 //     0%, 100% { transform: scale(1); }
 //     25% { transform: scale(1.1); }
 //     50% { transform: scale(1); }
 //     75% { transform: scale(1.05); }
 //   }
-  
+
 //   .quickCard:hover {
 //     transform: translateY(-8px);
 //     box-shadow: 0 25px 60px rgba(0,0,0,0.15);
 //   }
-  
+
 //   .bankCard:hover {
 //     transform: translateY(-4px);
 //     border-color: #3498db;
 //     box-shadow: 0 12px 30px rgba(52,152,219,0.2);
 //   }
-  
+
 //   .urgentHelpBtn:hover {
 //     background: rgba(255,255,255,0.3);
 //     transform: translateY(-2px);
 //   }
-  
+
 //   .headerButton:hover {
 //     transform: translateY(-2px);
 //     box-shadow: 0 8px 25px rgba(0,0,0,0.15);
 //   }
-  
+
 //   .notificationItem:hover, .dropdownItem:hover {
 //     background: #f8f9fa;
 //   }
-  
+
 //   .viewAllButton:hover {
 //     background: #e9ecef;
 //   }
@@ -1501,7 +1501,7 @@
 
 
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../../utils/api";
 
 function BloodPortal() {
   const [loading, setLoading] = useState(true);
@@ -1532,17 +1532,17 @@ function BloodPortal() {
   const initializeBloodPortal = async () => {
     try {
       setLoading(true);
-      
+
       const [banksRes, urgentRes, donationsRes, requestsRes] = await Promise.all([
-        axios.get('/api/blood-bank/banks', { withCredentials: true }),
-        axios.get('/api/blood-bank-user/blood/urgent-requests', { withCredentials: true }),
-        axios.get('/api/blood-bank-user/donation-requests', { withCredentials: true }),
-        axios.get('/api/blood-bank-user/blood-requests', { withCredentials: true })
+        api.get('/api/blood-bank/banks'),
+        api.get('/api/blood-bank-user/blood/urgent-requests'),
+        api.get('/api/blood-bank-user/donation-requests'),
+        api.get('/api/blood-bank-user/blood-requests')
       ]);
 
       const donations = donationsRes.data.donations || [];
       const requests = requestsRes.data.requests || [];
-      
+
       const acceptedDonations = donations.filter(d => d.status === 'accepted').length;
       const acceptedRequests = requests.filter(r => r.status === 'accepted').length;
       const pendingDonations = donations.filter(d => d.status === 'pending').length;
@@ -1613,7 +1613,7 @@ function BloodPortal() {
   const handleDonationSubmit = async (donationData) => {
     try {
       console.log('Submitting donation data:', donationData);
-      const response = await axios.post('/api/blood-bank-user/donation-request', donationData);
+      const response = await api.post('/api/blood-bank-user/donation-request', donationData);
 
       if (response.data.message) {
         alert('🎉 ' + response.data.message);
@@ -1628,7 +1628,7 @@ function BloodPortal() {
   const handleRequestSubmit = async (requestData) => {
     try {
       console.log('Submitting request data:', requestData);
-      const response = await axios.post('/api/blood-bank-user/request-blood', requestData);
+      const response = await api.post('/api/blood-bank-user/request-blood', requestData);
 
       if (response.data.message) {
         alert('🙏 ' + response.data.message);
@@ -1663,11 +1663,11 @@ function BloodPortal() {
             <span style={styles.logoIcon}>🩸</span>
             <span style={styles.logoText}>BloodBank Portal</span>
           </div>
-          
+
           <div style={styles.headerActions}>
             {/* Notifications Dropdown */}
             <div style={styles.headerActionItem}>
-              <button 
+              <button
                 onClick={() => setShowNotifications(!showNotifications)}
                 style={styles.headerButton}
               >
@@ -1677,7 +1677,7 @@ function BloodPortal() {
                   <span style={styles.notificationBadge}>{bloodData.notifications.length}</span>
                 )}
               </button>
-              
+
               {showNotifications && (
                 <div style={styles.dropdown}>
                   <div style={styles.dropdownHeader}>
@@ -1702,11 +1702,11 @@ function BloodPortal() {
                           </div>
                           <div style={{
                             ...styles.notificationStatus,
-                            backgroundColor: notification.status === 'accepted' ? '#27ae60' : 
-                                            notification.status === 'rejected' ? '#e74c3c' : '#f39c12'
+                            backgroundColor: notification.status === 'accepted' ? '#27ae60' :
+                              notification.status === 'rejected' ? '#e74c3c' : '#f39c12'
                           }}>
                             {notification.status === 'accepted' ? '✅' :
-                             notification.status === 'rejected' ? '❌' : '⏳'}
+                              notification.status === 'rejected' ? '❌' : '⏳'}
                           </div>
                         </div>
                       ))
@@ -1718,7 +1718,7 @@ function BloodPortal() {
 
             {/* My Donations Dropdown */}
             <div style={styles.headerActionItem}>
-              <button 
+              <button
                 onClick={() => setShowMyDonations(!showMyDonations)}
                 style={styles.headerButton}
               >
@@ -1726,7 +1726,7 @@ function BloodPortal() {
                 <span style={styles.headerButtonText}>My Donations</span>
                 <span style={styles.countBadge}>{bloodData.userStats.acceptedDonations}</span>
               </button>
-              
+
               {showMyDonations && (
                 <div style={styles.dropdown}>
                   <div style={styles.dropdownHeader}>
@@ -1741,7 +1741,7 @@ function BloodPortal() {
                       <div style={styles.emptyDropdown}>
                         <span style={styles.emptyIcon}>🩸</span>
                         <p>No donations yet</p>
-                        <button 
+                        <button
                           onClick={() => setActiveSection('donate')}
                           style={styles.emptyActionButton}
                         >
@@ -1762,11 +1762,11 @@ function BloodPortal() {
                           <div style={styles.itemRight}>
                             <span style={{
                               ...styles.itemStatus,
-                              color: donation.status === 'accepted' ? '#27ae60' : 
-                                     donation.status === 'rejected' ? '#e74c3c' : '#f39c12'
+                              color: donation.status === 'accepted' ? '#27ae60' :
+                                donation.status === 'rejected' ? '#e74c3c' : '#f39c12'
                             }}>
                               {donation.status === 'accepted' ? '✅' :
-                               donation.status === 'rejected' ? '❌' : '⏳'}
+                                donation.status === 'rejected' ? '❌' : '⏳'}
                             </span>
                           </div>
                         </div>
@@ -1784,7 +1784,7 @@ function BloodPortal() {
 
             {/* My Requests Dropdown */}
             <div style={styles.headerActionItem}>
-              <button 
+              <button
                 onClick={() => setShowMyRequests(!showMyRequests)}
                 style={styles.headerButton}
               >
@@ -1792,7 +1792,7 @@ function BloodPortal() {
                 <span style={styles.headerButtonText}>My Requests</span>
                 <span style={styles.countBadge}>{bloodData.userStats.acceptedRequests}</span>
               </button>
-              
+
               {showMyRequests && (
                 <div style={styles.dropdown}>
                   <div style={styles.dropdownHeader}>
@@ -1807,7 +1807,7 @@ function BloodPortal() {
                       <div style={styles.emptyDropdown}>
                         <span style={styles.emptyIcon}>🆘</span>
                         <p>No requests yet</p>
-                        <button 
+                        <button
                           onClick={() => setActiveSection('request')}
                           style={styles.emptyActionButton}
                         >
@@ -1828,11 +1828,11 @@ function BloodPortal() {
                           <div style={styles.itemRight}>
                             <span style={{
                               ...styles.itemStatus,
-                              color: request.status === 'accepted' ? '#27ae60' : 
-                                     request.status === 'rejected' ? '#e74c3c' : '#f39c12'
+                              color: request.status === 'accepted' ? '#27ae60' :
+                                request.status === 'rejected' ? '#e74c3c' : '#f39c12'
                             }}>
                               {request.status === 'accepted' ? '✅' :
-                               request.status === 'rejected' ? '❌' : '⏳'}
+                                request.status === 'rejected' ? '❌' : '⏳'}
                             </span>
                           </div>
                         </div>
@@ -1861,8 +1861,8 @@ function BloodPortal() {
 
       {/* Click outside to close dropdowns */}
       {(showNotifications || showMyDonations || showMyRequests) && (
-        <div 
-          style={styles.overlay} 
+        <div
+          style={styles.overlay}
           onClick={() => {
             setShowNotifications(false);
             setShowMyDonations(false);
@@ -1882,13 +1882,13 @@ function BloodPortal() {
               Your contribution can save up to 3 lives. Join our community of life-savers!
             </p>
             <div style={styles.heroButtons}>
-              <button 
+              <button
                 onClick={() => setActiveSection('donate')}
                 style={styles.heroPrimaryButton}
               >
                 🩸 Donate Now
               </button>
-              <button 
+              <button
                 onClick={() => setActiveSection('request')}
                 style={styles.heroSecondaryButton}
               >
@@ -1975,29 +1975,29 @@ function BloodPortal() {
       <div style={styles.content}>
         <div style={styles.contentWrapper}>
           {activeSection === "home" && (
-            <HomeSection 
-              urgentRequests={bloodData.urgentRequests} 
+            <HomeSection
+              urgentRequests={bloodData.urgentRequests}
               bloodBanks={bloodData.bloodBanks}
               userStats={bloodData.userStats}
-              setActiveSection={setActiveSection} 
+              setActiveSection={setActiveSection}
             />
           )}
           {activeSection === "donate" && (
-            <DonateSection 
+            <DonateSection
               bloodBanks={bloodData.bloodBanks}
               userStats={bloodData.userStats}
-              onSubmit={handleDonationSubmit} 
+              onSubmit={handleDonationSubmit}
             />
           )}
           {activeSection === "request" && (
-            <RequestSection 
+            <RequestSection
               bloodBanks={bloodData.bloodBanks}
               userStats={bloodData.userStats}
-              onSubmit={handleRequestSubmit} 
+              onSubmit={handleRequestSubmit}
             />
           )}
           {activeSection === "history" && (
-            <HistorySection 
+            <HistorySection
               myDonations={bloodData.myDonations}
               myRequests={bloodData.myRequests}
               userStats={bloodData.userStats}
@@ -2023,7 +2023,7 @@ function HomeSection({ urgentRequests, bloodBanks, userStats, setActiveSection }
           <p style={styles.welcomeText}>
             Track your life-saving contributions and make a real difference in your community!
           </p>
-          
+
           <div style={styles.achievementShowcase}>
             <div style={styles.achievementItem}>
               <div style={styles.achievementNumber}>{userStats.acceptedDonations}</div>
@@ -2063,29 +2063,29 @@ function HomeSection({ urgentRequests, bloodBanks, userStats, setActiveSection }
 
       {/* Quick Action Cards */}
       <div style={styles.quickActionCards}>
-        <div 
+        <div
           onClick={() => setActiveSection('donate')}
-          style={{...styles.quickCard, ...styles.donateCard}}
+          style={{ ...styles.quickCard, ...styles.donateCard }}
         >
           <div style={styles.quickCardIcon}>🩸</div>
           <h3 style={styles.quickCardTitle}>Donate Blood</h3>
           <p style={styles.quickCardDesc}>Save up to 3 lives with one donation</p>
           <div style={styles.quickCardArrow}>→</div>
         </div>
-        
-        <div 
+
+        <div
           onClick={() => setActiveSection('request')}
-          style={{...styles.quickCard, ...styles.requestCard}}
+          style={{ ...styles.quickCard, ...styles.requestCard }}
         >
           <div style={styles.quickCardIcon}>🆘</div>
           <h3 style={styles.quickCardTitle}>Request Blood</h3>
           <p style={styles.quickCardDesc}>Get help when you need it most</p>
           <div style={styles.quickCardArrow}>→</div>
         </div>
-        
-        <div 
+
+        <div
           onClick={() => setActiveSection('urgent')}
-          style={{...styles.quickCard, ...styles.urgentCard}}
+          style={{ ...styles.quickCard, ...styles.urgentCard }}
         >
           <div style={styles.quickCardIcon}>⚡</div>
           <h3 style={styles.quickCardTitle}>Urgent Needs</h3>
@@ -2161,7 +2161,7 @@ function DonateSection({ bloodBanks, userStats, onSubmit }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!donationForm.bankId || !donationForm.blood_group || !donationForm.requestedDate) {
       alert("Please fill in all required fields");
       return;
@@ -2170,7 +2170,7 @@ function DonateSection({ bloodBanks, userStats, onSubmit }) {
     setSubmitting(true);
     try {
       await onSubmit(donationForm);
-      setDonationForm({ 
+      setDonationForm({
         bankId: "",
         units: 1,
         blood_group: "",
@@ -2195,7 +2195,7 @@ function DonateSection({ bloodBanks, userStats, onSubmit }) {
               <label style={styles.label}>Blood Group *</label>
               <select
                 value={donationForm.blood_group}
-                onChange={(e) => setDonationForm({...donationForm, blood_group: e.target.value})}
+                onChange={(e) => setDonationForm({ ...donationForm, blood_group: e.target.value })}
                 style={styles.input}
                 required
                 disabled={submitting}
@@ -2206,12 +2206,12 @@ function DonateSection({ bloodBanks, userStats, onSubmit }) {
                 ))}
               </select>
             </div>
-            
+
             <div style={styles.formGroup}>
               <label style={styles.label}>Units to Donate *</label>
               <select
                 value={donationForm.units}
-                onChange={(e) => setDonationForm({...donationForm, units: parseInt(e.target.value)})}
+                onChange={(e) => setDonationForm({ ...donationForm, units: parseInt(e.target.value) })}
                 style={styles.input}
                 required
                 disabled={submitting}
@@ -2226,7 +2226,7 @@ function DonateSection({ bloodBanks, userStats, onSubmit }) {
             <label style={styles.label}>Select Blood Bank * ({bloodBanks?.length || 0} available)</label>
             <select
               value={donationForm.bankId}
-              onChange={(e) => setDonationForm({...donationForm, bankId: e.target.value})}
+              onChange={(e) => setDonationForm({ ...donationForm, bankId: e.target.value })}
               style={styles.input}
               required
               disabled={submitting}
@@ -2246,7 +2246,7 @@ function DonateSection({ bloodBanks, userStats, onSubmit }) {
             <input
               type="date"
               value={donationForm.requestedDate}
-              onChange={(e) => setDonationForm({...donationForm, requestedDate: e.target.value})}
+              onChange={(e) => setDonationForm({ ...donationForm, requestedDate: e.target.value })}
               style={styles.input}
               min={new Date().toISOString().split('T')[0]}
               required
@@ -2254,8 +2254,8 @@ function DonateSection({ bloodBanks, userStats, onSubmit }) {
             />
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             style={{
               ...styles.submitButton,
               opacity: (submitting || !bloodBanks || bloodBanks.length === 0) ? 0.7 : 1,
@@ -2293,7 +2293,7 @@ function RequestSection({ bloodBanks, userStats, onSubmit }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!requestForm.bankId || !requestForm.blood_group || !requestForm.requestedDate) {
       alert("Please fill in all required fields");
       return;
@@ -2302,7 +2302,7 @@ function RequestSection({ bloodBanks, userStats, onSubmit }) {
     setSubmitting(true);
     try {
       await onSubmit(requestForm);
-      setRequestForm({ 
+      setRequestForm({
         bankId: "",
         units: 1,
         blood_group: "",
@@ -2327,7 +2327,7 @@ function RequestSection({ bloodBanks, userStats, onSubmit }) {
               <label style={styles.label}>Blood Group Needed *</label>
               <select
                 value={requestForm.blood_group}
-                onChange={(e) => setRequestForm({...requestForm, blood_group: e.target.value})}
+                onChange={(e) => setRequestForm({ ...requestForm, blood_group: e.target.value })}
                 style={styles.input}
                 required
                 disabled={submitting}
@@ -2338,17 +2338,17 @@ function RequestSection({ bloodBanks, userStats, onSubmit }) {
                 ))}
               </select>
             </div>
-            
+
             <div style={styles.formGroup}>
               <label style={styles.label}>Units Needed *</label>
               <select
                 value={requestForm.units}
-                onChange={(e) => setRequestForm({...requestForm, units: parseInt(e.target.value)})}
+                onChange={(e) => setRequestForm({ ...requestForm, units: parseInt(e.target.value) })}
                 style={styles.input}
                 required
                 disabled={submitting}
               >
-                {[1,2,3,4,5].map(num => (
+                {[1, 2, 3, 4, 5].map(num => (
                   <option key={num} value={num}>{num} Unit{num > 1 ? 's' : ''}</option>
                 ))}
               </select>
@@ -2359,7 +2359,7 @@ function RequestSection({ bloodBanks, userStats, onSubmit }) {
             <label style={styles.label}>Select Blood Bank * ({bloodBanks?.length || 0} available)</label>
             <select
               value={requestForm.bankId}
-              onChange={(e) => setRequestForm({...requestForm, bankId: e.target.value})}
+              onChange={(e) => setRequestForm({ ...requestForm, bankId: e.target.value })}
               style={styles.input}
               required
               disabled={submitting}
@@ -2379,7 +2379,7 @@ function RequestSection({ bloodBanks, userStats, onSubmit }) {
             <input
               type="date"
               value={requestForm.requestedDate}
-              onChange={(e) => setRequestForm({...requestForm, requestedDate: e.target.value})}
+              onChange={(e) => setRequestForm({ ...requestForm, requestedDate: e.target.value })}
               style={styles.input}
               min={new Date().toISOString().split('T')[0]}
               required
@@ -2387,8 +2387,8 @@ function RequestSection({ bloodBanks, userStats, onSubmit }) {
             />
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             style={{
               ...styles.submitButton,
               ...styles.requestSubmitButton,
@@ -2408,18 +2408,18 @@ function RequestSection({ bloodBanks, userStats, onSubmit }) {
 // HISTORY SECTION
 function HistorySection({ myDonations, myRequests, userStats, setActiveSection }) {
   const getStatusColor = (status) => {
-    switch(status) {
+    switch (status) {
       case 'accepted': return '#27ae60';
-      case 'rejected': return '#e74c3c'; 
+      case 'rejected': return '#e74c3c';
       case 'pending': return '#f39c12';
       default: return '#666';
     }
   };
 
   const getStatusIcon = (status) => {
-    switch(status) {
+    switch (status) {
       case 'accepted': return '✅';
-      case 'rejected': return '❌'; 
+      case 'rejected': return '❌';
       case 'pending': return '⏳';
       default: return '❓';
     }
@@ -2452,7 +2452,7 @@ function HistorySection({ myDonations, myRequests, userStats, setActiveSection }
           <div style={styles.emptyHistory}>
             <div style={styles.emptyIcon}>🩸</div>
             <p>No donations yet. Start saving lives today!</p>
-            <button 
+            <button
               onClick={() => setActiveSection('donate')}
               style={styles.emptyActionButton}
             >
@@ -2472,7 +2472,7 @@ function HistorySection({ myDonations, myRequests, userStats, setActiveSection }
                   <span style={styles.historyBank}>{donation.bank_id?.name || 'Blood Bank'}</span>
                 </div>
                 <div style={styles.historyRight}>
-                  <span style={{...styles.historyStatus, color: getStatusColor(donation.status)}}>
+                  <span style={{ ...styles.historyStatus, color: getStatusColor(donation.status) }}>
                     {getStatusIcon(donation.status)} {(donation.status || 'unknown').toUpperCase()}
                   </span>
                   {donation.status === 'accepted' && (
@@ -2506,7 +2506,7 @@ function HistorySection({ myDonations, myRequests, userStats, setActiveSection }
                   <span style={styles.historyBank}>{request.bank_id?.name || 'Blood Bank'}</span>
                 </div>
                 <div style={styles.historyRight}>
-                  <span style={{...styles.historyStatus, color: getStatusColor(request.status)}}>
+                  <span style={{ ...styles.historyStatus, color: getStatusColor(request.status) }}>
                     {getStatusIcon(request.status)} {(request.status || 'unknown').toUpperCase()}
                   </span>
                   {request.status === 'accepted' && (
@@ -2547,7 +2547,7 @@ function UrgentSection({ urgentRequests }) {
                   {request.urgency === 'critical' ? '🔴 CRITICAL' : '🟠 HIGH PRIORITY'}
                 </span>
               </div>
-              
+
               <div style={styles.urgentCardBody}>
                 <p><strong>📍 Location:</strong> {request.location || 'Unknown location'}</p>
                 <p><strong>🩸 Units Needed:</strong> {request.units_requested || 0}</p>
@@ -2556,7 +2556,7 @@ function UrgentSection({ urgentRequests }) {
                   <p><strong>🏥 Condition:</strong> {request.patient_condition}</p>
                 )}
               </div>
-              
+
               <div style={styles.urgentCardFooter}>
                 <button style={styles.urgentHelpButton}>
                   💪 I Can Help!

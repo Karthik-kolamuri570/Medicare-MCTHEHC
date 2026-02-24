@@ -198,7 +198,7 @@
 
 
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../../utils/api";
 import { useNavigate } from "react-router-dom";
 
 const styles = {
@@ -269,12 +269,8 @@ const DOnlineConsultation = () => {
     const fetchData = async () => {
       try {
         const [appointmentsRes, secondOpinionsRes] = await Promise.all([
-          axios.get("/api/doctor/accepted-appointments", {
-            withCredentials: true,
-          }),
-          axios.get("/api/doctor/get-second-opinion/accept", {
-            withCredentials: true,
-          }),
+          api.get("/api/doctor/accepted-appointments"),
+          api.get("/api/doctor/get-second-opinion/accept"),
         ]);
 
         // Mark each entry with isSecondOpinion flag

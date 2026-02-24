@@ -4,13 +4,8 @@ const Doctor = require("../../models/doctor");
 // CREATE a new blood camp with validations assumed done by Mongoose
 exports.createBloodCamp = async (req, res) => {
   try {
-    if (!req.session || !req.session.doctorId) {
-      console.log(`Unauthorized access attempt to create blood camp `);
-      return res.status(401).json({ message: "Authentication required" });
-    }
-
-    // Check if doctor is verified
-    const doctor = await Doctor.findById(req.session.doctorId);
+    // Auth is handled by middleware
+    const doctor = await Doctor.findById(req.user._id);
     if (!doctor) {
       return res.status(404).json({ message: "Doctor account not found" });
     }
@@ -31,7 +26,7 @@ exports.createBloodCamp = async (req, res) => {
     }
     const campData = {
       ...campp,
-      organizer: req.session.doctorId, // The authenticated doctor creating the camp
+      organizer: req.user._id, // The authenticated doctor creating the camp
     };
 
     const camp = new BloodCamp(campData);
@@ -80,7 +75,7 @@ exports.updateBloodCamp = async (req, res) => {
     const camp = await BloodCamp.findById(req.params.id);
     if (!camp) return res.status(404).json({ message: "Camp not found" });
 
-    if (camp.organizer.toString() !== req.session.doctorId.toString()) {
+    if (camp.organizer.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: "Only the organizing doctor can update this camp." });
     }
 
@@ -103,8 +98,7 @@ exports.deleteBloodCamp = async (req, res) => {
     const camp = await BloodCamp.findById(req.params.id);
     if (!camp) return res.status(404).json({ message: "Camp not found" });
 
-    if (camp.organizer.toString() !== req.session.doctorId.toString()) {
-      console.log(`Unauthorized delete attempt by doctor ${req.session.doctorId} on camp ${camp.organizer}`);
+    if (camp.organizer.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: "Only the organizing doctor can delete this camp." });
     }
 
@@ -118,8 +112,7 @@ exports.deleteBloodCamp = async (req, res) => {
 
 exports.getCampsByDoctor = async (req, res) => {
   try {
-    console.log(`Fetching camps for doctor ID: ${req.session.doctorId}`);
-    const camps = await BloodCamp.find({ organizer: req.session.doctorId })
+    const camps = await BloodCamp.find({ organizer: req.user._id })
       .populate("blood_bank", "name location");
     res.json(camps);
   } catch (error) {

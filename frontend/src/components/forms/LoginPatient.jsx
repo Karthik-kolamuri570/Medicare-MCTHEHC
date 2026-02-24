@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import "./style.css";
 
-axios.defaults.withCredentials = true; // 🔥 Ensure cookies are sent
-
 function Login() {
   const navigate = useNavigate();
 
@@ -16,20 +14,20 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError(null); // Clear previous errors
+    setError(null);
 
     try {
-      const response = await axios.post(
-        '/api/patient/login',
-        { email, password },
-        { withCredentials: true } // Ensure session cookie is stored
-      );
-
-      console.log("Login Response:", response.data); // Debugging
+      const response = await axios.post('/api/patient/login', { email, password });
 
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
-        navigate('/'); 
+        if (response.data.refreshToken) {
+          localStorage.setItem('refreshToken', response.data.refreshToken);
+        }
+        if (response.data.patient) {
+          localStorage.setItem('user', JSON.stringify(response.data.patient));
+        }
+        navigate('/');
       } else {
         setError("Invalid response from server.");
       }

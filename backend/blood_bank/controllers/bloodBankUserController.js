@@ -208,7 +208,7 @@
 //     const userId=req.session?.patientId;
 //     console.log("Fetching requests for userId:", userId);
 //     if(!userId){
-      
+
 //       return res.status(401).json({message:"User not logged in"});
 //     }
 //     const requests=await Request.find({user_id:userId}).populate('bank_id','name location contact');
@@ -258,7 +258,7 @@ const mongoose = require('mongoose');
 const getAllBloodRequestsForBank = async (req, res) => {
     try {
         const requests = await Request.find({
-            user_id: req.session.patientId
+            user_id: req.user._id
         }).populate('user_id', 'name email').sort({ requested_date: -1 });
 
         res.json({
@@ -279,7 +279,7 @@ const getAllBloodRequestsForBank = async (req, res) => {
 const getAllDonationRequestsForBank = async (req, res) => {
     try {
         const donations = await Donate.find({
-            user_id: req.session.patientId
+            user_id: req.user._id
         }).populate('user_id', 'name email').sort({ requested_date: -1 });
 
         res.json({
@@ -309,10 +309,8 @@ const acceptBloodRequest = async (req, res) => {
                 message: 'Blood request not found'
             });
         }
-        console.log(`Bank ID from session: ${req.session.bankLogin.bankId}, Request's Bank ID: ${bloodRequest.bank_id}`);
-
         // Check if bank owns this request
-        if (bloodRequest.bank_id.toString() !== req.session.bankLogin.bankId.toString()) {
+        if (bloodRequest.bank_id.toString() !== req.bankId.toString()) {
             return res.status(403).json({
                 success: false,
                 message: 'Not authorized to handle this request'
@@ -328,7 +326,7 @@ const acceptBloodRequest = async (req, res) => {
         }
 
         // Get bank and check stock
-        const bank = await BloodBank.findById(req.session.bankLogin.bankId);
+        const bank = await BloodBank.findById(req.bankId);
         const bloodGroupKey = bloodRequest.blood_group.replace('+', '_pos').replace('-', '_neg');
         const currentStock = bank.blood_groups[bloodGroupKey] || 0;
 
@@ -341,7 +339,7 @@ const acceptBloodRequest = async (req, res) => {
 
         // Update stock and request status
         const newStock = currentStock - bloodRequest.units_requested;
-        await BloodBank.findByIdAndUpdate(req.session.bankLogin.bankId, {
+        await BloodBank.findByIdAndUpdate(req.bankId, {
             [`blood_groups.${bloodGroupKey}`]: newStock
         });
 
@@ -352,7 +350,7 @@ const acceptBloodRequest = async (req, res) => {
 
         // Create notification
         await new Notification({
-            bankId: req.session.bankLogin.bankId,
+            bankId: req.bankId,
             title: 'Blood Request Accepted',
             message: `Accepted ${bloodRequest.units_requested} units of ${bloodRequest.blood_group} blood request`,
             type: 'request_accepted',
@@ -378,7 +376,7 @@ const rejectBloodRequest = async (req, res) => {
     try {
         const requestId = req.params.id;
         console.log(`Request to Reject Blood Request by Id ${requestId}`);
-        
+
         const bloodRequest = await Request.findById(requestId);
         if (!bloodRequest) {
             return res.status(404).json({
@@ -388,7 +386,7 @@ const rejectBloodRequest = async (req, res) => {
         }
 
         // Check if bank owns this request
-        if (bloodRequest.bank_id.toString() !== req.session.bankLogin.bankId.toString()) {
+        if (bloodRequest.bank_id.toString() !== req.bankId.toString()) {
             return res.status(403).json({
                 success: false,
                 message: 'Not authorized to handle this request'
@@ -410,7 +408,7 @@ const rejectBloodRequest = async (req, res) => {
 
         // Create notification
         await new Notification({
-            bankId: req.session.bankLogin.bankId,
+            bankId: req.bankId,
             title: 'Blood Request Rejected',
             message: `Rejected ${bloodRequest.units_requested} units of ${bloodRequest.blood_group} blood request`,
             type: 'request_rejected',
@@ -436,7 +434,7 @@ const acceptDonation = async (req, res) => {
     try {
         const donationId = req.params.id;
         console.log(`Accepting Donation by Id ${donationId}`);
-        const donation = await Donate.findById({_id: donationId});
+        const donation = await Donate.findById({ _id: donationId });
         console.log(`Donation : ${donation}`);
         if (!donation) {
             return res.status(404).json({
@@ -444,9 +442,8 @@ const acceptDonation = async (req, res) => {
                 message: 'Donation request not found'
             });
         }
-        console.log(`Donation's Bank ID: ${donation.bank_id}, Session Bank ID: ${req.session.bankLogin.bankId}`);
         // Check if bank owns this donation
-        if (donation.bank_id.toString() !== req.session.bankLogin.bankId.toString()) {
+        if (donation.bank_id.toString() !== req.bankId.toString()) {
             return res.status(403).json({
                 success: false,
                 message: 'Not authorized to handle this donation'
@@ -462,10 +459,10 @@ const acceptDonation = async (req, res) => {
         }
 
         // Get bank and update stock
-        const bank = await BloodBank.findById(req.session.bankLogin.bankId);
+        const bank = await BloodBank.findById(req.bankId);
         const bloodGroupKey = donation.blood_group.replace('+', '_pos').replace('-', '_neg');
         const currentStock = bank.blood_groups[bloodGroupKey] || 0;
-        
+
         // Check capacity
         const totalCurrentStock = Object.values(bank.blood_groups).reduce((sum, stock) => sum + stock, 0);
         if (totalCurrentStock + donation.units_donated > bank.capacity) {
@@ -476,7 +473,7 @@ const acceptDonation = async (req, res) => {
         }
 
         const newStock = currentStock + donation.units_donated;
-        await BloodBank.findByIdAndUpdate(req.session.bankLogin.bankId, {
+        await BloodBank.findByIdAndUpdate(req.bankId, {
             [`blood_groups.${bloodGroupKey}`]: newStock
         });
 
@@ -487,7 +484,7 @@ const acceptDonation = async (req, res) => {
 
         // Create notification
         await new Notification({
-            bankId: req.session.bankLogin.bankId,
+            bankId: req.bankId,
             title: 'Donation Accepted',
             message: `Accepted ${donation.units_donated} units of ${donation.blood_group} blood donation`,
             type: 'donation_accepted',
@@ -522,7 +519,7 @@ const rejectDonation = async (req, res) => {
         }
 
         // Check if bank owns this donation
-        if (donation.bank_id.toString() !== req.session.bankLogin.bankId.toString()) {
+        if (donation.bank_id.toString() !== req.bankId.toString()) {
             return res.status(403).json({
                 success: false,
                 message: 'Not authorized to handle this donation'
@@ -544,7 +541,7 @@ const rejectDonation = async (req, res) => {
 
         // Create notification
         await new Notification({
-            bankId: req.session.bankLogin.bankId,
+            bankId: req.bankId,
             title: 'Donation Rejected',
             message: `Rejected ${donation.units_donated} units of ${donation.blood_group} blood donation`,
             type: 'donation_rejected',
@@ -572,16 +569,16 @@ const getUrgentRequests = async (req, res) => {
         // Get requests from last 24 hours with high/critical urgency
         const oneDayAgo = new Date();
         oneDayAgo.setDate(oneDayAgo.getDate() - 1);
-        
+
         const urgentRequests = await Request.find({
             requested_date: { $gte: oneDayAgo },
             urgency: { $in: ['high', 'critical'] },
             status: 'pending'
         })
-        .populate('bank_id', 'name location')
-        .sort({ requested_date: -1 })
-        .limit(20);
-        
+            .populate('bank_id', 'name location')
+            .sort({ requested_date: -1 })
+            .limit(20);
+
         // Add time ago and location info
         const formattedUrgent = urgentRequests.map(req => {
             const timeAgo = getTimeAgo(req.requested_date);
@@ -591,7 +588,7 @@ const getUrgentRequests = async (req, res) => {
                 location: req.bank_id?.location || 'Unknown Location'
             };
         });
-        
+
         res.json({
             success: true,
             urgent: formattedUrgent || []
@@ -607,96 +604,96 @@ const getUrgentRequests = async (req, res) => {
 };
 
 const requestDonation = async (req, res) => {
-  try {
-    const { bankId, units, blood_group, requestedDate } = req.body;
+    try {
+        const { bankId, units, blood_group, requestedDate } = req.body;
 
-    // Validate input
-    if (!bankId || !blood_group || !requestedDate) {
-      return res.status(400).json({ message: "All fields are required" });
+        // Validate input
+        if (!bankId || !blood_group || !requestedDate) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
+        if (!units || units <= 0) {
+            return res.status(400).json({ message: "Units must be a positive number" });
+        }
+
+        // Find bank
+        const bank = await BloodBank.findById(bankId);
+        if (!bank) {
+            return res.status(404).json({ message: "Bank not found" });
+        }
+
+        // Get user from JWT (set by auth middleware)
+        const userId = req.user._id;
+        if (!userId) {
+            return res.status(401).json({ message: "User not logged in" });
+        }
+
+        // Create new request
+        const newRequest = new Request({
+            user_id: userId,
+            bank_id: bankId,
+            blood_group,
+            units_requested: units,
+            requested_date: requestedDate,
+            status: "pending"
+        });
+
+        await newRequest.save();
+        console.log("New request saved:", newRequest);
+
+        res.json({ message: "Request submitted successfully", request: newRequest });
+    } catch (err) {
+        console.error("Error requesting donation:", err);
+        res.status(500).json({ message: `Server error - ${err}` });
     }
-    if (!units || units <= 0) {
-      return res.status(400).json({ message: "Units must be a positive number" });
-    }
-
-    // Find bank
-    const bank = await BloodBank.findById(bankId);
-    if (!bank) {
-      return res.status(404).json({ message: "Bank not found" });
-    }
-
-    // Get user from session
-    const userId = req.session?.patientId;
-    if (!userId) {
-      return res.status(401).json({ message: "User not logged in" });
-    }
-
-    // Create new request
-    const newRequest = new Request({
-      user_id: userId,
-      bank_id: bankId,
-      blood_group,
-      units_requested: units,
-      requested_date: requestedDate,
-      status: "pending"
-    });
-
-    await newRequest.save();
-    console.log("New request saved:", newRequest);
-
-    res.json({ message: "Request submitted successfully", request: newRequest });
-  } catch (err) {
-    console.error("Error requesting donation:", err);
-    res.status(500).json({ message: `Server error - ${err}` });
-  }
 };
 
-const donateBlood= async (req, res) =>{
-  try {
-    const { bankId, units, blood_group, requestedDate } = req.body;
-    // Validate input
-    if (!bankId || !blood_group || !requestedDate) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
-    if (!units || units <= 0) {
-      return res.status(400).json({ message: "Units must be a positive number" });
-    }
-    const bank = await BloodBank.findById(bankId);
-    if (!bank) {
-      return res.status(404).json({ message: "Bank not found" });
-    }
-    const userId = req.session?.patientId;
-    if (!userId) {
-      return res.status(401).json({ message: "User not logged in" });
-    }
-    //check if the user has already donated blood within 3 months then it will be rejected...
-    const userRequests = await Request.find({ user_id: userId, status: "accepted" });
-    const currentDate = new Date();
-    const threeMonthsAgo = new Date(currentDate);
-    threeMonthsAgo.setMonth(currentDate.getMonth()- 3);
-    const recentDonation = await Donate.findOne({
-      user_id: userId,
-      status: "completed",
-      donation_date: { $gte: threeMonthsAgo }
-    });
+const donateBlood = async (req, res) => {
+    try {
+        const { bankId, units, blood_group, requestedDate } = req.body;
+        // Validate input
+        if (!bankId || !blood_group || !requestedDate) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
+        if (!units || units <= 0) {
+            return res.status(400).json({ message: "Units must be a positive number" });
+        }
+        const bank = await BloodBank.findById(bankId);
+        if (!bank) {
+            return res.status(404).json({ message: "Bank not found" });
+        }
+        const userId = req.user._id;
+        if (!userId) {
+            return res.status(401).json({ message: "User not logged in" });
+        }
+        //check if the user has already donated blood within 3 months then it will be rejected...
+        const userRequests = await Request.find({ user_id: userId, status: "accepted" });
+        const currentDate = new Date();
+        const threeMonthsAgo = new Date(currentDate);
+        threeMonthsAgo.setMonth(currentDate.getMonth() - 3);
+        const recentDonation = await Donate.findOne({
+            user_id: userId,
+            status: "completed",
+            donation_date: { $gte: threeMonthsAgo }
+        });
 
-if (recentDonation) {
-  return res.status(400).json({ message: "You have already donated blood within the last 3 months" });
-}
-    const newDonation = new Donate({
-      user_id: userId,
-      bank_id: bankId,
-      blood_group,
-      units_donated: units,
-      requested_date: requestedDate,
-      status: "pending"
-    });
-    await newDonation.save();
-    console.log("New donation saved:", newDonation);
-    res.json({ message: "Donation submitted successfully", donation: newDonation });
-  } catch (err) {
-    console.error("Error donating blood:", err);
-    res.status(500).json({ message: `Server error - ${err}` });
-  }
+        if (recentDonation) {
+            return res.status(400).json({ message: "You have already donated blood within the last 3 months" });
+        }
+        const newDonation = new Donate({
+            user_id: userId,
+            bank_id: bankId,
+            blood_group,
+            units_donated: units,
+            requested_date: requestedDate,
+            status: "pending"
+        });
+        await newDonation.save();
+        console.log("New donation saved:", newDonation);
+        res.json({ message: "Donation submitted successfully", donation: newDonation });
+    } catch (err) {
+        console.error("Error donating blood:", err);
+        res.status(500).json({ message: `Server error - ${err}` });
+    }
 }
 
 

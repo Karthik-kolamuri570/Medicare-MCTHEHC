@@ -1,7 +1,7 @@
 
 import React from "react";
 import { loadStripe } from "@stripe/stripe-js";
-import axios from "axios";
+import api from "../utils/api";
 import "../styles/Payment.css"; // Clean CSS import
 import { ShieldCheck, CreditCard, User } from "lucide-react";
 
@@ -12,7 +12,7 @@ const Payment = ({ appointment }) => {
   const handlePayment = async () => {
     try {
       console.log("Processing Payment...", appointment);
-      const res = await axios.post(
+      const res = await api.post(
         "/api/payment/check-out",
         {
           appointmentId: appointment._id,

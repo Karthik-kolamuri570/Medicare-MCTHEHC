@@ -269,7 +269,7 @@
 
 
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../utils/api";
 import "../styles/MedicareIndex.css";
 import bookanappointment from "../assets/bookanappointment.png";
 import searchdoctor from "../assets/searchdoctor.png";
@@ -358,8 +358,8 @@ function MedicareIndex() {
     const fetchData = async () => {
       try {
         const [blogsResp, doctorsResp] = await Promise.all([
-          axios.get("/api/blogs/blogs"),
-          axios.get("/api/doctor"),
+          api.get("/api/blogs/blogs"),
+          api.get("/api/doctor"),
         ]);
         setBlogData(blogsResp.data || []);
         setDoctorData(doctorsResp.data.data || []);

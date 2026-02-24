@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../utils/api';
 
 function State() {
   const [data, setData] = useState([]);  // Initial state is an empty array
@@ -13,8 +13,8 @@ function State() {
       console.log("Fetching data...");  // Log when fetch starts
 
       // Make the API request using Axios
-      const response = await axios.get("/api/doctor/");
-      
+      const response = await api.get("/api/doctor/");
+
       console.log('Fetched Data:', response.data);  // Log the fetched data to check its structure
 
       // Access the array within response.data.data

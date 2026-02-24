@@ -12,12 +12,12 @@
 //           { name: "Ravi", date: "2025-03-21", time: "10:30 AM" },
 //           { name: "Karthik", date: "2025-03-21", time: "12:00 PM" },
 //         ];
-        
+
 
 //   return (
 //     <div>
 //       {/* Header */}
-      
+
 //       {/* Notifications */}
 //       <div className="notifications-wrapper">
 //         <div className="notifications-container">
@@ -59,7 +59,7 @@
 //           )}
 //         </div>
 //       </div>
-      
+
 //     </div>
 //   );
 // }
@@ -67,7 +67,7 @@
 // export default Notifications;
 import { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
-import axios from 'axios'; // Import Axios for fetching data
+import api from '../utils/api'; // JWT-enabled API utility
 import "../styles/Notifications.css"; // Adjust path based on your structure
 import { FaBell } from 'react-icons/fa';
 import Loader from './ui/Loader';
@@ -83,7 +83,7 @@ function Notifications() {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await axios.get(`/api/patient/notifications/`);
+        const response = await api.get(`/api/patient/notifications/`);
         console.log(response.data.data[1].data.doctorName); // Debugging
         if (response.data && Array.isArray(response.data.data)) {
           setNotifications(response.data.data); // Store fetched notifications in state
@@ -109,7 +109,7 @@ function Notifications() {
             <span className="notification-count">{notifications.length}</span>
           )}
         </div>
-          
+
         {/* Show Notifications */}
         <div className="notifications-list">
           <h2 className="notifications-title">Notifications</h2>
@@ -121,7 +121,7 @@ function Notifications() {
           ) : notifications.length > 0 ? (
             notifications.map((notification, index) => (
               <div key={index} className="notification-item">
-                  
+
                 <p><strong></strong> {notification.message}</p>
                 <p>Doctor Name :<strong>{notification.data.doctorName}</strong></p>
                 <p><strong>Appointment Date:</strong> {notification.data.date}</p>

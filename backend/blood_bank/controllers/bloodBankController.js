@@ -202,6 +202,7 @@ const Notification = require('../models/Notification');
 const bcrypt = require('bcrypt');
 const Request = require('./../models/Request');
 const Donation = require('./../models/Donate');
+const { generateAccessToken, generateRefreshToken, verifyToken, extractToken } = require('../../utils/jwt');
 
 // Bank Login
 const bankLogin = async (req, res) => {
@@ -233,16 +234,16 @@ const bankLogin = async (req, res) => {
             });
         }
 
-        // Create session
-        req.session.bankLogin = {
-            bankId: bank._id,
-            email: bank.email,
-            name: bank.name
-        };
+        // Generate JWT tokens
+        const tokenPayload = { id: bank._id, role: 'bank' };
+        const token = generateAccessToken(tokenPayload);
+        const refreshToken = generateRefreshToken(tokenPayload);
 
         res.json({
             success: true,
             message: 'Login successful',
+            token,
+            refreshToken,
             bank: {
                 id: bank._id,
                 name: bank.name,
@@ -273,8 +274,8 @@ const registerBank = async (req, res) => {
         }
 
         // Check if bank already exists
-        const existingBank = await BloodBank.findOne({ 
-            $or: [{ email }, { license_no }] 
+        const existingBank = await BloodBank.findOne({
+            $or: [{ email }, { license_no }]
         });
 
         if (existingBank) {
@@ -330,29 +331,34 @@ const registerBank = async (req, res) => {
 
 // Verify Authentication
 const verifyAuth = (req, res) => {
-    if (req.session && req.session.bankLogin && req.session.bankLogin.bankId) {
+    try {
+        const token = extractToken(req);
+        if (!token) {
+            return res.json({ success: true, authenticated: false });
+        }
+
+        const decoded = verifyToken(token);
+        if (decoded.role !== 'bank') {
+            return res.json({ success: true, authenticated: false });
+        }
+
         res.json({
             success: true,
             authenticated: true,
             bank: {
-                id: req.session.bankLogin.bankId,
-                email: req.session.bankLogin.email,
-                name: req.session.bankLogin.name
+                id: decoded.id,
             }
         });
-    } else {
-        res.json({
-            success: true,
-            authenticated: false
-        });
+    } catch (error) {
+        res.json({ success: true, authenticated: false });
     }
 };
 
 // Get Bank Profile and Stock
 const getMyBank = async (req, res) => {
     try {
-        const bank = await BloodBank.findById(req.session.bankLogin.bankId).select('-password');
-        
+        const bank = await BloodBank.findById(req.bankId).select('-password');
+
         if (!bank) {
             return res.status(404).json({
                 success: false,
@@ -376,8 +382,8 @@ const getMyBank = async (req, res) => {
 // Get Notifications
 const getNotifications = async (req, res) => {
     try {
-        const notifications = await Notification.find({ 
-            bankId: req.session.bankLogin.bankId 
+        const notifications = await Notification.find({
+            bankId: req.bankId
         }).sort({ createdAt: -1 }).limit(50);
 
         res.json({
@@ -398,7 +404,7 @@ const getNotifications = async (req, res) => {
 const markNotificationsRead = async (req, res) => {
     try {
         await Notification.updateMany(
-            { bankId: req.session.bankLogin.bankId, read: false },
+            { bankId: req.bankId, read: false },
             { read: true }
         );
 
@@ -419,9 +425,9 @@ const markNotificationsRead = async (req, res) => {
 const updateProfile = async (req, res) => {
     try {
         const { name, location, contact, capacity } = req.body;
-        
+
         const updatedBank = await BloodBank.findByIdAndUpdate(
-            req.session.bankLogin.bankId,
+            req.bankId,
             { name, location, contact, capacity },
             { new: true, select: '-password' }
         );
@@ -442,69 +448,60 @@ const updateProfile = async (req, res) => {
 
 // Bank Logout
 const bankLogout = (req, res) => {
-    req.session.destroy((err) => {
-        if (err) {
-            console.error('Logout error:', err);
-            return res.status(500).json({
-                success: false,
-                message: 'Logout failed'
-            });
-        }
-        
-        res.json({
-            success: true,
-            message: 'Logout successful'
-        });
+    // JWT is stateless — client clears the token
+    res.json({
+        success: true,
+        message: 'Logout successful'
     });
 };
 
-const getAllBanks=async (req,res)=>{
-    try{
-        const banks=await BloodBank.find().select('-password');
-        if(!banks){
-            return res.status(404).json({message:"No banks found"});
+const getAllBanks = async (req, res) => {
+    try {
+        const banks = await BloodBank.find().select('-password');
+        if (!banks) {
+            return res.status(404).json({ message: "No banks found" });
         }
         console.log("Fetched all banks:", banks);
-        res.json({banks});
+        res.json({ banks });
     }
-    catch(error){
+    catch (error) {
         console.error("Error fetching all banks:", error);
-        res.status(500).json({message:"Server error"});
+        res.status(500).json({ message: "Server error" });
     }
 }
 
 const getRequests = async (req, res) => {
-  try {
-    const bankId = req.session.bankLogin.bankId;
-    // Find one donation document with matching bank_id
-    const bank = await Request.find({ bank_id: new mongoose.Types.ObjectId(bankId) });
-    if (!bank) {
-      return res.status(404).json({ message: "Bank not found" });
+    try {
+        const bankId = req.bankId;
+        // Find one donation document with matching bank_id
+        const bank = await Request.find({ bank_id: new mongoose.Types.ObjectId(bankId) });
+        if (!bank) {
+            return res.status(404).json({ message: "Bank not found" });
+        }
+        res.json({ requests: bank });
+    } catch (error) {
+        console.error("Error fetching requests:", error);
+        res.status(500).json({ message: "Server error" });
     }
-    res.json({ requests: bank });
-  } catch (error) {
-    console.error("Error fetching requests:", error);
-    res.status(500).json({ message: "Server error" });
-  }
 };
 
 const getDonations = async (req, res) => {
-  try {
-    const bankId = req.session.bankLogin.bankId;
-    // Use findOne with filter, NOT findById
-    const bank = await Donation.find({ bank_id: new mongoose.Types.ObjectId(bankId) });
-    if (!bank) {
-      return res.status(404).json({ message: "Bank not found" });
+    try {
+        const bankId = req.bankId;
+        // Use findOne with filter, NOT findById
+        const bank = await Donation.find({ bank_id: new mongoose.Types.ObjectId(bankId) });
+        if (!bank) {
+            return res.status(404).json({ message: "Bank not found" });
+        }
+        console.log(bank);
+        res.json({ donations: bank });
+    } catch (error) {
+        console.error("Error fetching donations:", error);
+        res.status(500).json({ message: "Server error" });
     }
-    console.log(bank);
-    res.json({ donations: bank });
-  } catch (error) {
-    console.error("Error fetching donations:", error);
-    res.status(500).json({ message: "Server error" });
-  }
 };
 
-    
+
 
 module.exports = {
     bankLogin,

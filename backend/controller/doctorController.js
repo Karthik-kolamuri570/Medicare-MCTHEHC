@@ -1,10 +1,9 @@
 const Doctor = require('../models/doctor');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 const Patient = require('../models/patient');
 const Appointment = require('./../models/appointments');
-const GetSecondOpinion = require('./../models/GetSecondOpinion'); // Ensure this is imported
-// const patient = require('../models/patient');
+const GetSecondOpinion = require('./../models/GetSecondOpinion');
+const { generateAccessToken, generateRefreshToken } = require('../utils/jwt');
 
 exports.registerDoctor = async (req, res, next) => {
   const {
@@ -46,20 +45,17 @@ exports.registerDoctor = async (req, res, next) => {
       fromTime,
       toTime
     });
-    req.session.DoctorRegister = req.body;
     await doctor.save();
-    req.session.save();
 
-    // Create token
-    const token = jwt.sign(
-      { id: doctor._id, role: 'doctor' },
-      process.env.JWT_SECRET,
-      { expiresIn: '1d' }
-    );
+    // Create tokens
+    const tokenPayload = { id: doctor._id, role: 'doctor' };
+    const token = generateAccessToken(tokenPayload);
+    const refreshToken = generateRefreshToken(tokenPayload);
 
     res.status(201).json({
       success: true,
       token,
+      refreshToken,
       data: {
         id: doctor._id,
         name: doctor.name,
@@ -109,19 +105,15 @@ exports.loginDoctor = async (req, res, next) => {
       });
     }
 
-    // Create token
-    const token = jwt.sign(
-      { id: doctor._id, role: 'doctor' },
-      process.env.JWT_SECRET,
-      { expiresIn: '1d' }
-    );
-    req.session.doctorLogin = req.body;
-    req.session.isDoctorLoggedIn = true;
-    req.session.doctorId = doctor._id;
-    req.session.save();
+    // Create tokens
+    const tokenPayload = { id: doctor._id, role: 'doctor' };
+    const token = generateAccessToken(tokenPayload);
+    const refreshToken = generateRefreshToken(tokenPayload);
+
     res.status(200).json({
       success: true,
       token,
+      refreshToken,
       data: {
         id: doctor._id,
         name: doctor.name,
@@ -293,8 +285,7 @@ exports.updateAvailability = async (req, res, next) => {
 // Get all appointments for a doctor
 exports.getDoctorAppointments = async (req, res, next) => {
   try {
-    console.log(req.user._id.toString());
-    const appointments = await Appointment.find({ doctorId: req.session.doctorId }).populate('patientId');
+    const appointments = await Appointment.find({ doctorId: req.user._id }).populate('patientId');
     if (!appointments) {
       res.status(500).json({
         success: false,
@@ -389,28 +380,17 @@ exports.getDoctorByLocation = async (req, res, next) => {
 };
 
 exports.logoutDoctor = async (req, res, next) => {
-  req.session.destroy((err) => {
-    if (err) {
-      console.log("Error in destroying session:", err);
-      return res.json({
-        success: false,
-        message: 'Error in logging out'
-      })
-    }
-    res.clearCookie('connect.sid'); // Clear the session cookie
-    console.log("Doctor logged out successfully");
-    res.status(200).json({
-      success: true,
-      message: 'Doctor logged out successfully'
-    });
-
-  })
+  // JWT is stateless — client clears the token
+  res.status(200).json({
+    success: true,
+    message: 'Doctor logged out successfully'
+  });
 }
 
 //Accepted Appointments for the Doctor... Storing in the Doctor's Collection as appointments
 exports.acceptAppointment = async (req, res) => {
   const appointmentId = req.params.id;
-  const doctorId = req.session.doctorId;
+  const doctorId = req.user._id;
   try {
     console.log("Accepting appointment with ID:", appointmentId);
 
@@ -474,7 +454,7 @@ exports.acceptAppointment = async (req, res) => {
 //Reject Appointment by the Doctor...
 exports.rejectAppointment = async (req, res) => {
   const appointmentId = req.params.id;
-  const doctorId = req.session.doctorId;
+  const doctorId = req.user._id;
   try {
     console.log("Rejecting appointment with ID:", appointmentId);
     // Check if appointment exists in  the Appointment  Collection...
@@ -821,7 +801,7 @@ exports.getAllSpecializations = async (req, res) => {
 exports.getAcceptedSecondOpinion = async (req, res) => {
   try {
     //Here I Fetching all the second opinion requests which are accepted by the doctor...
-    const doctorId = req.session.doctorId;
+    const doctorId = req.user._id;
     console.log(`Fetching all the accepted Appointments of Get Second Opinion by the Doctor ${doctorId}`);
     const doctor = await Doctor.findById(doctorId);
     if (!doctor) {

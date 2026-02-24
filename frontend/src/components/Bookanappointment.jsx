@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
+import api from "../utils/api";
 import "../styles/Bookanappointment.css";
 import docImg from "../assets/doctor1.png";
 import toast from "react-hot-toast";
@@ -43,7 +43,7 @@ function Bookanappointment() {
 
       try {
         setLoading(true);
-        const response = await axios.get(`/api/doctor/profile/${doctorId}`);
+        const response = await api.get(`/api/doctor/profile/${doctorId}`);
         if (response.data && response.data.data) {
           setSelectedDoctor(response.data.data);
         } else {
@@ -156,7 +156,7 @@ function Bookanappointment() {
     }
 
     try {
-      const response = await axios.post(
+      const response = await api.post(
         "/api/patient/book-appointment",
         {
           doctorId: selectedDoctor._id,

@@ -1,4 +1,3 @@
-// controllers/adminController.js
 const Doctor = require('../models/doctor');
 const Patient = require('../models/patient');
 const Appointment = require('../models/appointments');
@@ -9,7 +8,7 @@ const BloodBank = require('../blood_bank/models/BloodBank');
 const BloodCamp = require('../blood_bank/models/BloodCamp');
 const GetSecondOpinion = require('../models/GetSecondOpinion');
 const bcryptjs = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const { generateAccessToken, generateRefreshToken, verifyToken } = require('../utils/jwt');
 const Stripe = require('stripe');
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -38,22 +37,20 @@ const adminController = {
         return res.status(401).json({ success: false, message: 'Invalid email or password' });
       }
 
-      // Generate JWT token
-      const token = jwt.sign(
-        { _id: admin._id, email: admin.email, role: admin.role },
-        process.env.JWT_SECRET,
-        { expiresIn: '24h' }
-      );
+      // Generate JWT tokens
+      const tokenPayload = { id: admin._id, role: 'admin' };
+      const token = generateAccessToken(tokenPayload);
+      const refreshToken = generateRefreshToken(tokenPayload);
 
       // Update last login
       admin.lastLogin = new Date();
       await admin.save();
-      req.session.adminLogin = admin;
-      req.session.save();
+
       res.json({
         success: true,
         message: 'Admin logged in successfully',
         token,
+        refreshToken,
         admin: {
           _id: admin._id,
           name: admin.name,
@@ -72,41 +69,11 @@ const adminController = {
   // Admin Logout
   logout: async (req, res) => {
     try {
-      const sessionId = req.sessionID;
-      console.log("Logging out session ID:", sessionId);
-
-      req.session.destroy((err) => {
-        if (err) {
-          console.error('Error destroying session:', err);
-          return res.status(500).json({
-            success: false,
-            message: 'Logout failed'
-          });
-        }
-
-        // Manually remove session from MongoDB store (belt & suspenders approach)
-        req.sessionStore.destroy(sessionId, (err) => {
-          if (err) {
-            console.error('Manual store destroy failed:', err);
-          } else {
-            console.log('Session manually removed from MongoDB store:', sessionId);
-          }
-
-          // Clear cookie from client
-          res.clearCookie('connect.sid', {
-            path: '/',
-            httpOnly: true,
-            sameSite: 'lax'
-          });
-          res.json({
-            success: true,
-            message: ' Admin Logout successful'
-          });
-
-          // res.redirect('/api/patient/login'); // Redirect to login page
-        });
+      // JWT is stateless — client clears the token
+      res.json({
+        success: true,
+        message: 'Admin Logout successful'
       });
-
     } catch (error) {
       console.error('Error in admin logout:', error);
       res.status(500).json({ success: false, error: error.message });
@@ -116,25 +83,26 @@ const adminController = {
   // Refresh Token
   refreshToken: async (req, res) => {
     try {
-      const { token } = req.body;
+      const { refreshToken } = req.body;
 
-      if (!token) {
-        return res.status(400).json({ success: false, message: 'Token is required' });
+      if (!refreshToken) {
+        return res.status(400).json({ success: false, message: 'Refresh token is required' });
       }
 
-      const decoded = jwt.verify(token, process.env.JWT_SECRET, { ignoreExpiration: true });
-      const admin = await Admin.findById(decoded._id);
+      // Verify the refresh token (must NOT be expired)
+      const decoded = verifyToken(refreshToken);
 
+      if (decoded.role !== 'admin') {
+        return res.status(403).json({ success: false, message: 'Invalid token role' });
+      }
+
+      const admin = await Admin.findById(decoded.id);
       if (!admin) {
         return res.status(401).json({ success: false, message: 'Admin not found' });
       }
 
-      // Generate new token
-      const newToken = jwt.sign(
-        { _id: admin._id, email: admin.email, role: admin.role },
-        process.env.JWT_SECRET,
-        { expiresIn: '24h' }
-      );
+      // Generate new access token
+      const newToken = generateAccessToken({ id: admin._id, role: 'admin' });
 
       res.json({
         success: true,
@@ -143,7 +111,7 @@ const adminController = {
       });
     } catch (error) {
       console.error('Error in token refresh:', error);
-      res.status(401).json({ success: false, error: 'Invalid or expired token' });
+      res.status(401).json({ success: false, error: 'Invalid or expired refresh token' });
     }
   },
 

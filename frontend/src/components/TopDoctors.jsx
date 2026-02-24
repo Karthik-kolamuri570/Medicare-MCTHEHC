@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import "../styles/TopDoctors.css";
-import axios from 'axios';
+import api from '../utils/api';
 import defaultDoctorImage from "../assets/doctor1.png";
 import Loader from './ui/Loader';
 import { MapPin, Clock, Star, Building2, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -22,7 +22,7 @@ function TopDoctors() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("/api/doctor/");
+        const response = await api.get("/api/doctor/");
         if (response.data && Array.isArray(response.data.data)) {
           setAllDoctors(response.data.data);
         } else {

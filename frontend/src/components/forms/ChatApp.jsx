@@ -359,7 +359,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import api from '../../utils/api';
 import toast from "react-hot-toast";
 import { StreamChat } from "stream-chat";
 import {
@@ -385,8 +385,9 @@ const ChatApp = () => {
 
     const initChat = async () => {
       try {
+        const jwtToken = localStorage.getItem('token');
         const res = await fetch("/api/stream/token", {
-          credentials: "include",
+          headers: { Authorization: `Bearer ${jwtToken}` },
         });
         const { token, userId, apiKey } = await res.json();
 
@@ -403,10 +404,9 @@ const ChatApp = () => {
         const client = StreamChat.getInstance(apiKey);
         await client.connectUser({ id: userId }, token);
 
-        await axios.post(
+        await api.post(
           "/api/stream/upsert-users",
-          { users: [{ id: userId }, { id: peerId }] },
-          { withCredentials: true }
+          { users: [{ id: userId }, { id: peerId }] }
         );
 
         const channelId = generateChannelId(userId, peerId);

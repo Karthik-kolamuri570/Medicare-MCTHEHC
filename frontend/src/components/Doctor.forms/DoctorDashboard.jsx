@@ -115,8 +115,11 @@ function DoctorDashboard() {
   useEffect(() => {
     async function fetchDoctor() {
       try {
+        const token = localStorage.getItem("token");
         const response = await fetch("/api/doctor/me", {
-          credentials: "include",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
         });
         const data = await response.json();
         if (data.success && data.data && data.data.name) {

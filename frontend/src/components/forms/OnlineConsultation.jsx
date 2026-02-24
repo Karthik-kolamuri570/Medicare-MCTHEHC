@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../../utils/api';
 import { useNavigate } from 'react-router-dom';
 import { MessageSquare, Calendar, Clock, AlertCircle, Search, Filter, History, FileText, CheckCircle, XCircle } from 'lucide-react';
 import "../../styles/OnlineConsultation.css";
@@ -37,7 +37,7 @@ const OnlineConsultation = () => {
         setLoading(true);
 
         // 1. Fetch Appointments
-        const apptRes = await axios.get("/api/patient/appointments", { withCredentials: true });
+        const apptRes = await api.get("/api/patient/appointments");
         const appointments = (apptRes.data.data || []).map(item => ({
           ...item,
           type: 'appointment',
@@ -48,7 +48,7 @@ const OnlineConsultation = () => {
         // 2. Fetch Second Opinions
         let secondOpinions = [];
         try {
-          const soRes = await axios.get("/api/patient/get-second-opinion", { withCredentials: true });
+          const soRes = await api.get("/api/patient/get-second-opinion");
           secondOpinions = (soRes.data.data || []).map(item => ({
             ...item,
             type: 'second-opinion',
@@ -60,7 +60,7 @@ const OnlineConsultation = () => {
         } catch (err) {
           console.warn("Could not fetch all second opinions, trying /accepted");
           try {
-            const soResAccepted = await axios.get("/api/patient/get-second-opinion/accepted", { withCredentials: true });
+            const soResAccepted = await api.get("/api/patient/get-second-opinion/accepted");
             secondOpinions = (soResAccepted.data.data || []).map(item => ({
               ...item,
               type: 'second-opinion',

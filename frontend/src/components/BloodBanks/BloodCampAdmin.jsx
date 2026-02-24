@@ -628,7 +628,7 @@
 
 
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../utils/api";
 
 const API_BASE = "/api/blood-camp";
 
@@ -645,17 +645,17 @@ export default function DoctorAdminCampPortal() {
   const [donorModalOpen, setDonorModalOpen] = useState(false);
   const [selectedCamp, setSelectedCamp] = useState(null);
   const [donors, setDonors] = useState([]);
-  const [donorForm, setDonorForm] = useState({ donorId:"", blood_group:"", units:"", donation_time:"", verified:false });
-  const [donorAlert, setDonorAlert] = useState({ type:"", msg:"" });
+  const [donorForm, setDonorForm] = useState({ donorId: "", blood_group: "", units: "", donation_time: "", verified: false });
+  const [donorAlert, setDonorAlert] = useState({ type: "", msg: "" });
 
   useEffect(() => { fetchCamps(); }, []);
 
   async function fetchCamps() {
     try {
-      const res = await axios.get(`${API_BASE}/camps`, { withCredentials: true });
+      const res = await api.get(`${API_BASE}/camps`);
       setCamps(res.data);
     } catch {
-      setAlert({ type:"error", msg:"Failed to fetch camps." });
+      setAlert({ type: "error", msg: "Failed to fetch camps." });
     }
   }
 
@@ -679,17 +679,17 @@ export default function DoctorAdminCampPortal() {
     setEditCamp(camp);
     setForm({
       name: camp.name,
-      start_date: camp.start_date?.slice(0,10) || "",
-      end_date: camp.end_date?.slice(0,10) || "",
+      start_date: camp.start_date?.slice(0, 10) || "",
+      end_date: camp.end_date?.slice(0, 10) || "",
       location: {
         address: camp.location?.address || "",
         city: camp.location?.city || "",
         state: camp.location?.state || "",
         country: camp.location?.country || "",
         pincode: camp.location?.pincode || "",
-        geo: camp.location?.geo || { lat:"", lng:"" }
+        geo: camp.location?.geo || { lat: "", lng: "" }
       },
-      timings: camp.timings?.map(t => ({ date: t.date?.slice(0,10) || "", start_time: t.start_time || "", end_time: t.end_time || "" })) || [],
+      timings: camp.timings?.map(t => ({ date: t.date?.slice(0, 10) || "", start_time: t.start_time || "", end_time: t.end_time || "" })) || [],
       description: camp.description || "",
       contact_phone: camp.contact_phone || "",
       contact_email: camp.contact_email || ""
@@ -698,16 +698,16 @@ export default function DoctorAdminCampPortal() {
   }
   function handleFormChange(e, path) {
     const v = e.target.value;
-    if(path.startsWith("location.geo.")) {
+    if (path.startsWith("location.geo.")) {
       const key = path.split(".")[2];
-      setForm(f => ({...f, location: {...f.location, geo:{...f.location.geo, [key]: v}}}));
-    } else if(path.startsWith("location.")) {
+      setForm(f => ({ ...f, location: { ...f.location, geo: { ...f.location.geo, [key]: v } } }));
+    } else if (path.startsWith("location.")) {
       const key = path.split(".")[1];
       setForm(f => ({ ...f, location: { ...f.location, [key]: v } }));
     } else setForm(f => ({ ...f, [path]: v }));
   }
   function addTiming() {
-    setForm(f => ({ ...f, timings: [...f.timings, { date:"", start_time:"", end_time:"" }] }));
+    setForm(f => ({ ...f, timings: [...f.timings, { date: "", start_time: "", end_time: "" }] }));
   }
   function updateTiming(i, field, val) {
     const t = [...form.timings]; t[i][field] = val; setForm(f => ({ ...f, timings: t }));
@@ -719,31 +719,31 @@ export default function DoctorAdminCampPortal() {
   async function handleCreateOrEdit(e) {
     e.preventDefault();
     setAlert({ type: "", msg: "" });
-    if (!form.name.trim()) return setAlert({type: "error", msg: "Camp name is required"});
-    if (form.timings.length === 0) return setAlert({type: "error", msg: "Please add at least one timing"});
+    if (!form.name.trim()) return setAlert({ type: "error", msg: "Camp name is required" });
+    if (form.timings.length === 0) return setAlert({ type: "error", msg: "Please add at least one timing" });
     try {
-      if(editCamp) {
-        await axios.put(`${API_BASE}/update-camps/${editCamp._id}`, form, { withCredentials: true });
-        setAlert({type: "success", msg: "Camp updated!"});
+      if (editCamp) {
+        await api.put(`${API_BASE}/update-camps/${editCamp._id}`, form);
+        setAlert({ type: "success", msg: "Camp updated!" });
       } else {
-        await axios.post(`${API_BASE}/create-camps`, form, { withCredentials: true });
-        setAlert({type: "success", msg: "Camp created!"});
+        await api.post(`${API_BASE}/create-camps`, form);
+        setAlert({ type: "success", msg: "Camp created!" });
       }
       closeModal();
       fetchCamps();
-    } catch(err) {
-      setAlert({type: "error", msg: err.response?.data?.message || "Operation failed"});
+    } catch (err) {
+      setAlert({ type: "error", msg: err.response?.data?.message || "Operation failed" });
     }
   }
 
   async function handleDeleteCamp(id) {
-    if(!window.confirm("Delete this camp?")) return;
+    if (!window.confirm("Delete this camp?")) return;
     try {
-      await axios.delete(`${API_BASE}/delete-camp/${id}`, { withCredentials: true });
-      setAlert({type:"success", msg:"Camp deleted."});
+      await api.delete(`${API_BASE}/delete-camp/${id}`);
+      setAlert({ type: "success", msg: "Camp deleted." });
       fetchCamps();
     } catch {
-      setAlert({type:"error", msg:"Delete failed."});
+      setAlert({ type: "error", msg: "Delete failed." });
     }
   }
 
@@ -751,38 +751,38 @@ export default function DoctorAdminCampPortal() {
   async function openDonorModal(camp) {
     setSelectedCamp(camp);
     setDonorModalOpen(true);
-    setDonorForm({donorId:"", blood_group:"", units:"", donation_time:"", verified:false});
-    setDonorAlert({type:"", msg:""});
+    setDonorForm({ donorId: "", blood_group: "", units: "", donation_time: "", verified: false });
+    setDonorAlert({ type: "", msg: "" });
     try {
-      const res = await axios.get(`${API_BASE}/${camp._id}/donors`, { withCredentials:true });
+      const res = await api.get(`${API_BASE}/${camp._id}/donors`);
       setDonors(res.data);
     } catch {
-      setDonorAlert({type:"error", msg:"Failed to load donors."});
+      setDonorAlert({ type: "error", msg: "Failed to load donors." });
     }
   }
   function closeDonorModal() {
     setDonorModalOpen(false);
     setSelectedCamp(null);
     setDonors([]);
-    setDonorForm({donorId:"", blood_group:"", units:"", donation_time:"", verified:false});
-    setDonorAlert({type:"", msg:""});
+    setDonorForm({ donorId: "", blood_group: "", units: "", donation_time: "", verified: false });
+    setDonorAlert({ type: "", msg: "" });
   }
   function handleDonorChange(field, val) {
-    setDonorForm(f => ({...f, [field]: val }));
+    setDonorForm(f => ({ ...f, [field]: val }));
   }
   async function addDonor(e) {
     e.preventDefault();
-    if(!donorForm.donorId || !donorForm.blood_group || !donorForm.units) {
-      return setDonorAlert({type:"error", msg:"Please fill all required donor fields"});
+    if (!donorForm.donorId || !donorForm.blood_group || !donorForm.units) {
+      return setDonorAlert({ type: "error", msg: "Please fill all required donor fields" });
     }
     try {
-      await axios.post(`${API_BASE}/${selectedCamp._id}/add-donor`, donorForm, { withCredentials: true });
-      setDonorAlert({type:"success", msg:"Donor added successfully"});
-      const res = await axios.get(`${API_BASE}/${selectedCamp._id}/donors`, { withCredentials: true });
+      await api.post(`${API_BASE}/${selectedCamp._id}/add-donor`, donorForm);
+      setDonorAlert({ type: "success", msg: "Donor added successfully" });
+      const res = await api.get(`${API_BASE}/${selectedCamp._id}/donors`);
       setDonors(res.data);
-      setDonorForm({donorId:"", blood_group:"", units:"", donation_time:"", verified:false});
-    } catch(err) {
-      setDonorAlert({type:"error", msg: err.response?.data?.message || "Failed to add donor"});
+      setDonorForm({ donorId: "", blood_group: "", units: "", donation_time: "", verified: false });
+    } catch (err) {
+      setDonorAlert({ type: "error", msg: err.response?.data?.message || "Failed to add donor" });
     }
   }
 
@@ -808,7 +808,7 @@ export default function DoctorAdminCampPortal() {
 
       <main style={styles.campGrid}>
         {upcomingCamps.length === 0 ? (
-          <p style={{textAlign:"center",marginTop:40,color:"#999"}}>No active or upcoming camps found.</p>
+          <p style={{ textAlign: "center", marginTop: 40, color: "#999" }}>No active or upcoming camps found.</p>
         ) : upcomingCamps.map(camp => (
           <section key={camp._id} style={styles.campCard} tabIndex={0} aria-label={`Blood camp named ${camp.name}`}>
             <div style={styles.cardTitleRow}>
@@ -817,7 +817,7 @@ export default function DoctorAdminCampPortal() {
             </div>
             <p style={styles.locationText}>{camp.location?.address}, {camp.location?.city}, {camp.location?.state}</p>
             <p>
-              <strong>Dates:</strong> <span style={styles.datePill}>{camp.start_date?.slice(0,10)}</span> - <span style={styles.datePill}>{camp.end_date?.slice(0,10)}</span>
+              <strong>Dates:</strong> <span style={styles.datePill}>{camp.start_date?.slice(0, 10)}</span> - <span style={styles.datePill}>{camp.end_date?.slice(0, 10)}</span>
             </p>
             <p>
               <strong>Timings:</strong>{" "}

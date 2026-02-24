@@ -7,9 +7,12 @@ const ChatWrapper = () => {
   const [doctorId, setDoctorId] = useState(null);
 
   useEffect(() => {
-    // Fetch the doctor ID from session via backend
+    // Fetch the doctor ID via JWT auth
+    const token = localStorage.getItem("token");
     fetch("/api/me", {
-      credentials: "include",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
     })
       .then((res) => res.json())
       .then((data) => {

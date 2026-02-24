@@ -27,15 +27,15 @@
 //         const res = await axios.get("/api/doctor/get-second-opinion", { 
 //           withCredentials: true 
 //         });
-        
+
 //         console.log("✅ API Response received:", res.data);
-        
+
 //         const sortedData = (res.data?.data || []).sort((a, b) => {
 //           if (a.status === 'pending' && b.status !== 'pending') return -1;
 //           if (a.status !== 'pending' && b.status === 'pending') return 1;
 //           return new Date(b.createdAt) - new Date(a.createdAt);
 //         });
-        
+
 //         setRequests(sortedData);
 //         setError(null);
 //         console.log("✅ Requests loaded successfully:", sortedData.length, "requests");
@@ -55,13 +55,13 @@
 //     console.log(`🚀 Attempting to ${action} request with ID: ${id}`);
 //     setUpdatingId(id);
 //     setError(null);
-    
+
 //     try {
 //       // Enhanced logging
 //       console.log("📡 Making PUT request to:", `/api/doctor/get-second-opinion/${id}`);
 //       console.log("📦 Request payload:", { status: action });
 //       console.log("🍪 Request cookies will be sent with withCredentials: true");
-      
+
 //       const response = await axios.put(
 //         `/api/doctor/get-second-opinion/${id}`, 
 //         { status: action }, 
@@ -72,20 +72,20 @@
 //           }
 //         }
 //       );
-      
+
 //       console.log("✅ Update response received:", response.data);
-      
+
 //       // Update the local state
 //       setRequests((prev) => 
 //         prev.map((req) => 
 //           req._id === id ? { ...req, status: action } : req
 //         )
 //       );
-      
+
 //       // Show success message
 //       alert(`✅ Request ${action} successfully!`);
 //       console.log("🎉 State updated successfully");
-      
+
 //     } catch (err) { 
 //       console.error("❌ =============== DETAILED ERROR INFORMATION ===============");
 //       console.error("❌ Full error object:", err);
@@ -93,27 +93,27 @@
 //       console.error("❌ Error name:", err.name);
 //       console.error("❌ Error code:", err.code);
 //       console.error("❌ Request config:", err.config);
-      
+
 //       if (err.response) {
 //         console.error("❌ Response received with error:");
 //         console.error("❌ Response status:", err.response.status);
 //         console.error("❌ Response status text:", err.response.statusText);
 //         console.error("❌ Response headers:", err.response.headers);
 //         console.error("❌ Response data:", err.response.data);
-        
+
 //         // 🚨 CRITICAL: Extract the actual backend error message
 //         if (err.response.data) {
 //           console.error("🚨 Backend error details:", err.response.data);
 //           console.error("🚨 Backend error message:", err.response.data.message);
 //           console.error("🚨 Backend error object:", err.response.data.error);
-          
+
 //           // Show the actual backend error to user
 //           const backendErrorMessage = err.response.data.message || 
 //                                        err.response.data.error?.message || 
 //                                        "Unknown server error";
-          
+
 //           alert(`🚨 Backend Error: ${backendErrorMessage}`);
-          
+
 //           // Also log the full backend error for debugging
 //           if (err.response.data.error) {
 //             console.error("🚨 Backend error stack:", err.response.data.error.stack);
@@ -125,10 +125,10 @@
 //       } else {
 //         console.error("❌ Error setting up request:", err.message);
 //       }
-      
+
 //       // More specific error messages based on status codes
 //       let errorMessage = "Something went wrong. Please try again.";
-      
+
 //       if (err.response?.status === 401) {
 //         errorMessage = "🔐 Authentication failed. Please log in again.";
 //         console.error("🔐 Authentication issue - check cookies/tokens");
@@ -148,7 +148,7 @@
 //         errorMessage = "🌐 Network error. Please check your connection.";
 //         console.error("🌐 Network issue - no response received");
 //       }
-      
+
 //       setError(errorMessage);
 //       console.error("❌ ========================================================");
 //     } finally { 
@@ -509,7 +509,7 @@
 //       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
 //       margin-top: 70px;
 //     }
-    
+
 //     .header-section {
 //       background: #ffffff;
 //       border-bottom: 1px solid #e5e7eb;
@@ -517,20 +517,20 @@
 //       margin-bottom: 1.5rem;
 //       text-align: center;
 //     }
-    
+
 //     .title-modern {
 //       font-size: 2rem;
 //       font-weight: 700;
 //       color: #111827;
 //       margin-bottom: 0.5rem;
 //     }
-    
+
 //     .subtitle-modern {
 //       font-size: 1rem;
 //       color: #6b7280;
 //       font-weight: 500;
 //     }
-    
+
 //     .controls-bar {
 //       display: flex;
 //       gap: 1rem;
@@ -539,14 +539,14 @@
 //       flex-wrap: wrap;
 //       justify-content: center;
 //     }
-    
+
 //     .search-container {
 //       position: relative;
 //       flex: 1;
 //       min-width: 260px;
 //       max-width: 350px;
 //     }
-    
+
 //     /* Beautiful Search Box Styling */
 // .search-container {
 //   position: relative;
@@ -612,7 +612,7 @@
 //   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
 // }
 
-    
+
 //     .filter-buttons {
 //       display: flex;
 //       gap: 0.5rem;
@@ -621,7 +621,7 @@
 //       border-radius: 8px;
 //       border: 1px solid #e5e7eb;
 //     }
-    
+
 //     .filter-btn {
 //       font-weight: 600;
 //       padding: 0.5rem 1rem;
@@ -633,17 +633,17 @@
 //       transition: all 0.2s ease;
 //       font-size: 0.9rem;
 //     }
-    
+
 //     .filter-btn.active {
 //       background: #3b82f6;
 //       color: white;
 //     }
-    
+
 //     .filter-btn:hover:not(.active) {
 //       background: #e5e7eb;
 //       color: #374151;
 //     }
-    
+
 //     .stats-bar {
 //       display: flex;
 //       gap: 1rem;
@@ -651,7 +651,7 @@
 //       flex-wrap: wrap;
 //       justify-content: center;
 //     }
-    
+
 //     .stat-card {
 //       background: white;
 //       padding: 1.5rem;
@@ -664,23 +664,23 @@
 //       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 //       transition: transform 0.2s ease;
 //     }
-    
+
 //     .stat-card:hover {
 //       transform: translateY(-2px);
 //     }
-    
+
 //     .stat-number {
 //       font-size: 1.8rem;
 //       font-weight: 700;
 //       margin-bottom: 0.5rem;
 //     }
-    
+
 //     .stat-label {
 //       font-weight: 600;
 //       color: #6b7280;
 //       font-size: 0.9rem;
 //     }
-    
+
 //     .requests-grid {
 //   display: flex;
 //   flex-wrap: wrap;
@@ -706,18 +706,18 @@
 //       transition: all 0.2s ease;
 //       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 //     }
-    
+
 //     .request-card:hover {
 //       transform: translateY(-3px);
 //       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 //       border-color: #3b82f6;
 //     }
-    
+
 //     .request-card.selected {
 //       border-color: #3b82f6;
 //       box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 //     }
-    
+
 //     .card-header {
 //       display: flex;
 //       justify-content: space-between;
@@ -725,14 +725,14 @@
 //       margin-bottom: 1rem;
 //       min-height: 50px;
 //     }
-    
+
 //     .patient-name {
 //       font-weight: 700;
 //       font-size: 1.1rem;
 //       color: #111827;
 //       margin-bottom: 0.5rem;
 //     }
-    
+
 //     .request-time {
 //       font-size: 0.75rem;
 //       color: #6b7280;
@@ -743,7 +743,7 @@
 //       padding: 0.25rem 0.5rem;
 //       border-radius: 12px;
 //     }
-    
+
 //     .status-badge {
 //       padding: 0.3rem 0.75rem;
 //       font-size: 0.7rem;
@@ -753,19 +753,19 @@
 //       letter-spacing: 0.05em;
 //       color: white;
 //     }
-    
+
 //     .status-pending {
 //       background: #f59e0b;
 //     }
-    
+
 //     .status-accepted {
 //       background: #10b981;
 //     }
-    
+
 //     .status-rejected {
 //       background: #ef4444;
 //     }
-    
+
 //     .card-content {
 //       flex-grow: 1;
 //       display: flex;
@@ -774,7 +774,7 @@
 //       color: #374151;
 //       font-size: 0.9rem;
 //     }
-    
+
 //     .info-row {
 //       display: flex;
 //       align-items: center;
@@ -784,23 +784,23 @@
 //       border-radius: 6px;
 //       transition: background-color 0.2s ease;
 //     }
-    
+
 //     .info-row:hover {
 //       background: #f3f4f6;
 //     }
-    
+
 //     .info-icon {
 //       color: #3b82f6;
 //       flex-shrink: 0;
 //     }
-    
+
 //     .info-label {
 //       font-weight: 600;
 //       min-width: 70px;
 //       color: #4b5563;
 //       flex-shrink: 0;
 //     }
-    
+
 //     .info-value {
 //       color: #111827;
 //       flex-grow: 1;
@@ -808,7 +808,7 @@
 //       overflow: hidden;
 //       text-overflow: ellipsis;
 //     }
-    
+
 //     .treatment-section {
 //       font-size: 0.85rem;
 //       font-weight: 600;
@@ -822,7 +822,7 @@
 //       overflow: hidden;
 //       text-overflow: ellipsis;
 //     }
-    
+
 //     .attachments-section {
 //       font-size: 0.85rem;
 //       margin-top: 0.5rem;
@@ -835,9 +835,9 @@
 //       background: #fef3c7;
 //       border-radius: 6px;
 //       border-left: 3px solid #f59e0b;
-      
+
 //     }
-    
+
 //     .attachment-label {
 //       display: flex;
 //       align-items: center;
@@ -847,7 +847,7 @@
 //       white-space: nowrap;
 //       flex-shrink: 0;
 //     }
-    
+
 //     .attachment-link {
 //       padding: 0.25rem 0.5rem;
 //       background: #3b82f6;
@@ -861,11 +861,11 @@
 //       align-items: center;
 //       gap: 0.25rem;
 //     }
-    
+
 //     .attachment-link:hover {
 //       background: #2563eb;
 //     }
-    
+
 //     .action-buttons {
 //       margin-top: auto;
 //       padding-top: 1rem;
@@ -873,7 +873,7 @@
 //       justify-content: flex-end;
 //       gap: 0.5rem;
 //     }
-    
+
 //     .btn-accept, .btn-reject {
 //       font-size: 0.85rem;
 //       padding: 0.5rem 1rem;
@@ -887,31 +887,31 @@
 //       transition: all 0.2s ease;
 //       font-weight: 600;
 //     }
-    
+
 //     .btn-accept {
 //       background: #10b981;
 //       color: white;
 //     }
-    
+
 //     .btn-accept:hover:not(:disabled) {
 //       background: #059669;
 //     }
-    
+
 //     .btn-reject {
 //       background: #ef4444;
 //       color: white;
 //     }
-    
+
 //     .btn-reject:hover:not(:disabled) {
 //       background: #dc2626;
 //     }
-    
+
 //     .btn-accept:disabled,
 //     .btn-reject:disabled {
 //       opacity: 0.5;
 //       cursor: not-allowed;
 //     }
-    
+
 //     .loading-spinner {
 //       width: 16px;
 //       height: 16px;
@@ -920,12 +920,12 @@
 //       border-radius: 50%;
 //       animation: spin 1s linear infinite;
 //     }
-    
+
 //     @keyframes spin {
 //       from { transform: rotate(0deg); }
 //       to { transform: rotate(360deg); }
 //     }
-    
+
 //     .empty-state {
 //       text-align: center;
 //       padding: 3rem 2rem;
@@ -934,20 +934,20 @@
 //       border: 2px dashed #d1d5db;
 //       color: #6b7280;
 //     }
-    
+
 //     .empty-icon {
 //       font-size: 3rem;
 //       margin-bottom: 1rem;
 //       opacity: 0.7;
 //     }
-    
+
 //     .empty-title {
 //       font-size: 1.25rem;
 //       font-weight: 600;
 //       color: #374151;
 //       margin-bottom: 0.5rem;
 //     }
-    
+
 //     .error-banner {
 //       background: #fee2e2;
 //       border: 1px solid #fca5a5;
@@ -960,7 +960,7 @@
 //       justify-content: space-between;
 //       font-weight: 600;
 //     }
-    
+
 //     .error-close {
 //       background: none;
 //       border: none;
@@ -972,25 +972,25 @@
 //       font-size: 1.1rem;
 //       transition: background-color 0.2s ease;
 //     }
-    
+
 //     .error-close:hover {
 //       background: rgba(239, 68, 68, 0.2);
 //     }
-    
+
 //     @media (max-width: 1200px) {
 //       .request-card {
 //         flex: 0 0 calc(33.333% - 0.67rem);
 //         width: calc(33.333% - 0.67rem);
 //       }
 //     }
-    
+
 //     @media (max-width: 900px) {
 //       .request-card {
 //         flex: 0 0 calc(50% - 0.5rem);
 //         width: calc(50% - 0.5rem);
 //       }
 //     }
-    
+
 //     @media (max-width: 600px) {
 //       .modern-container {
 //         padding: 0.75rem;
@@ -1392,7 +1392,7 @@
 
 
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../utils/api";
 import { formatDistanceToNow, format } from "date-fns";
 import Loader from "../ui/Loader";
 
@@ -1995,7 +1995,7 @@ export default function DSecondOpinions() {
   useEffect(() => {
     async function fetchRequests() {
       try {
-        const res = await axios.get("/api/doctor/get-second-opinion", { withCredentials: true });
+        const res = await api.get("/api/doctor/get-second-opinion");
         const sortedData = (res.data?.data || []).sort((a, b) => {
           if (a.status === "pending" && b.status !== "pending") return -1;
           if (a.status !== "pending" && b.status === "pending") return 1;
@@ -2016,7 +2016,7 @@ export default function DSecondOpinions() {
     setUpdatingId(id);
     setError(null);
     try {
-      await axios.put(`/api/doctor/get-second-opinion/${id}`, { status: action }, { withCredentials: true, headers: { "Content-Type": "application/json" } });
+      await api.put(`/api/doctor/get-second-opinion/${id}`, { status: action });
       setRequests((prev) => prev.map((r) => (r._id === id ? { ...r, status: action } : r)));
       alert(`✅ Request ${action} successfully!`);
     } catch (err) {
@@ -2043,12 +2043,12 @@ export default function DSecondOpinions() {
         return req.status.toLowerCase() === filter.toLowerCase() && isPresentOrFuture(req.date);
       }
     })();
-    
+
     const searchMatch = !searchTerm || (
-      req.patientId?.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      req.patientId?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       req.problem?.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    
+
     return filMatch && searchMatch;
   });
 
@@ -2083,7 +2083,7 @@ export default function DSecondOpinions() {
 
           <div className="controls-bar">
             <div className="search-container">
-              
+
               <input
                 type="text"
                 placeholder="Search patients or problems..."
@@ -2103,10 +2103,10 @@ export default function DSecondOpinions() {
                 { key: "rejected", label: "Rejected", icon: null },
                 { key: "history", label: "History", icon: <HistoryIcon /> }
               ].map((f) => (
-                <button 
-                  key={f.key} 
-                  className={`filter-btn ${filter === f.key ? "active" : ""}`} 
-                  onClick={() => setFilter(f.key)} 
+                <button
+                  key={f.key}
+                  className={`filter-btn ${filter === f.key ? "active" : ""}`}
+                  onClick={() => setFilter(f.key)}
                   aria-pressed={filter === f.key}
                 >
                   {f.icon}
@@ -2163,9 +2163,9 @@ export default function DSecondOpinions() {
               <div className="empty-icon">🩺</div>
               <h3 className="empty-title">No requests found</h3>
               <p className="empty-description">
-                {searchTerm || filter !== "all" 
-                  ? "Try adjusting your search or filter criteria" 
-                  : filter === "history" 
+                {searchTerm || filter !== "all"
+                  ? "Try adjusting your search or filter criteria"
+                  : filter === "history"
                     ? "You have no historical second opinion requests"
                     : "You have no current second opinion requests"
                 }

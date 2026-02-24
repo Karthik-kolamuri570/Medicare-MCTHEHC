@@ -4,9 +4,7 @@ const mongoose = require("mongoose");
 // Create a new blog by logged-in doctor
 exports.createBlog = async (req, res) => {
   try {
-    if (!req.session || !req.session.doctorId) {
-      return res.status(401).json({ message: "Authentication required" });
-    }
+    // Auth is handled by middleware — req.user is set
 
     const { title, description, content, image_url, tags, status } = req.body;
 
@@ -26,13 +24,13 @@ exports.createBlog = async (req, res) => {
       return res.status(400).json({ message: "Content must be at least 50 characters" });
     }
 
-    const existingBlog = await Blog.findOne({ title: title.trim(), doctor_id: req.session.doctorId });
+    const existingBlog = await Blog.findOne({ title: title.trim(), doctor_id: req.user._id });
     if (existingBlog) {
       return res.status(400).json({ message: "You already have a blog with this title" });
     }
 
     const blogData = {
-      doctor_id: req.session.doctorId,
+      doctor_id: req.user._id,
       title: title.trim(),
       description: description.trim(),
       content: content.trim(),
@@ -96,7 +94,8 @@ exports.getBlogById = async (req, res) => {
       return res.status(404).json({ message: "Blog not found" });
     }
     if (blog.status !== 'published') {
-      if (!(req.session && req.session.doctorId === blog.doctor_id._id.toString())) {
+      // Allow the author (doctor) to view their own unpublished blog
+      if (!req.user || req.user._id.toString() !== blog.doctor_id._id.toString()) {
         return res.status(404).json({ message: "Blog not found" });
       }
     }
@@ -110,10 +109,8 @@ exports.getBlogById = async (req, res) => {
 // Get blogs by logged-in doctor
 exports.getBlogsByDoctor = async (req, res) => {
   try {
-    if (!req.session || !req.session.doctorId) {
-      return res.status(401).json({ message: "Authentication required" });
-    }
-    const blogs = await Blog.find({ doctor_id: req.session.doctorId })
+    // Auth is handled by middleware
+    const blogs = await Blog.find({ doctor_id: req.user._id })
       .sort({ createdAt: -1 });
     res.json(blogs);
   } catch (error) {
@@ -125,9 +122,7 @@ exports.getBlogsByDoctor = async (req, res) => {
 // Update blog (only author)
 exports.updateBlog = async (req, res) => {
   try {
-    if (!req.session || !req.session.doctorId) {
-      return res.status(401).json({ message: "Authentication required" });
-    }
+    // Auth is handled by middleware
     const { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid blog ID" });
@@ -136,10 +131,8 @@ exports.updateBlog = async (req, res) => {
     if (!blog) {
       return res.status(404).json({ message: "Blog not found" });
     }
-    if (blog.doctor_id.toString() !== req.session.doctorId.toString()) {
-      console.log("Unauthorized update attempt by doctor:", req.session.doctorId);  
-      console.log("Blog author ID:", blog.doctor_id.toString());
-      return res.status(403).json({ success:false,message: "Unauthorized" });
+    if (blog.doctor_id.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, message: "Unauthorized" });
     }
 
     const allowedFields = ["title", "description", "content", "image_url", "tags", "status"];
@@ -164,9 +157,7 @@ exports.updateBlog = async (req, res) => {
 // Delete blog (only author)
 exports.deleteBlog = async (req, res) => {
   try {
-    if (!req.session || !req.session.doctorId) {
-      return res.status(401).json({ message: "Authentication required" });
-    }
+    // Auth is handled by middleware
     const { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid blog ID" });
@@ -175,10 +166,8 @@ exports.deleteBlog = async (req, res) => {
     if (!blog) {
       return res.status(404).json({ message: "Blog not found" });
     }
-    if (blog.doctor_id.toString() !== req.session.doctorId) {
-      console.error("Unauthorized delete attempt by doctor:", req.session.doctorId);  
-      console.log("Blog author ID:", blog.doctor_id.toString());    
-      return res.status(403).json({ success:false,message: "Unauthorized" });
+    if (blog.doctor_id.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, message: "Unauthorized" });
     }
     await blog.deleteOne();
     res.json({ message: "Blog deleted successfully" });

@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../utils/api";
 import BloodBankDashboard from "./BloodBankDashboard";
 
 function BloodBankContainer() {
@@ -17,9 +17,12 @@ function BloodBankContainer() {
 
   const checkAuthentication = async () => {
     try {
-      const response = await axios.get(`${API_BASE}/blood-bank/verify-auth`, {
-        withCredentials: true,
-      });
+      const token = localStorage.getItem("token");
+      if (!token) {
+        window.location.href = "/blood-bank/login";
+        return;
+      }
+      const response = await api.get(`${API_BASE}/blood-bank/verify-auth`);
       if (response.data.success && response.data.authenticated) {
         setIsAuthenticated(true);
       } else {
@@ -34,13 +37,13 @@ function BloodBankContainer() {
   };
 
   const fetchBankDetails = () =>
-    axios.get(`${API_BASE}/blood-bank/my-bank`, { withCredentials: true });
+    api.get(`${API_BASE}/blood-bank/my-bank`);
   const fetchRequests = () =>
-    axios.get(`${API_BASE}/blood-bank/requests`, { withCredentials: true });
+    api.get(`${API_BASE}/blood-bank/requests`);
   const fetchDonations = () =>
-    axios.get(`${API_BASE}/blood-bank/donations`, { withCredentials: true });
+    api.get(`${API_BASE}/blood-bank/donations`);
   const fetchNotifications = () =>
-    axios.get(`${API_BASE}/blood-bank/notifications`, { withCredentials: true });
+    api.get(`${API_BASE}/blood-bank/notifications`);
 
   const fetchData = async () => {
     try {
@@ -131,11 +134,7 @@ function BloodBankContainer() {
   const onAcceptRequest = async (id) => {
     await handleApiCall(
       () =>
-        axios.put(
-          `${API_BASE}/blood-bank-user/accept-request/${id}`,
-          {},
-          { withCredentials: true }
-        ),
+        api.put(`${API_BASE}/blood-bank-user/accept-request/${id}`, {}),
       refetchAllData
     );
   };
@@ -143,11 +142,7 @@ function BloodBankContainer() {
   const onRejectRequest = async (id) => {
     await handleApiCall(
       () =>
-        axios.put(
-          `${API_BASE}/blood-bank-user/reject-request/${id}`,
-          {},
-          { withCredentials: true }
-        ),
+        api.put(`${API_BASE}/blood-bank-user/reject-request/${id}`, {}),
       refetchAllData
     );
   };
@@ -155,11 +150,7 @@ function BloodBankContainer() {
   const onAcceptDonation = async (id) => {
     await handleApiCall(
       () =>
-        axios.put(
-          `${API_BASE}/blood-bank-user/accept-donation/${id}`,
-          {},
-          { withCredentials: true }
-        ),
+        api.put(`${API_BASE}/blood-bank-user/accept-donation/${id}`, {}),
       refetchAllData
     );
   };
@@ -167,20 +158,18 @@ function BloodBankContainer() {
   const onRejectDonation = async (id) => {
     await handleApiCall(
       () =>
-        axios.put(
-          `${API_BASE}/blood-bank-user/reject-donation/${id}`,
-          {},
-          { withCredentials: true }
-        ),
+        api.put(`${API_BASE}/blood-bank-user/reject-donation/${id}`, {}),
       refetchAllData
     );
   };
 
   const onLogout = async () => {
     try {
-      await axios.get(`${API_BASE}/blood-bank/bank-logout`, {
-        withCredentials: true,
-      });
+      await api.get(`${API_BASE}/blood-bank/bank-logout`);
+      // Clear JWT tokens from localStorage
+      localStorage.removeItem("token");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("user");
       setIsAuthenticated(false);
       setBank({});
       setStock({});
@@ -190,6 +179,10 @@ function BloodBankContainer() {
       window.location.href = "/blood-bank/login";
     } catch (err) {
       console.error("Logout error:", err);
+      // Clear tokens even on error
+      localStorage.removeItem("token");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("user");
       window.location.href = "/blood-bank/login";
     }
   };
@@ -197,10 +190,9 @@ function BloodBankContainer() {
   const onMarkAllNotificationsRead = async () => {
     await handleApiCall(
       () =>
-        axios.put(
+        api.put(
           `${API_BASE}/blood-bank/notifications/mark-all-read`,
-          {},
-          { withCredentials: true }
+          {}
         ),
       () => {
         setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));

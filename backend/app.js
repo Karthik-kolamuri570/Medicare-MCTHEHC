@@ -4,8 +4,6 @@ const bodyParser = require("body-parser");
 const app = express();
 const cors = require("cors");
 const path = require("path");
-const session = require("express-session");
-const mongoDBStore = require("connect-mongodb-session")(session);
 const mongoose = require("mongoose");
 const { StreamChat } = require('stream-chat');
 
@@ -46,26 +44,7 @@ mongoose.connect(process.env.MONGO_URI)
   })
   .catch(err => console.log(err));
 
-const store = new mongoDBStore({
-  uri: process.env.MONGO_URI,
-  collection: "sessions",
-  autoRemove: true
-});
 
-app.set('trust proxy', 1); // Required for secure cookies on Vercel/proxies
-
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  store: store,
-  cookie: {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',  // Set to `true` in production
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    maxAge: 24 * 60 * 60 * 1000 // 1 day expiration
-  }
-}));
 
 const patientRoutes = require('./routes/patientRoutes');
 const doctorRoutes = require('./routes/doctorRoutes');
@@ -92,11 +71,7 @@ app.use('/api/blogs', BlogRoutes);
 
 app.use('/api/admin', AdminRoutes);
 
-app.use((req, res, next) => {
-  console.log('Session:', req.session);
-  console.log(req.user);
-  next();
-});
+
 
 // Serving static files
 const os = require('os');
@@ -109,41 +84,21 @@ if (isVercel) {
 
 const auth = require('./middleware/auth');
 
-// app.get('/api/stream/token', (req, res) => {
-//for this code we have to update the session withuserId for both patientId and doctorId due to this I am considering the second code snippet
-//     try {
-//         if(req.session.userId){
-//             console.log("Generating Stream token for user:", req.user);
-//             if (!req.user || !req.user._id) {
-//                 console.error("User not authenticated or user ID not found");
-//                 return res.status(401).json({ error: "Unauthorized - User not authenticated" });
-//             }
-//             const userId=req.user._id.toString();
-//             console.log("Generating Stream token for user:", req.user);
-//             const token = streamClient.createToken(userId);
-//             res.json({ token});
-//             console.log("Stream token generated for user:", token);
-//         }    
-//         else{
-//             console.log("User not authenticated");
-//             res.status(401).json({ error: "Unauthorized - User not authenticated" });
-//         }
-//     } catch (error) {
-//         console.error("Error generating Stream token:", error);
-//         res.status(500).json({ error: "Internal Server Error" });
-//     }
-
-// })
+const { verifyToken, extractToken } = require('./utils/jwt');
 const Doctor = require('./models/doctor')
-const Patient = require('./models/patient');   // adjust path as needed
+const Patient = require('./models/patient');
 
 app.get('/api/me', async (req, res) => {
   try {
-    console.log("Inside /me route");
-    // console.log("Session:", req.session);
+    const token = extractToken(req);
+    if (!token) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
 
-    if (req.session.doctorId) {
-      const doctor = await Doctor.findById(req.session.doctorId);
+    const decoded = verifyToken(token);
+
+    if (decoded.role === 'doctor') {
+      const doctor = await Doctor.findById(decoded.id);
       if (!doctor) {
         return res.status(404).json({ message: "Doctor not found" });
       }
@@ -154,29 +109,29 @@ app.get('/api/me', async (req, res) => {
       });
     }
 
-    if (req.session.patientId) {
-      const patient = await Patient.findById(req.session.patientId);
+    if (decoded.role === 'patient') {
+      const patient = await Patient.findById(decoded.id);
       if (!patient) {
         return res.status(404).json({ message: "Patient not found" });
       }
-      console.log("Patient found:", patient);
       return res.json({
         role: "patient",
         userId: patient._id.toString(),
         name: patient.fullname || patient.name || "Patient",
       });
     }
-    console.log("No session found for doctor or patient");
 
-    return res.status(401).json({ message: "Not logged in as doctor or patient" });
-
+    return res.status(401).json({ message: "Invalid token role" });
   } catch (error) {
+    if (error.name === 'TokenExpiredError' || error.name === 'JsonWebTokenError') {
+      return res.status(401).json({ message: "Invalid or expired token" });
+    }
     console.error("Error in /me route:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
 });
 
-// ✅ Legacy Redirect: If someone clicks an old /api/video-call link from chat, redirect to frontend
+// Legacy Redirect: If someone clicks an old /api/video-call link from chat, redirect to frontend
 app.get('/api/video-call/:id', (req, res) => {
   res.redirect(`/video-call/${req.params.id}`);
 });
@@ -188,15 +143,24 @@ const streamClient = StreamChat.getInstance(streamApiKey, streamApiSecret);
 
 app.get('/api/stream/token', async (req, res) => {
   try {
-    const userId = req.session.doctorId || req.session.patientId;
+    const token = extractToken(req);
+    if (!token) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
+
+    const decoded = verifyToken(token);
+    const userId = decoded.id;
 
     if (!userId) {
       return res.status(401).json({ error: "User not authenticated" });
     }
 
-    const token = streamClient.createToken(userId.toString());
-    return res.json({ token, userId: userId.toString(), apiKey: streamApiKey });
+    const streamToken = streamClient.createToken(userId.toString());
+    return res.json({ token: streamToken, userId: userId.toString(), apiKey: streamApiKey });
   } catch (err) {
+    if (err.name === 'TokenExpiredError' || err.name === 'JsonWebTokenError') {
+      return res.status(401).json({ error: "Invalid or expired token" });
+    }
     console.error("Stream Token Generation Error:", err);
     return res.status(500).json({ error: "Internal server error" });
   }

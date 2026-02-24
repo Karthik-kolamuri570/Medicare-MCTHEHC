@@ -1,132 +1,135 @@
-const Patient = require('../models/patient'); // Adjust the path as needed
-const Doctor = require('../models/doctor'); // Adjust the path as needed
+const Patient = require('../models/patient');
+const Doctor = require('../models/doctor');
 const Admin = require('../models/admin');
-const jwt = require('jsonwebtoken');
+const { verifyToken, extractToken } = require('../utils/jwt');
 
+/**
+ * Patient authentication middleware
+ * Verifies JWT from Authorization header and attaches patient to req.user
+ */
 exports.patientAuth = async (req, res, next) => {
-    console.log("Checking patient authentication");
-    console.log("Session:", req.session.isPatientLoggedIn); 
-    if (!req.session || !req.session.isPatientLoggedIn) {
-        console.log("Unauthorized Access - Returning 401");
-        return res.status(401).redirect('/api/patient/login');
-    }
-    try {
-        const patient = await Patient.findById(req.session.patientId);
-        if (!patient) {
-            console.log("in assigning the patient to the req.user is failed")
-            return res.status(401).redirect('/api/patient/login');
-        }
-        console.log("in assigning the patient to the req.user is success")
-        req.user = patient;
-        console.log(req.user._id.toString());
-        console.log("Patient is authenticated");
-        next();
-    } catch (error) {
-        console.error("Error in patient authentication:", error);
-        res.status(500).json({ success: false, message: "Internal server error" });
-    }
-};
-
-exports.doctorAuth = async (req, res, next) => {
-    console.log("Checking doctor authentication");
-    // console.log("Session:", req.session);
-    if (!req.session || !req.session.isDoctorLoggedIn) {
-         ;
-        return res.status(401).redirect('/api/doctor/login');
-    }
-    try {
-        const doctor = await Doctor.findById(req.session.doctorId);
-        if (!doctor) {
-            return res.status(401).redirect('/api/doctor/login');
-        }
-        req.user = doctor;
-        
-        console.log(`req.user._id.toString(): ${req.user._id.toString()}`);
-        console.log("Doctor is authenticated...");
-        next();
-    } catch (error) {
-        console.error("Error in doctor authentication:", error);
-        res.status(500).json({ success: false, message: "Internal server error" });
-    }
-};
-
-// exports.adminAuth = async (req, res, next) => {
-//     console.log("Checking admin authentication");
-//     // console.log("Ses   sion:", req.session);
-//     if (!req.session || !req.session.isAdminLoggedIn) {
-//         console.log("Unauthorized Access - Returning 401");
-//         return res.status(401).json({ success: false, message: "Unauthorized access. Please log in as an admin." });
-//     }
-//     try {
-//         const admin = await Admin.findById(req.session.adminId);
-//         if (!admin) {
-//             return res.status(401).json({ success: false, message: "Unauthorized access. Please log in as an admin." });
-//         }
-//         req.user = admin;
-//         console.log("Admin is authenticated");
-//         next();
-//     } catch (error) {
-//         console.error("Error in admin authentication:", error);
-//         res.status(500).json({ success: false, message: "Internal server error" });
-//     }
-// };
-
-
-
-exports.adminAuth = async (req, res, next) => {
   try {
-    const token = req.headers.authorization?.replace('Bearer ', '');
-    
+    const token = extractToken(req);
     if (!token) {
-      return res.status(401).json({ success: false, error: 'No token provided' });
+      return res.status(401).json({ message: 'Authentication required. Please login.' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const admin = await Admin.findById(decoded._id);
-
-    if (!admin) {
-      return res.status(401).json({ success: false, error: 'Admin not found' });
+    const decoded = verifyToken(token);
+    if (decoded.role !== 'patient') {
+      return res.status(403).json({ message: 'Access denied. Patient role required.' });
     }
 
-    req.admin = admin;
-    req.token = token;
+    const patient = await Patient.findById(decoded.id).select('-password');
+    if (!patient) {
+      return res.status(401).json({ message: 'Patient account not found. Please login again.' });
+    }
+
+    req.user = patient;
     next();
   } catch (error) {
-    console.error('Auth error:', error);
-    res.status(401).json({ success: false, error: 'Please authenticate as admin' });
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: 'Token expired. Please login again.' });
+    }
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({ message: 'Invalid token. Please login again.' });
+    }
+    console.error('Patient auth error:', error);
+    return res.status(500).json({ message: 'Authentication error' });
   }
 };
 
-// Role-based middleware
-exports.ensureRole = (...allowedRoles) => {
+/**
+ * Doctor authentication middleware
+ * Verifies JWT from Authorization header and attaches doctor to req.user
+ */
+exports.doctorAuth = async (req, res, next) => {
+  try {
+    const token = extractToken(req);
+    if (!token) {
+      return res.status(401).json({ message: 'Authentication required. Please login.' });
+    }
+
+    const decoded = verifyToken(token);
+    if (decoded.role !== 'doctor') {
+      return res.status(403).json({ message: 'Access denied. Doctor role required.' });
+    }
+
+    const doctor = await Doctor.findById(decoded.id).select('-password');
+    if (!doctor) {
+      return res.status(401).json({ message: 'Doctor account not found. Please login again.' });
+    }
+
+    req.user = doctor;
+    next();
+  } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: 'Token expired. Please login again.' });
+    }
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({ message: 'Invalid token. Please login again.' });
+    }
+    console.error('Doctor auth error:', error);
+    return res.status(500).json({ message: 'Authentication error' });
+  }
+};
+
+/**
+ * Admin authentication middleware
+ * Verifies JWT from Authorization header and attaches admin to req.user
+ */
+exports.adminAuth = async (req, res, next) => {
+  try {
+    const token = extractToken(req);
+    if (!token) {
+      return res.status(401).json({ message: 'Authentication required.' });
+    }
+
+    const decoded = verifyToken(token);
+    if (decoded.role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied. Admin role required.' });
+    }
+
+    const admin = await Admin.findById(decoded.id).select('-password');
+    if (!admin) {
+      return res.status(401).json({ message: 'Admin account not found.' });
+    }
+
+    req.user = admin;
+    next();
+  } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: 'Token expired. Please login again.' });
+    }
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({ message: 'Invalid token.' });
+    }
+    console.error('Admin auth error:', error);
+    return res.status(500).json({ message: 'Authentication error' });
+  }
+};
+
+/**
+ * Role-based authorization middleware for admin users
+ * @param {...string} roles - Allowed roles
+ */
+exports.ensureRole = (...roles) => {
   return (req, res, next) => {
-    if (!req.admin) {
-      return res.status(401).json({ success: false, error: 'Not authenticated' });
+    if (!req.user || !roles.includes(req.user.role)) {
+      return res.status(403).json({ message: 'Insufficient role privileges' });
     }
-
-    if (!allowedRoles.includes(req.admin.role)) {
-      return res.status(403).json({ success: false, error: 'Insufficient permissions. Required roles: ' + allowedRoles.join(', ') });
-    }
-
     next();
   };
 };
 
-// Permission-based middleware
-exports.ensurePermission = (...requiredPermissions) => {
+/**
+ * Permission-based authorization middleware for admin users
+ * @param {string} permission - Required permission
+ */
+exports.ensurePermission = (permission) => {
   return (req, res, next) => {
-    if (!req.admin) {
-      return res.status(401).json({ success: false, error: 'Not authenticated' });
+    if (!req.user || !req.user.permissions || !req.user.permissions.includes(permission)) {
+      return res.status(403).json({ message: `Missing required permission: ${permission}` });
     }
-
-    const hasPermission = requiredPermissions.every(perm => 
-      req.admin.permissions && req.admin.permissions.includes(perm)
-    );
-
-    if (!hasPermission) {
-      return res.status(403).json({ success: false, error: 'Insufficient permissions. Required: ' + requiredPermissions.join(', ') });
-    }
-
     next();
   };
 };

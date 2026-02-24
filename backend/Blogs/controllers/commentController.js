@@ -5,9 +5,7 @@ const mongoose = require("mongoose");
 // Add a comment
 exports.addComment = async (req, res) => {
   try {
-    if (!req.session || !req.session.patientId) {
-      return res.status(401).json({ message: "Authentication required" });
-    }
+    // Auth is handled by middleware
     const { blog_id, comment_text, parent_comment_id } = req.body;
     if (!blog_id || !comment_text) {
       return res.status(400).json({ message: "Blog ID and comment text required" });
@@ -24,7 +22,7 @@ exports.addComment = async (req, res) => {
     }
     const commentData = {
       blog_id,
-      patient_id: req.session.patientId,
+      patient_id: req.user._id,
       comment_text: comment_text.trim(),
       parent_comment_id: parent_comment_id || null,
       is_approved: true
@@ -80,9 +78,7 @@ exports.getBlogComments = async (req, res) => {
 // Update comment (patient only)
 exports.updateComment = async (req, res) => {
   try {
-    if (!req.session || !req.session.patientId) {
-      return res.status(401).json({ message: "Authentication required" });
-    }
+    // Auth is handled by middleware
     const { id } = req.params;
     const { comment_text } = req.body;
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -92,7 +88,7 @@ exports.updateComment = async (req, res) => {
     if (!comment) {
       return res.status(404).json({ message: "Comment not found" });
     }
-    if (comment.patient_id.toString() !== req.session.patientId.toString()) {
+    if (comment.patient_id.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: "Unauthorized" });
     }
     if (!comment_text || comment_text.trim() === "") {
@@ -110,9 +106,7 @@ exports.updateComment = async (req, res) => {
 // Delete comment (patient only)
 exports.deleteComment = async (req, res) => {
   try {
-    if (!req.session || !req.session.patientId) {
-      return res.status(401).json({ message: "Authentication required" });
-    }
+    // Auth is handled by middleware
     const { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid comment ID" });
@@ -121,7 +115,7 @@ exports.deleteComment = async (req, res) => {
     if (!comment) {
       return res.status(404).json({ message: "Comment not found" });
     }
-    if (comment.patient_id.toString() !== req.session.patientId.toString()) {
+    if (comment.patient_id.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: "Unauthorized" });
     }
     await Comment.deleteMany({ parent_comment_id: id }); // Delete replies
@@ -137,9 +131,7 @@ exports.deleteComment = async (req, res) => {
 // Approve/disapprove comment (doctor/admin only)
 exports.toggleCommentApproval = async (req, res) => {
   try {
-    if (!req.session || !req.session.doctorId) {
-      return res.status(401).json({ message: "Authentication required" });
-    }
+    // Auth is handled by middleware (doctorAuth)
     const { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid comment ID" });

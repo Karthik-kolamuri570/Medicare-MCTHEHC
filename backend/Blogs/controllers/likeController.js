@@ -5,15 +5,12 @@ const mongoose = require("mongoose");
 // Toggle like for logged-in patient
 exports.toggleLike = async (req, res) => {
   try {
-    if (!req.session || !req.session.patientId) {
-      return res.status(401).json({ message: "Authentication required" });
-    }
-
+    // Auth is handled by middleware
     const { blog_id } = req.body;
     if (!mongoose.Types.ObjectId.isValid(blog_id)) {
       return res.status(400).json({ message: "Invalid blog ID" });
     }
-    const patient_id = req.session.patientId;
+    const patient_id = req.user._id;
 
     const blog = await Blog.findById(blog_id);
     if (!blog || blog.status !== 'published') {
@@ -44,10 +41,10 @@ exports.checkLikeStatus = async (req, res) => {
     if (!blog_id || !mongoose.Types.ObjectId.isValid(blog_id)) {
       return res.status(400).json({ message: "Invalid or missing blog ID" });
     }
-    if (!req.session || !req.session.patientId) {
+    if (!req.user) {
       return res.json({ isLiked: false });
     }
-    const patient_id = req.session.patientId;
+    const patient_id = req.user._id;
     const like = await Like.findOne({ blog_id, patient_id });
     res.json({ isLiked: Boolean(like) });
   } catch (error) {
@@ -74,10 +71,8 @@ exports.getBlogLikes = async (req, res) => {
 // Get liked blogs for logged-in patient
 exports.getPatientLikedBlogs = async (req, res) => {
   try {
-    if (!req.session || !req.session.patientId) {
-      return res.status(401).json({ message: "Authentication required" });
-    }
-    const patient_id = req.session.patientId;
+    // Auth is handled by middleware
+    const patient_id = req.user._id;
     const page = Math.max(1, parseInt(req.query.page) || 1);
     const limit = Math.min(Math.max(1, parseInt(req.query.limit) || 10), 50);
     const skip = (page - 1) * limit;

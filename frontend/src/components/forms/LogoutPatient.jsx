@@ -1,15 +1,17 @@
 import React from 'react'
-import axios from 'axios'
+import api from '../../utils/api'
 
 const LogoutPatient = () => {
-    axios.get('/api/patient/logout', { withCredentials: true })
-    .then(response => {
-        console.log("Logout Response:", response.data);
-        localStorage.removeItem('token'); // Clear token from local storage
-        console.log("Logged out successfully");
+  // Clear all stored tokens and user data
+  localStorage.removeItem('token');
+  localStorage.removeItem('refreshToken');
+  localStorage.removeItem('user');
 
-        window.location.href = '/'; // Redirect to home page
-    })
+  // Notify backend (optional, JWT is stateless)
+  api.get('/api/patient/logout').catch(() => { });
+
+  window.location.href = '/';
+
   return (
     <div>
       <p>Logout successfully....</p>

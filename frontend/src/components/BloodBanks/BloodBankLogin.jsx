@@ -166,6 +166,16 @@ function BloodBankLogin() {
       );
       console.log(response.data);
       if (response.data.success) {
+        // Store JWT tokens in localStorage
+        if (response.data.token) {
+          localStorage.setItem("token", response.data.token);
+        }
+        if (response.data.refreshToken) {
+          localStorage.setItem("refreshToken", response.data.refreshToken);
+        }
+        if (response.data.bank) {
+          localStorage.setItem("user", JSON.stringify(response.data.bank));
+        }
         window.location.href = "/blood-bank/bank"; // adjust route as per actual app
       } else {
         setError(response.data.message || "Login failed");

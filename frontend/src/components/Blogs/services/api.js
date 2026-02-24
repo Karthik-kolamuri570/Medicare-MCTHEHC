@@ -4,7 +4,15 @@ const API_BASE_URL = '/api/blogs';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: true, // Ensure cookies/session are sent with requests
+});
+
+// Attach JWT to every blog API request
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
 // Blogs

@@ -16,7 +16,7 @@ import {
   useCall,
 } from "@stream-io/video-react-sdk";
 import "@stream-io/video-react-sdk/dist/css/styles.css";
-import axios from "axios";
+import api from '../../utils/api';
 import toast from "react-hot-toast";
 import Loader from "../ui/Loader"
 
@@ -64,8 +64,9 @@ const CallPage = () => {
 
       try {
         // 🔑 Step 1: Get token & user info
+        const jwtToken = localStorage.getItem('token');
         const res = await fetch("/api/stream/token", {
-          credentials: "include",
+          headers: { Authorization: `Bearer ${jwtToken}` },
         });
 
         const { token, userId, apiKey } = await res.json();
@@ -80,12 +81,11 @@ const CallPage = () => {
         const peerId = userId === doctorId ? patientId : doctorId;
 
         //  Step 3: Sync users with Stream
-        await axios.post(
+        await api.post(
           "/api/stream/upsert-users",
           {
             users: [{ id: userId }, { id: peerId }],
-          },
-          { withCredentials: true }
+          }
         );
 
         // ⚙️ Step 4: Create or reuse singleton client

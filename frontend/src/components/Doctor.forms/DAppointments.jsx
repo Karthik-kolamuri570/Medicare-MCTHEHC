@@ -82,7 +82,7 @@
 //     >
 //       <div style={{ padding: "6rem", width: "600px" }}>
 //         <h2 style={{ marginBottom: "1.5rem" }}>Appointments</h2>
-        
+
 //         {loading ? (
 //           <Loader />  // Renders your loading indicator while loading is true
 //         ) : (
@@ -770,12 +770,12 @@
 //         return appt.status.toLowerCase() === filter.toLowerCase() && isPresentOrFuture(appt.date, appt.time);
 //       }
 //     })();
-    
+
 //     const searchMatch = !searchTerm || (
 //       appt.patientId?.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
 //       appt.problem?.toLowerCase().includes(searchTerm.toLowerCase())
 //     );
-    
+
 //     return filMatch && searchMatch;
 //   });
 
@@ -1004,7 +1004,7 @@
 
 
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../../utils/api";
 import toast from "react-hot-toast";
 import { formatDistanceToNow, format } from "date-fns";
 import Loader from '../ui/Loader';
@@ -1509,14 +1509,14 @@ function DAppointments() {
     const fetchAppointments = async () => {
       setLoading(true);
       try {
-        const response = await axios.get("/api/doctor/appointments/");
+        const response = await api.get("/api/doctor/appointments/");
         const data = response.data.data;
         console.log("Fetched Appointments:", data);
-        
+
         // Debug: Log all unique status values
         const statuses = [...new Set(data.map(appt => appt.status))];
         console.log("Unique status values:", statuses);
-        
+
         toast.success("Appointments fetched successfully!");
         setAppointments(data);
       } catch (error) {
@@ -1532,7 +1532,7 @@ function DAppointments() {
 
   const acceptResponse = async (id) => {
     try {
-      const response = await axios.put(`/api/doctor/accept-appointment/${id}`);
+      const response = await api.put(`/api/doctor/accept-appointment/${id}`);
       const result = response.data;
       if (result.success) {
         const updated = result.data;
@@ -1551,7 +1551,7 @@ function DAppointments() {
 
   const rejectResponse = async (id) => {
     try {
-      const response = await axios.put(`/api/doctor/reject-appointment/${id}`);
+      const response = await api.put(`/api/doctor/reject-appointment/${id}`);
       const result = response.data;
       if (result.success) {
         const updated = result.data;
@@ -1571,7 +1571,7 @@ function DAppointments() {
   // Filter appointments based on current filter and search term
   const filteredAppointments = appointments.filter((appt) => {
     const normalizedApptStatus = normalizeStatus(appt.status);
-    
+
     const filMatch = (() => {
       if (filter === "all") {
         return isPresentOrFuture(appt.date, appt.time);
@@ -1582,12 +1582,12 @@ function DAppointments() {
         return normalizedApptStatus === filter && isPresentOrFuture(appt.date, appt.time);
       }
     })();
-    
+
     const searchMatch = !searchTerm || (
-      appt.patientId?.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      appt.patientId?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       appt.problem?.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    
+
     return filMatch && searchMatch;
   });
 
@@ -1631,9 +1631,9 @@ function DAppointments() {
                 { key: "rejected", label: "Rejected", icon: null },
                 { key: "history", label: "History", icon: <HistoryIcon /> }
               ].map((f) => (
-                <button 
-                  key={f.key} 
-                  className={`filter-btn ${filter === f.key ? "active" : ""}`} 
+                <button
+                  key={f.key}
+                  className={`filter-btn ${filter === f.key ? "active" : ""}`}
                   onClick={() => setFilter(f.key)}
                 >
                   {f.icon}
@@ -1676,7 +1676,7 @@ function DAppointments() {
             {filteredAppointments.map((appt) => {
               const isPast = !isPresentOrFuture(appt.date, appt.time);
               const normalizedStatus = normalizeStatus(appt.status);
-              
+
               return (
                 <div
                   key={appt._id}
@@ -1749,9 +1749,9 @@ function DAppointments() {
             <div className="empty-icon">📅</div>
             <h3 className="empty-title">No appointments found</h3>
             <p>
-              {searchTerm || filter !== "all" 
-                ? "Try adjusting your search or filter criteria" 
-                : filter === "history" 
+              {searchTerm || filter !== "all"
+                ? "Try adjusting your search or filter criteria"
+                : filter === "history"
                   ? "You have no historical appointments"
                   : "You have no current appointments"
               }

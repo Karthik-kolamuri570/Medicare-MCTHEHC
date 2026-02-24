@@ -2,9 +2,9 @@ const Patient = require('../models/patient');
 const Doctor = require('../models/doctor');
 const Appointment = require('../models/appointments');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const GetSecondOpinion = require('../models/GetSecondOpinion');
+const { generateAccessToken, generateRefreshToken } = require('../utils/jwt');
 exports.registerPatient = async (req, res) => {
     try {
         console.log('Under Register Patient Controller');
@@ -34,14 +34,15 @@ exports.registerPatient = async (req, res) => {
 
         // Save patient
         await newPatient.save();
-        req.session.patientRegister = req.body;
-        req.session.save();
-
 
         res.status(201).json({
             success: true,
             message: "Patient registered successfully",
-            data: newPatient
+            data: {
+                id: newPatient._id,
+                name: newPatient.name,
+                email: newPatient.email
+            }
         });
     } catch (error) {
         console.error(error);
@@ -75,29 +76,16 @@ exports.loginPatient = async (req, res) => {
                 message: "Invalid credentials"
             });
         }
-        if (req.body.email === "kart91801@gmail.com") {
-            req.session.isAdminLoggedIn = true;
-            req.session.adminId = patient._id;
-        }
+        // Generate tokens
+        const tokenPayload = { id: patient._id, role: 'patient' };
+        const token = generateAccessToken(tokenPayload);
+        const refreshToken = generateRefreshToken(tokenPayload);
 
-        // Update session variables
-        req.session.patientRegister = req.body;
-        req.session.patientId = patient._id.toString();
-        req.session.isPatientLoggedIn = true;
-        req.session.save();
-        req.user = patient; // Assign patient to req.user for further use
-
-        // Generate token
-        const token = jwt.sign(
-            { id: patient._id, role: 'patient' },
-            process.env.JWT_SECRET,
-            { expiresIn: '1d' }
-        );
-
-        res.status(201).json({
+        res.status(200).json({
             success: true,
             message: "Login successful",
             token,
+            refreshToken,
             data: {
                 id: patient._id,
                 name: patient.name,
@@ -105,7 +93,6 @@ exports.loginPatient = async (req, res) => {
                 role: 'patient',
             }
         });
-        console.log("req.user:", req.user._id.toString());
     }
     catch (error) {
         console.error(error);
@@ -448,7 +435,7 @@ exports.getNotifications = async (req, res) => {
 
 exports.markNotificationAsSeen = async (req, res) => {
     try {
-        const { patientId } = req.user._id;
+        const patientId = req.user._id;
         const patient = await Patient.findById(patientId);
         if (!patient) {
             return res.status(404).json({
@@ -476,39 +463,10 @@ exports.markNotificationAsSeen = async (req, res) => {
 
 
 exports.logoutPatient = (req, res) => {
-    const sessionId = req.sessionID;
-    console.log("Logging out session ID:", sessionId);
-
-    req.session.destroy((err) => {
-        if (err) {
-            console.error('Error destroying session:', err);
-            return res.status(500).json({
-                success: false,
-                message: 'Logout failed'
-            });
-        }
-
-        // Manually remove session from MongoDB store (belt & suspenders approach)
-        req.sessionStore.destroy(sessionId, (err) => {
-            if (err) {
-                console.error('Manual store destroy failed:', err);
-            } else {
-                console.log('Session manually removed from MongoDB store:', sessionId);
-            }
-
-            // Clear cookie from client
-            res.clearCookie('connect.sid', {
-                path: '/',
-                httpOnly: true,
-                sameSite: 'lax'
-            });
-            res.json({
-                success: true,
-                message: 'Logout successful'
-            });
-
-            // res.redirect('/api/patient/login'); // Redirect to login page
-        });
+    // JWT is stateless — client clears the token
+    res.json({
+        success: true,
+        message: 'Logout successful'
     });
 };
 
@@ -603,10 +561,7 @@ exports.uploadFiles = upload.array("files", 5); // max 5 files
 //here i need to fetch the Second Opinions  which was accepted by the Doctor...
 exports.getSecondOpinionsAccepted = async (req, res) => {
     try {
-        const patientId = req.session.patientId;
-        if (!patientId) {
-            return res.status(403).json({ success: false, message: 'Patient Not Logged In...' });
-        }
+        const patientId = req.user._id;
         const patient = await Patient.findById(patientId);
         if (!patient) {
             return res.status(404).json({ success: false, message: 'Patient Not Found...' });

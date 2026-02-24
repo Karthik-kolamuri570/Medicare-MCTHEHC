@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Heart, Brain, Bone, Stethoscope, Baby, Eye, Activity, Smile,
@@ -36,7 +36,7 @@ const Treatments = () => {
     useEffect(() => {
         const fetchSpecializations = async () => {
             try {
-                const response = await axios.get('/api/doctor/all-specializations');
+                const response = await api.get('/api/doctor/all-specializations');
                 if (response.data.success) {
                     setSpecializations(response.data.data);
                     setFilteredSpecs(response.data.data);

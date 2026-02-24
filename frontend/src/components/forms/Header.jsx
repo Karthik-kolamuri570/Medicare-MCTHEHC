@@ -385,11 +385,17 @@ function Header() {
   // Function to check user login status
   const checkUserLogin = async () => {
     try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setUser(null);
+        setIsLoading(false);
+        return;
+      }
       const response = await fetch("/api/patient/me", {
         method: "GET",
-        credentials: "include",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
       });
       const data = await response.json();
@@ -491,17 +497,20 @@ function Header() {
 
   const handleLogout = async () => {
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch("/api/patient/logout/", {
         method: "GET",
-        credentials: "include",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
       });
 
       if (response.ok) {
         setUser(null);
         localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("user");
         sessionStorage.removeItem("token");
         navigate("/patient/login");
         setTimeout(() => {

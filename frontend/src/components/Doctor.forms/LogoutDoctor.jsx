@@ -1,13 +1,17 @@
 import React from 'react'
-import axios from 'axios'
+import api from '../../utils/api'
+
 function LogoutDoctor() {
-    axios.get('/api/doctor/logout', { withCredentials: true })
-    .then(response=>{
-        console.log(response.data)
-        localStorage.removeItem('token') // Clear token from local storage
-        console.log("Logged out successfully")
-        window.location.href = '/' 
-    })
+  // Clear all stored tokens and user data
+  localStorage.removeItem('token');
+  localStorage.removeItem('refreshToken');
+  localStorage.removeItem('user');
+
+  // Notify backend (optional, JWT is stateless)
+  api.get('/api/doctor/logout').catch(() => { });
+
+  window.location.href = '/';
+
   return (
     <div>
       <p>Doctor Logout Successful...</p>

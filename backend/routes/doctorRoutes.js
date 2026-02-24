@@ -5,12 +5,9 @@ const doctorController = require('../controller/doctorController');
 const Doctor = require('../models/doctor'); // Adjust the path as needed
 const auth = require('../middleware/auth');
 
-router.get('/me', async (req, res) => {
-    // here i need to display the doctor details who Logged in...
+router.get('/me', auth.doctorAuth, async (req, res) => {
     try {
-        const doctorId = req.session.doctorId;
-        console.log(`Trying to Login with Doctor Id ${doctorId}`)
-        const doctor = await Doctor.findById(doctorId);
+        const doctor = await Doctor.findById(req.user._id);
         if (!doctor) {
             return res.status(404).json({ message: 'Doctor not found' });
         }
@@ -45,7 +42,7 @@ router.get('/location/:location', doctorController.getDoctorByLocation); // Corr
 // router.get('/search/:search', doctorController.searchDoctors);
 router.put('/accept-appointment/:id', auth.doctorAuth, doctorController.acceptAppointment);
 router.put('/reject-appointment/:id', auth.doctorAuth, doctorController.rejectAppointment);
-router.get('/logout', doctorController.logoutDoctor);
+router.get('/logout', auth.doctorAuth, doctorController.logoutDoctor);
 router.get('/accepted-appointments', auth.doctorAuth, doctorController.getAcceptedAppointments);
 router.get('/get-second-opinion', auth.doctorAuth, doctorController.getSecondOpinion);
 router.put('/get-second-opinion/:id', auth.doctorAuth, doctorController.acceptGetSecondOpinion);

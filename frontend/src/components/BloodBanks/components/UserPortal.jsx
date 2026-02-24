@@ -53,12 +53,13 @@ export default function UserPortal({ onBack }) {
   const fetchBloodRequests = async () => {
     try {
       setLoading(true)
+      const token = localStorage.getItem("token");
       const response = await fetch("/api/blood-bank-user/blood-requests", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
-        credentials: "include",
       })
 
       if (response.ok) {
@@ -79,12 +80,13 @@ export default function UserPortal({ onBack }) {
   const fetchDonationRequests = async () => {
     try {
       setLoading(true)
+      const token = localStorage.getItem("token");
       const response = await fetch("/api/blood-bank-user/donation-requests", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
-        credentials: "include",
       })
 
       if (response.ok) {
@@ -106,12 +108,13 @@ export default function UserPortal({ onBack }) {
     e.preventDefault()
     try {
       setLoading(true)
+      const token = localStorage.getItem("token");
       const response = await fetch("/api/blood-bank-user/request-blood", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
-        credentials: "include",
         body: JSON.stringify({
           bankId: requestForm.bankId,
           blood_group: requestForm.blood_group,
@@ -147,12 +150,13 @@ export default function UserPortal({ onBack }) {
   const acceptBloodRequest = async (requestId) => {
     try {
       setLoading(true)
+      const token = localStorage.getItem("token");
       const response = await fetch(`/api/blood-bank-user/accept-request/${requestId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
-        credentials: "include",
       })
 
       if (response.ok) {
@@ -185,12 +189,13 @@ export default function UserPortal({ onBack }) {
   const rejectBloodRequest = async (requestId) => {
     try {
       setLoading(true)
+      const token = localStorage.getItem("token");
       const response = await fetch(`/api/blood-bank-user/reject-request/${requestId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
-        credentials: "include",
       })
 
       if (response.ok) {
@@ -212,12 +217,13 @@ export default function UserPortal({ onBack }) {
   const acceptDonation = async (donationId) => {
     try {
       setLoading(true)
+      const token = localStorage.getItem("token");
       const response = await fetch(`/api/blood-bank-user/accept-donation/${donationId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
-        credentials: "include",
       })
 
       if (response.ok) {
@@ -250,12 +256,13 @@ export default function UserPortal({ onBack }) {
   const rejectDonation = async (donationId) => {
     try {
       setLoading(true)
+      const token = localStorage.getItem("token");
       const response = await fetch(`/api/blood-bank-user/reject-donation/${donationId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
-        credentials: "include",
       })
 
       if (response.ok) {
@@ -402,9 +409,8 @@ export default function UserPortal({ onBack }) {
               {notifications.slice(0, 3).map((notification) => (
                 <div
                   key={notification.id}
-                  className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
-                    notification.read ? "bg-muted/50" : "bg-accent/10 border border-accent/20"
-                  }`}
+                  className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors ${notification.read ? "bg-muted/50" : "bg-accent/10 border border-accent/20"
+                    }`}
                   onClick={() => markNotificationAsRead(notification.id)}
                 >
                   <div className="w-2 h-2 rounded-full bg-accent mt-2 flex-shrink-0" />
@@ -719,17 +725,15 @@ export default function UserPortal({ onBack }) {
           notifications.map((notification) => (
             <Card
               key={notification.id}
-              className={`hover:shadow-md transition-shadow cursor-pointer ${
-                notification.read ? "opacity-75" : "border-accent/20"
-              }`}
+              className={`hover:shadow-md transition-shadow cursor-pointer ${notification.read ? "opacity-75" : "border-accent/20"
+                }`}
               onClick={() => markNotificationAsRead(notification.id)}
             >
               <CardContent className="pt-6">
                 <div className="flex items-start gap-4">
                   <div
-                    className={`w-3 h-3 rounded-full mt-1 flex-shrink-0 ${
-                      notification.read ? "bg-muted-foreground" : "bg-accent"
-                    }`}
+                    className={`w-3 h-3 rounded-full mt-1 flex-shrink-0 ${notification.read ? "bg-muted-foreground" : "bg-accent"
+                      }`}
                   />
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">

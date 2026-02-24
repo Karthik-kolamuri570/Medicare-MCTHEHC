@@ -13,27 +13,26 @@ function Login() {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form submission
-    setLoading(true); // Set loading to true when form is submitted
+    e.preventDefault();
+    setLoading(true);
 
     try {
-      // Send login request to the backend
-      const response = await axios.post(
-        "/api/doctor/login",
-        { email, password },
-        { withCredentials: true } // 🔥 Ensures cookies are sent
-      );
+      const response = await axios.post("/api/doctor/login", { email, password });
 
-      // Handle successful login
       if (response.data) {
-        localStorage.setItem("token", response.data.token); // Store token
-        navigate("/doctor"); // Redirect to booking page
+        localStorage.setItem("token", response.data.token);
+        if (response.data.refreshToken) {
+          localStorage.setItem("refreshToken", response.data.refreshToken);
+        }
+        if (response.data.doctor) {
+          localStorage.setItem("user", JSON.stringify(response.data.doctor));
+        }
+        navigate("/doctor");
       }
     } catch (err) {
-      // Show error message from API if available
       setError(err.response?.data?.message || "Invalid email or password.");
     } finally {
-      setLoading(false); // Stop loading after request completes
+      setLoading(false);
     }
   };
 
