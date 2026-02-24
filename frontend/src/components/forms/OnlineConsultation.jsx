@@ -2,96 +2,177 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../utils/api';
 import { useNavigate } from 'react-router-dom';
-import { MessageSquare, Calendar, Clock, AlertCircle, Search, Filter, History, FileText, CheckCircle, XCircle } from 'lucide-react';
+import { MessageSquare, Calendar, Clock, AlertCircle, Search, Filter, History, FileText, CheckCircle, XCircle, RefreshCw, X } from 'lucide-react';
 import "../../styles/OnlineConsultation.css";
+import toast from 'react-hot-toast';
 
 const OnlineConsultation = () => {
-  const [filter, setFilter] = useState('all'); // all, appointments, second-opinions, history
-  const [searchTerm, setSearchTerm] = useState("");
-  const [allItems, setAllItems] = useState([]); // Combined list
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const [allItems, setAllItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Reschedule modal state
+  const [rescheduleModal, setRescheduleModal] = useState({ open: false, item: null });
+  const [rescheduleDate, setRescheduleDate] = useState('');
+  const [rescheduleTime, setRescheduleTime] = useState('');
+  const [actionLoading, setActionLoading] = useState(null); // Track which item is being acted on
 
   // Helper to check if date/time is present or future
   const isPresentOrFuture = (dateString, timeString) => {
-    if (!dateString) return true; // Fallback
+    if (!dateString) return true;
     try {
-      // Normalizing date formats if needed, assuming YYYY-MM-DD
-      const appointmentDateTime = new Date(`${dateString}T${timeString || '00:00'}`);
+      const datePart = typeof dateString === 'string' ? dateString.split('T')[0] : new Date(dateString).toISOString().split('T')[0];
+      const appointmentDateTime = new Date(`${datePart}T${timeString || '00:00'}`);
       const now = new Date();
-      // Reset seconds/milliseconds for cleaner comparison
-      now.setSeconds(0);
-      now.setMilliseconds(0);
-      appointmentDateTime.setSeconds(0);
-      appointmentDateTime.setMilliseconds(0);
-
       return appointmentDateTime >= now;
     } catch {
-      return true; // Keep if parsing fails to avoid hiding valid data
+      return true;
+    }
+  };
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+
+      // 1. Fetch Appointments
+      const apptRes = await api.get("/api/patient/appointments");
+      const appointments = (apptRes.data.data || []).map(item => ({
+        ...item,
+        type: 'appointment',
+        status: item.status || 'Pending'
+      }));
+
+      // 2. Fetch Second Opinions
+      let secondOpinions = [];
+      try {
+        const soRes = await api.get("/api/patient/get-second-opinion");
+        secondOpinions = (soRes.data.data || []).map(item => ({
+          ...item,
+          type: 'second-opinion',
+          status: item.status || 'Pending',
+          date: typeof item.date === 'string' ? item.date.split('T')[0] : (item.date ? new Date(item.date).toISOString().split('T')[0] : item.createdAt?.split('T')[0]),
+          time: item.time || '10:00'
+        }));
+      } catch (err) {
+        console.warn("Could not fetch all second opinions, trying /accepted");
+        try {
+          const soResAccepted = await api.get("/api/patient/get-second-opinion/accepted");
+          secondOpinions = (soResAccepted.data.data || []).map(item => ({
+            ...item,
+            type: 'second-opinion',
+            status: item.status || 'Accepted',
+            date: item.date || item.createdAt?.split('T')[0],
+            time: item.time || '10:00'
+          }));
+        } catch (fallbackErr) { console.error("Second opinion fetch failed", fallbackErr); }
+      }
+
+      // Combine and Sort (Newest first)
+      const combined = [...appointments, ...secondOpinions].sort((a, b) => {
+        const dateA = new Date(`${a.date || '2025-01-01'}T${a.time || '00:00'}`);
+        const dateB = new Date(`${b.date || '2025-01-01'}T${b.time || '00:00'}`);
+        return dateB - dateA;
+      });
+
+      setAllItems(combined);
+
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-
-        // 1. Fetch Appointments
-        const apptRes = await api.get("/api/patient/appointments");
-        const appointments = (apptRes.data.data || []).map(item => ({
-          ...item,
-          type: 'appointment',
-          // Ensure status is normalized
-          status: item.status || 'Pending'
-        }));
-
-        // 2. Fetch Second Opinions
-        let secondOpinions = [];
-        try {
-          const soRes = await api.get("/api/patient/get-second-opinion");
-          secondOpinions = (soRes.data.data || []).map(item => ({
-            ...item,
-            type: 'second-opinion',
-            status: item.status || 'Pending',
-            // Ensure date is YYYY-MM-DD for consistency
-            date: typeof item.date === 'string' ? item.date.split('T')[0] : (item.date ? new Date(item.date).toISOString().split('T')[0] : item.createdAt?.split('T')[0]),
-            time: item.time || '10:00' // Default if missing
-          }));
-        } catch (err) {
-          console.warn("Could not fetch all second opinions, trying /accepted");
-          try {
-            const soResAccepted = await api.get("/api/patient/get-second-opinion/accepted");
-            secondOpinions = (soResAccepted.data.data || []).map(item => ({
-              ...item,
-              type: 'second-opinion',
-              status: item.status || 'Accepted', // Endpoint returns accepted
-              date: item.date || item.createdAt?.split('T')[0],
-              time: item.time || '10:00'
-            }));
-          } catch (fallbackErr) { console.error("Second opinion fetch failed", fallbackErr); }
-        }
-
-        // Combine and Sort (Newest first)
-        const combined = [...appointments, ...secondOpinions].sort((a, b) => {
-          const dateA = new Date(`${a.date || '2025-01-01'}T${a.time || '00:00'}`);
-          const dateB = new Date(`${b.date || '2025-01-01'}T${b.time || '00:00'}`);
-          return dateB - dateA;
-        });
-
-        setAllItems(combined);
-
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchData();
   }, []);
 
   const handleStartChat = (pid, did) => {
     if (!did) return;
     navigate(`/chat/${did}-${pid}`);
+  };
+
+  // ============ CANCEL HANDLER ============
+  const handleCancel = async (item) => {
+    const isAppt = item.type === 'appointment';
+    const confirmMsg = isAppt
+      ? 'Are you sure you want to cancel this appointment?'
+      : 'Are you sure you want to cancel this second opinion request?';
+
+    if (!window.confirm(confirmMsg)) return;
+
+    setActionLoading(item._id);
+    try {
+      const endpoint = isAppt
+        ? `/api/patient/cancel-appointment/${item._id}`
+        : `/api/patient/cancel-second-opinion/${item._id}`;
+
+      const res = await api.post(endpoint);
+      if (res.data.success) {
+        toast.success(res.data.message || 'Cancelled successfully!');
+        fetchData(); // Refresh the list
+      } else {
+        toast.error(res.data.message || 'Failed to cancel.');
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to cancel. Please try again.');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  // ============ RESCHEDULE HANDLERS ============
+  const openRescheduleModal = (item) => {
+    setRescheduleModal({ open: true, item });
+    // Pre-fill with current date/time
+    const currentDate = typeof item.date === 'string' ? item.date.split('T')[0] : '';
+    setRescheduleDate(currentDate);
+    setRescheduleTime(item.time || '');
+  };
+
+  const closeRescheduleModal = () => {
+    setRescheduleModal({ open: false, item: null });
+    setRescheduleDate('');
+    setRescheduleTime('');
+  };
+
+  const handleReschedule = async () => {
+    if (!rescheduleDate || !rescheduleTime) {
+      toast.error('Please select both date and time.');
+      return;
+    }
+
+    // Validate future date
+    const selectedDateTime = new Date(`${rescheduleDate}T${rescheduleTime}`);
+    if (selectedDateTime <= new Date()) {
+      toast.error('Please select a future date and time.');
+      return;
+    }
+
+    const item = rescheduleModal.item;
+    const isAppt = item.type === 'appointment';
+
+    setActionLoading(item._id);
+    try {
+      const endpoint = isAppt
+        ? `/api/patient/reschedule-appointment/${item._id}`
+        : `/api/patient/reschedule-second-opinion/${item._id}`;
+
+      const res = await api.put(endpoint, { date: rescheduleDate, time: rescheduleTime });
+      if (res.data.success) {
+        toast.success(res.data.message || 'Rescheduled successfully!');
+        closeRescheduleModal();
+        fetchData(); // Refresh the list
+      } else {
+        toast.error(res.data.message || 'Failed to reschedule.');
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to reschedule. Please try again.');
+    } finally {
+      setActionLoading(null);
+    }
   };
 
   // --- Filtering Logic ---
@@ -101,7 +182,6 @@ const OnlineConsultation = () => {
 
       // Tab Filters
       if (filter === 'all') {
-        // All PRESENT/FUTURE items of both types
         if (!isFuture) return false;
       } else if (filter === 'appointments') {
         if (item.type !== 'appointment') return false;
@@ -110,7 +190,6 @@ const OnlineConsultation = () => {
         if (item.type !== 'second-opinion') return false;
         if (!isFuture) return false;
       } else if (filter === 'history') {
-        // ONLY Past items (any type)
         if (isFuture) return false;
       }
 
@@ -133,6 +212,12 @@ const OnlineConsultation = () => {
     total: filteredItems.length,
     appointments: filteredItems.filter(i => i.type === 'appointment').length,
     secondOpinions: filteredItems.filter(i => i.type === 'second-opinion').length
+  };
+
+  // Helper: Can this item be cancelled or rescheduled?
+  const canModify = (item) => {
+    const s = item.status.toLowerCase();
+    return (s === 'pending' || s === 'accepted') && isPresentOrFuture(item.date, item.time);
   };
 
   return (
@@ -218,6 +303,7 @@ const OnlineConsultation = () => {
               const status = item.status;
               const canChat = status.toLowerCase() === 'accepted';
               const doctorId = item.doctorId?._id || item.doctorId;
+              const isItemLoading = actionLoading === item._id;
 
               return (
                 <div key={item._id} className="oc-card">
@@ -231,6 +317,7 @@ const OnlineConsultation = () => {
                     {/* Status Badge */}
                     <span className={`oc-status-badge status-${status.toLowerCase()}`}>
                       {status.toLowerCase() === 'accepted' && <CheckCircle size={14} />}
+                      {status.toLowerCase() === 'cancelled' && <XCircle size={14} />}
                       {status}
                     </span>
 
@@ -272,28 +359,44 @@ const OnlineConsultation = () => {
                           <span className={`oc-status-value status-text-${status.toLowerCase()}`}>{status}</span>
                         </div>
                       ) : (
-                        <>
-                          {canChat ? (
+                        <div className="oc-action-buttons">
+                          {/* Chat button for accepted items */}
+                          {canChat && (
                             <button
                               className="oc-btn-chat"
                               onClick={() => handleStartChat(item.patientId, doctorId)}
                             >
-                              <MessageSquare size={18} /> Start Chat
+                              <MessageSquare size={16} /> Chat
                             </button>
-                          ) : (
-                            <div className={status === 'Pending' ? "oc-btn-wait" : "oc-btn-disabled"}>
-                              {status === 'Pending' ? (
-                                <>
-                                  <Clock size={18} /> Wait for Doctor Acceptance
-                                </>
-                              ) : (
-                                <>
-                                  <XCircle size={18} /> {status}
-                                </>
-                              )}
+                          )}
+
+                          {/* Cancel & Reschedule for modifiable items */}
+                          {canModify(item) && (
+                            <>
+                              <button
+                                className="oc-btn-reschedule"
+                                onClick={() => openRescheduleModal(item)}
+                                disabled={isItemLoading}
+                              >
+                                <RefreshCw size={16} /> Reschedule
+                              </button>
+                              <button
+                                className="oc-btn-cancel"
+                                onClick={() => handleCancel(item)}
+                                disabled={isItemLoading}
+                              >
+                                {isItemLoading ? '...' : <><X size={16} /> Cancel</>}
+                              </button>
+                            </>
+                          )}
+
+                          {/* Status indicator for non-modifiable future items */}
+                          {!canModify(item) && !canChat && (
+                            <div className={`oc-btn-disabled`}>
+                              <XCircle size={18} /> {status}
                             </div>
                           )}
-                        </>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -304,6 +407,57 @@ const OnlineConsultation = () => {
         )}
 
       </div>
+
+      {/* ============ RESCHEDULE MODAL ============ */}
+      {rescheduleModal.open && (
+        <div className="oc-modal-overlay" onClick={closeRescheduleModal}>
+          <div className="oc-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="oc-modal-header">
+              <h2>Reschedule {rescheduleModal.item?.type === 'appointment' ? 'Appointment' : 'Second Opinion'}</h2>
+              <button className="oc-modal-close" onClick={closeRescheduleModal}>
+                <X size={20} />
+              </button>
+            </div>
+            <div className="oc-modal-body">
+              <p className="oc-modal-doctor">
+                Dr. {rescheduleModal.item?.doctorId?.name || 'Doctor'}
+                {rescheduleModal.item?.doctorId?.specialization && (
+                  <span> — {rescheduleModal.item.doctorId.specialization}</span>
+                )}
+              </p>
+              <div className="oc-modal-field">
+                <label><Calendar size={16} /> New Date</label>
+                <input
+                  type="date"
+                  value={rescheduleDate}
+                  onChange={(e) => setRescheduleDate(e.target.value)}
+                  min={new Date().toISOString().split('T')[0]}
+                />
+              </div>
+              <div className="oc-modal-field">
+                <label><Clock size={16} /> New Time</label>
+                <input
+                  type="time"
+                  value={rescheduleTime}
+                  onChange={(e) => setRescheduleTime(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="oc-modal-footer">
+              <button className="oc-modal-btn-cancel" onClick={closeRescheduleModal}>
+                Cancel
+              </button>
+              <button
+                className="oc-modal-btn-confirm"
+                onClick={handleReschedule}
+                disabled={actionLoading === rescheduleModal.item?._id}
+              >
+                {actionLoading === rescheduleModal.item?._id ? 'Rescheduling...' : 'Confirm Reschedule'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

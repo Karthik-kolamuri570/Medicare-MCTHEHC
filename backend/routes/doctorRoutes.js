@@ -22,6 +22,8 @@ router.get('/me', auth.doctorAuth, async (req, res) => {
 })
 router.post('/register', doctorController.registerDoctor);
 router.post('/login', doctorController.loginDoctor);
+router.post('/forgot-password', doctorController.forgotPassword);
+router.post('/reset-password', doctorController.resetPassword);
 
 
 router.get('/profile/:id', doctorController.getDoctorById);
@@ -30,8 +32,8 @@ router.put('/profile/:id', auth.doctorAuth, doctorController.updateDoctor);
 // Get all doctors
 router.get('/', doctorController.getAllDoctors);
 
-// Delete doctor
-router.delete('/:id', doctorController.deleteDoctor);
+// Delete doctor (admin only)
+router.delete('/:id', auth.adminAuth, doctorController.deleteDoctor);
 
 // Update doctor availability
 router.put('/availability/', auth.adminAuth, doctorController.updateAvailability);

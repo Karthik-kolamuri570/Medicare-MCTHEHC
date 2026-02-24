@@ -524,3 +524,286 @@
     border: 2px dashed #e2e8f0;
     box-shadow: var(--shadow-sm);
 }
+
+/* Cancelled Status Badge */
+.status-cancelled {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fee2e2;
+}
+
+.status-rescheduled {
+    background: #f0f9ff;
+    color: #0284c7;
+    border: 1px solid #e0f2fe;
+}
+
+.status-text-cancelled {
+    color: #dc2626;
+}
+
+/* Action Buttons Row */
+.oc-action-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.oc-action-buttons .oc-btn-chat {
+    flex: 1;
+    min-width: auto;
+    padding: 10px 16px;
+    font-size: 0.9rem;
+}
+
+.oc-btn-reschedule {
+    flex: 1;
+    padding: 10px 16px;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+}
+
+.oc-btn-reschedule:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(245, 158, 11, 0.35);
+}
+
+.oc-btn-reschedule:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.oc-btn-cancel {
+    flex: 1;
+    padding: 10px 16px;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+}
+
+.oc-btn-cancel:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(239, 68, 68, 0.35);
+}
+
+.oc-btn-cancel:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ========= RESCHEDULE MODAL ========= */
+.oc-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.oc-modal {
+    background: white;
+    border-radius: 24px;
+    width: 90%;
+    max-width: 440px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    overflow: hidden;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.oc-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 28px 16px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.oc-modal-header h2 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin: 0;
+}
+
+.oc-modal-close {
+    background: #f1f5f9;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    transition: all 0.2s;
+}
+
+.oc-modal-close:hover {
+    background: #e2e8f0;
+    color: var(--text-main);
+}
+
+.oc-modal-body {
+    padding: 20px 28px;
+}
+
+.oc-modal-doctor {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    margin: 0 0 20px;
+    font-weight: 600;
+}
+
+.oc-modal-doctor span {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.oc-modal-field {
+    margin-bottom: 16px;
+}
+
+.oc-modal-field label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 8px;
+}
+
+.oc-modal-field input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-main);
+    background: #f8fafc;
+    transition: all 0.2s;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.oc-modal-field input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+.oc-modal-footer {
+    display: flex;
+    gap: 12px;
+    padding: 16px 28px 24px;
+}
+
+.oc-modal-btn-cancel {
+    flex: 1;
+    padding: 12px;
+    background: #f1f5f9;
+    color: var(--text-muted);
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.oc-modal-btn-cancel:hover {
+    background: #e2e8f0;
+    color: var(--text-main);
+}
+
+.oc-modal-btn-confirm {
+    flex: 2;
+    padding: 12px;
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+.oc-modal-btn-confirm:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 16px rgba(37, 99, 235, 0.35);
+}
+
+.oc-modal-btn-confirm:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .oc-action-buttons {
+        flex-direction: column;
+    }
+
+    .oc-modal {
+        width: 95%;
+        max-width: none;
+    }
+}

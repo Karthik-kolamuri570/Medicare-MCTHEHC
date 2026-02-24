@@ -29,6 +29,8 @@ import { Toaster } from 'react-hot-toast';
 import PaymentSuccess from './payments/PaymentSuccess';
 import PaymentCancel from './payments/PaymentCancel';
 import GetSecondOpinion from "./components/forms/GetSecondOpinion";
+import ForgotPassword from "./components/forms/ForgotPassword";
+import ResetPassword from "./components/forms/ResetPassword";
 import BankHome from "./components/BloodBanks/BankHome";
 import BloodBankContainer from './components/BloodBanks/BloodBankContainer';
 import BloodBankLogin from './components/BloodBanks/BloodBankLogin';
@@ -110,6 +112,8 @@ function App() {
         <Route path="/doctor/login" element={<Layout><LoginDoctor /></Layout>} />
         <Route path="/patient/register" element={<Layout><User /></Layout>} />
         <Route path="/doctor/register" element={<Layout><Doctor /></Layout>} />
+        <Route path="/forgot-password/:role" element={<Layout><ForgotPassword /></Layout>} />
+        <Route path="/reset-password/:role" element={<Layout><ResetPassword /></Layout>} />
         <Route path="/patient/logout" element={<LogoutPatient />} />
         <Route path="/patient/online-consultation" element={<ProtectedPatientRoute><Layout><OnlineConsultation /></Layout></ProtectedPatientRoute>} />
         <Route path="/get-second-opinion" element={<ProtectedPatientRoute><Layout><GetSecondOpinion /></Layout></ProtectedPatientRoute>} />

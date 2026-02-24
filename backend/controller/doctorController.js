@@ -4,6 +4,8 @@ const Patient = require('../models/patient');
 const Appointment = require('./../models/appointments');
 const GetSecondOpinion = require('./../models/GetSecondOpinion');
 const { generateAccessToken, generateRefreshToken } = require('../utils/jwt');
+const crypto = require('crypto');
+const { sendPasswordResetEmail } = require('../utils/emailService');
 
 exports.registerDoctor = async (req, res, next) => {
   const {
@@ -426,15 +428,14 @@ exports.acceptAppointment = async (req, res) => {
       });
     }
     // Check if the appointment already exists in the doctor's appointments array
-    const existingAppointment = doctor.appointments.find(app => app._id.toString() === appointmentId);
-    if (existingAppointment) {
-      return res.json({
-        success: false,
-        message: 'Appointment already exists in doctor\'s appointments'
-      });
+    const existingIndex = doctor.appointments.findIndex(app => app._id.toString() === appointmentId);
+    if (existingIndex !== -1) {
+      // Update existing entry (e.g. after reschedule, date/time may have changed)
+      doctor.appointments[existingIndex] = appointment;
+    } else {
+      //sending the appointment which is accepted in the frontend to Doctor appointments array in Doctor's Collection... 
+      doctor.appointments.push(appointment);
     }
-    //sending the appointment which is accepted in the frontend to Doctor appointments array in Doctor's Collection... 
-    doctor.appointments.push(appointment);
     await doctor.save();
     res.status(200).json({
       success: true,
@@ -822,3 +823,84 @@ exports.getAcceptedSecondOpinion = async (req, res) => {
     })
   }
 }
+
+// ============ FORGOT PASSWORD ============
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email is required.' });
+    }
+
+    const doctor = await Doctor.findOne({ email: email.toLowerCase().trim() });
+    if (!doctor) {
+      // Don't reveal whether email exists
+      return res.json({ success: true, message: 'If an account with that email exists, a reset link has been sent.' });
+    }
+
+    // Generate secure reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+    // Save to DB with 1-hour expiry
+    doctor.resetPasswordToken = hashedToken;
+    doctor.resetPasswordExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+    await doctor.save({ validateBeforeSave: false });
+
+    // Build reset URL
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const resetUrl = `${frontendUrl}/reset-password/doctor?token=${resetToken}&email=${encodeURIComponent(email)}`;
+
+    // Send email via SMTP
+    await sendPasswordResetEmail(email, resetUrl, doctor.name || 'Doctor');
+
+    return res.json({ success: true, message: 'If an account with that email exists, a reset link has been sent.' });
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    return res.status(500).json({ success: false, message: 'Failed to process request. Please try again.' });
+  }
+};
+
+// ============ RESET PASSWORD ============
+exports.resetPassword = async (req, res) => {
+  try {
+    const { token, email, newPassword, confirmPassword } = req.body;
+
+    if (!token || !email || !newPassword || !confirmPassword) {
+      return res.status(400).json({ success: false, message: 'All fields are required.' });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ success: false, message: 'Passwords do not match.' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ success: false, message: 'Password must be at least 6 characters.' });
+    }
+
+    // Hash the token to compare with DB
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    const doctor = await Doctor.findOne({
+      email: email.toLowerCase().trim(),
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+
+    if (!doctor) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired reset token.' });
+    }
+
+    // Hash new password and save
+    const salt = await bcrypt.genSalt(10);
+    doctor.password = await bcrypt.hash(newPassword, salt);
+    doctor.resetPasswordToken = null;
+    doctor.resetPasswordExpires = null;
+    await doctor.save({ validateBeforeSave: false });
+
+    return res.json({ success: true, message: 'Password has been reset successfully. You can now login.' });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    return res.status(500).json({ success: false, message: 'Failed to reset password. Please try again.' });
+  }
+};

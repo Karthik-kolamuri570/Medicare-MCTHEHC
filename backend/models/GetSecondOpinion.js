@@ -30,7 +30,7 @@ const secondOpinionSchema = new Schema({
   }],
   status: {
     type: String,
-    enum: ["pending", "accepted", "completed", "rejected"],
+    enum: ["pending", "accepted", "completed", "rejected", "cancelled", "rescheduled"],
     default: "pending"
   },
   date: {

@@ -5,6 +5,8 @@ const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 const GetSecondOpinion = require('../models/GetSecondOpinion');
 const { generateAccessToken, generateRefreshToken } = require('../utils/jwt');
+const crypto = require('crypto');
+const { sendPasswordResetEmail } = require('../utils/emailService');
 exports.registerPatient = async (req, res) => {
     try {
         console.log('Under Register Patient Controller');
@@ -597,3 +599,246 @@ exports.getAllSecondOpinions = async (req, res) => {
         return res.status(500).json({ success: false, message: 'Internal Server Error...' });
     }
 }
+
+// ============ FORGOT PASSWORD ============
+exports.forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ success: false, message: 'Email is required.' });
+        }
+
+        const patient = await Patient.findOne({ email: email.toLowerCase().trim() });
+        if (!patient) {
+            // Don't reveal whether email exists — always show success
+            return res.json({ success: true, message: 'If an account with that email exists, a reset link has been sent.' });
+        }
+
+        // Generate secure reset token
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+        // Save to DB with 1-hour expiry
+        patient.resetPasswordToken = hashedToken;
+        patient.resetPasswordExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+        await patient.save({ validateBeforeSave: false });
+
+        // Build reset URL
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        const resetUrl = `${frontendUrl}/reset-password/patient?token=${resetToken}&email=${encodeURIComponent(email)}`;
+
+        // Send email via SMTP
+        await sendPasswordResetEmail(email, resetUrl, patient.name || 'Patient');
+
+        return res.json({ success: true, message: 'If an account with that email exists, a reset link has been sent.' });
+    } catch (error) {
+        console.error('Forgot password error:', error);
+        return res.status(500).json({ success: false, message: 'Failed to process request. Please try again.' });
+    }
+};
+
+// ============ RESET PASSWORD ============
+exports.resetPassword = async (req, res) => {
+    try {
+        const { token, email, newPassword, confirmPassword } = req.body;
+
+        if (!token || !email || !newPassword || !confirmPassword) {
+            return res.status(400).json({ success: false, message: 'All fields are required.' });
+        }
+
+        if (newPassword !== confirmPassword) {
+            return res.status(400).json({ success: false, message: 'Passwords do not match.' });
+        }
+
+        if (newPassword.length < 6) {
+            return res.status(400).json({ success: false, message: 'Password must be at least 6 characters.' });
+        }
+
+        // Hash the token to compare with DB
+        const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+        const patient = await Patient.findOne({
+            email: email.toLowerCase().trim(),
+            resetPasswordToken: hashedToken,
+            resetPasswordExpires: { $gt: Date.now() }, // Token not expired
+        });
+
+        if (!patient) {
+            return res.status(400).json({ success: false, message: 'Invalid or expired reset token.' });
+        }
+
+        // Hash new password and save
+        const salt = await bcrypt.genSalt(10);
+        patient.password = await bcrypt.hash(newPassword, salt);
+        patient.resetPasswordToken = null;
+        patient.resetPasswordExpires = null;
+        await patient.save({ validateBeforeSave: false });
+
+        return res.json({ success: true, message: 'Password has been reset successfully. You can now login.' });
+    } catch (error) {
+        console.error('Reset password error:', error);
+        return res.status(500).json({ success: false, message: 'Failed to reset password. Please try again.' });
+    }
+};
+
+// ============ RESCHEDULE APPOINTMENT ============
+exports.rescheduleAppointment = async (req, res) => {
+    try {
+        const { appointmentId } = req.params;
+        const { date, time } = req.body;
+        const patientId = req.user._id;
+
+        if (!date || !time) {
+            return res.status(400).json({ success: false, message: 'Date and time are required.' });
+        }
+
+        const appointment = await Appointment.findById(appointmentId);
+        if (!appointment) {
+            return res.status(404).json({ success: false, message: 'Appointment not found.' });
+        }
+
+        // Verify ownership
+        if (appointment.patientId.toString() !== patientId.toString()) {
+            return res.status(403).json({ success: false, message: 'Unauthorized.' });
+        }
+
+        // Only allow reschedule for Pending or Accepted
+        const allowedStatuses = ['Pending', 'Accepted', 'pending', 'accepted'];
+        if (!allowedStatuses.includes(appointment.status)) {
+            return res.status(400).json({ success: false, message: `Cannot reschedule a ${appointment.status} appointment.` });
+        }
+
+        const oldDate = appointment.date;
+        const oldTime = appointment.time;
+        appointment.date = date;
+        appointment.time = time;
+        appointment.status = 'Pending'; // Reset to pending after reschedule
+        await appointment.save();
+
+        // Notify doctor
+        const patient = await Patient.findById(patientId);
+        const notification = {
+            type: 'appointment-rescheduled',
+            message: `Appointment rescheduled by ${patient?.name || 'Patient'} from ${oldDate} ${oldTime} to ${date} ${time}`,
+            data: { patientId, patientName: patient?.name, oldDate, oldTime, newDate: date, newTime: time }
+        };
+        await Doctor.findByIdAndUpdate(appointment.doctorId, {
+            $push: { unseenNotifications: notification }
+        });
+
+        return res.json({ success: true, message: 'Appointment rescheduled successfully.' });
+    } catch (error) {
+        console.error('Reschedule appointment error:', error);
+        return res.status(500).json({ success: false, message: 'Failed to reschedule appointment.' });
+    }
+};
+
+// ============ CANCEL SECOND OPINION ============
+exports.cancelSecondOpinion = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const patientId = req.user._id;
+
+        const secondOpinion = await GetSecondOpinion.findById(id);
+        if (!secondOpinion) {
+            return res.status(404).json({ success: false, message: 'Second opinion not found.' });
+        }
+
+        if (secondOpinion.patientId.toString() !== patientId.toString()) {
+            return res.status(403).json({ success: false, message: 'Unauthorized.' });
+        }
+
+        // Case-insensitive status check
+        const currentStatus = secondOpinion.status.toLowerCase();
+        if (currentStatus !== 'pending' && currentStatus !== 'accepted') {
+            return res.status(400).json({ success: false, message: `Cannot cancel a ${secondOpinion.status} second opinion.` });
+        }
+
+        secondOpinion.status = 'cancelled';
+        await secondOpinion.save({ validateBeforeSave: false });
+
+        // Notify doctor
+        const patient = await Patient.findById(patientId);
+        const notification = {
+            type: 'second-opinion-cancelled',
+            message: `Second opinion request cancelled by ${patient?.name || 'Patient'}`,
+            data: {
+                patientId,
+                patientName: patient?.name,
+                date: secondOpinion.date,
+                time: secondOpinion.time,
+                problem: secondOpinion.problem
+            }
+        };
+        await Doctor.findByIdAndUpdate(secondOpinion.doctorId, {
+            $push: { unseenNotifications: notification }
+        });
+
+        // Notify patient
+        const doctor = await Doctor.findById(secondOpinion.doctorId);
+        const patientNotification = {
+            type: 'second-opinion-cancelled',
+            message: `Second opinion with Dr. ${doctor?.name || 'Doctor'} cancelled successfully`,
+            data: { doctorId: secondOpinion.doctorId, doctorName: doctor?.name }
+        };
+        await Patient.findByIdAndUpdate(patientId, {
+            $push: { unseenNotifications: patientNotification }
+        });
+
+        return res.json({ success: true, message: 'Second opinion cancelled successfully.' });
+    } catch (error) {
+        console.error('Cancel second opinion error:', error);
+        return res.status(500).json({ success: false, message: 'Failed to cancel second opinion.' });
+    }
+};
+
+// ============ RESCHEDULE SECOND OPINION ============
+exports.rescheduleSecondOpinion = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { date, time } = req.body;
+        const patientId = req.user._id;
+
+        if (!date || !time) {
+            return res.status(400).json({ success: false, message: 'Date and time are required.' });
+        }
+
+        const secondOpinion = await GetSecondOpinion.findById(id);
+        if (!secondOpinion) {
+            return res.status(404).json({ success: false, message: 'Second opinion not found.' });
+        }
+
+        if (secondOpinion.patientId.toString() !== patientId.toString()) {
+            return res.status(403).json({ success: false, message: 'Unauthorized.' });
+        }
+
+        // Case-insensitive status check
+        const currentStatus = secondOpinion.status.toLowerCase();
+        if (currentStatus !== 'pending' && currentStatus !== 'accepted') {
+            return res.status(400).json({ success: false, message: `Cannot reschedule a ${secondOpinion.status} second opinion.` });
+        }
+
+        const oldDate = secondOpinion.date;
+        const oldTime = secondOpinion.time;
+        secondOpinion.date = date; // Mongoose will cast YYYY-MM-DD string to Date
+        secondOpinion.time = time;
+        secondOpinion.status = 'pending'; // Reset to pending
+        await secondOpinion.save({ validateBeforeSave: false });
+
+        // Notify doctor
+        const patient = await Patient.findById(patientId);
+        const notification = {
+            type: 'second-opinion-rescheduled',
+            message: `Second opinion rescheduled by ${patient?.name || 'Patient'} to ${date} ${time}`,
+            data: { patientId, patientName: patient?.name, oldDate, oldTime, newDate: date, newTime: time }
+        };
+        await Doctor.findByIdAndUpdate(secondOpinion.doctorId, {
+            $push: { unseenNotifications: notification }
+        });
+
+        return res.json({ success: true, message: 'Second opinion rescheduled successfully.' });
+    } catch (error) {
+        console.error('Reschedule second opinion error:', error);
+        return res.status(500).json({ success: false, message: 'Failed to reschedule second opinion.' });
+    }
+};

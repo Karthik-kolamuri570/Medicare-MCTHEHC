@@ -1982,10 +1982,15 @@ export default function DSecondOpinions() {
     }
   `;
 
-  const formatSchedule = (isoString) => {
+  const formatSchedule = (isoString, timeStr) => {
     if (!isoString) return "N/A";
     try {
       const d = new Date(isoString);
+      const datePart = format(d, "dd MMM yyyy");
+      // Use the separate time field if available, otherwise fall back to date's time
+      if (timeStr) {
+        return `${datePart}, ${timeStr}`;
+      }
       return format(d, "dd MMM yyyy, HH:mm") + " IST";
     } catch {
       return isoString;
@@ -2234,8 +2239,8 @@ function RequestCard({ request, isUpdating, isSelected, onSelect, onRespond, for
         <div className="info-row">
           <CalendarIcon className="info-icon" />
           <span className="info-label">Schedule:</span>
-          <span className="info-value" title={formatSchedule(request.date)}>
-            {formatSchedule(request.date)}
+          <span className="info-value" title={formatSchedule(request.date, request.time)}>
+            {formatSchedule(request.date, request.time)}
           </span>
         </div>
 

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import "./style.css";
 
@@ -62,7 +62,13 @@ function Login() {
         />
         <br />
 
-        {error && <p className="error-message">{error}</p>} {/* Show error if exists */}
+        {error && <p className="error-message">{error}</p>}
+
+        <p style={{ textAlign: "right", margin: "0 0 10px" }}>
+          <Link to="/forgot-password/doctor" style={{ color: "#0072ff", fontSize: "13px", textDecoration: "none" }}>
+            Forgot Password?
+          </Link>
+        </p>
 
         <button type="submit" className="register-btn" disabled={loading}>
           {loading ? "Logging in..." : "Login"}
