@@ -9,6 +9,7 @@ const BloodCamp = require('../blood_bank/models/BloodCamp');
 const GetSecondOpinion = require('../models/GetSecondOpinion');
 const bcryptjs = require('bcryptjs');
 const { generateAccessToken, generateRefreshToken, verifyToken } = require('../utils/jwt');
+const { createNotification } = require('../utils/notification');
 const Stripe = require('stripe');
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -312,7 +313,7 @@ const adminController = {
       const affected = await Appointment.find({ paymentId });
       for (const appt of affected) {
         if (appt.patientId) {
-          await Patient.findByIdAndUpdate(appt.patientId, { $push: { unseenNotifications: { type: 'payment-refund', message: `Payment for appointment ${appt._id} has been refunded.`, data: { appointmentId: appt._id, refundId: refund.id } } } });
+          await Patient.findByIdAndUpdate(appt.patientId, { $push: { unseenNotifications: createNotification('payment-refund', `Payment for appointment ${appt._id} has been refunded.`, { appointmentId: appt._id, refundId: refund.id }) } });
         }
       }
 
@@ -489,11 +490,7 @@ const adminController = {
       );
       // Notify doctor about approval
       if (doctor) {
-        const notification = {
-          type: 'doctor-approved',
-          message: 'Your application has been approved. You can now receive appointments.',
-          data: { doctorId: doctor._id }
-        };
+        const notification = createNotification('doctor-approved', 'Your application has been approved. You can now receive appointments.', { doctorId: doctor._id });
         await Doctor.findByIdAndUpdate(doctorId, { $push: { unseenNotifications: notification } });
       }
       res.json(doctor);
@@ -513,11 +510,7 @@ const adminController = {
       );
       // Notify doctor about rejection
       if (doctor) {
-        const notification = {
-          type: 'doctor-rejected',
-          message: 'Your application has been rejected. Contact support for more details.',
-          data: { doctorId: doctor._id }
-        };
+        const notification = createNotification('doctor-rejected', 'Your application has been rejected. Contact support for more details.', { doctorId: doctor._id });
         await Doctor.findByIdAndUpdate(doctorId, { $push: { unseenNotifications: notification } });
       }
       res.json(doctor);
@@ -749,8 +742,8 @@ const adminController = {
       const appt = await Appointment.findByIdAndUpdate(appointmentId, { status: 'Cancelled' }, { new: true });
       if (appt) {
         // notify patient and doctor
-        const patientNotify = { type: 'appointment-cancelled', message: `Your appointment on ${appt.date} ${appt.time} was cancelled by admin`, data: { appointmentId: appt._id } };
-        const doctorNotify = { type: 'appointment-cancelled', message: `An appointment on ${appt.date} ${appt.time} was cancelled by admin`, data: { appointmentId: appt._id } };
+        const patientNotify = createNotification('appointment-cancelled', `Your appointment on ${appt.date} ${appt.time} was cancelled by admin`, { appointmentId: appt._id });
+        const doctorNotify = createNotification('appointment-cancelled', `An appointment on ${appt.date} ${appt.time} was cancelled by admin`, { appointmentId: appt._id });
         await Patient.findByIdAndUpdate(appt.patientId, { $push: { unseenNotifications: patientNotify } }).catch(() => { });
         await Doctor.findByIdAndUpdate(appt.doctorId, { $push: { unseenNotifications: doctorNotify } }).catch(() => { });
       }
@@ -770,8 +763,8 @@ const adminController = {
       // Optionally push notifications in background
       const appts = await Appointment.find({ _id: { $in: appointmentIds } });
       for (const appt of appts) {
-        const pNotify = { type: 'appointment-cancelled', message: `Your appointment on ${appt.date} ${appt.time} was cancelled by admin`, data: { appointmentId: appt._id } };
-        const dNotify = { type: 'appointment-cancelled', message: `An appointment on ${appt.date} ${appt.time} was cancelled by admin`, data: { appointmentId: appt._id } };
+        const pNotify = createNotification('appointment-cancelled', `Your appointment on ${appt.date} ${appt.time} was cancelled by admin`, { appointmentId: appt._id });
+        const dNotify = createNotification('appointment-cancelled', `An appointment on ${appt.date} ${appt.time} was cancelled by admin`, { appointmentId: appt._id });
         await Patient.findByIdAndUpdate(appt.patientId, { $push: { unseenNotifications: pNotify } }).catch(() => { });
         await Doctor.findByIdAndUpdate(appt.doctorId, { $push: { unseenNotifications: dNotify } }).catch(() => { });
       }
@@ -867,8 +860,8 @@ const adminController = {
       if (!date || !time) return res.status(400).json({ success: false, message: 'date and time are required' });
       const appt = await Appointment.findByIdAndUpdate(appointmentId, { date, time, status: 'Scheduled' }, { new: true });
       if (appt) {
-        const pNotify = { type: 'appointment-rescheduled', message: `Your appointment was rescheduled to ${date} ${time}`, data: { appointmentId: appt._id } };
-        const dNotify = { type: 'appointment-rescheduled', message: `An appointment was rescheduled to ${date} ${time}`, data: { appointmentId: appt._id } };
+        const pNotify = createNotification('appointment-rescheduled', `Your appointment was rescheduled to ${date} ${time}`, { appointmentId: appt._id });
+        const dNotify = createNotification('appointment-rescheduled', `An appointment was rescheduled to ${date} ${time}`, { appointmentId: appt._id });
         await Patient.findByIdAndUpdate(appt.patientId, { $push: { unseenNotifications: pNotify } }).catch(() => { });
         await Doctor.findByIdAndUpdate(appt.doctorId, { $push: { unseenNotifications: dNotify } }).catch(() => { });
       }
@@ -876,6 +869,90 @@ const adminController = {
     } catch (error) {
       console.error('Error in rescheduleAppointment:', error);
       res.status(500).json({ success: false, error: error.message });
+    }
+  },
+
+  // ============ ADMIN NOTIFICATIONS ============
+  getNotifications: async (req, res) => {
+    try {
+      const admin = await Admin.findById(req.user.id);
+      if (!admin) return res.status(404).json({ success: false, message: 'Admin not found' });
+
+      res.json({
+        success: true,
+        data: {
+          unseenNotifications: admin.unseenNotifications || [],
+          seenNotifications: admin.seenNotifications || []
+        }
+      });
+    } catch (err) {
+      console.error('Get admin notifications error:', err);
+      res.status(500).json({ success: false, message: 'Failed to fetch notifications' });
+    }
+  },
+
+  getNotificationCount: async (req, res) => {
+    try {
+      const admin = await Admin.findById(req.user.id).select('unseenNotifications');
+      if (!admin) return res.status(404).json({ success: false, count: 0 });
+      res.json({ success: true, count: (admin.unseenNotifications || []).length });
+    } catch (err) {
+      res.status(500).json({ success: false, count: 0 });
+    }
+  },
+
+  markNotificationsAsSeen: async (req, res) => {
+    try {
+      const admin = await Admin.findById(req.user.id);
+      if (!admin) return res.status(404).json({ success: false, message: 'Admin not found' });
+
+      admin.seenNotifications = [
+        ...(admin.seenNotifications || []),
+        ...(admin.unseenNotifications || [])
+      ];
+      admin.unseenNotifications = [];
+      await admin.save({ validateBeforeSave: false });
+      res.json({ success: true, message: 'All notifications marked as seen' });
+    } catch (err) {
+      console.error('Mark admin notifications error:', err);
+      res.status(500).json({ success: false, message: 'Failed to mark notifications' });
+    }
+  },
+
+  clearAllNotifications: async (req, res) => {
+    try {
+      const admin = await Admin.findById(req.user.id);
+      if (!admin) return res.status(404).json({ success: false, message: 'Admin not found' });
+
+      admin.unseenNotifications = [];
+      admin.seenNotifications = [];
+      await admin.save({ validateBeforeSave: false });
+      res.json({ success: true, message: 'All notifications cleared' });
+    } catch (err) {
+      console.error('Clear admin notifications error:', err);
+      res.status(500).json({ success: false, message: 'Failed to clear notifications' });
+    }
+  },
+
+  deleteNotification: async (req, res) => {
+    try {
+      const { index, type } = req.body;
+      const admin = await Admin.findById(req.user.id);
+      if (!admin) return res.status(404).json({ success: false, message: 'Admin not found' });
+
+      if (type === 'unseen') {
+        admin.unseenNotifications.splice(index, 1);
+      } else {
+        admin.seenNotifications.splice(index, 1);
+      }
+
+      admin.markModified('unseenNotifications');
+      admin.markModified('seenNotifications');
+      await admin.save({ validateBeforeSave: false });
+      res.json({ success: true, message: 'Notification deleted' });
+    } catch (err) {
+      console.error('Delete admin notification error:', err);
+      res.status(500).json({ success: false, message: 'Failed to delete notification' });
     }
   }
 };

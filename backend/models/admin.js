@@ -19,7 +19,9 @@ const adminSchema = new mongoose.Schema({
     ]
   }],
   lastLogin: Date,
-  status: { type: String, default: 'active' }
+  status: { type: String, default: 'active' },
+  unseenNotifications: { type: Array, default: [] },
+  seenNotifications: { type: Array, default: [] }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Admin', adminSchema);

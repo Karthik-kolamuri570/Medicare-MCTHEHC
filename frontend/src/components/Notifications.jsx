@@ -1,135 +1,245 @@
-// import React, { useState } from "react";
-// import "../styles/Notifications.css";
-// import {FaBell} from "react-icons/fa"
-// import logo from "../assets/logo.png";
+import { useState, useEffect, useMemo } from 'react';
+import api from '../utils/api';
+import "../styles/Notifications.css";
+import { FaBell, FaTrash, FaEye, FaTrashAlt, FaCheckCircle, FaTimesCircle, FaCalendarAlt, FaClock, FaUserMd, FaExclamationTriangle, FaInfoCircle, FaRedo } from 'react-icons/fa';
+import toast from 'react-hot-toast';
 
-// function Notifications() {
-//   const [showNotifications, setShowNotifications] = useState(false);
+const timeAgo = (dateStr) => {
+  if (!dateStr) return '';
+  const now = new Date();
+  const date = new Date(dateStr);
+  const diff = Math.floor((now - date) / 1000);
+  if (diff < 60) return 'Just now';
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+  return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+};
 
-//   const notifications = [
-//           { name: "Anusha", date: "2025-03-21", time: "10:30 AM" },
-//           { name: "Phani", date: "2025-03-21", time: "12:00 PM" },
-//           { name: "Ravi", date: "2025-03-21", time: "10:30 AM" },
-//           { name: "Karthik", date: "2025-03-21", time: "12:00 PM" },
-//         ];
+const getDateGroup = (dateStr) => {
+  if (!dateStr) return 'Older';
+  const now = new Date();
+  const date = new Date(dateStr);
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterday = new Date(today - 86400000);
+  if (date >= today) return 'Today';
+  if (date >= yesterday) return 'Yesterday';
+  if (date >= new Date(today - 6 * 86400000)) return 'This Week';
+  return 'Older';
+};
 
-
-//   return (
-//     <div>
-//       {/* Header */}
-
-//       {/* Notifications */}
-//       <div className="notifications-wrapper">
-//         <div className="notifications-container">
-//           {/* Bell Icon with Notification Count */}
-//           <div
-//             className="bell-container"
-//             onClick={() => setShowNotifications(!showNotifications)}
-//           >
-//             <FaBell className="bell-icon" />
-//             {notifications.length > 0 && (
-//               <span className="notification-count">{notifications.length}</span>
-//             )}
-//           </div>
-
-//           {/* Show Notifications Only When Clicked */}
-//           {showNotifications && (
-//             <div className="notifications-list">
-//               {/* BIG & CENTERED HEADING */}
-//               <h2 className="notifications-title">Notifications</h2>
-
-//               {notifications.length > 0 ? (
-//                 notifications.map((notification, index) => (
-//                   <div key={index} className="notification-item">
-//                     <p>
-//                       <strong>Name:</strong> {notification.name || "No Name"}
-//                     </p>
-//                     <p>
-//                       <strong>Date:</strong> {notification.date || "No Date"}
-//                     </p>
-//                     <p>
-//                       <strong>Time:</strong> {notification.time || "No Time"}
-//                     </p>
-//                   </div>
-//                 ))
-//               ) : (
-//                 <p>No new notifications</p>
-//               )}
-//             </div>
-//           )}
-//         </div>
-//       </div>
-
-//     </div>
-//   );
-// }
-
-// export default Notifications;
-import { useState, useEffect } from 'react';
-import { useNavigate } from "react-router-dom";
-import api from '../utils/api'; // JWT-enabled API utility
-import "../styles/Notifications.css"; // Adjust path based on your structure
-import { FaBell } from 'react-icons/fa';
-import Loader from './ui/Loader';
+const NOTIF_CONFIG = {
+  'new-appointment':       { icon: FaCalendarAlt, color: '#3b82f6', label: 'New Appointment' },
+  'appointment-booked':    { icon: FaCheckCircle, color: '#16a34a', label: 'Booked' },
+  'appointment-accepted':  { icon: FaCheckCircle, color: '#16a34a', label: 'Accepted' },
+  'appointment-rejected':  { icon: FaTimesCircle, color: '#dc2626', label: 'Rejected' },
+  'appointment-cancelled': { icon: FaTimesCircle, color: '#ef4444', label: 'Cancelled' },
+  'appointment-rescheduled': { icon: FaRedo, color: '#f59e0b', label: 'Rescheduled' },
+  'second-opinion-cancelled': { icon: FaTimesCircle, color: '#ef4444', label: 'Cancelled' },
+  'second-opinion-rescheduled': { icon: FaRedo, color: '#f59e0b', label: 'Rescheduled' },
+  'payment-refund':        { icon: FaExclamationTriangle, color: '#f59e0b', label: 'Refund' },
+  'verification':          { icon: FaInfoCircle, color: '#8b5cf6', label: 'Verification' },
+  'default':               { icon: FaBell, color: '#64748b', label: 'Notification' },
+};
 
 function Notifications() {
-  const navigate = useNavigate();
-  const [notifications, setNotifications] = useState([]); // State to store notifications
-  const [loading, setLoading] = useState(true); // Loading state
-  const [error, setError] = useState(null); // Error state
-  const [patientId] = useState('your_patient_id_here'); // Replace this with the actual patient ID (can be passed via props or useContext)
+  const [unseenNotifications, setUnseenNotifications] = useState([]);
+  const [seenNotifications, setSeenNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('unseen');
+  const [actionLoading, setActionLoading] = useState(false);
 
-  // Fetch notifications after successful appointment booking
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const response = await api.get(`/api/patient/notifications/`);
-        console.log(response.data.data[1].data.doctorName); // Debugging
-        if (response.data && Array.isArray(response.data.data)) {
-          setNotifications(response.data.data); // Store fetched notifications in state
-        } else {
-          setError("Failed to fetch notifications.");
-        }
-      } catch (err) {
-        setError("Error fetching notifications.");
-      } finally {
-        setLoading(false);
+  const fetchNotifications = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/api/patient/notifications/');
+      if (response.data?.success) {
+        const data = response.data.data;
+        setUnseenNotifications(data.unseenNotifications || []);
+        setSeenNotifications(data.seenNotifications || []);
       }
-    };
+    } catch (err) {
+      console.error("Error fetching notifications:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchNotifications();
-  }, [patientId]); // Fetch notifications when component is mounted
+  useEffect(() => { fetchNotifications(); }, []);
+
+  // Auto-refresh every 30s
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!actionLoading) fetchNotifications();
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [actionLoading]);
+
+  const handleMarkAllAsSeen = async () => {
+    if (unseenNotifications.length === 0) return;
+    setActionLoading(true);
+    try {
+      const res = await api.post('/api/patient/notifications/');
+      if (res.data?.success) {
+        toast.success('All notifications marked as read');
+        fetchNotifications();
+      }
+    } catch { toast.error('Failed to mark notifications'); }
+    finally { setActionLoading(false); }
+  };
+
+  const handleClearAll = async () => {
+    if (!window.confirm('Clear ALL notifications? This cannot be undone.')) return;
+    setActionLoading(true);
+    try {
+      const res = await api.delete('/api/patient/notifications/clear');
+      if (res.data?.success) {
+        toast.success('All notifications cleared');
+        fetchNotifications();
+      }
+    } catch { toast.error('Failed to clear notifications'); }
+    finally { setActionLoading(false); }
+  };
+
+  const handleDeleteOne = async (index, type) => {
+    setActionLoading(true);
+    try {
+      const res = await api.post('/api/patient/notifications/delete', { index, type });
+      if (res.data?.success) {
+        toast.success('Notification removed');
+        fetchNotifications();
+      }
+    } catch { toast.error('Failed to delete notification'); }
+    finally { setActionLoading(false); }
+  };
+
+  const currentList = activeTab === 'unseen' ? unseenNotifications : seenNotifications;
+  const totalCount = unseenNotifications.length + seenNotifications.length;
+
+  // Group by date
+  const grouped = useMemo(() => {
+    const groups = {};
+    currentList.forEach((n, i) => {
+      const key = getDateGroup(n.createdAt);
+      if (!groups[key]) groups[key] = [];
+      groups[key].push({ ...n, _idx: i });
+    });
+    // Sort groups in order: Today, Yesterday, This Week, Older
+    const order = ['Today', 'Yesterday', 'This Week', 'Older'];
+    return order.filter(k => groups[k]).map(k => ({ label: k, items: groups[k] }));
+  }, [currentList]);
+
+  const getConfig = (type) => NOTIF_CONFIG[type] || NOTIF_CONFIG['default'];
 
   return (
-    <div className="notifications-wrapper">
-      <div className="notifications-container">
-        <div className="bell-container">
-          <FaBell className="bell-icon" />
-          {notifications.length > 0 && (
-            <span className="notification-count">{notifications.length}</span>
-          )}
+    <div className="ntf-page">
+      <div className="ntf-container">
+        {/* Header */}
+        <div className="ntf-header">
+          <div className="ntf-header-left">
+            <div className="ntf-bell-wrapper">
+              <FaBell className="ntf-bell-icon" />
+              {unseenNotifications.length > 0 && (
+                <span className="ntf-badge">{unseenNotifications.length}</span>
+              )}
+            </div>
+            <div>
+              <h1 className="ntf-title">Notifications</h1>
+              <p className="ntf-subtitle">
+                {unseenNotifications.length > 0
+                  ? `${unseenNotifications.length} new notification${unseenNotifications.length > 1 ? 's' : ''}`
+                  : "You're all caught up!"}
+                {seenNotifications.length > 0 && ` · ${seenNotifications.length} read`}
+              </p>
+            </div>
+          </div>
+          <div className="ntf-header-actions">
+            {unseenNotifications.length > 0 && (
+              <button className="ntf-btn ntf-btn-mark" onClick={handleMarkAllAsSeen} disabled={actionLoading}>
+                <FaEye /> Mark All Read
+              </button>
+            )}
+            {totalCount > 0 && (
+              <button className="ntf-btn ntf-btn-clear" onClick={handleClearAll} disabled={actionLoading}>
+                <FaTrash /> Clear All
+              </button>
+            )}
+          </div>
         </div>
 
-        {/* Show Notifications */}
-        <div className="notifications-list">
-          <h2 className="notifications-title">Notifications</h2>
+        {/* Tabs */}
+        <div className="ntf-tabs">
+          <button className={`ntf-tab ${activeTab === 'unseen' ? 'active' : ''}`} onClick={() => setActiveTab('unseen')}>
+            New {unseenNotifications.length > 0 && <span className="ntf-tab-count">{unseenNotifications.length}</span>}
+          </button>
+          <button className={`ntf-tab ${activeTab === 'seen' ? 'active' : ''}`} onClick={() => setActiveTab('seen')}>
+            Read {seenNotifications.length > 0 && <span className="ntf-tab-count read">{seenNotifications.length}</span>}
+          </button>
+        </div>
 
+        {/* Notification List */}
+        <div className="ntf-list">
           {loading ? (
-            <Loader />
-          ) : error ? (
-            <p>{error}</p>
-          ) : notifications.length > 0 ? (
-            notifications.map((notification, index) => (
-              <div key={index} className="notification-item">
-
-                <p><strong></strong> {notification.message}</p>
-                <p>Doctor Name :<strong>{notification.data.doctorName}</strong></p>
-                <p><strong>Appointment Date:</strong> {notification.data.date}</p>
-                <p><strong>Time:</strong> {notification.data.time}</p>
+            <div className="ntf-empty">
+              <div className="ntf-spinner"></div>
+              <p>Loading notifications...</p>
+            </div>
+          ) : currentList.length === 0 ? (
+            <div className="ntf-empty">
+              <FaBell className="ntf-empty-icon" />
+              <h3>{activeTab === 'unseen' ? "No new notifications" : "No read notifications"}</h3>
+              <p>{activeTab === 'unseen' ? "You're all caught up! 🎉" : "Read notifications will appear here"}</p>
+            </div>
+          ) : (
+            grouped.map((group) => (
+              <div key={group.label} className="ntf-group">
+                <div className="ntf-group-label">{group.label}</div>
+                {group.items.map((notification) => {
+                  const cfg = getConfig(notification.type);
+                  const IconComp = cfg.icon;
+                  return (
+                    <div key={notification._idx} className={`ntf-item ${activeTab === 'unseen' ? 'ntf-item-unseen' : ''}`}>
+                      <div className="ntf-item-icon" style={{ background: `${cfg.color}12`, color: cfg.color }}>
+                        <IconComp />
+                      </div>
+                      <div className="ntf-item-content">
+                        <div className="ntf-item-top">
+                          <span className="ntf-type-label" style={{ color: cfg.color, background: `${cfg.color}12` }}>
+                            {cfg.label}
+                          </span>
+                          {notification.createdAt && (
+                            <span className="ntf-time">{timeAgo(notification.createdAt)}</span>
+                          )}
+                        </div>
+                        <p className="ntf-item-message">{notification.message || 'Notification'}</p>
+                        <div className="ntf-item-meta">
+                          {notification.data?.doctorName && (
+                            <span className="ntf-meta-tag"><FaUserMd /> Dr. {notification.data.doctorName}</span>
+                          )}
+                          {notification.data?.patientName && (
+                            <span className="ntf-meta-tag"><FaUserMd /> {notification.data.patientName}</span>
+                          )}
+                          {notification.data?.date && (
+                            <span className="ntf-meta-tag"><FaCalendarAlt /> {notification.data.date}</span>
+                          )}
+                          {notification.data?.time && (
+                            <span className="ntf-meta-tag"><FaClock /> {notification.data.time}</span>
+                          )}
+                        </div>
+                      </div>
+                      <button
+                        className="ntf-item-delete"
+                        onClick={() => handleDeleteOne(notification._idx, activeTab === 'unseen' ? 'unseen' : 'seen')}
+                        disabled={actionLoading}
+                        title="Delete notification"
+                      >
+                        <FaTrashAlt />
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             ))
-          ) : (
-            <p>No new notifications</p>
           )}
         </div>
       </div>

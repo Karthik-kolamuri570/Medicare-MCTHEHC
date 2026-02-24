@@ -1,9 +1,11 @@
 const Doctor = require('../models/doctor');
 const bcrypt = require('bcryptjs');
 const Patient = require('../models/patient');
+const Admin = require('../models/admin');
 const Appointment = require('./../models/appointments');
 const GetSecondOpinion = require('./../models/GetSecondOpinion');
 const { generateAccessToken, generateRefreshToken } = require('../utils/jwt');
+const { createNotification } = require('../utils/notification');
 const crypto = require('crypto');
 const { sendPasswordResetEmail } = require('../utils/emailService');
 
@@ -48,6 +50,15 @@ exports.registerDoctor = async (req, res, next) => {
       toTime
     });
     await doctor.save();
+
+    // Notify Admins about new doctor registration
+    const adminNotify = createNotification('verification', `New doctor registration: Dr. ${name}. Approval required.`, {
+      doctorId: doctor._id,
+      doctorName: name,
+      email: email
+    });
+    // Push to all active admins
+    await Admin.updateMany({ status: 'active' }, { $push: { unseenNotifications: adminNotify } }).catch(e => console.error("Admin notification failed:", e));
 
     // Create tokens
     const tokenPayload = { id: doctor._id, role: 'doctor' };
@@ -437,6 +448,17 @@ exports.acceptAppointment = async (req, res) => {
       doctor.appointments.push(appointment);
     }
     await doctor.save();
+
+    // Notify patient that appointment was accepted
+    const patientNotify = createNotification('appointment-accepted', `Your appointment with Dr. ${doctor.name} has been accepted.`, {
+      appointmentId: appointment._id,
+      doctorId: doctor._id,
+      doctorName: doctor.name,
+      date: appointment.date,
+      time: appointment.time
+    });
+    await Patient.findByIdAndUpdate(appointment.patientId, { $push: { unseenNotifications: patientNotify } });
+
     res.status(200).json({
       success: true,
       message: 'Appointment accepted successfully',
@@ -477,6 +499,18 @@ exports.rejectAppointment = async (req, res) => {
     //Updating the status of the appointment to 'Rejected'...
     appointment.status = 'Rejected';
     await appointment.save();
+
+    // Notify patient that appointment was rejected
+    const doctor = await Doctor.findById(doctorId);
+    const patientNotify = createNotification('appointment-rejected', `Your appointment with Dr. ${doctor?.name || 'Doctor'} has been rejected.`, {
+      appointmentId: appointment._id,
+      doctorId: doctor?._id,
+      doctorName: doctor?.name,
+      date: appointment.date,
+      time: appointment.time
+    });
+    await Patient.findByIdAndUpdate(appointment.patientId, { $push: { unseenNotifications: patientNotify } });
+
     console.log("Appointment rejected successfully:", appointment);
     res.status(200).json({
       success: true,
@@ -751,6 +785,16 @@ exports.acceptGetSecondOpinion = async (req, res) => {
 
       console.log("✅ Record updated successfully");
 
+      // Notify patient about second opinion status change
+      const doctor = await Doctor.findById(updatedRequest.doctorId);
+      const patientNotify = createNotification(`second-opinion-${status.toLowerCase()}`, `Your second opinion request with Dr. ${doctor?.name || 'Doctor'} has been ${status}.`, {
+        requestId: updatedRequest._id,
+        doctorId: doctor?._id,
+        doctorName: doctor?.name,
+        status: status
+      });
+      await Patient.findByIdAndUpdate(updatedRequest.patientId, { $push: { unseenNotifications: patientNotify } });
+
       res.status(200).json({
         success: true,
         message: `Request ${status} successfully`,
@@ -902,5 +946,90 @@ exports.resetPassword = async (req, res) => {
   } catch (error) {
     console.error('Reset password error:', error);
     return res.status(500).json({ success: false, message: 'Failed to reset password. Please try again.' });
+  }
+};
+
+// ============ DOCTOR NOTIFICATIONS ============
+exports.getNotifications = async (req, res) => {
+  try {
+    const doctor = await Doctor.findById(req.user._id);
+    if (!doctor) return res.status(404).json({ success: false, message: 'Doctor not found' });
+
+    res.json({
+      success: true,
+      data: {
+        unseenNotifications: doctor.unseenNotifications || [],
+        seenNotifications: doctor.seenNotifications || []
+      }
+    });
+  } catch (err) {
+    console.error('Get doctor notifications error:', err);
+    res.status(500).json({ success: false, message: 'Failed to fetch notifications' });
+  }
+};
+
+exports.getNotificationCount = async (req, res) => {
+  try {
+    const doctor = await Doctor.findById(req.user._id).select('unseenNotifications');
+    if (!doctor) return res.status(404).json({ success: false, count: 0 });
+    res.json({ success: true, count: (doctor.unseenNotifications || []).length });
+  } catch (err) {
+    res.status(500).json({ success: false, count: 0 });
+  }
+};
+
+exports.markNotificationsAsSeen = async (req, res) => {
+  try {
+    const doctor = await Doctor.findById(req.user._id);
+    if (!doctor) return res.status(404).json({ success: false, message: 'Doctor not found' });
+
+    // Move unseen to seen
+    doctor.seenNotifications = [
+      ...(doctor.seenNotifications || []),
+      ...(doctor.unseenNotifications || [])
+    ];
+    doctor.unseenNotifications = [];
+    await doctor.save({ validateBeforeSave: false });
+
+    res.json({ success: true, message: 'All notifications marked as seen' });
+  } catch (err) {
+    console.error('Mark doctor notifications error:', err);
+    res.status(500).json({ success: false, message: 'Failed to mark notifications' });
+  }
+};
+
+exports.clearAllNotifications = async (req, res) => {
+  try {
+    const doctor = await Doctor.findById(req.user._id);
+    if (!doctor) return res.status(404).json({ success: false, message: 'Doctor not found' });
+
+    doctor.unseenNotifications = [];
+    doctor.seenNotifications = [];
+    await doctor.save({ validateBeforeSave: false });
+
+    res.json({ success: true, message: 'All notifications cleared' });
+  } catch (err) {
+    console.error('Clear doctor notifications error:', err);
+    res.status(500).json({ success: false, message: 'Failed to clear notifications' });
+  }
+};
+
+exports.deleteNotification = async (req, res) => {
+  try {
+    const { index, type } = req.body; // type: 'unseen' or 'seen'
+    const doctor = await Doctor.findById(req.user._id);
+    if (!doctor) return res.status(404).json({ success: false, message: 'Doctor not found' });
+
+    if (type === 'unseen') {
+      doctor.unseenNotifications.splice(index, 1);
+    } else {
+      doctor.seenNotifications.splice(index, 1);
+    }
+    await doctor.save({ validateBeforeSave: false });
+
+    res.json({ success: true, message: 'Notification deleted' });
+  } catch (err) {
+    console.error('Delete doctor notification error:', err);
+    res.status(500).json({ success: false, message: 'Failed to delete notification' });
   }
 };

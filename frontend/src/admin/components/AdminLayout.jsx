@@ -16,8 +16,11 @@ import {
   AccountCircle as ProfileIcon,
   VolunteerActivism as CampIcon,
   Brightness4 as DarkModeIcon,
-  Brightness7 as LightModeIcon
+  Brightness7 as LightModeIcon,
+  NotificationsNone as NotificationsIcon
 } from '@mui/icons-material';
+import { Badge } from '@mui/material';
+import api from '../../utils/api';
 import '../styles/AdminLayout.css';
 import '../styles/theme.css';
 import adminService from '../services/adminService';
@@ -29,6 +32,20 @@ const AdminLayout = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
+  const [notificationCount, setNotificationCount] = useState(0);
+
+  // Poll for notification count
+  useEffect(() => {
+    const fetchCount = async () => {
+      try {
+        const res = await api.get('/api/admin/notifications/count');
+        if (res.data?.success) setNotificationCount(res.data.count);
+      } catch (err) { /* silent */ }
+    };
+    fetchCount();
+    const interval = setInterval(fetchCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const adminUser = JSON.parse(localStorage.getItem('adminUser') || '{}');
 
@@ -41,6 +58,7 @@ const AdminLayout = ({ children }) => {
     { label: 'Appointments', icon: <AppointmentIcon />, path: '/admin/appointments' },
     { label: 'Payments', icon: <PaymentIcon />, path: '/admin/payments' },
     { label: 'Blog Moderation', icon: <BlogIcon />, path: '/admin/blogs' },
+    { label: 'Notifications', icon: <NotificationsIcon />, path: '/admin/notifications' },
     { label: 'Settings', icon: <SettingsIcon />, path: '/admin/settings' }
   ];
 
@@ -141,6 +159,15 @@ const AdminLayout = ({ children }) => {
               title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
             >
               {theme === 'light' ? <DarkModeIcon /> : <LightModeIcon />}
+            </button>
+            <button
+              className="notification-badge-btn"
+              onClick={() => navigate('/admin/notifications')}
+              title="Notifications"
+            >
+              <Badge badgeContent={notificationCount} color="error" overlap="circular" className={notificationCount > 0 ? 'pulse-badge' : ''}>
+                <NotificationsIcon />
+              </Badge>
             </button>
             <div className="profile-section">
               <button

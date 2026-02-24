@@ -84,4 +84,11 @@ router.get('/blood-banks', adminAuth, ensureRole('super-admin', 'admin'), adminC
 router.get('/blood-camps', adminAuth, ensureRole('super-admin', 'admin'), adminController.getBloodCampsAdmin);
 router.delete('/blood-camps/:id', adminAuth, ensureRole('super-admin', 'admin'), adminController.deleteBloodCampAdmin);
 
+// ===== NOTIFICATIONS =====
+router.get('/notifications', adminAuth, ensureRole('super-admin', 'admin'), adminController.getNotifications);
+router.get('/notifications/count', adminAuth, ensureRole('super-admin', 'admin'), adminController.getNotificationCount);
+router.post('/notifications/mark-seen', adminAuth, ensureRole('super-admin', 'admin'), adminController.markNotificationsAsSeen);
+router.delete('/notifications/clear', adminAuth, ensureRole('super-admin', 'admin'), adminController.clearAllNotifications);
+router.post('/notifications/delete', adminAuth, ensureRole('super-admin', 'admin'), adminController.deleteNotification);
+
 module.exports = router;

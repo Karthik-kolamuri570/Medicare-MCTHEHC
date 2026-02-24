@@ -51,5 +51,12 @@ router.put('/get-second-opinion/:id', auth.doctorAuth, doctorController.acceptGe
 router.get('/get-second-opinion/accept', auth.doctorAuth, doctorController.getAcceptedSecondOpinion);
 router.get('/all-specializations', doctorController.getAllSpecializations);
 
+// Notifications
+router.get('/notifications', auth.doctorAuth, doctorController.getNotifications);
+router.get('/notifications/count', auth.doctorAuth, doctorController.getNotificationCount);
+router.post('/notifications/mark-seen', auth.doctorAuth, doctorController.markNotificationsAsSeen);
+router.delete('/notifications/clear', auth.doctorAuth, doctorController.clearAllNotifications);
+router.post('/notifications/delete', auth.doctorAuth, doctorController.deleteNotification);
+
 module.exports = router;
 

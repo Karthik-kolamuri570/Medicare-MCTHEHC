@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 const GetSecondOpinion = require('../models/GetSecondOpinion');
 const { generateAccessToken, generateRefreshToken } = require('../utils/jwt');
+const { createNotification } = require('../utils/notification');
 const crypto = require('crypto');
 const { sendPasswordResetEmail } = require('../utils/emailService');
 exports.registerPatient = async (req, res) => {
@@ -253,16 +254,9 @@ exports.bookAppointment = async (req, res) => {
         });
 
         //sending notification to doctor
-        const notification = {
-            type: 'new-appointment',
-            message: `New appointment request from ${patient.name}`,
-            data: {
-                patientId: patient._id,
-                patientName: patient.name,
-                date,
-                time
-            }
-        };
+        const notification = createNotification('new-appointment', `New appointment request from ${patient.name}`, {
+            patientId: patient._id, patientName: patient.name, date, time
+        });
 
         // Update doctor's unseenNotifications
         await Doctor.findByIdAndUpdate(doctorId, {
@@ -270,16 +264,9 @@ exports.bookAppointment = async (req, res) => {
         });
 
         //sending nootifiaction to patient for confirmation
-        const patientNotification = {
-            type: 'successfully Booked the Appointment',
-            message: `Appointment booked successfully with ${doctor.name}`,
-            data: {
-                doctorId: doctor._id,
-                doctorName: doctor.name,
-                date,
-                time
-            }
-        }
+        const patientNotification = createNotification('appointment-booked', `Appointment booked successfully with Dr. ${doctor.name}`, {
+            doctorId: doctor._id, doctorName: doctor.name, date, time
+        });
         await Patient.findByIdAndUpdate(patientId, {
             $push: { unseenNotifications: patientNotification }
         });
@@ -356,16 +343,9 @@ exports.cancelAppointment = async (req, res) => {
             });
         }
         // Add notification to doctor
-        const notification = {
-            type: 'appointment-cancelled',
-            message: `Appointment cancelled by ${patient.name}`,
-            data: {
-                patientId: patient._id,
-                patientName: patient.name,
-                date: appointment.date,
-                time: appointment.time
-            }
-        };
+        const notification = createNotification('appointment-cancelled', `Appointment cancelled by ${patient.name}`, {
+            patientId: patient._id, patientName: patient.name, date: appointment.date, time: appointment.time
+        });
 
         // Update doctor's unseenNotifications
         await Doctor.findByIdAndUpdate(appointment.doctorId, {
@@ -381,16 +361,9 @@ exports.cancelAppointment = async (req, res) => {
             });
         }
 
-        const patientNotification = {
-            type: 'successfully Cancelled the Appointment',
-            message: `Appointment Cancelled successfully with ${doctor.name}`,
-            data: {
-                doctorId: doctor._id,
-                doctorName: doctor.name,
-                date: appointment.date,
-                time: appointment.time
-            }
-        }
+        const patientNotification = createNotification('appointment-cancelled', `Appointment cancelled successfully with Dr. ${doctor.name}`, {
+            doctorId: doctor._id, doctorName: doctor.name, date: appointment.date, time: appointment.time
+        });
         await Patient.findByIdAndUpdate(patient._id, {
             $push: { unseenNotifications: patientNotification }
         });
@@ -412,54 +385,86 @@ exports.cancelAppointment = async (req, res) => {
 }
 exports.getNotifications = async (req, res) => {
     try {
-        const patientId = req.user._id;
-        const patient = await Patient.findById(patientId);
+        const patient = await Patient.findById(req.user._id);
         if (!patient) {
-            return res.status(404).json({
-                success: false,
-                message: "Patient not found"
-            });
+            return res.status(404).json({ success: false, message: "Patient not found" });
         }
         res.status(200).json({
             success: true,
-            data: patient.unseenNotifications
+            data: {
+                unseenNotifications: patient.unseenNotifications || [],
+                seenNotifications: patient.seenNotifications || []
+            }
         });
-    }
-    catch (err) {
+    } catch (err) {
         console.error("Error in fetching notifications:", err);
-        return res.status(500).json({
-            success: false,
-            message: "Error in fetching notifications",
-            error: err.message
-        });
+        return res.status(500).json({ success: false, message: "Error in fetching notifications" });
+    }
+}
+
+exports.getNotificationCount = async (req, res) => {
+    try {
+        const patient = await Patient.findById(req.user._id).select('unseenNotifications');
+        if (!patient) return res.status(404).json({ success: false, count: 0 });
+        res.json({ success: true, count: (patient.unseenNotifications || []).length });
+    } catch (err) {
+        res.status(500).json({ success: false, count: 0 });
     }
 }
 
 exports.markNotificationAsSeen = async (req, res) => {
     try {
-        const patientId = req.user._id;
-        const patient = await Patient.findById(patientId);
+        const patient = await Patient.findById(req.user._id);
         if (!patient) {
-            return res.status(404).json({
-                success: false,
-                message: "Patient not found"
-            });
+            return res.status(404).json({ success: false, message: "Patient not found" });
         }
-        patient.seenNotifications = patient.unseenNotifications
+        // Append unseen to seen (not overwrite)
+        patient.seenNotifications = [
+            ...(patient.seenNotifications || []),
+            ...(patient.unseenNotifications || [])
+        ];
         patient.unseenNotifications = [];
-        await patient.save();
-        res.status(200).json({
-            success: true,
-            message: "All notifications marked as seen"
-        });
-    }
-    catch (err) {
+        await patient.save({ validateBeforeSave: false });
+        res.status(200).json({ success: true, message: "All notifications marked as seen" });
+    } catch (err) {
         console.error("Error in marking notifications as seen:", err);
-        return res.status(500).json({
-            success: false,
-            message: "Error in marking notifications as seen",
-            error: err.message
-        });
+        return res.status(500).json({ success: false, message: "Error in marking notifications as seen" });
+    }
+}
+
+exports.clearAllNotifications = async (req, res) => {
+    try {
+        const patient = await Patient.findById(req.user._id);
+        if (!patient) {
+            return res.status(404).json({ success: false, message: "Patient not found" });
+        }
+        patient.unseenNotifications = [];
+        patient.seenNotifications = [];
+        await patient.save({ validateBeforeSave: false });
+        res.json({ success: true, message: "All notifications cleared" });
+    } catch (err) {
+        console.error("Error clearing notifications:", err);
+        return res.status(500).json({ success: false, message: "Failed to clear notifications" });
+    }
+}
+
+exports.deleteNotification = async (req, res) => {
+    try {
+        const { index, type } = req.body; // type: 'unseen' or 'seen'
+        const patient = await Patient.findById(req.user._id);
+        if (!patient) {
+            return res.status(404).json({ success: false, message: "Patient not found" });
+        }
+        if (type === 'unseen') {
+            patient.unseenNotifications.splice(index, 1);
+        } else {
+            patient.seenNotifications.splice(index, 1);
+        }
+        await patient.save({ validateBeforeSave: false });
+        res.json({ success: true, message: "Notification deleted" });
+    } catch (err) {
+        console.error("Error deleting notification:", err);
+        return res.status(500).json({ success: false, message: "Failed to delete notification" });
     }
 }
 
@@ -717,11 +722,9 @@ exports.rescheduleAppointment = async (req, res) => {
 
         // Notify doctor
         const patient = await Patient.findById(patientId);
-        const notification = {
-            type: 'appointment-rescheduled',
-            message: `Appointment rescheduled by ${patient?.name || 'Patient'} from ${oldDate} ${oldTime} to ${date} ${time}`,
-            data: { patientId, patientName: patient?.name, oldDate, oldTime, newDate: date, newTime: time }
-        };
+        const notification = createNotification('appointment-rescheduled', `Appointment rescheduled by ${patient?.name || 'Patient'} from ${oldDate} ${oldTime} to ${date} ${time}`, {
+            patientId, patientName: patient?.name, oldDate, oldTime, newDate: date, newTime: time
+        });
         await Doctor.findByIdAndUpdate(appointment.doctorId, {
             $push: { unseenNotifications: notification }
         });
@@ -759,28 +762,18 @@ exports.cancelSecondOpinion = async (req, res) => {
 
         // Notify doctor
         const patient = await Patient.findById(patientId);
-        const notification = {
-            type: 'second-opinion-cancelled',
-            message: `Second opinion request cancelled by ${patient?.name || 'Patient'}`,
-            data: {
-                patientId,
-                patientName: patient?.name,
-                date: secondOpinion.date,
-                time: secondOpinion.time,
-                problem: secondOpinion.problem
-            }
-        };
+        const notification = createNotification('second-opinion-cancelled', `Second opinion request cancelled by ${patient?.name || 'Patient'}`, {
+            patientId, patientName: patient?.name, date: secondOpinion.date, time: secondOpinion.time, problem: secondOpinion.problem
+        });
         await Doctor.findByIdAndUpdate(secondOpinion.doctorId, {
             $push: { unseenNotifications: notification }
         });
 
         // Notify patient
         const doctor = await Doctor.findById(secondOpinion.doctorId);
-        const patientNotification = {
-            type: 'second-opinion-cancelled',
-            message: `Second opinion with Dr. ${doctor?.name || 'Doctor'} cancelled successfully`,
-            data: { doctorId: secondOpinion.doctorId, doctorName: doctor?.name }
-        };
+        const patientNotification = createNotification('second-opinion-cancelled', `Second opinion with Dr. ${doctor?.name || 'Doctor'} cancelled successfully`, {
+            doctorId: secondOpinion.doctorId, doctorName: doctor?.name
+        });
         await Patient.findByIdAndUpdate(patientId, {
             $push: { unseenNotifications: patientNotification }
         });
@@ -827,11 +820,9 @@ exports.rescheduleSecondOpinion = async (req, res) => {
 
         // Notify doctor
         const patient = await Patient.findById(patientId);
-        const notification = {
-            type: 'second-opinion-rescheduled',
-            message: `Second opinion rescheduled by ${patient?.name || 'Patient'} to ${date} ${time}`,
-            data: { patientId, patientName: patient?.name, oldDate, oldTime, newDate: date, newTime: time }
-        };
+        const notification = createNotification('second-opinion-rescheduled', `Second opinion rescheduled by ${patient?.name || 'Patient'} to ${date} ${time}`, {
+            patientId, patientName: patient?.name, oldDate, oldTime, newDate: date, newTime: time
+        });
         await Doctor.findByIdAndUpdate(secondOpinion.doctorId, {
             $push: { unseenNotifications: notification }
         });

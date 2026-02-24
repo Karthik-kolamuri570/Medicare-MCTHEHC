@@ -251,6 +251,7 @@ function DHeader() {
   const [searchedData, setSearchedData] = useState([]);
   const [doctor, setDoctor] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [notifCount, setNotifCount] = useState(0);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -347,6 +348,26 @@ function DHeader() {
     }
   };
 
+  // Poll notification count every 30s
+  useEffect(() => {
+    const fetchCount = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        const res = await fetch("/api/doctor/notifications/count", {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setNotifCount(data.count || 0);
+        }
+      } catch (e) { /* silent */ }
+    };
+    fetchCount();
+    const interval = setInterval(fetchCount, 30000);
+    return () => clearInterval(interval);
+  }, [doctor]);
+
   return (
     <header style={{ position: 'fixed', width: '100%', top: 0, zIndex: 1000 }}>
       <div style={{ boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
@@ -372,7 +393,24 @@ function DHeader() {
             <li style={{ cursor: 'pointer' }} onClick={() => navigate("/doctor/my-consultations")}>My Consultations</li>
             <li style={{ cursor: 'pointer' }} onClick={() => navigate("/doctor/doc/blogs")}>My Blogs</li>
             <li style={{ cursor: 'pointer' }} onClick={() => navigate("/doctor/blood-camp/admin")}>Blood Camp</li>
-            <li style={{ cursor: 'pointer' }} onClick={() => navigate("/contact")}>Notifications</li>
+            <li
+              style={{ cursor: 'pointer', position: 'relative', display: 'flex', alignItems: 'center' }}
+              onClick={() => navigate("/doctor/notifications")}
+              title="Notifications"
+            >
+              🔔
+              {notifCount > 0 && (
+                <span style={{
+                  position: 'absolute', top: -6, right: -10,
+                  background: '#ef4444', color: '#fff',
+                  fontSize: '0.65rem', fontWeight: 800,
+                  width: 18, height: 18, borderRadius: '50%',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  border: '2px solid #fff',
+                  animation: 'ntfPulse 2s infinite'
+                }}>{notifCount > 9 ? '9+' : notifCount}</span>
+              )}
+            </li>
             {!isLoading && (doctor ?
               <li style={{ cursor: 'pointer' }} onClick={handleLogout}>Logout</li> :
               <li style={{ cursor: 'pointer' }} onClick={() => navigate("/doctor/login")}>Login</li>)}

@@ -11,8 +11,13 @@ const api = axios.create({
 // Request interceptor — attach JWT to every outgoing request
 api.interceptors.request.use(
     (config) => {
+        // Use adminToken for admin routes, otherwise use standard token
+        const adminToken = localStorage.getItem('adminToken');
         const token = localStorage.getItem('token');
-        if (token) {
+
+        if (config.url.includes('/api/admin') && adminToken) {
+            config.headers.Authorization = `Bearer ${adminToken}`;
+        } else if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
         return config;

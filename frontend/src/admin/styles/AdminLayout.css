@@ -343,3 +343,49 @@
 [data-theme="dark"] .theme-toggle-btn:hover {
   background-color: rgba(144, 202, 249, 0.1);
 }
+
+/* Notification Badge Styles */
+.notification-badge-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  margin-right: 15px;
+}
+
+.notification-badge-btn:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #f44336;
+}
+
+[data-theme="dark"] .notification-badge-btn {
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .notification-badge-btn:hover {
+  background-color: rgba(239, 68, 68, 0.2);
+}
+
+.pulse-badge .MuiBadge-badge {
+  animation: badge-pulse 2s infinite ease-in-out;
+}
+
+@keyframes badge-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.7);
+  }
+
+  70% {
+    box-shadow: 0 0 0 8px rgba(244, 67, 54, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(244, 67, 54, 0);
+  }
+}

@@ -18,8 +18,10 @@ router.put('/reschedule-appointment/:appointmentId', auth.patientAuth, patientCo
 router.post('/cancel-second-opinion/:id', auth.patientAuth, patientController.cancelSecondOpinion);
 router.put('/reschedule-second-opinion/:id', auth.patientAuth, patientController.rescheduleSecondOpinion);
 router.get('/notifications/', auth.patientAuth, patientController.getNotifications);
+router.get('/notifications/count', auth.patientAuth, patientController.getNotificationCount);
 router.post('/notifications/', auth.patientAuth, patientController.markNotificationAsSeen);
-// router.delete('/notifications/:notificationId',patientController.deleteNotification);
+router.delete('/notifications/clear', auth.patientAuth, patientController.clearAllNotifications);
+router.post('/notifications/delete', auth.patientAuth, patientController.deleteNotification);
 router.get('/get-second-opinion/accepted', auth.patientAuth, patientController.getSecondOpinionsAccepted);
 const { uploadFiles, getSecondOpinion } = require('./../controller/patientController');
 router.get('/get-second-opinion', auth.patientAuth, patientController.getAllSecondOpinions);

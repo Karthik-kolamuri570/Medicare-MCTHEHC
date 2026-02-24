@@ -378,6 +378,7 @@ function Header() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [notifCount, setNotifCount] = useState(0);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -464,6 +465,26 @@ function Header() {
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Poll notification count every 30s
+  useEffect(() => {
+    const fetchCount = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        const res = await fetch("/api/patient/notifications/count", {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setNotifCount(data.count || 0);
+        }
+      } catch (e) { /* silent */ }
+    };
+    fetchCount();
+    const interval = setInterval(fetchCount, 30000);
+    return () => clearInterval(interval);
+  }, [user]);
 
   const handleSearchInputChange = (value) => {
     setSearchInput(value);
@@ -574,6 +595,26 @@ function Header() {
               <li style={{ cursor: "pointer" }} onClick={() => setIsContactModalOpen(true)}>
                 Contact Us
               </li>
+              {user && (
+                <li
+                  style={{ cursor: "pointer", position: "relative", display: "flex", alignItems: "center" }}
+                  onClick={() => navigate("/notifications")}
+                  title="Notifications"
+                >
+                  🔔
+                  {notifCount > 0 && (
+                    <span style={{
+                      position: "absolute", top: -6, right: -10,
+                      background: "#ef4444", color: "#fff",
+                      fontSize: "0.65rem", fontWeight: 800,
+                      width: 18, height: 18, borderRadius: "50%",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      border: "2px solid #fff",
+                      animation: "ntfPulse 2s infinite"
+                    }}>{notifCount > 9 ? '9+' : notifCount}</span>
+                  )}
+                </li>
+              )}
               {!isLoading && (
                 user ? (
                   <li style={{ cursor: "pointer" }} onClick={handleLogout}>

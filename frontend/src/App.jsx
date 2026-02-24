@@ -19,6 +19,7 @@ import DSecondOpinions from "./components/Doctor.forms/DSecondOpinions";
 import DBlogs from "./components/Doctor.forms/DBlogs";
 import DAppointments from "./components/Doctor.forms/DAppointments";
 import DOnlineConsultation from "./components/Doctor.forms/DOnlineConsultation";
+import DNotifications from "./components/Doctor.forms/DNotifications";
 import LogoutPatient from "./components/forms/LogoutPatient";
 import LogoutDoctor from "./components/Doctor.forms/LogoutDoctor";
 import OnlineConsultation from './components/forms/OnlineConsultation'
@@ -55,6 +56,7 @@ import BlogModeration from "./admin/pages/BlogModeration";
 import FlameBankAdmin from "./admin/pages/FlameBankAdmin";
 import BloodCamps from "./admin/pages/BloodCamps";
 import Settings from "./admin/pages/Settings";
+import ANotifications from "./admin/pages/Notifications";
 
 const Layout = ({ children }) => (<><Header />{children}<Footer /></>);
 const DLayout = ({ children }) => (<><DHeader />{children}<DFooter /></>);
@@ -98,6 +100,7 @@ function App() {
         <Route path="/admin/blood-camps" element={<ProtectedAdminRoute><BloodCamps /></ProtectedAdminRoute>} />
         <Route path="/admin/blood-banks" element={<ProtectedAdminRoute><FlameBankAdmin /></ProtectedAdminRoute>} />
         <Route path="/admin/settings" element={<ProtectedAdminRoute><Settings /></ProtectedAdminRoute>} />
+        <Route path="/admin/notifications" element={<ProtectedAdminRoute><ANotifications /></ProtectedAdminRoute>} />
         <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
 
 
@@ -135,6 +138,7 @@ function App() {
         <Route path="/doctor/my-consultations" element={<DLayout><DOnlineConsultation /></DLayout>} />
         <Route path="/doctor/second-opinion" element={<DLayout><DSecondOpinions /></DLayout>} />
         <Route path="/my-blogs" element={<DLayout><DBlogs /></DLayout>} />
+        <Route path="/doctor/notifications" element={<DLayout><DNotifications /></DLayout>} />
         <Route path="/doctor/logout" element={<LogoutDoctor />} />
         <Route path="/chat/:receiverId" element={<ChatWrapper />} />
         <Route path="/video-call/:receiverId" element={<CallPage />} />
