@@ -19,6 +19,8 @@
   "homepage": "https://github.com/Karthik-kolamuri570/Medicare-MC#readme",
   "description": "",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.997.0",
+    "@aws-sdk/s3-request-presigner": "^3.997.0",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
     "body-parser": "^1.20.3",
@@ -32,6 +34,7 @@
     "medicare": "file:",
     "mongoose": "^8.12.1",
     "multer": "^2.0.2",
+    "multer-s3": "^3.0.1",
     "nodemailer": "^8.0.1",
     "nodemon": "^3.1.9",
     "path": "^0.12.7",

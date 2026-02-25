@@ -11,6 +11,7 @@ const bcryptjs = require('bcryptjs');
 const { generateAccessToken, generateRefreshToken, verifyToken } = require('../utils/jwt');
 const { createNotification } = require('../utils/notification');
 const Stripe = require('stripe');
+const { generatePresignedUrl } = require('../utils/s3Config');
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 const adminController = {
@@ -378,7 +379,16 @@ const adminController = {
         Blog.countDocuments(filter)
       ]);
 
-      res.json({ success: true, blogs, meta: { total, page: pageNum, limit: lim } });
+      // Sign profile images of blog authors
+      const enrichedBlogs = await Promise.all(blogs.map(async (blog) => {
+        const blogObj = blog.toObject();
+        if (blogObj.doctor_id && blogObj.doctor_id.profileImage) {
+          blogObj.doctor_id.profileImage = await generatePresignedUrl(blogObj.doctor_id.profileImage);
+        }
+        return blogObj;
+      }));
+
+      res.json({ success: true, blogs: enrichedBlogs, meta: { total, page: pageNum, limit: lim } });
     } catch (error) {
       console.error('Error in getBlogsAdmin:', error);
       res.status(500).json({ success: false, error: error.message });

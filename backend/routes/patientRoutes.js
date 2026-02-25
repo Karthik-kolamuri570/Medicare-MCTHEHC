@@ -23,7 +23,8 @@ router.post('/notifications/', auth.patientAuth, patientController.markNotificat
 router.delete('/notifications/clear', auth.patientAuth, patientController.clearAllNotifications);
 router.post('/notifications/delete', auth.patientAuth, patientController.deleteNotification);
 router.get('/get-second-opinion/accepted', auth.patientAuth, patientController.getSecondOpinionsAccepted);
-const { uploadFiles, getSecondOpinion } = require('./../controller/patientController');
+const { uploadFiles, getSecondOpinion, uploadProfile, updateProfileImage } = require('./../controller/patientController');
+router.put('/profile-image', auth.patientAuth, uploadProfile, updateProfileImage);
 router.get('/get-second-opinion', auth.patientAuth, patientController.getAllSecondOpinions);
 router.post('/get-second-opinion', auth.patientAuth, uploadFiles, getSecondOpinion);
 router.get('/logout', auth.patientAuth, patientController.logoutPatient)

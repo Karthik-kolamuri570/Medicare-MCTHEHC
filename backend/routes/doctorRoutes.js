@@ -28,6 +28,7 @@ router.post('/reset-password', doctorController.resetPassword);
 
 router.get('/profile/:id', doctorController.getDoctorById);
 router.put('/profile/:id', auth.doctorAuth, doctorController.updateDoctor);
+router.put('/profile-image', auth.doctorAuth, doctorController.uploadProfile, doctorController.updateProfileImage);
 
 // Get all doctors
 router.get('/', doctorController.getAllDoctors);

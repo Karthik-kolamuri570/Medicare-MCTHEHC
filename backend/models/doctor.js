@@ -103,5 +103,9 @@ const userSchema = new Schema({
         type: Date,
         default: null
     },
+    profileImage: {
+        type: String,
+        default: null
+    }
 })
 module.exports = mongoose.model('Doctor', userSchema);

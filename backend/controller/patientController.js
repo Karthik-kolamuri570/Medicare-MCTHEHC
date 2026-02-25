@@ -479,30 +479,56 @@ exports.logoutPatient = (req, res) => {
 
 const multer = require("multer");
 const path = require("path");
+const { s3Client: s3, generatePresignedUrl } = require('../utils/s3Config');
+const multerS3 = require('multer-s3');
 
-
-// Multer config for multiple files
-const os = require('os');
-const fs = require('fs');
-
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        // Vercel's filesystem is read-only except for /tmp
-        const isVercel = process.env.VERCEL || process.env.NODE_ENV === 'production';
-        const uploadPath = isVercel ? path.join(os.tmpdir(), 'uploads') : "uploads/";
-
-        // Ensure the directory exists
-        if (!fs.existsSync(uploadPath)) {
-            fs.mkdirSync(uploadPath, { recursive: true });
+// Multer-S3 config for multiple files
+const upload = multer({
+    storage: multerS3({
+        s3: s3,
+        bucket: process.env.AWS_BUCKET_NAME,
+        contentType: multerS3.AUTO_CONTENT_TYPE,
+        metadata: function (req, file, cb) {
+            cb(null, { fieldName: file.fieldname });
+        },
+        key: function (req, file, cb) {
+            const folder = file.fieldname === "profileImage" ? "Profiles/" : "reports/";
+            const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+            cb(null, folder + file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname));
         }
-        cb(null, uploadPath);
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-        cb(null, file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname));
-    },
+    })
 });
-const upload = multer({ storage: storage });
+
+// Export multer upload middleware for routes
+exports.uploadFiles = upload.array("files", 5); // max 5 files
+exports.uploadProfile = upload.single("profileImage");
+
+// Controller for updating profile image
+exports.updateProfileImage = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: "No image file provided" });
+        }
+
+        const profileImageUrl = req.file.location;
+        const patient = await Patient.findByIdAndUpdate(userId, { profileImage: profileImageUrl }, { new: true });
+
+        if (!patient) {
+            return res.status(404).json({ success: false, message: "Patient not found" });
+        }
+
+        // Generate signed URL for the response
+        const signedUrl = await generatePresignedUrl(profileImageUrl);
+
+        res.status(200).json({ success: true, message: "Profile image updated", data: { ...patient.toObject(), profileImage: signedUrl } });
+    } catch (error) {
+        console.error("Error updating profile image:", error);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
+};
+
+
 
 // Controller function
 exports.getSecondOpinion = async (req, res) => {
@@ -528,8 +554,8 @@ exports.getSecondOpinion = async (req, res) => {
         if (!doctor) return res.status(404).json({ success: false, message: "Doctor not found" });
         if (!patient) return res.status(404).json({ success: false, message: "Patient not found" });
 
-        // Map filenames from uploaded files array
-        const uploadedFiles = files.map((file) => file.filename);
+        // Map S3 locations (URLs) from uploaded files array
+        const uploadedFiles = files.map((file) => file.location);
 
         // Convert date string to Date object
         const appointmentDate = new Date(date);
@@ -560,8 +586,6 @@ exports.getSecondOpinion = async (req, res) => {
     }
 };
 
-// Export multer upload middleware for routes
-exports.uploadFiles = upload.array("files", 5); // max 5 files
 
 
 
@@ -577,7 +601,17 @@ exports.getSecondOpinionsAccepted = async (req, res) => {
         if (!secondOpinions || secondOpinions.length === 0) {
             return res.status(201).json({ success: true, data: [], message: 'No Accepted Second Opinions Found...' });
         }
-        return res.json({ success: true, data: secondOpinions });
+
+        // Generate signed URLs for all files in each second opinion
+        const enrichedSecondOpinions = await Promise.all(secondOpinions.map(async (opinion) => {
+            const opinionObj = opinion.toObject();
+            if (opinionObj.files && opinionObj.files.length > 0) {
+                opinionObj.files = await Promise.all(opinionObj.files.map(file => generatePresignedUrl(file)));
+            }
+            return opinionObj;
+        }));
+
+        return res.json({ success: true, data: enrichedSecondOpinions });
     }
     catch (err) {
         console.error("Error in fetching Second Opinions:", err);
@@ -598,7 +632,16 @@ exports.getAllSecondOpinions = async (req, res) => {
         // Fetch ALL second opinions (no status filter)
         const secondOpinions = await GetSecondOpinion.find({ patientId: patientId }).populate('doctorId', 'name specialization contact');
 
-        return res.json({ success: true, data: secondOpinions || [] });
+        // Generate signed URLs for all files
+        const enrichedSecondOpinions = await Promise.all((secondOpinions || []).map(async (opinion) => {
+            const opinionObj = opinion.toObject();
+            if (opinionObj.files && opinionObj.files.length > 0) {
+                opinionObj.files = await Promise.all(opinionObj.files.map(file => generatePresignedUrl(file)));
+            }
+            return opinionObj;
+        }));
+
+        return res.json({ success: true, data: enrichedSecondOpinions });
     } catch (err) {
         console.error("Error in fetching All Second Opinions:", err);
         return res.status(500).json({ success: false, message: 'Internal Server Error...' });

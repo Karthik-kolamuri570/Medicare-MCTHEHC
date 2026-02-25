@@ -68,6 +68,10 @@ const patientSchema = new Schema({
     resetPasswordExpires: {
         type: Date,
         default: null
+    },
+    profileImage: {
+        type: String,
+        default: null
     }
 
 })

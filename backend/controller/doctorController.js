@@ -9,6 +9,55 @@ const { createNotification } = require('../utils/notification');
 const crypto = require('crypto');
 const { sendPasswordResetEmail } = require('../utils/emailService');
 
+const multer = require("multer");
+const path = require("path");
+const { s3Client: s3, generatePresignedUrl } = require('../utils/s3Config');
+const multerS3 = require('multer-s3');
+
+// Multer-S3 config for profile images
+const upload = multer({
+  storage: multerS3({
+    s3: s3,
+    bucket: process.env.AWS_BUCKET_NAME,
+    contentType: multerS3.AUTO_CONTENT_TYPE,
+    metadata: function (req, file, cb) {
+      cb(null, { fieldName: file.fieldname });
+    },
+    key: function (req, file, cb) {
+      const folder = "profiles/";
+      const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+      cb(null, folder + file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname));
+    }
+  })
+});
+
+exports.uploadProfile = upload.single("profileImage");
+
+// Controller for updating profile image
+exports.updateProfileImage = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: "No image file provided" });
+    }
+
+    const profileImageUrl = req.file.location;
+    const doctor = await Doctor.findByIdAndUpdate(userId, { profileImage: profileImageUrl }, { new: true });
+
+    if (!doctor) {
+      return res.status(404).json({ success: false, message: "Doctor not found" });
+    }
+
+    // Generate signed URL for the response
+    const signedUrl = await generatePresignedUrl(profileImageUrl);
+
+    res.status(200).json({ success: true, message: "Profile image updated", data: { ...doctor.toObject(), profileImage: signedUrl } });
+  } catch (error) {
+    console.error("Error updating profile image:", error);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
 exports.registerDoctor = async (req, res, next) => {
   const {
     name,
@@ -219,9 +268,15 @@ exports.getDoctorById = async (req, res, next) => {
       });
     }
 
+    // Generate signed URL for profile image
+    const doctorObj = doctor.toObject();
+    if (doctorObj.profileImage) {
+      doctorObj.profileImage = await generatePresignedUrl(doctorObj.profileImage);
+    }
+
     res.status(200).json({
       success: true,
-      data: doctor
+      data: doctorObj
     });
   } catch (error) {
     console.error(error);
@@ -651,9 +706,18 @@ exports.getSecondOpinion = async (req, res) => {
       return res.status(404).json({ success: false, message: 'No second opinion requests found' });
     }
 
+    // Map and sign URLs for each request
+    const enrichedRequests = await Promise.all(secondOpinionRequests.map(async (request) => {
+      const requestObj = request.toObject();
+      if (requestObj.files && requestObj.files.length > 0) {
+        requestObj.files = await Promise.all(requestObj.files.map(file => generatePresignedUrl(file)));
+      }
+      return requestObj;
+    }));
+
     res.status(200).json({
       success: true,
-      data: secondOpinionRequests
+      data: enrichedRequests
     });
   }
   catch (error) {
@@ -785,6 +849,12 @@ exports.acceptGetSecondOpinion = async (req, res) => {
 
       console.log("✅ Record updated successfully");
 
+      // Sign URLs for the updated request before returning
+      const updatedRequestObj = updatedRequest.toObject();
+      if (updatedRequestObj.files && updatedRequestObj.files.length > 0) {
+        updatedRequestObj.files = await Promise.all(updatedRequestObj.files.map(file => generatePresignedUrl(file)));
+      }
+
       // Notify patient about second opinion status change
       const doctor = await Doctor.findById(updatedRequest.doctorId);
       const patientNotify = createNotification(`second-opinion-${status.toLowerCase()}`, `Your second opinion request with Dr. ${doctor?.name || 'Doctor'} has been ${status}.`, {
@@ -798,7 +868,7 @@ exports.acceptGetSecondOpinion = async (req, res) => {
       res.status(200).json({
         success: true,
         message: `Request ${status} successfully`,
-        data: updatedRequest
+        data: updatedRequestObj
       });
 
     } catch (updateError) {
@@ -854,9 +924,19 @@ exports.getAcceptedSecondOpinion = async (req, res) => {
     }
     const appointments = await GetSecondOpinion.find({ doctorId: doctorId, status: "accepted" }).populate('patientId', 'name contact');
     console.log("Fetching  the Appointments....")
+
+    // Generate signed URLs for all files
+    const enrichedAppointments = await Promise.all(appointments.map(async (appointment) => {
+      const apptObj = appointment.toObject();
+      if (apptObj.files && apptObj.files.length > 0) {
+        apptObj.files = await Promise.all(apptObj.files.map(file => generatePresignedUrl(file)));
+      }
+      return apptObj;
+    }));
+
     return res.json({
       success: true,
-      data: appointments
+      data: enrichedAppointments
     })
   }
   catch (err) {
