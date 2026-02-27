@@ -40,7 +40,9 @@ const ProtectedPatientRoute = ({ children }) => {
     }
 
     if (!isAuthenticated) {
-        return <Navigate to="/patient/login" state={{ from: location }} replace />;
+        // Token is present but user data is missing
+        // Could be a weird state, better to re-authenticate
+        return <Navigate to="/login?role=patient" state={{ from: location }} replace />;
     }
 
     return children;

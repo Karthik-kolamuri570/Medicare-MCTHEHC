@@ -1,5 +1,6 @@
 const Blog = require("./../models/Blogs");
 const mongoose = require("mongoose");
+const { generatePresignedUrl } = require("./../../utils/s3Config");
 
 // Create a new blog by logged-in doctor
 exports.createBlog = async (req, res) => {
@@ -68,8 +69,18 @@ exports.getAllBlogs = async (req, res) => {
 
     const total = await Blog.countDocuments({ status: 'published' });
 
+    const blogsWithSignedAvatars = await Promise.all(
+      blogs.map(async (blog) => {
+        const blogObj = blog.toObject();
+        if (blogObj.doctor_id && blogObj.doctor_id.profileImage) {
+          blogObj.doctor_id.profileImage = await generatePresignedUrl(blogObj.doctor_id.profileImage);
+        }
+        return blogObj;
+      })
+    );
+
     res.json({
-      blogs,
+      blogs: blogsWithSignedAvatars,
       pagination: {
         currentPage: page,
         totalPages: Math.ceil(total / limit),
@@ -99,7 +110,18 @@ exports.getBlogById = async (req, res) => {
         return res.status(404).json({ message: "Blog not found" });
       }
     }
-    res.json(blog);
+    const blogObj = blog.toObject();
+    if (blogObj.doctor_id && blogObj.doctor_id.profileImage) {
+      blogObj.doctor_id.profileImage = await generatePresignedUrl(blogObj.doctor_id.profileImage);
+    }
+    // Sign blog cover image
+    if (blogObj.image_url) {
+      blogObj.image_url = await generatePresignedUrl(blogObj.image_url);
+    }
+    res.json({
+      success: true,
+      data: blogObj
+    });
   } catch (error) {
     console.error("Get blog by ID error:", error);
     res.status(500).json({ message: "Failed to fetch blog" });
@@ -208,8 +230,23 @@ exports.searchBlogs = async (req, res) => {
 
     const total = await Blog.countDocuments(filter);
 
+    const blogsWithSignedUrls = await Promise.all(
+      blogs.map(async (blog) => {
+        const blogObj = blog.toObject();
+        // Sign author profile image
+        if (blogObj.doctor_id && blogObj.doctor_id.profileImage) {
+          blogObj.doctor_id.profileImage = await generatePresignedUrl(blogObj.doctor_id.profileImage);
+        }
+        // Sign blog cover image
+        if (blogObj.image_url) {
+          blogObj.image_url = await generatePresignedUrl(blogObj.image_url);
+        }
+        return blogObj;
+      })
+    );
+
     res.json({
-      blogs,
+      blogs: blogsWithSignedUrls,
       pagination: {
         currentPage: page,
         totalPages: Math.ceil(total / limit),

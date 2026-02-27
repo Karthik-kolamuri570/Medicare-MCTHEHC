@@ -10,7 +10,7 @@ function LogoutDoctor() {
   // Notify backend (optional, JWT is stateless)
   api.get('/api/doctor/logout').catch(() => { });
 
-  window.location.href = '/';
+  window.location.href = '/login';
 
   return (
     <div>

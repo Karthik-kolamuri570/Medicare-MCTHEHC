@@ -1,0 +1,437 @@
+.unified-login-page {
+  min-height: calc(100vh - 140px); /* Account for header/footer if present */
+  display: flex;
+  background-color: #f8fafc;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  padding: 24px;
+}
+
+.unified-login-container {
+  display: flex;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  position: relative;
+}
+
+/* --- Hero Section (Left Side) --- */
+.unified-login-hero {
+  flex: 1;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 60px;
+  color: white;
+  min-height: 600px;
+}
+
+.unified-hero-bg-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.15;
+  mix-blend-mode: overlay;
+}
+
+.unified-hero-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom right,
+    rgba(14, 165, 233, 0.4),
+    rgba(16, 185, 129, 0.2)
+  );
+}
+
+.unified-pulse-rings {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: unified-pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+.unified-pulse-rings::before {
+  content: '';
+  position: absolute;
+  inset: -100px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@keyframes unified-pulse {
+  0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0; }
+}
+
+.unified-hero-content {
+  position: relative;
+  z-index: 10;
+  max-width: 480px;
+}
+
+.unified-brand-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  border-radius: 100px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.unified-hero-title {
+  font-size: 48px;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 24px;
+  background: linear-gradient(to right, #ffffff, #94a3b8);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.unified-hero-desc {
+  font-size: 18px;
+  line-height: 1.6;
+  color: #cbd5e1;
+  margin-bottom: 48px;
+}
+
+.unified-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.unified-stat-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 24px;
+  border-radius: 16px;
+  transition: transform 0.3s ease;
+}
+
+.unified-stat-card:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.unified-stat-value {
+  font-size: 32px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.unified-stat-label {
+  font-size: 14px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+
+/* --- Form Section (Right Side) --- */
+.unified-login-form-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 60px;
+  max-width: 580px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.unified-login-header {
+  margin-bottom: 32px;
+}
+
+.unified-login-logo {
+  width: 48px;
+  height: 48px;
+  background-color: #f0f9ff;
+  color: #0ea5e9;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.unified-login-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 8px;
+  letter-spacing: -0.5px;
+}
+
+.unified-login-subtitle {
+  font-size: 16px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* Tabs */
+.unified-login-tabs {
+  display: flex;
+  background-color: #f1f5f9;
+  padding: 6px;
+  border-radius: 16px;
+  margin-bottom: 32px;
+}
+
+.unified-login-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 8px;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #64748b;
+  transition: all 0.2s ease;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.unified-login-tab:hover {
+  color: #334155;
+}
+
+.unified-login-tab.active {
+  background: white;
+  color: #0ea5e9;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+}
+
+.unified-login-tab svg {
+  width: 20px;
+  height: 20px;
+  transition: all 0.2s ease;
+}
+
+.unified-login-tab.active svg {
+  transform: scale(1.1);
+}
+
+/* Form */
+.unified-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.unified-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.unified-form-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.unified-form-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.unified-form-forgot {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0ea5e9;
+  text-decoration: none;
+}
+.unified-form-forgot:hover {
+  text-decoration: underline;
+}
+
+.unified-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.unified-input-icon {
+  position: absolute;
+  left: 16px;
+  color: #94a3b8;
+  width: 20px;
+  height: 20px;
+}
+
+.unified-form-input {
+  width: 100%;
+  padding: 14px 16px 14px 48px; /* Room for icon */
+  font-size: 15px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  outline: none;
+  transition: all 0.2s;
+  box-sizing: border-box;
+  color: #0f172a;
+  background-color: #f8fafc;
+}
+
+.unified-form-input:focus {
+  border-color: #0ea5e9;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+}
+
+.unified-form-input::placeholder {
+  color: #94a3b8;
+}
+
+.unified-password-toggle {
+  position: absolute;
+  right: 16px;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.unified-password-toggle:hover {
+  color: #64748b;
+}
+
+/* Button */
+.unified-submit-btn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+  margin-top: 8px;
+}
+
+.unified-submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(14, 165, 233, 0.4);
+}
+
+.unified-submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.unified-spinner {
+  width: 18px;
+  height: 18px;
+  border: 3px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: unified-spin 0.8s linear infinite;
+}
+
+.unified-error {
+  background-color: #fef2f2;
+  color: #b91c1c;
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid #fecaca;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Footer */
+.unified-login-footer {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 15px;
+  color: #64748b;
+}
+
+.unified-login-footer a {
+  color: #0ea5e9;
+  font-weight: 700;
+  text-decoration: none;
+  margin-left: 6px;
+}
+.unified-login-footer a:hover {
+  text-decoration: underline;
+}
+
+/* Base Styles */
+* {
+  box-sizing: border-box;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 1024px) {
+  .unified-login-hero {
+    display: none; /* Hide hero on smaller screens */
+  }
+  
+  .unified-login-container {
+    max-width: 580px;
+  }
+}
+
+@media (max-width: 480px) {
+  .unified-login-page {
+    padding: 16px;
+  }
+  
+  .unified-login-form-wrapper {
+    padding: 32px 24px;
+  }
+  
+  .unified-login-tabs {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  
+  .unified-login-tab {
+    flex-basis: calc(50% - 4px);
+  }
+}

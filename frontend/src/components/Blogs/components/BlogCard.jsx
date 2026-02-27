@@ -125,6 +125,7 @@ const BlogCard = ({ blog }) => {
               ...styles.image,
               ...(hovered ? styles.imageHover : {})
             }}
+            onError={(e) => { e.target.src = 'https://via.placeholder.com/400x200?text=No+Image'; }}
           />
         </div>
       )}

@@ -106,6 +106,7 @@ app.get('/api/me', async (req, res) => {
         role: "doctor",
         userId: doctor._id.toString(),
         name: doctor.fullname || doctor.name || "Doctor",
+        profileImage: doctor.profileImage ? await generatePresignedUrl(doctor.profileImage) : null
       });
     }
 
@@ -118,6 +119,7 @@ app.get('/api/me', async (req, res) => {
         role: "patient",
         userId: patient._id.toString(),
         name: patient.fullname || patient.name || "Patient",
+        profileImage: patient.profileImage ? await generatePresignedUrl(patient.profileImage) : null
       });
     }
 

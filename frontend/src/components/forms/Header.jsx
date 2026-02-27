@@ -533,7 +533,7 @@ function Header() {
         localStorage.removeItem("refreshToken");
         localStorage.removeItem("user");
         sessionStorage.removeItem("token");
-        navigate("/patient/login");
+        navigate("/login");
         setTimeout(() => {
           checkUserLogin();
         }, 100);

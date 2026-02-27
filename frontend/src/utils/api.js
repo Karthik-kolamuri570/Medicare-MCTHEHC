@@ -31,22 +31,23 @@ api.interceptors.response.use(
     (error) => {
         if (error.response && error.response.status === 401) {
             // Clear stored tokens 
-            localStorage.removeItem('token');
             localStorage.removeItem('refreshToken');
             localStorage.removeItem('user');
             localStorage.removeItem('adminToken');
             localStorage.removeItem('adminUser');
 
-            // Determine which login page to redirect to
-            const currentPath = window.location.pathname;
-            if (currentPath.startsWith('/admin')) {
-                window.location.href = '/admin/login';
-            } else if (currentPath.startsWith('/doctor')) {
-                window.location.href = '/doctor/login';
-            } else if (currentPath.startsWith('/blood-bank')) {
-                window.location.href = '/blood-bank/login';
+            const reqUrl = error.config.url;
+
+            if (reqUrl.includes('/api/admin')) {
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('adminUser');
+                window.location.href = '/login?role=admin';
+            } else if (reqUrl.includes('/api/doctor')) {
+                window.location.href = '/login?role=doctor';
+            } else if (reqUrl.includes('/api/blood-bank')) {
+                window.location.href = '/login?role=bank';
             } else {
-                window.location.href = '/login/patient';
+                window.location.href = '/login?role=patient';
             }
         }
         return Promise.reject(error);

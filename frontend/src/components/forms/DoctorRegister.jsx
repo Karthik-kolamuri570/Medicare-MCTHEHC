@@ -86,6 +86,9 @@ function Doctor() {
     toTime: ''
   });
 
+  const [profileImage, setProfileImage] = useState(null);
+  const [profilePreview, setProfilePreview] = useState(null);
+
   const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
@@ -97,6 +100,18 @@ function Doctor() {
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfileImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfilePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   // Validate form fields
@@ -142,12 +157,26 @@ function Doctor() {
     setValidationErrors({});
 
     try {
+      // Use FormData for file upload
+      const data = new FormData();
+      Object.keys(formData).forEach((key) => {
+        data.append(key, formData[key]);
+      });
+
+      if (profileImage) {
+        data.append('profileImage', profileImage);
+      }
+
       // Sending POST request to register the doctor
-      const response = await axios.post('/api/doctor/register', formData);
+      const response = await axios.post('/api/doctor/register', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
 
       if (response.status === 201) {
         // Redirect to login on successful registration
-        navigate('/doctor/login');
+        navigate('/login?role=doctor');
       } else {
         setErrorMessage('Registration failed. Please try again.');
       }
@@ -164,6 +193,32 @@ function Doctor() {
     <div className="form-container">
       <h1>Doctor Registration</h1>
       <form className="form" onSubmit={handleSubmit}>
+        <div className="profile-image-upload" style={{ marginBottom: '20px', textAlign: 'center' }}>
+          {profilePreview ? (
+            <img
+              src={profilePreview}
+              alt="Profile Preview"
+              style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', marginBottom: '10px' }}
+            />
+          ) : (
+            <div style={{ width: '100px', height: '100px', borderRadius: '50%', backgroundColor: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px' }}>
+              <span style={{ color: '#9ca3af', fontSize: '12px' }}>No Image</span>
+            </div>
+          )}
+          <br />
+          <label htmlFor="profileImage" style={{ cursor: 'pointer', color: '#3b82f6', textDecoration: 'underline' }}>
+            Upload Profile Picture
+          </label>
+          <input
+            id="profileImage"
+            type="file"
+            name="profileImage"
+            accept="image/*"
+            style={{ display: 'none' }}
+            onChange={handleFileChange}
+          />
+        </div>
+
         <label>Name:</label>
         <input
           type="text"
@@ -305,7 +360,7 @@ function Doctor() {
 
       <p className="login-link">
         Already registered?{" "}
-        <a href="#" onClick={() => navigate("/doctor/login")}>
+        <a href="#" onClick={() => navigate("/login?role=doctor")}>
           Login
         </a>
       </p>

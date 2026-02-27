@@ -6,8 +6,7 @@ import TopDoctors from "./components/TopDoctors";
 import Bookanappointment from "./components/Bookanappointment";
 import Notifications from "./components/Notifications";
 import Form from "./components/forms/form";
-import LoginDoctor from "./components/forms/LoginDoctor";
-import LoginPatient from "./components/forms/LoginPatient";
+import UnifiedLogin from "./components/forms/UnifiedLogin";
 import User from "./components/forms/User";
 import Doctor from "./components/forms/DoctorRegister";
 import Footer from "./components/forms/Footer";
@@ -34,7 +33,6 @@ import ForgotPassword from "./components/forms/ForgotPassword";
 import ResetPassword from "./components/forms/ResetPassword";
 import BankHome from "./components/BloodBanks/BankHome";
 import BloodBankContainer from './components/BloodBanks/BloodBankContainer';
-import BloodBankLogin from './components/BloodBanks/BloodBankLogin';
 import UserPortal from './components/BloodBanks/UserPortal'
 import BloodCampAdmin from './components/BloodBanks/BloodCampAdmin';
 import BlogListPage from "./components/Blogs/pages/BlogListPage"
@@ -46,7 +44,6 @@ import ProtectedPatientRoute from "./components/ProtectedPatientRoute";
 import OurHospitals from "./components/OurHospitals";
 import AdminLayout from "./admin/components/AdminLayout";
 import ProtectedAdminRoute from "./admin/components/ProtectedAdminRoute";
-import AdminLogin from "./admin/pages/AdminLogin";
 import Dashboard from "./admin/pages/Dashboard";
 import Users from "./admin/pages/Users";
 import Doctors from "./admin/pages/Doctors";
@@ -72,8 +69,8 @@ axios.interceptors.response.use(
         localStorage.removeItem('adminToken');
         localStorage.removeItem('adminUser');
         // Redirect to admin login if not already there
-        if (!window.location.pathname.includes('/admin/login')) {
-          window.location.href = '/admin/login';
+        if (!window.location.search.includes('role=admin')) {
+          window.location.href = '/login?role=admin';
         }
       }
     }
@@ -90,7 +87,6 @@ function App() {
         {/* ... existing routes ... */}
 
         {/* Admin Routes */}
-        <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={<ProtectedAdminRoute><Dashboard /></ProtectedAdminRoute>} />
         <Route path="/admin/users" element={<ProtectedAdminRoute><Users /></ProtectedAdminRoute>} />
         <Route path="/admin/doctors" element={<ProtectedAdminRoute><Doctors /></ProtectedAdminRoute>} />
@@ -111,8 +107,7 @@ function App() {
         <Route path="/book-appointment/:doctorId" element={<ProtectedPatientRoute><Layout><Bookanappointment /></Layout></ProtectedPatientRoute>} />
         <Route path="/notifications" element={<Layout><Notifications /></Layout>} />
         <Route path="/SignUp" element={<Layout><Form /></Layout>} />
-        <Route path="/patient/login" element={<Layout><LoginPatient /></Layout>} />
-        <Route path="/doctor/login" element={<Layout><LoginDoctor /></Layout>} />
+        <Route path="/login" element={<Layout><UnifiedLogin /></Layout>} />
         <Route path="/patient/register" element={<Layout><User /></Layout>} />
         <Route path="/doctor/register" element={<Layout><Doctor /></Layout>} />
         <Route path="/forgot-password/:role" element={<Layout><ForgotPassword /></Layout>} />
@@ -122,7 +117,6 @@ function App() {
         <Route path="/get-second-opinion" element={<ProtectedPatientRoute><Layout><GetSecondOpinion /></Layout></ProtectedPatientRoute>} />
         <Route path="/blood-bank" element={<BankHome />} />
         <Route path="/blood-bank/bank" element={<BloodBankContainer />} />
-        <Route path="/blood-bank/login" element={<BloodBankLogin />} />
         <Route path="/blood-bank/user" element={<UserPortal />} />
         <Route path="/doctor/blood-camp/admin" element={<BloodCampAdmin />} />
 

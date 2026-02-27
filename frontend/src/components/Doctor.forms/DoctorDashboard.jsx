@@ -111,6 +111,7 @@ const chartData = [
 function DoctorDashboard() {
   const navigate = useNavigate();
   const [doctorName, setDoctorName] = useState("Doctor");
+  const [profileImage, setProfileImage] = useState(null);
 
   useEffect(() => {
     async function fetchDoctor() {
@@ -122,8 +123,11 @@ function DoctorDashboard() {
           },
         });
         const data = await response.json();
-        if (data.success && data.data && data.data.name) {
-          setDoctorName(data.data.name);
+        if (data.success && data.data) {
+          setDoctorName(data.data.name || "Doctor");
+          if (data.data.profileImage) {
+            setProfileImage(data.data.profileImage);
+          }
         }
       } catch (error) {
         console.error("Failed to fetch doctor data", error);
@@ -261,7 +265,7 @@ function DoctorDashboard() {
 
           <div style={{ flexShrink: 0 }}>
             <img
-              src={doctorImage}
+              src={profileImage || doctorImage}
               alt="Doctor"
               style={{
                 maxHeight: "300px",
@@ -269,6 +273,7 @@ function DoctorDashboard() {
                 objectFit: "cover",
                 boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
               }}
+              onError={(e) => (e.currentTarget.src = doctorImage)}
             />
           </div>
         </div>

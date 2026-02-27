@@ -301,8 +301,9 @@ const DoctorCard = ({ doctor }) => {
       }}
     >
       <img
-        src={doctor.image || defaultDoctorImage}
+        src={doctor.profileImage || defaultDoctorImage}
         alt={doctor.name}
+        onError={(e) => { e.target.src = defaultDoctorImage; }}
         style={{
           width: "100%",
           height: 140,
@@ -311,7 +312,6 @@ const DoctorCard = ({ doctor }) => {
           background: "#f0f0f0",
           border: "1px solid #e3e3e3",
         }}
-        onError={(e) => (e.currentTarget.src = "/defaultDoctorImage.png")}
       />
       <h3 style={{ margin: "14px 0 8px 0", fontWeight: 700, color: "#222" }}>{doctor.name}</h3>
       <p><strong>Specialization:</strong> {doctor.specialization}</p>
@@ -507,7 +507,11 @@ function MedicareIndex() {
             <div className="blogs-grid">
               {currentBlogs.map((blog, index) => (
                 <div key={blog._id || index} className="blog-card">
-                  <img src={blog.image_url} alt="blogpic" />
+                  <img
+                    src={blog.image_url}
+                    alt="blogpic"
+                    onError={(e) => { e.target.src = 'https://via.placeholder.com/400x200?text=No+Image'; }}
+                  />
                   <h3>{blog.title}</h3>
                   <p>{blog.description}</p>
                   <button>

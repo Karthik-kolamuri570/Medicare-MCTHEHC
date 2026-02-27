@@ -8,10 +8,11 @@ const { generateAccessToken, generateRefreshToken } = require('../utils/jwt');
 const { createNotification } = require('../utils/notification');
 const crypto = require('crypto');
 const { sendPasswordResetEmail } = require('../utils/emailService');
+const { generatePresignedUrl } = require('../utils/s3Config');
 
 const multer = require("multer");
 const path = require("path");
-const { s3Client: s3, generatePresignedUrl } = require('../utils/s3Config');
+const { s3Client: s3 } = require('../utils/s3Config');
 const multerS3 = require('multer-s3');
 
 // Multer-S3 config for profile images
@@ -85,7 +86,7 @@ exports.registerDoctor = async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // Create new doctor
-    doctor = new Doctor({
+    const doctorData = {
       name,
       contact,
       email,
@@ -97,7 +98,14 @@ exports.registerDoctor = async (req, res, next) => {
       feePerConsultation,
       fromTime,
       toTime
-    });
+    };
+
+    // Save profile image if uploaded
+    if (req.file && req.file.location) {
+      doctorData.profileImage = req.file.location;
+    }
+
+    doctor = new Doctor(doctorData);
     await doctor.save();
 
     // Notify Admins about new doctor registration
@@ -114,6 +122,12 @@ exports.registerDoctor = async (req, res, next) => {
     const token = generateAccessToken(tokenPayload);
     const refreshToken = generateRefreshToken(tokenPayload);
 
+    // Generate signed URL if image exists
+    let signedProfileImage = null;
+    if (doctor.profileImage) {
+      signedProfileImage = await generatePresignedUrl(doctor.profileImage);
+    }
+
     res.status(201).json({
       success: true,
       token,
@@ -128,7 +142,8 @@ exports.registerDoctor = async (req, res, next) => {
         hospital: doctor.hospital,
         feePerConsultation: doctor.feePerConsultation,
         fromTime: doctor.fromTime,
-        toTime: doctor.toTime
+        toTime: doctor.toTime,
+        profileImage: signedProfileImage
       }
     });
   } catch (error) {
@@ -172,6 +187,12 @@ exports.loginDoctor = async (req, res, next) => {
     const token = generateAccessToken(tokenPayload);
     const refreshToken = generateRefreshToken(tokenPayload);
 
+    // Generate signed URL if image exists
+    let signedProfileImage = null;
+    if (doctor.profileImage) {
+      signedProfileImage = await generatePresignedUrl(doctor.profileImage);
+    }
+
     res.status(200).json({
       success: true,
       token,
@@ -186,7 +207,8 @@ exports.loginDoctor = async (req, res, next) => {
         hospital: doctor.hospital,
         feePerConsultation: doctor.feePerConsultation,
         fromTime: doctor.fromTime,
-        toTime: doctor.toTime
+        toTime: doctor.toTime,
+        profileImage: signedProfileImage
       }
     });
   } catch (error) {
@@ -243,9 +265,20 @@ exports.getAllDoctors = async (req, res, next) => {
     if (req.query.verified === 'approved') filter.verifiedByAdmin = 'approved';
     const doctors = await Doctor.find(filter);
 
+    // Generate presigned URLs for profile images
+    const doctorsWithSignedUrls = await Promise.all(
+      doctors.map(async (doc) => {
+        const docObj = doc.toObject();
+        if (docObj.profileImage) {
+          docObj.profileImage = await generatePresignedUrl(docObj.profileImage);
+        }
+        return docObj;
+      })
+    );
+
     res.status(200).json({
       success: true,
-      data: doctors
+      data: doctorsWithSignedUrls
     });
   } catch (error) {
     console.error(error);
@@ -703,7 +736,7 @@ exports.getSecondOpinion = async (req, res) => {
       .populate('patientId', 'name contact')
       .sort({ createdAt: -1 }); // Sort by most recent first  
     if (!secondOpinionRequests || secondOpinionRequests.length === 0) {
-      return res.status(404).json({ success: false, message: 'No second opinion requests found' });
+      return res.status(200).json({ success: true, data: [], message: 'No second opinion requests found' });
     }
 
     // Map and sign URLs for each request

@@ -339,7 +339,7 @@ function DHeader() {
         localStorage.removeItem("token");
         localStorage.removeItem("refreshToken");
         localStorage.removeItem("user");
-        navigate("/doctor/login");
+        navigate("/login");
       } else {
         console.error("Logout failed");
       }
@@ -413,7 +413,11 @@ function DHeader() {
             </li>
             {!isLoading && (doctor ?
               <li style={{ cursor: 'pointer' }} onClick={handleLogout}>Logout</li> :
-              <li style={{ cursor: 'pointer' }} onClick={() => navigate("/doctor/login")}>Login</li>)}
+              <li style={{ cursor: 'pointer' }}>
+                <button className="h-login-btn" onClick={() => navigate("/login?role=doctor")}>
+                  Login
+                </button>
+              </li>)}
           </ul>
 
           {/* Search Box */}

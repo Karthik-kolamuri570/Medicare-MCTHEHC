@@ -8,6 +8,7 @@ const { generateAccessToken, generateRefreshToken } = require('../utils/jwt');
 const { createNotification } = require('../utils/notification');
 const crypto = require('crypto');
 const { sendPasswordResetEmail } = require('../utils/emailService');
+const { generatePresignedUrl } = require('../utils/s3Config');
 exports.registerPatient = async (req, res) => {
     try {
         console.log('Under Register Patient Controller');
@@ -25,7 +26,7 @@ exports.registerPatient = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
         // Create new patient
-        const newPatient = new Patient({
+        const patientData = {
             name,
             email,
             password: hashedPassword,
@@ -33,7 +34,13 @@ exports.registerPatient = async (req, res) => {
             age,
             gender,
             address
-        });
+        };
+
+        if (req.file && req.file.location) {
+            patientData.profileImage = req.file.location;
+        }
+
+        const newPatient = new Patient(patientData);
 
         // Save patient
         await newPatient.save();
@@ -44,7 +51,8 @@ exports.registerPatient = async (req, res) => {
             data: {
                 id: newPatient._id,
                 name: newPatient.name,
-                email: newPatient.email
+                email: newPatient.email,
+                profileImage: newPatient.profileImage ? await generatePresignedUrl(newPatient.profileImage) : null
             }
         });
     } catch (error) {
@@ -94,6 +102,7 @@ exports.loginPatient = async (req, res) => {
                 name: patient.name,
                 email: patient.email,
                 role: 'patient',
+                profileImage: patient.profileImage ? await generatePresignedUrl(patient.profileImage) : null
             }
         });
     }
@@ -117,9 +126,14 @@ exports.getPatientProfile = async (req, res, next) => {
                 message: 'Patient not found'
             });
         }
+        const patientObj = patient.toObject();
+        if (patientObj.profileImage) {
+            patientObj.profileImage = await generatePresignedUrl(patientObj.profileImage);
+        }
+
         res.status(200).json({
             success: true,
-            data: patient
+            data: patientObj
         });
     } catch (error) {
         console.error(error);
@@ -141,9 +155,14 @@ exports.getPatientById = async (req, res) => {
             });
         }
 
+        const patientObj = patient.toObject();
+        if (patientObj.profileImage) {
+            patientObj.profileImage = await generatePresignedUrl(patientObj.profileImage);
+        }
+
         res.status(200).json({
             success: true,
-            data: patient
+            data: patientObj
         });
     } catch (error) {
         console.error(error);
@@ -479,7 +498,7 @@ exports.logoutPatient = (req, res) => {
 
 const multer = require("multer");
 const path = require("path");
-const { s3Client: s3, generatePresignedUrl } = require('../utils/s3Config');
+const { s3Client: s3 } = require('../utils/s3Config');
 const multerS3 = require('multer-s3');
 
 // Multer-S3 config for multiple files

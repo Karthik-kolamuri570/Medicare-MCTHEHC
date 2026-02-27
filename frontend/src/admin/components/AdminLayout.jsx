@@ -65,12 +65,12 @@ const AdminLayout = ({ children }) => {
   const handleLogout = async () => {
     try {
       await adminService.logout();
-      navigate('/admin/login');
+      navigate('/login');
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error('Logout failed:', error);
       localStorage.removeItem('adminToken');
       localStorage.removeItem('adminUser');
-      navigate('/admin/login');
+      navigate('/login');
     }
   };
 

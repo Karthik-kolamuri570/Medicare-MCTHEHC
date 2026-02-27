@@ -4,6 +4,7 @@ const doctorController = require('../controller/doctorController');
 // const authMiddleware = require('../middleware/authMiddleware');
 const Doctor = require('../models/doctor'); // Adjust the path as needed
 const auth = require('../middleware/auth');
+const { generatePresignedUrl } = require('../utils/s3Config');
 
 router.get('/me', auth.doctorAuth, async (req, res) => {
     try {
@@ -11,16 +12,23 @@ router.get('/me', auth.doctorAuth, async (req, res) => {
         if (!doctor) {
             return res.status(404).json({ message: 'Doctor not found' });
         }
+
+        const doctorObj = doctor.toObject();
+        if (doctorObj.profileImage) {
+            doctorObj.profileImage = await generatePresignedUrl(doctorObj.profileImage);
+        }
+
         return res.json({
             success: true,
-            data: doctor
+            data: doctorObj
         })
     }
     catch (err) {
+        console.error("Error in /me route:", err);
         res.status(500).json({ message: 'Server error' });
     }
 })
-router.post('/register', doctorController.registerDoctor);
+router.post('/register', doctorController.uploadProfile, doctorController.registerDoctor);
 router.post('/login', doctorController.loginDoctor);
 router.post('/forgot-password', doctorController.forgotPassword);
 router.post('/reset-password', doctorController.resetPassword);

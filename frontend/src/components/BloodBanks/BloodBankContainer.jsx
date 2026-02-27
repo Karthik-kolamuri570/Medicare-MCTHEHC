@@ -19,18 +19,18 @@ function BloodBankContainer() {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        window.location.href = "/blood-bank/login";
+        window.location.href = "/login?role=bank";
         return;
       }
       const response = await api.get(`${API_BASE}/blood-bank/verify-auth`);
       if (response.data.success && response.data.authenticated) {
         setIsAuthenticated(true);
       } else {
-        window.location.href = "/blood-bank/login";
+        window.location.href = "/login?role=bank";
       }
     } catch (error) {
       console.error("Authentication check failed:", error);
-      window.location.href = "/blood-bank/login";
+      window.location.href = "/login?role=bank";
     } finally {
       setAuthChecking(false);
     }
@@ -64,7 +64,7 @@ function BloodBankContainer() {
     } catch (error) {
       console.error("Error loading data:", error);
       if (error.response?.status === 401) {
-        window.location.href = "/blood-bank/login";
+        window.location.href = "/login?role=bank";
       }
     } finally {
       setLoading(false);
@@ -114,7 +114,7 @@ function BloodBankContainer() {
     } catch (error) {
       console.error("API call failed:", error);
       if (error.response?.status === 401) {
-        window.location.href = "/blood-bank/login";
+        window.location.href = "/login?role=bank";
       }
     }
   };
@@ -176,14 +176,14 @@ function BloodBankContainer() {
       setRequests([]);
       setDonations([]);
       setNotifications([]);
-      window.location.href = "/blood-bank/login";
+      window.location.href = "/login";
     } catch (err) {
       console.error("Logout error:", err);
       // Clear tokens even on error
       localStorage.removeItem("token");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("user");
-      window.location.href = "/blood-bank/login";
+      window.location.href = "/login";
     }
   };
 

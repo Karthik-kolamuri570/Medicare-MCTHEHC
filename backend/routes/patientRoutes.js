@@ -3,7 +3,8 @@ const router = express.Router();
 const patientController = require('../controller/patientController');
 const auth = require('../middleware/auth');
 const Patient = require('../models/patient'); // Adjust the path as needed
-router.post('/register', patientController.registerPatient);
+const { uploadProfile: patientUploadProfile } = require('./../controller/patientController');
+router.post('/register', patientUploadProfile, patientController.registerPatient);
 router.post('/login', patientController.loginPatient);
 router.post('/forgot-password', patientController.forgotPassword);
 router.post('/reset-password', patientController.resetPassword);

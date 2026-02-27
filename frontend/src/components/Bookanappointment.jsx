@@ -30,7 +30,7 @@ function Bookanappointment() {
     const token = localStorage.getItem("token"); // Changed to 'token' based on LoginPatient.jsx
     if (!token) {
       toast.error("Please login to book an appointment.");
-      navigate("/patient/login");
+      navigate("/login?role=patient");
       return;
     }
 
@@ -215,7 +215,7 @@ function Bookanappointment() {
             {/* LEFT: DOCTOR PROFILE */}
             <div className="doctor-profile-card">
               <img
-                src={selectedDoctor.image || docImg}
+                src={selectedDoctor.profileImage || docImg}
                 alt={selectedDoctor.name}
                 className="doctor-profile-img"
               />

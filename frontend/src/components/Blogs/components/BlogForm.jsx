@@ -834,9 +834,9 @@ const BlogForm = ({ blog = null, onSubmit, onCancel, loading = false }) => {
           disabled={loading}
           style={styles.input}
           onFocus={e => Object.assign(e.currentTarget.style, styles.inputFocus)}
-          onBlur={e => Object.assign(e.currentTarget.style, {borderColor:'#ddd', boxShadow:'none'})}
+          onBlur={e => Object.assign(e.currentTarget.style, { borderColor: '#ddd', boxShadow: 'none' })}
           onMouseEnter={e => Object.assign(e.currentTarget.style, styles.inputHover)}
-          onMouseLeave={e => Object.assign(e.currentTarget.style, {borderColor:'#ddd', boxShadow:'none'})}
+          onMouseLeave={e => Object.assign(e.currentTarget.style, { borderColor: '#ddd', boxShadow: 'none' })}
         />
         {errors.title && <div style={styles.errorText}>{errors.title}</div>}
       </div>
@@ -855,9 +855,9 @@ const BlogForm = ({ blog = null, onSubmit, onCancel, loading = false }) => {
           disabled={loading}
           style={styles.textarea}
           onFocus={e => Object.assign(e.currentTarget.style, styles.inputFocus)}
-          onBlur={e => Object.assign(e.currentTarget.style, {borderColor:'#ddd', boxShadow:'none'})}
+          onBlur={e => Object.assign(e.currentTarget.style, { borderColor: '#ddd', boxShadow: 'none' })}
           onMouseEnter={e => Object.assign(e.currentTarget.style, styles.inputHover)}
-          onMouseLeave={e => Object.assign(e.currentTarget.style, {borderColor:'#ddd', boxShadow:'none'})}
+          onMouseLeave={e => Object.assign(e.currentTarget.style, { borderColor: '#ddd', boxShadow: 'none' })}
         />
         {errors.description && <div style={styles.errorText}>{errors.description}</div>}
       </div>
@@ -875,9 +875,9 @@ const BlogForm = ({ blog = null, onSubmit, onCancel, loading = false }) => {
           disabled={loading}
           style={styles.textarea}
           onFocus={e => Object.assign(e.currentTarget.style, styles.inputFocus)}
-          onBlur={e => Object.assign(e.currentTarget.style, {borderColor:'#ddd', boxShadow:'none'})}
+          onBlur={e => Object.assign(e.currentTarget.style, { borderColor: '#ddd', boxShadow: 'none' })}
           onMouseEnter={e => Object.assign(e.currentTarget.style, styles.inputHover)}
-          onMouseLeave={e => Object.assign(e.currentTarget.style, {borderColor:'#ddd', boxShadow:'none'})}
+          onMouseLeave={e => Object.assign(e.currentTarget.style, { borderColor: '#ddd', boxShadow: 'none' })}
         />
         {errors.content && <div style={styles.errorText}>{errors.content}</div>}
       </div>
@@ -893,9 +893,9 @@ const BlogForm = ({ blog = null, onSubmit, onCancel, loading = false }) => {
           disabled={loading}
           style={styles.input}
           onFocus={e => Object.assign(e.currentTarget.style, styles.inputFocus)}
-          onBlur={e => Object.assign(e.currentTarget.style, {borderColor:'#ddd', boxShadow:'none'})}
+          onBlur={e => Object.assign(e.currentTarget.style, { borderColor: '#ddd', boxShadow: 'none' })}
           onMouseEnter={e => Object.assign(e.currentTarget.style, styles.inputHover)}
-          onMouseLeave={e => Object.assign(e.currentTarget.style, {borderColor:'#ddd', boxShadow:'none'})}
+          onMouseLeave={e => Object.assign(e.currentTarget.style, { borderColor: '#ddd', boxShadow: 'none' })}
         />
         {errors.image_url && <div style={styles.errorText}>{errors.image_url}</div>}
 
@@ -921,9 +921,9 @@ const BlogForm = ({ blog = null, onSubmit, onCancel, loading = false }) => {
           disabled={loading}
           style={styles.input}
           onFocus={e => Object.assign(e.currentTarget.style, styles.inputFocus)}
-          onBlur={e => Object.assign(e.currentTarget.style, {borderColor:'#ddd', boxShadow:'none'})}
+          onBlur={e => Object.assign(e.currentTarget.style, { borderColor: '#ddd', boxShadow: 'none' })}
           onMouseEnter={e => Object.assign(e.currentTarget.style, styles.inputHover)}
-          onMouseLeave={e => Object.assign(e.currentTarget.style, {borderColor:'#ddd', boxShadow:'none'})}
+          onMouseLeave={e => Object.assign(e.currentTarget.style, { borderColor: '#ddd', boxShadow: 'none' })}
         />
       </div>
 
@@ -937,9 +937,9 @@ const BlogForm = ({ blog = null, onSubmit, onCancel, loading = false }) => {
           disabled={loading}
           style={styles.select}
           onFocus={e => Object.assign(e.currentTarget.style, styles.inputFocus)}
-          onBlur={e => Object.assign(e.currentTarget.style, {borderColor:'#ddd', boxShadow:'none'})}
+          onBlur={e => Object.assign(e.currentTarget.style, { borderColor: '#ddd', boxShadow: 'none' })}
           onMouseEnter={e => Object.assign(e.currentTarget.style, styles.inputHover)}
-          onMouseLeave={e => Object.assign(e.currentTarget.style, {borderColor:'#ddd', boxShadow:'none'})}
+          onMouseLeave={e => Object.assign(e.currentTarget.style, { borderColor: '#ddd', boxShadow: 'none' })}
         >
           <option value="draft">Draft</option>
           <option value="published">Published</option>

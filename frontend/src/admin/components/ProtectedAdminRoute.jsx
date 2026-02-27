@@ -8,8 +8,8 @@ const ProtectedAdminRoute = ({ children }) => {
   const adminUser = localStorage.getItem('adminUser');
 
   // If no token or user, redirect to login
-  if (!adminToken || !adminUser) {
-    return <Navigate to="/admin/login" replace />;
+  if (!adminToken) {
+    return <Navigate to="/login?role=admin" replace />;
   }
 
   // Render AdminLayout with children wrapped in ThemeProvider

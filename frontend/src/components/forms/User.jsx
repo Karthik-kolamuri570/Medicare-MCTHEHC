@@ -17,6 +17,9 @@ const User = () => {
     confirmPassword: ''
   });
 
+  const [profileImage, setProfileImage] = useState(null);
+  const [profilePreview, setProfilePreview] = useState(null);
+
   const [validationErrors, setValidationErrors] = useState({});
   const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -28,6 +31,18 @@ const User = () => {
       ...prevData,
       [name]: value
     }));
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfileImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfilePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   // Handle gender change
@@ -72,12 +87,28 @@ const User = () => {
     setValidationErrors({});
 
     try {
+      // Use FormData for file upload
+      const data = new FormData();
+      Object.keys(formData).forEach((key) => {
+        data.append(key, formData[key]);
+      });
+
+      if (profileImage) {
+        data.append('profileImage', profileImage);
+      }
+
       // Send the registration request to the backend
-      const response = await axios.post('/api/patient/register', formData);
+      const response = await axios.post('/api/patient/register', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
 
       if (response.status === 201) {
         // Redirect to login page on success
-        navigate('/patient/login');
+        setTimeout(() => {
+          navigate('/login?role=patient');
+        }, 1500);
       } else {
         setErrorMessage('Registration failed. Please try again.');
       }
@@ -92,6 +123,32 @@ const User = () => {
     <div className="form-container">
       <h1>User Registration</h1>
       <form className="form" onSubmit={handleSubmit}>
+        <div className="profile-image-upload" style={{ marginBottom: '20px', textAlign: 'center' }}>
+          {profilePreview ? (
+            <img
+              src={profilePreview}
+              alt="Profile Preview"
+              style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', marginBottom: '10px' }}
+            />
+          ) : (
+            <div style={{ width: '100px', height: '100px', borderRadius: '50%', backgroundColor: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px' }}>
+              <span style={{ color: '#9ca3af', fontSize: '12px' }}>No Image</span>
+            </div>
+          )}
+          <br />
+          <label htmlFor="profileImage" style={{ cursor: 'pointer', color: '#3b82f6', textDecoration: 'underline' }}>
+            Upload Profile Picture
+          </label>
+          <input
+            id="profileImage"
+            type="file"
+            name="profileImage"
+            accept="image/*"
+            style={{ display: 'none' }}
+            onChange={handleFileChange}
+          />
+        </div>
+
         {/* Name */}
         <label>Name:</label>
         <input
@@ -213,7 +270,7 @@ const User = () => {
       {errorMessage && <p className="error-message">{errorMessage}</p>}
 
       <p className="login-link">
-        Already registered? <a href="#" onClick={() => navigate('/patient/login')}>Login</a>
+        Already registered? <a href="#" onClick={() => navigate('/login?role=patient')}>Login</a>
       </p>
     </div>
   );

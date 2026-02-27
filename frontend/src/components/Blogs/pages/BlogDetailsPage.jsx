@@ -170,7 +170,7 @@ const BlogDetailsPage = () => {
         blogAPI.getBlogById(id),
         commentAPI.getBlogComments(id),
       ]);
-      setBlog(blogRes.data);
+      setBlog(blogRes.data.data || blogRes.data);
       setComments(commentsRes.data.comments || []);
     } catch (err) {
       setError('Failed to load blog. Please try again.');
@@ -224,6 +224,7 @@ const BlogDetailsPage = () => {
                   src={blog.doctor_id.profileImage}
                   alt={blog.doctor_id.name}
                   style={styles.authorAvatar}
+                  onError={(e) => { e.target.src = 'https://via.placeholder.com/50x50?text=Dr'; }}
                 />
               )}
               <div>
@@ -265,7 +266,7 @@ const BlogDetailsPage = () => {
           </div>
           <div
             style={styles.blogText}
-            dangerouslySetInnerHTML={{ __html: blog.content.replace(/\n/g, '<br>') }}
+            dangerouslySetInnerHTML={{ __html: (blog.content || '').replace(/\n/g, '<br>') }}
           />
         </div>
       </article>

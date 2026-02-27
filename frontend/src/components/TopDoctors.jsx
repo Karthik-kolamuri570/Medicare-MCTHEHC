@@ -109,7 +109,7 @@ function TopDoctors() {
             {/* LEFT: Image */}
             <div className="card-left">
               <img
-                src={doc.image || defaultDoctorImage}
+                src={doc.profileImage || defaultDoctorImage}
                 alt={doc.name}
                 onError={(e) => { e.target.src = defaultDoctorImage }}
               />

@@ -41,7 +41,7 @@ const ForgotPassword = () => {
         }
     };
 
-    const loginPath = role === "doctor" ? "/doctor/login" : "/patient/login";
+    const loginPath = `/login?role=${role}`;
 
     return (
         <div className="form-container">
