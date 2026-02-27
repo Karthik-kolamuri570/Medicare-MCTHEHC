@@ -106,6 +106,10 @@ const userSchema = new Schema({
     profileImage: {
         type: String,
         default: null
+    },
+    certification: {
+        type: String,
+        default: null
     }
 })
 module.exports = mongoose.model('Doctor', userSchema);

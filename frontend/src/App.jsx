@@ -5,10 +5,8 @@ import MedicareIndex from "./components/MedicareIndex";
 import TopDoctors from "./components/TopDoctors";
 import Bookanappointment from "./components/Bookanappointment";
 import Notifications from "./components/Notifications";
-import Form from "./components/forms/form";
+import UnifiedRegister from "./components/forms/UnifiedRegister";
 import UnifiedLogin from "./components/forms/UnifiedLogin";
-import User from "./components/forms/User";
-import Doctor from "./components/forms/DoctorRegister";
 import Footer from "./components/forms/Footer";
 import Header from "./components/forms/Header";
 import DHeader from "./components/Doctor.forms/DHeader";
@@ -106,10 +104,10 @@ function App() {
         <Route path="/hospitals" element={<Layout><OurHospitals /></Layout>} />
         <Route path="/book-appointment/:doctorId" element={<ProtectedPatientRoute><Layout><Bookanappointment /></Layout></ProtectedPatientRoute>} />
         <Route path="/notifications" element={<Layout><Notifications /></Layout>} />
-        <Route path="/SignUp" element={<Layout><Form /></Layout>} />
+        <Route path="/SignUp" element={<Layout><UnifiedRegister /></Layout>} />
         <Route path="/login" element={<Layout><UnifiedLogin /></Layout>} />
-        <Route path="/patient/register" element={<Layout><User /></Layout>} />
-        <Route path="/doctor/register" element={<Layout><Doctor /></Layout>} />
+        <Route path="/patient/register" element={<Navigate to="/SignUp?role=patient" replace />} />
+        <Route path="/doctor/register" element={<Navigate to="/SignUp?role=doctor" replace />} />
         <Route path="/forgot-password/:role" element={<Layout><ForgotPassword /></Layout>} />
         <Route path="/reset-password/:role" element={<Layout><ResetPassword /></Layout>} />
         <Route path="/patient/logout" element={<LogoutPatient />} />

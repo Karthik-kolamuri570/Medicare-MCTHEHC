@@ -85,6 +85,7 @@ if (isVercel) {
 const auth = require('./middleware/auth');
 
 const { verifyToken, extractToken } = require('./utils/jwt');
+const { generatePresignedUrl } = require('./utils/s3Config');
 const Doctor = require('./models/doctor')
 const Patient = require('./models/patient');
 

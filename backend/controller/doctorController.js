@@ -32,17 +32,19 @@ const upload = multer({
   })
 });
 
-exports.uploadProfile = upload.single("profileImage");
+exports.uploadProfile = upload.fields([
+  { name: 'profileImage', maxCount: 1 },
+  { name: 'certification', maxCount: 1 }
+]);
 
 // Controller for updating profile image
 exports.updateProfileImage = async (req, res) => {
   try {
     const userId = req.user._id;
-    if (!req.file) {
+    const profileImageUrl = req.files && req.files['profileImage'] ? req.files['profileImage'][0].location : null;
+    if (!profileImageUrl) {
       return res.status(400).json({ success: false, message: "No image file provided" });
     }
-
-    const profileImageUrl = req.file.location;
     const doctor = await Doctor.findByIdAndUpdate(userId, { profileImage: profileImageUrl }, { new: true });
 
     if (!doctor) {
@@ -100,9 +102,14 @@ exports.registerDoctor = async (req, res, next) => {
       toTime
     };
 
-    // Save profile image if uploaded
-    if (req.file && req.file.location) {
-      doctorData.profileImage = req.file.location;
+    // Save profile image and certification if uploaded
+    if (req.files) {
+      if (req.files['profileImage']) {
+        doctorData.profileImage = req.files['profileImage'][0].location;
+      }
+      if (req.files['certification']) {
+        doctorData.certification = req.files['certification'][0].location;
+      }
     }
 
     doctor = new Doctor(doctorData);
@@ -143,7 +150,9 @@ exports.registerDoctor = async (req, res, next) => {
         feePerConsultation: doctor.feePerConsultation,
         fromTime: doctor.fromTime,
         toTime: doctor.toTime,
-        profileImage: signedProfileImage
+        profileImage: signedProfileImage,
+        certification: doctor.certification,
+        verifiedByAdmin: doctor.verifiedByAdmin
       }
     });
   } catch (error) {
@@ -182,6 +191,21 @@ exports.loginDoctor = async (req, res, next) => {
       });
     }
 
+    // Check if the doctor has been approved by the admin
+    if (doctor.verifiedByAdmin === 'pending') {
+      return res.status(403).json({
+        success: false,
+        message: 'Your profile is currently under review by an administrator. Please wait for approval before logging in.'
+      });
+    }
+
+    if (doctor.verifiedByAdmin === 'rejected') {
+      return res.status(403).json({
+        success: false,
+        message: 'Your doctor registration request has been rejected. Please contact support for more information.'
+      });
+    }
+
     // Create tokens
     const tokenPayload = { id: doctor._id, role: 'doctor' };
     const token = generateAccessToken(tokenPayload);
@@ -208,7 +232,9 @@ exports.loginDoctor = async (req, res, next) => {
         feePerConsultation: doctor.feePerConsultation,
         fromTime: doctor.fromTime,
         toTime: doctor.toTime,
-        profileImage: signedProfileImage
+        profileImage: signedProfileImage,
+        certification: doctor.certification,
+        verifiedByAdmin: doctor.verifiedByAdmin
       }
     });
   } catch (error) {

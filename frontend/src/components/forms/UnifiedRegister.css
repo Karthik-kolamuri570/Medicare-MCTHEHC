@@ -1,0 +1,518 @@
+.unified-register-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8fafc;
+  padding: 2rem;
+  font-family: inherit;
+}
+
+.unified-register-container {
+  display: flex;
+  width: 100%;
+  max-width: 1200px;
+  min-height: 800px;
+  max-height: 90vh; /* Enforce height limit so the internal scroll works on smaller desktop heights */
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  position: relative;
+}
+
+/* LEFT SIDE - HERO */
+.unified-register-hero {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 4rem;
+  color: white;
+}
+
+/* Background image styling */
+.unified-register-hero-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+/* Gradient overlay */
+.unified-register-hero-gradient {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(15, 23, 42, 0.2) 0%,
+    rgba(15, 23, 42, 0.8) 60%,
+    rgba(15, 23, 42, 0.95) 100%
+  );
+  z-index: 2;
+}
+
+/* Hero Content */
+.unified-register-hero-content {
+  position: relative;
+  z-index: 10;
+  max-width: 480px;
+}
+
+.unified-register-brand-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 100px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 2rem;
+  color: #fff;
+}
+
+.unified-register-brand-badge svg {
+  color: #7dd3fc;
+}
+
+.unified-register-hero-title {
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.02em;
+}
+
+.unified-register-hero-desc {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: #cbd5e1;
+  margin-bottom: 3rem;
+}
+
+.unified-register-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.unified-register-stat-card {
+  border-left: 2px solid rgba(255, 255, 255, 0.2);
+  padding-left: 1.5rem;
+}
+
+.unified-register-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  color: #fff;
+}
+
+.unified-register-stat-label {
+  font-size: 0.875rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+
+/* RIGHT SIDE - FORM 
+   We make it flex so we can scroll the internal form section */
+.unified-register-form-wrapper {
+  flex: 0 0 550px;
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  position: relative;
+}
+
+.unified-register-header {
+  margin-bottom: 2rem;
+  flex-shrink: 0;
+}
+
+.unified-register-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+}
+
+.unified-register-subtitle {
+  color: #64748b;
+  font-size: 1rem;
+}
+
+/* TABS CONTAINER */
+.unified-register-tabs {
+  display: flex;
+  background: #f1f5f9;
+  padding: 0.5rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  flex-shrink: 0;
+}
+
+.unified-register-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.unified-register-tab:hover {
+  color: #0f172a;
+}
+
+.unified-register-tab.active {
+  background: white;
+  color: #0ea5e9;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.unified-register-tab svg {
+  width: 18px;
+  height: 18px;
+}
+
+
+/* SCROLLABLE FORM CONTAINER */
+.unified-register-scrollable-form {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 10px; /* Space for scrollbar */
+}
+
+/* Custom Scrollbar */
+.unified-register-scrollable-form::-webkit-scrollbar {
+  width: 6px;
+}
+.unified-register-scrollable-form::-webkit-scrollbar-track {
+  background: #f1f5f9; 
+  border-radius: 4px;
+}
+.unified-register-scrollable-form::-webkit-scrollbar-thumb {
+  background: #cbd5e1; 
+  border-radius: 4px;
+}
+.unified-register-scrollable-form::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8; 
+}
+
+
+/* FORM ELEMENTS */
+.unified-register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding-bottom: 1rem; /* Extra padding at bottom */
+}
+
+/* 2-Column Grid for short fields */
+.unified-register-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.unified-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.unified-form-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #334155;
+  margin-left: 0.25rem;
+}
+
+.unified-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.unified-input-icon {
+  position: absolute;
+  left: 1rem;
+  color: #94a3b8;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+}
+
+.unified-form-input {
+  width: 100%;
+  padding: 0.875rem 1rem 0.875rem 2.75rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 0.9375rem;
+  color: #0f172a;
+  transition: all 0.2s ease;
+}
+
+.unified-form-input:focus {
+  outline: none;
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+}
+
+.unified-form-input::placeholder {
+  color: #94a3b8;
+}
+
+.unified-form-input.has-error {
+  border-color: #ef4444;
+}
+.unified-form-input.has-error:focus {
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+}
+
+.unified-form-textarea {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 0.9375rem;
+  color: #0f172a;
+  transition: all 0.2s ease;
+  min-height: 80px;
+  resize: vertical;
+  font-family: inherit;
+}
+.unified-form-textarea:focus {
+  outline: none;
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+}
+
+.unified-password-toggle {
+  position: absolute;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  transition: color 0.2s ease;
+}
+
+.unified-password-toggle:hover {
+  color: #64748b;
+}
+
+/* Radio Group (Gender) */
+.unified-radio-group {
+  display: flex;
+  gap: 1.5rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-left: 0.5rem;
+}
+
+.unified-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9375rem;
+  color: #334155;
+  cursor: pointer;
+}
+
+.unified-radio-label input[type="radio"] {
+  accent-color: #0ea5e9;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* File Dropzones */
+.unified-file-dropzone {
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.unified-file-dropzone:hover {
+  border-color: #0ea5e9;
+  background: #f0f9ff;
+}
+
+.unified-file-dropzone.has-file {
+  border-color: #10b981;
+  background: #ecfdf5;
+}
+
+.unified-file-dropzone svg {
+  color: #94a3b8;
+  width: 28px;
+  height: 28px;
+}
+
+.unified-file-dropzone:hover svg {
+  color: #0ea5e9;
+}
+.unified-file-dropzone.has-file svg {
+  color: #10b981;
+}
+
+.unified-file-drop-text {
+  font-size: 0.875rem;
+  color: #475569;
+  font-weight: 500;
+}
+.unified-file-drop-subtext {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+
+/* Submit Button */
+.unified-submit-btn {
+  margin-top: 1rem;
+  width: 100%;
+  padding: 1rem;
+  background: #0ea5e9;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.unified-submit-btn:hover:not(:disabled) {
+  background: #0284c7;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
+}
+
+.unified-submit-btn:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Bottom Footer Link */
+.unified-register-footer {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 0.9375rem;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.unified-register-footer a {
+  color: #0ea5e9;
+  font-weight: 600;
+  text-decoration: none;
+  margin-left: 0.375rem;
+  transition: color 0.2s ease;
+}
+
+.unified-register-footer a:hover {
+  color: #0284c7;
+}
+
+/* Error Messages */
+.unified-error-toast {
+  background: #fef2f2;
+  border-left: 4px solid #ef4444;
+  color: #991b1b;
+  padding: 1rem;
+  border-radius: 0 8px 8px 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
+}
+
+.inline-error {
+  font-size: 0.75rem;
+  color: #ef4444;
+  margin-top: 0.25rem;
+  margin-left: 0.25rem;
+}
+
+/* Spinner */
+.unified-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: unified-spin 0.8s linear infinite;
+}
+
+@keyframes unified-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* RESPONSIVENESS */
+@media (max-width: 1024px) {
+  .unified-register-hero {
+    display: none; /* Hide image on tablets/mobile, let form take full width */
+  }
+  .unified-register-form-wrapper {
+    flex: 1;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .unified-register-page {
+    padding: 1rem;
+  }
+  .unified-register-container {
+    max-height: none;
+    border-radius: 16px;
+  }
+  .unified-register-form-wrapper {
+    padding: 2rem 1.5rem;
+  }
+  .unified-register-grid-2 {
+    grid-template-columns: 1fr; /* Stack columns on mobile */
+  }
+}
