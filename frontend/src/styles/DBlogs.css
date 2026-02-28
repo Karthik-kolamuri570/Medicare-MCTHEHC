@@ -1,0 +1,282 @@
+/* DBlogs.css - Premium Glassmorphic Design for Doctor Blogs */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+.db-container {
+    min-height: 100vh;
+    background: #f8fafc;
+    padding: 1.5rem;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    margin-top: 60px;
+}
+
+.db-max-width {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Header Section */
+.db-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.db-title-section h1 {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: #1e293b;
+    letter-spacing: -0.025em;
+    margin: 0;
+}
+
+.db-title-section p {
+    color: #64748b;
+    margin-top: 0.5rem;
+}
+
+.db-create-btn {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.db-create-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(59, 130, 246, 0.3);
+}
+
+/* Controls Layer */
+.db-controls {
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.db-search-wrapper {
+    position: relative;
+    flex: 1;
+    min-width: 280px;
+    max-width: 500px;
+}
+
+.db-search-input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 3rem;
+    border-radius: 50px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    font-size: 0.95rem;
+}
+
+.db-search-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+.db-search-icon {
+    position: absolute;
+    left: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+}
+
+.db-filters {
+    display: flex;
+    background: #f1f5f9;
+    padding: 0.35rem;
+    border-radius: 12px;
+    gap: 0.25rem;
+    overflow-x: auto;
+}
+
+.db-filter-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.db-filter-btn.active {
+    background: white;
+    color: #1e293b;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Blog Grid & Cards */
+.db-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.5rem;
+}
+
+.db-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+}
+
+.db-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.db-card-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    background: #f1f5f9;
+}
+
+.db-card-content {
+    padding: 1.5rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.db-status-badge {
+    align-self: flex-start;
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+}
+
+.db-status-published { background: #dcfce7; color: #15803d; }
+.db-status-draft { background: #fef3c7; color: #92400e; }
+.db-status-archived { background: #f1f5f9; color: #475569; }
+
+.db-blog-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 0.5rem;
+    line-height: 1.4;
+}
+
+.db-blog-desc {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-bottom: 1.25rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.db-card-footer {
+    padding: 1.25rem 1.5rem;
+    background: #f8fafc;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.db-stats {
+    display: flex;
+    gap: 1rem;
+    color: #64748b;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.db-stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.db-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.db-action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.db-edit-btn { background: #eff6ff; color: #3b82f6; }
+.db-edit-btn:hover { background: #dbeafe; }
+
+.db-delete-btn { background: #fef2f2; color: #ef4444; }
+.db-delete-btn:hover { background: #fee2e2; }
+
+.db-view-btn { background: #f1f5f9; color: #475569; }
+.db-view-btn:hover { background: #e2e8f0; }
+
+/* Empty State */
+.db-empty {
+    text-align: center;
+    padding: 5rem 2rem;
+    background: white;
+    border-radius: 24px;
+    border: 2px dashed #e2e8f0;
+}
+
+.db-empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+    display: block;
+}
+
+/* Responsivity */
+@media (max-width: 1024px) {
+    .db-grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+}
+
+@media (max-width: 768px) {
+    .db-container { padding: 1rem; margin-top: 80px; }
+    .db-header { flex-direction: column; align-items: stretch; text-align: center; }
+    .db-title-section h1 { font-size: 1.75rem; }
+    .db-create-btn { justify-content: center; }
+    .db-controls { flex-direction: column; align-items: stretch; }
+    .db-filters { justify-content: center; overflow-x: auto; padding: 0.5rem; }
+    .db-grid { grid-template-columns: 1fr; }
+}

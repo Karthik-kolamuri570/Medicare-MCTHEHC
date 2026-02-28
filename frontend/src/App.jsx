@@ -54,7 +54,13 @@ import Settings from "./admin/pages/Settings";
 import ANotifications from "./admin/pages/Notifications";
 
 const Layout = ({ children }) => (<><Header />{children}<Footer /></>);
-const DLayout = ({ children }) => (<><DHeader />{children}<DFooter /></>);
+const DLayout = ({ children }) => (
+  <>
+    <DHeader />
+    <div style={{ paddingTop: '80px' }}>{children}</div>
+    <DFooter />
+  </>
+);
 
 // Configure axios global interceptor for token expiry
 axios.interceptors.response.use(

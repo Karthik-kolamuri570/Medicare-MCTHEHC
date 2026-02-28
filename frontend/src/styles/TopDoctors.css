@@ -20,7 +20,7 @@
 .doctors-page-wrapper {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 60px 40px;
+  padding: 30px 40px; /* Adjusted from 60px to clear fixed header */
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   background-color: var(--bg-page);
   min-height: 100vh;

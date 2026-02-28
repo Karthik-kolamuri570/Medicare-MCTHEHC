@@ -6,8 +6,10 @@ import {
   FiUpload, FiLoader, FiCheckCircle, FiArrowRight, FiArrowLeft,
   FiSearch, FiCalendar, FiVideo, FiClock, FiFileText, FiTrash2, FiUser, FiMapPin, FiChevronLeft, FiChevronRight
 } from "react-icons/fi";
+import { Stethoscope } from "lucide-react";
 import Payment from "../../payments/Payment";
 import "../../styles/GetSecondOpinion.css";
+import defaultDoctorImage from "../../assets/doctor1.png";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -233,39 +235,65 @@ const GetSecondOpinion = () => {
                       const isAvailable = currentMinutes >= startMinutes && currentMinutes <= endMinutes;
 
                       return (
-                        <div
+                         <div
                           key={doc._id}
                           className={`gso-doc-card ${formData.doctorId === doc._id ? 'selected' : ''}`}
                           onClick={() => setFormData(p => ({ ...p, doctorId: doc._id }))}
                         >
+                          <div className="gso-card-glow"></div>
+                          
                           <div className="gso-doc-header">
-                            <div className="gso-avatar">
-                              {doc.name?.[0] || "D"}
-                              <div className={`gso-status ${isAvailable ? 'online' : 'offline'}`}></div>
+                            <div className="gso-avatar-wrapper">
+                              <img 
+                                src={doc.profileImage || defaultDoctorImage} 
+                                alt={doc.name} 
+                                className="gso-doc-img"
+                                onError={(e) => { e.target.src = defaultDoctorImage }}
+                              />
+                              <div className={`gso-status-indicator ${isAvailable ? 'online' : 'offline'}`} 
+                                   title={isAvailable ? "Available Now" : "Currently Offline"}>
+                              </div>
                             </div>
+                            
                             <div className="gso-doc-meta">
-                              <h3>{doc.name}</h3>
-                              <span className="gso-spec">{doc.specialization}</span>
+                              <div className="gso-meta-top">
+                                <h3>{doc.name}</h3>
+                                {doc.feePerConsultation && (
+                                  <span className="gso-price-tag">₹{doc.feePerConsultation}</span>
+                                )}
+                              </div>
+                              <div className="gso-spec-pill">
+                                <Stethoscope size={12} />
+                                <span>{doc.specialization}</span>
+                              </div>
                             </div>
                           </div>
+
                           <div className="gso-doc-body">
-                            <div className="gso-info-row">
-                              <FiMapPin />
-                              <span>
-                                {doc.hospital || "Medicare Hospital"}
-                                {doc.location ? <>, {doc.location}</> : ""}
-                              </span>
-                            </div>
-                            <div className="gso-info-row">
-                              <FiClock /> {doc.fromTime || "09:00"} - {doc.toTime || "17:00"}
-                            </div>
-                            {doc.feePerConsultation && (
-                              <div className="gso-fee-badge">
-                                ₹{doc.feePerConsultation}
+                            <div className="gso-info-grid">
+                              <div className="gso-info-item">
+                                <FiMapPin className="gso-info-icon" />
+                                <div className="gso-info-content">
+                                  <span className="gso-info-label">Hospital</span>
+                                  <span className="gso-info-value">{doc.hospital || "Medicare Clinic"}</span>
+                                </div>
                               </div>
-                            )}
-                            <div className={`gso-avail-tag ${isAvailable ? 'yes' : 'no'}`}>
-                              {isAvailable ? "Available Now" : "Offline"}
+                              <div className="gso-info-item">
+                                <FiClock className="gso-info-icon" />
+                                <div className="gso-info-content">
+                                  <span className="gso-info-label">Hours</span>
+                                  <span className="gso-info-value">{doc.fromTime || "09:00"} - {doc.toTime || "17:00"}</span>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div className={`gso-action-area ${isAvailable ? 'available' : 'unavailable'}`}>
+                              <span className="gso-avail-status">
+                                {isAvailable ? "Available to Consult" : "Next Available: Tomorrow"}
+                              </span>
+                              <div className="gso-select-indicator">
+                                <FiCheckCircle />
+                              </div>
                             </div>
                           </div>
                         </div>

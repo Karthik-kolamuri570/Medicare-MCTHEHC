@@ -1008,56 +1008,25 @@ import api from "../../utils/api";
 import toast from "react-hot-toast";
 import { formatDistanceToNow, format } from "date-fns";
 import Loader from '../ui/Loader';
+import { 
+  Search, 
+  Calendar, 
+  Clock, 
+  User, 
+  Mail, 
+  ChevronRight, 
+  CheckCircle2, 
+  XCircle, 
+  AlertCircle,
+  History,
+  Filter,
+  Users
+} from "lucide-react";
 
-// Icons
-const CheckIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-  </svg>
-);
-
-const XMarkIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-  </svg>
-);
-
-const UserIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-  </svg>
-);
-
-const CalendarIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-  </svg>
-);
-
-const ClockIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-  </svg>
-);
-
-const EmailIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
-  </svg>
-);
-
-const HistoryIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-  </svg>
-);
-
-const SearchIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 115.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-  </svg>
-);
-
+/**
+ * DAppointments Component
+ * A premium dashboard for doctors to manage их appointments.
+ */
 function DAppointments() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -1065,11 +1034,18 @@ function DAppointments() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCard, setSelectedCard] = useState(null);
 
-  // Helper function to check if appointment date is in present/future
+  // --- Helper Functions ---
+
   const isPresentOrFuture = (dateString, timeString) => {
     if (!dateString) return true;
     try {
-      const appointmentDateTime = new Date(`${dateString}T${timeString || '00:00'}`);
+      // Robust parsing to avoid timezone shifts
+      const [year, month, day] = dateString.split('-').map(Number);
+      const appointmentDateTime = new Date(year, month - 1, day);
+      if (timeString) {
+        const [hours, minutes] = timeString.split(':').map(Number);
+        appointmentDateTime.setHours(hours, minutes);
+      }
       const now = new Date();
       return appointmentDateTime >= now;
     } catch {
@@ -1077,666 +1053,596 @@ function DAppointments() {
     }
   };
 
-  // Helper function to normalize status for comparison
   const normalizeStatus = (status) => {
-    if (!status) return '';
+    if (!status) return 'pending';
     const normalized = status.toString().toLowerCase().trim();
-    // Handle common status variations
     if (normalized === 'accepted' || normalized === 'accept') return 'accepted';
     if (normalized === 'rejected' || normalized === 'reject') return 'rejected';
-    if (normalized === 'pending') return 'pending';
-    return normalized;
+    return 'pending';
   };
-
-  const styles = `
-    .appointments-container {
-      background: #ffffff;
-      min-height: 100vh;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-      margin-top: 70px;
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .header-section {
-      background: #ffffff;
-      border-bottom: 1px solid #e5e7eb;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-      text-align: center;
-      width: 100%;
-      max-width: 1200px;
-    }
-
-    .title-modern {
-      font-size: 2rem;
-      font-weight: 700;
-      color: #111827;
-      margin-bottom: 0.5rem;
-    }
-
-    .subtitle-modern {
-      font-size: 1rem;
-      color: #6b7280;
-      font-weight: 500;
-    }
-
-    .controls-wrapper {
-      width: 100%;
-      max-width: 1200px;
-      margin-bottom: 2rem;
-    }
-
-    .controls-bar {
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    .search-container {
-      position: relative;
-      // flex: 1;
-      min-width: 280px;
-      max-width: 420px;
-    }
-
-    .search-input {
-      width: 100%;
-      padding: 0.875rem 1.25rem 0.875rem 3.25rem;
-      border: 2px solid #e2e8f0;
-      border-radius: 50px;
-      font-size: 0.95rem;
-      background: #ffffff;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-      font-weight: 500;
-      color: #374151;
-      outline: none;
-    }
-
-    .search-input:hover {
-      border-color: #cbd5e1;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      transform: translateY(-1px);
-    }
-
-    .search-input:focus {
-      border-color: #3b82f6;
-      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12), 0 6px 20px rgba(59, 130, 246, 0.08);
-      transform: translateY(-2px);
-      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-    }
-
-    .search-input::placeholder {
-      color: #9ca3af;
-      font-weight: 400;
-    }
-
-    .search-icon {
-      position: absolute;
-      left: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #9ca3af;
-      pointer-events: none;
-      width: 1.25rem;
-      height: 1.25rem;
-      transition: all 0.3s ease;
-    }
-
-    .search-container:hover .search-icon {
-      color: #6b7280;
-    }
-
-    .search-input:focus ~ .search-icon {
-      color: #3b82f6;
-    }
-
-    .filter-buttons {
-      display: flex;
-      gap: 0.5rem;
-      background: #f9fafb;
-      padding: 0.5rem;
-      border-radius: 8px;
-      border: 1px solid #e5e7eb;
-    }
-
-    .filter-btn {
-      font-weight: 600;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      color: #6b7280;
-      cursor: pointer;
-      border: none;
-      background: transparent;
-      transition: all 0.2s ease;
-      font-size: 0.9rem;
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-    }
-
-    .filter-btn.active {
-      background: #3b82f6;
-      color: white;
-    }
-
-    .filter-btn:hover:not(.active) {
-      background: #e5e7eb;
-      color: #374151;
-    }
-
-    .stats-bar {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
-      justify-content: center;
-      width: 100%;
-      max-width: 1200px;
-    }
-
-    .stat-card {
-      background: white;
-      padding: 1.5rem;
-      border-radius: 8px;
-      border: 1px solid #e5e7eb;
-      flex: 1;
-      min-width: 150px;
-      max-width: 200px;
-      text-align: center;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      transition: transform 0.2s ease;
-    }
-
-    .stat-card:hover {
-      transform: translateY(-2px);
-    }
-
-    .stat-number {
-      font-size: 1.8rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-    }
-
-    .stat-label {
-      font-weight: 600;
-      color: #6b7280;
-      font-size: 0.9rem;
-    }
-
-    .appointments-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1.5rem;
-      width: 100%;
-      max-width: 1200px;
-      justify-content: center;
-    }
-
-    .appointment-card {
-      flex: 0 0 calc(33.333% - 1rem);
-      min-width: 320px;
-      max-width: 400px;
-      background: white;
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-      padding: 1.5rem;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-      transition: all 0.3s ease;
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .appointment-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-      border-color: #3b82f6;
-    }
-
-    .appointment-card.selected {
-      border-color: #3b82f6;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
-
-    .appointment-card.past-appointment {
-      opacity: 0.8;
-      border-left: 4px solid #6b7280;
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 1rem;
-    }
-
-    .patient-info h3 {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: #111827;
-      margin: 0 0 0.5rem 0;
-    }
-
-    .created-time {
-      font-size: 0.75rem;
-      color: #6b7280;
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-      background: #f3f4f6;
-      padding: 0.25rem 0.5rem;
-      border-radius: 12px;
-    }
-
-    .status-badge {
-      padding: 0.4rem 0.8rem;
-      font-size: 0.75rem;
-      font-weight: 600;
-      border-radius: 20px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: white;
-    }
-
-    .status-pending {
-      background: linear-gradient(135deg, #f59e0b, #eab308);
-    }
-
-    .status-accepted {
-      background: linear-gradient(135deg, #10b981, #059669);
-    }
-
-    .status-rejected {
-      background: linear-gradient(135deg, #ef4444, #dc2626);
-    }
-
-    .card-content {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      margin-bottom: 1rem;
-    }
-
-    .info-row {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.6rem 0.8rem;
-      background: #f8fafc;
-      border-radius: 8px;
-      transition: background-color 0.2s ease;
-    }
-
-    .info-row:hover {
-      background: #f1f5f9;
-    }
-
-    .info-icon {
-      color: #3b82f6;
-      flex-shrink: 0;
-    }
-
-    .info-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .info-label {
-      font-weight: 600;
-      color: #4b5563;
-      font-size: 0.8rem;
-      margin-bottom: 0.2rem;
-    }
-
-    .info-value {
-      color: #111827;
-      font-size: 0.9rem;
-      word-break: break-word;
-    }
-
-    .action-buttons {
-      display: flex;
-      gap: 0.75rem;
-      justify-content: flex-end;
-    }
-
-    .btn-accept, .btn-reject {
-      padding: 0.6rem 1.2rem;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 0.85rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      transition: all 0.3s ease;
-      flex: 1;
-      justify-content: center;
-    }
-
-    .btn-accept {
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: white;
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-    }
-
-    .btn-accept:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
-    }
-
-    .btn-reject {
-      background: linear-gradient(135deg, #ef4444, #dc2626);
-      color: white;
-      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-    }
-
-    .btn-reject:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 4rem 2rem;
-      background: white;
-      border-radius: 12px;
-      border: 2px dashed #d1d5db;
-      color: #6b7280;
-      width: 100%;
-      max-width: 600px;
-    }
-
-    .empty-icon {
-      font-size: 4rem;
-      margin-bottom: 1rem;
-      opacity: 0.7;
-    }
-
-    .empty-title {
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: #374151;
-      margin-bottom: 0.5rem;
-    }
-
-    @media (max-width: 1200px) {
-      .appointment-card {
-        flex: 0 0 calc(50% - 0.75rem);
-      }
-    }
-
-    @media (max-width: 768px) {
-      .appointment-card {
-        flex: 0 0 100%;
-      }
-      .controls-bar {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .search-container {
-        max-width: none;
-      }
-      .stats-bar {
-        flex-direction: column;
-      }
-      .stat-card {
-        max-width: none;
-      }
-    }
-  `;
 
   const formatDateTime = (date, time) => {
     if (!date) return "N/A";
     try {
-      const dateTime = new Date(`${date}T${time || '00:00'}`);
-      return format(dateTime, "dd MMM yyyy, HH:mm") + " IST";
+      const [year, month, day] = date.split('-').map(Number);
+      const dateObj = new Date(year, month - 1, day);
+      return `${format(dateObj, "dd MMM yyyy")}${time ? `, ${time}` : ""}`;
     } catch {
       return `${date} ${time || ''}`;
     }
   };
 
-  useEffect(() => {
-    const fetchAppointments = async () => {
-      setLoading(true);
-      try {
-        const response = await api.get("/api/doctor/appointments/");
-        const data = response.data.data;
-        console.log("Fetched Appointments:", data);
+  const getInitials = (name) => {
+    if (!name) return "P";
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  };
 
-        // Debug: Log all unique status values
-        const statuses = [...new Set(data.map(appt => appt.status))];
-        console.log("Unique status values:", statuses);
+  // --- API Actions ---
 
-        toast.success("Appointments fetched successfully!");
-        setAppointments(data);
-      } catch (error) {
-        console.error("Error fetching appointments:", error);
-        toast.error("Failed to fetch appointments");
-      } finally {
-        setLoading(false);
+  const fetchAppointments = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get("/api/doctor/appointments/");
+      if (response.data.success) {
+        setAppointments(response.data.data);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching appointments:", error);
+      toast.error("Failed to load appointments");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchAppointments();
   }, []);
 
-  const acceptResponse = async (id) => {
+  const handleStatusUpdate = async (id, action) => {
+    const endpoint = action === 'accept' 
+      ? `/api/doctor/accept-appointment/${id}` 
+      : `/api/doctor/reject-appointment/${id}`;
+    
     try {
-      const response = await api.put(`/api/doctor/accept-appointment/${id}`);
-      const result = response.data;
-      if (result.success) {
-        const updated = result.data;
+      const response = await api.put(endpoint);
+      if (response.data.success) {
+        const updated = response.data.data;
         setAppointments((prev) =>
           prev.map((appt) => (appt._id === updated._id ? { ...appt, status: updated.status } : appt))
         );
-        toast.success("Appointment accepted successfully!");
-      } else {
-        toast.error("Failed to accept appointment: " + result.message);
+        toast.success(`Appointment ${action}ed successfully!`);
       }
     } catch (error) {
-      console.error("Error accepting appointment:", error);
-      toast.error("Error accepting appointment");
+      console.error(`Error ${action}ing appointment:`, error);
+      toast.error(`Failed to ${action} appointment`);
     }
   };
 
-  const rejectResponse = async (id) => {
-    try {
-      const response = await api.put(`/api/doctor/reject-appointment/${id}`);
-      const result = response.data;
-      if (result.success) {
-        const updated = result.data;
-        setAppointments((prev) =>
-          prev.map((appt) => (appt._id === updated._id ? { ...appt, status: updated.status } : appt))
-        );
-        toast.success("Appointment rejected successfully!");
-      } else {
-        toast.error("Failed to reject appointment: " + result.message);
-      }
-    } catch (error) {
-      console.error("Error rejecting appointment:", error);
-      toast.error("Error rejecting appointment");
-    }
-  };
+  // --- Filtering & Sorting ---
 
-  // Filter appointments based on current filter and search term
   const filteredAppointments = appointments.filter((appt) => {
-    const normalizedApptStatus = normalizeStatus(appt.status);
+    const status = normalizeStatus(appt.status);
+    const isFuture = isPresentOrFuture(appt.date, appt.time);
 
-    const filMatch = (() => {
-      if (filter === "all") {
-        return isPresentOrFuture(appt.date, appt.time);
-      } else if (filter === "history") {
-        return true;
-      } else {
-        // For status filtering, check both present/future AND status match
-        return normalizedApptStatus === filter && isPresentOrFuture(appt.date, appt.time);
-      }
-    })();
+    const filterMatch = 
+      filter === "all" ? isFuture :
+      filter === "history" ? true :
+      (status === filter && isFuture);
 
     const searchMatch = !searchTerm || (
       appt.patientId?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      appt.problem?.toLowerCase().includes(searchTerm.toLowerCase())
+      appt.problem?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      appt.patientId?.email?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    return filMatch && searchMatch;
+    return filterMatch && searchMatch;
   });
 
-  // Calculate stats - fixed to use normalized status
   const stats = {
-    total: filter === "history" ? appointments.length : appointments.filter(a => isPresentOrFuture(a.date, a.time)).length,
-    pending: appointments.filter((a) => normalizeStatus(a.status) === "pending" && isPresentOrFuture(a.date, a.time)).length,
-    accepted: appointments.filter((a) => normalizeStatus(a.status) === "accepted" && isPresentOrFuture(a.date, a.time)).length,
-    rejected: appointments.filter((a) => normalizeStatus(a.status) === "rejected" && isPresentOrFuture(a.date, a.time)).length,
+    total: appointments.filter(a => isPresentOrFuture(a.date, a.time)).length,
+    pending: appointments.filter(a => normalizeStatus(a.status) === "pending" && isPresentOrFuture(a.date, a.time)).length,
+    accepted: appointments.filter(a => normalizeStatus(a.status) === "accepted" && isPresentOrFuture(a.date, a.time)).length,
+    rejected: appointments.filter(a => normalizeStatus(a.status) === "rejected" && isPresentOrFuture(a.date, a.time)).length,
   };
 
-  if (loading) return <Loader />;
+  if (loading && appointments.length === 0) return <Loader />;
 
   return (
-    <>
-      <style>{styles}</style>
-      <div className="appointments-container">
-        <div className="header-section">
-          <h1 className="title-modern">Appointments</h1>
-          <p className="subtitle-modern">Manage your patient appointments efficiently</p>
-        </div>
+    <div className="d-appointments-wrapper">
+      <style>{`
+        .d-appointments-wrapper {
+          min-height: 100vh;
+          background: #f8fafc;
+          padding: 1.5rem;
+          font-family: 'Inter', sans-serif;
+        }
 
-        <div className="controls-wrapper">
-          <div className="controls-bar">
-            <div className="search-container">
-              <SearchIcon className="search-icon" />
-              <input
-                type="text"
-                placeholder="Search patients or problems..."
-                className="search-input"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
+        .d-container {
+          max-width: 1200px;
+          margin: 0 auto;
+        }
 
-            <div className="filter-buttons">
-              {[
-                { key: "all", label: "All", icon: null },
-                { key: "pending", label: "Pending", icon: null },
-                { key: "accepted", label: "Accepted", icon: null },
-                { key: "rejected", label: "Rejected", icon: null },
-                { key: "history", label: "History", icon: <HistoryIcon /> }
-              ].map((f) => (
-                <button
-                  key={f.key}
-                  className={`filter-btn ${filter === f.key ? "active" : ""}`}
-                  onClick={() => setFilter(f.key)}
-                >
-                  {f.icon}
-                  {f.label}
-                </button>
-              ))}
+        /* Header section */
+        .d-header {
+          margin-bottom: 2rem;
+        }
+
+        .d-header h1 {
+          font-size: 2rem;
+          font-weight: 800;
+          color: #1e293b;
+          letter-spacing: -0.5px;
+          margin: 0;
+        }
+
+        .d-header p {
+          color: #64748b;
+          font-size: 1rem;
+          margin-top: 0.25rem;
+        }
+
+        /* Stats Bar */
+        .d-stats-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 1rem;
+          margin-bottom: 2rem;
+        }
+
+        .d-stat-card {
+          background: white;
+          padding: 1rem 1.25rem;
+          border-radius: 16px;
+          border: 1px solid rgba(226, 232, 240, 0.8);
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          transition: all 0.2s ease;
+        }
+
+        .d-stat-card:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+          border-color: #3b82f6;
+        }
+
+        .d-stat-icon {
+          width: 42px;
+          height: 42px;
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.25rem;
+        }
+
+        .d-stat-icon svg {
+          width: 20px;
+          height: 20px;
+        }
+
+        .d-stat-info h4 {
+          margin: 0;
+          font-size: 0.8rem;
+          color: #64748b;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .d-stat-info .d-number {
+          font-size: 1.5rem;
+          font-weight: 800;
+          color: #1e293b;
+          margin: 0;
+        }
+
+        /* Controls Area */
+        .d-controls {
+          background: white;
+          padding: 0.75rem;
+          border-radius: 20px;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 1rem;
+          align-items: center;
+          margin-bottom: 2rem;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+          border: 1px solid #f1f5f9;
+        }
+
+        .d-search-box {
+          position: relative;
+          flex: 1;
+          min-width: 250px;
+        }
+
+        .d-search-box input {
+          width: 100%;
+          padding: 0.6rem 1rem 0.6rem 2.75rem;
+          border-radius: 12px;
+          border: 1px solid #e2e8f0;
+          background: #f8fafc;
+          font-size: 0.95rem;
+          transition: all 0.2s;
+        }
+
+        .d-search-box input:focus {
+          outline: none;
+          background: white;
+          border-color: #3b82f6;
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08);
+        }
+
+        .d-search-icon {
+          position: absolute;
+          left: 0.85rem;
+          top: 50%;
+          transform: translateY(-50%);
+          color: #94a3b8;
+          width: 18px;
+          height: 18px;
+        }
+
+        .d-filters {
+          display: flex;
+          background: #f1f5f9;
+          padding: 0.3rem;
+          border-radius: 12px;
+          gap: 0.2rem;
+        }
+
+        .d-filter-btn {
+          border: none;
+          background: transparent;
+          padding: 0.5rem 1rem;
+          border-radius: 10px;
+          font-weight: 600;
+          font-size: 0.9rem;
+          color: #64748b;
+          cursor: pointer;
+          transition: all 0.2s;
+          display: flex;
+          align-items: center;
+          gap: 0.4rem;
+        }
+
+        .d-filter-btn.active {
+          background: white;
+          color: #3b82f6;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Grid */
+        .d-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+          gap: 1.5rem;
+        }
+
+        .d-card {
+          background: white;
+          border-radius: 20px;
+          border: 1px solid #f1f5f9;
+          padding: 1.25rem;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          position: relative;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .d-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.06);
+          border-color: rgba(59, 130, 246, 0.2);
+        }
+
+        .d-card-header {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          margin-bottom: 1.25rem;
+        }
+
+        .d-avatar {
+          width: 48px;
+          height: 48px;
+          background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+          color: white;
+          border-radius: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.25rem;
+          font-weight: 700;
+          box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
+          flex-shrink: 0;
+        }
+
+        .d-patient-info {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .d-patient-info h3 {
+          margin: 0;
+          font-size: 1.1rem;
+          font-weight: 700;
+          color: #1e293b;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .d-time-ago {
+          display: block;
+          font-size: 0.8rem;
+          color: #94a3b8;
+          margin-top: 0.15rem;
+        }
+
+        .d-status-badge {
+          padding: 0.35rem 0.6rem;
+          border-radius: 8px;
+          font-size: 0.7rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          flex-shrink: 0;
+        }
+
+        .status-pending { background: #fffbeb; color: #b45309; }
+        .status-accepted { background: #ecfdf5; color: #065f46; }
+        .status-rejected { background: #fef2f2; color: #991b1b; }
+
+        .d-card-body {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 0.85rem;
+        }
+
+        .d-info-item {
+          display: flex;
+          gap: 0.75rem;
+          align-items: center;
+        }
+
+        .d-info-icon {
+          color: #3b82f6;
+          background: #eff6ff;
+          width: 32px;
+          height: 32px;
+          border-radius: 8px;
+          font-size: 0.9rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        .d-info-icon svg {
+          width: 16px;
+          height: 16px;
+        }
+
+        .d-info-text {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .d-info-label {
+          font-size: 0.7rem;
+          color: #94a3b8;
+          font-weight: 600;
+          text-transform: uppercase;
+          margin-bottom: 0.1rem;
+        }
+
+        .d-info-value {
+          font-size: 0.9rem;
+          color: #334155;
+          font-weight: 500;
+          line-height: 1.3;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .d-card-actions {
+          margin-top: 1.25rem;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0.75rem;
+        }
+
+        .d-btn {
+          padding: 0.6rem;
+          border-radius: 12px;
+          border: none;
+          font-weight: 700;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.4rem;
+          transition: all 0.2s;
+          font-size: 0.85rem;
+        }
+
+        .d-btn-reject {
+          background: #f1f5f9;
+          color: #64748b;
+        }
+
+        .d-btn-reject:hover {
+          background: #fee2e2;
+          color: #ef4444;
+        }
+
+        .d-btn-accept {
+          background: #3b82f6;
+          color: white;
+          box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+        }
+
+        .d-btn-accept:hover {
+          background: #2563eb;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 15px rgba(59, 130, 246, 0.2);
+        }
+
+        .d-empty {
+          text-align: center;
+          padding: 4rem 1.5rem;
+          background: white;
+          border-radius: 24px;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+        }
+
+        .d-empty h3 {
+          font-size: 1.25rem;
+          color: #1e293b;
+          margin: 1rem 0 0.5rem;
+        }
+
+        .d-empty p {
+          color: #94a3b8;
+          font-size: 1rem;
+        }
+
+        @media (max-width: 768px) {
+          .d-appointments-wrapper { padding: 0.75rem; }
+          .d-header h1 { font-size: 1.75rem; }
+          .d-grid { grid-template-columns: 1fr; gap: 1rem; }
+          .d-controls { flex-direction: column; align-items: stretch; padding: 0.75rem; }
+          .d-search-box { min-width: 100%; }
+          .d-stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+          .d-stat-card { padding: 0.75rem; }
+          .d-stat-number { font-size: 1.25rem; }
+        }
+      `}</style>
+
+      <div className="d-container">
+        <header className="d-header">
+          <h1>My Appointments</h1>
+          <p>You have {stats.pending > 0 ? `${stats.pending} pending requests` : "no pending requests"} today.</p>
+        </header>
+
+        {/* Stats Section */}
+        <section className="d-stats-grid">
+          <div className="d-stat-card">
+            <div className="d-stat-icon" style={{ background: '#eff6ff', color: '#3b82f6' }}><Users /></div>
+            <div className="d-stat-info">
+              <h4>Active Slots</h4>
+              <p className="d-number">{stats.total}</p>
             </div>
           </div>
+          <div className="d-stat-card">
+            <div className="d-stat-icon" style={{ background: '#fffbeb', color: '#f59e0b' }}><AlertCircle /></div>
+            <div className="d-stat-info">
+              <h4>Pending</h4>
+              <p className="d-number">{stats.pending}</p>
+            </div>
+          </div>
+          <div className="d-stat-card">
+            <div className="d-stat-icon" style={{ background: '#ecfdf5', color: '#10b981' }}><CheckCircle2 /></div>
+            <div className="d-stat-info">
+              <h4>Accepted</h4>
+              <p className="d-number">{stats.accepted}</p>
+            </div>
+          </div>
+          <div className="d-stat-card">
+            <div className="d-stat-icon" style={{ background: '#fef2f2', color: '#ef4444' }}><XCircle /></div>
+            <div className="d-stat-info">
+              <h4>Rejected</h4>
+              <p className="d-number">{stats.rejected}</p>
+            </div>
+          </div>
+        </section>
 
-          <div className="stats-bar">
-            <div className="stat-card">
-              <div className="stat-number" style={{ color: "#3b82f6" }}>
-                {stats.total}
-              </div>
-              <div className="stat-label">{filter === "history" ? "Total Records" : "Current Appointments"}</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-number" style={{ color: "#f59e0b" }}>
-                {stats.pending}
-              </div>
-              <div className="stat-label">Pending Review</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-number" style={{ color: "#10b981" }}>
-                {stats.accepted}
-              </div>
-              <div className="stat-label">Accepted</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-number" style={{ color: "#ef4444" }}>
-                {stats.rejected}
-              </div>
-              <div className="stat-label">Rejected</div>
-            </div>
+        {/* Filters and Search */}
+        <div className="d-controls">
+          <div className="d-search-box">
+            <Search className="d-search-icon" size={20} />
+            <input 
+              type="text" 
+              placeholder="Search by patient name, email or problem..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <div className="d-filters">
+            <button className={`d-filter-btn ${filter === 'all' ? 'active' : ''}`} onClick={() => setFilter('all')}>Upcoming</button>
+            <button className={`d-filter-btn ${filter === 'pending' ? 'active' : ''}`} onClick={() => setFilter('pending')}>Pending</button>
+            <button className={`d-filter-btn ${filter === 'history' ? 'active' : ''}`} onClick={() => setFilter('history')}><History size={16}/> History</button>
           </div>
         </div>
 
+        {/* Appointments Grid */}
         {filteredAppointments.length > 0 ? (
-          <div className="appointments-grid">
+          <div className="d-grid">
             {filteredAppointments.map((appt) => {
+              const status = normalizeStatus(appt.status);
               const isPast = !isPresentOrFuture(appt.date, appt.time);
-              const normalizedStatus = normalizeStatus(appt.status);
-
+              
               return (
-                <div
-                  key={appt._id}
-                  className={`appointment-card ${selectedCard === appt._id ? "selected" : ""} ${isPast ? "past-appointment" : ""}`}
-                  onClick={() => setSelectedCard(selectedCard === appt._id ? null : appt._id)}
-                >
-                  <div className="card-header">
-                    <div className="patient-info">
-                      <h3>{appt.patientId?.name || "N/A"}</h3>
-                      <div className="created-time">
-                        <ClockIcon />
-                        {formatDistanceToNow(new Date(appt.createdAt || Date.now()), { addSuffix: true })}
-                      </div>
+                <div key={appt._id} className="d-card">
+                  <div className="d-card-header">
+                    <div className="d-avatar">{getInitials(appt.patientId?.name)}</div>
+                    <div className="d-patient-info">
+                      <h3>{appt.patientId?.name || "Anonymous Patient"}</h3>
+                      <span className="d-time-ago">
+                        <Clock size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                        Requested {formatDistanceToNow(new Date(appt.createdAt || Date.now()), { addSuffix: true })}
+                      </span>
                     </div>
-                    <div className={`status-badge status-${normalizedStatus}`}>
+                    <div className={`d-status-badge status-${status}`}>
                       {appt.status}
                     </div>
                   </div>
 
-                  <div className="card-content">
-                    <div className="info-row">
-                      <UserIcon className="info-icon" />
-                      <div className="info-content">
-                        <div className="info-label">Medical Problem</div>
-                        <div className="info-value">{appt.problem || "N/A"}</div>
+                  <div className="d-card-body">
+                    <div className="d-info-item">
+                      <div className="d-info-icon"><AlertCircle size={18} /></div>
+                      <div className="d-info-text">
+                        <div className="d-info-label">Medical Concern</div>
+                        <div className="d-info-value">{appt.problem || "Check-up"}</div>
                       </div>
                     </div>
 
-                    <div className="info-row">
-                      <CalendarIcon className="info-icon" />
-                      <div className="info-content">
-                        <div className="info-label">Appointment Schedule</div>
-                        <div className="info-value">{formatDateTime(appt.date, appt.time)}</div>
+                    <div className="d-info-item">
+                      <div className="d-info-icon"><Calendar size={18} /></div>
+                      <div className="d-info-text">
+                        <div className="d-info-label">Scheduled For</div>
+                        <div className="d-info-value">{formatDateTime(appt.date, appt.time)}</div>
                       </div>
                     </div>
 
-                    <div className="info-row">
-                      <EmailIcon className="info-icon" />
-                      <div className="info-content">
-                        <div className="info-label">Patient Contact</div>
-                        <div className="info-value">{appt.patientId?.email || "N/A"}</div>
+                    <div className="d-info-item">
+                      <div className="d-info-icon"><Mail size={18} /></div>
+                      <div className="d-info-text">
+                        <div className="d-info-label">Email Address</div>
+                        <div className="d-info-value">{appt.patientId?.email || "N/A"}</div>
                       </div>
                     </div>
                   </div>
 
-                  {normalizedStatus === "pending" && !isPast && (
-                    <div className="action-buttons" onClick={(e) => e.stopPropagation()}>
-                      <button
-                        className="btn-reject"
-                        onClick={() => rejectResponse(appt._id)}
+                  {status === "pending" && !isPast && (
+                    <div className="d-card-actions">
+                      <button 
+                        className="d-btn d-btn-reject" 
+                        onClick={() => handleStatusUpdate(appt._id, 'reject')}
                       >
-                        <XMarkIcon />
-                        Reject
+                        <XCircle size={18} /> Reject
                       </button>
-                      <button
-                        className="btn-accept"
-                        onClick={() => acceptResponse(appt._id)}
+                      <button 
+                        className="d-btn d-btn-accept"
+                        onClick={() => handleStatusUpdate(appt._id, 'accept')}
                       >
-                        <CheckIcon />
-                        Accept
+                        <CheckCircle2 size={18} /> Accept
                       </button>
                     </div>
                   )}
@@ -1745,21 +1651,14 @@ function DAppointments() {
             })}
           </div>
         ) : (
-          <div className="empty-state">
-            <div className="empty-icon">📅</div>
-            <h3 className="empty-title">No appointments found</h3>
-            <p>
-              {searchTerm || filter !== "all"
-                ? "Try adjusting your search or filter criteria"
-                : filter === "history"
-                  ? "You have no historical appointments"
-                  : "You have no current appointments"
-              }
-            </p>
+          <div className="d-empty">
+            <Users size={64} color="#e2e8f0" />
+            <h3>No appointments found</h3>
+            <p>We couldn't find any appointments matching your current criteria.</p>
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 }
 

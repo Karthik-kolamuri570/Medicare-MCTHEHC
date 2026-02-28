@@ -8,14 +8,23 @@ const OurHospitals = () => {
     const [hoveredFeature, setHoveredFeature] = useState(null);
     const [hoveredStat, setHoveredStat] = useState(null);
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+    const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
 
     useEffect(() => {
         const handleMouseMove = (e) => {
             setMousePosition({ x: e.clientX, y: e.clientY });
         };
+        const handleResize = () => setWindowWidth(window.innerWidth);
         window.addEventListener('mousemove', handleMouseMove);
-        return () => window.removeEventListener('mousemove', handleMouseMove);
+        window.addEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('resize', handleResize);
+        };
     }, []);
+
+    const isMobile = windowWidth <= 768;
+    const isTablet = windowWidth <= 1024;
 
     const features = [
         { icon: Building2, title: "Premium Facilities", description: "State-of-the-art medical infrastructure", color: "#3b82f6", bgGradient: "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)" },
@@ -98,10 +107,10 @@ const OurHospitals = () => {
                 
                 {/* Premium Development Notice */}
                 <div style={{
-                    marginTop: '140px',
+                    marginTop: '85px', /* Reduced from 110px */
                     background: 'linear-gradient(90deg, rgba(245, 158, 11, 0.08) 0%, rgba(217, 119, 6, 0.08) 100%)',
                     backdropFilter: 'blur(20px)',
-                    padding: '16px 24px',
+                    padding: '12px 24px', /* Reduced from 16px */
                     borderTop: '1px solid rgba(245, 158, 11, 0.2)',
                     borderBottom: '1px solid rgba(245, 158, 11, 0.2)',
                     position: 'relative',
@@ -143,11 +152,16 @@ const OurHospitals = () => {
 
                 {/* Hero Section */}
                 <div style={{
-                    padding: '100px 24px 80px',
+                    padding: isMobile ? '30px 16px 20px' : '40px 24px 30px', /* Reduced from 60px 24px 40px */
                     position: 'relative'
                 }}>
                     <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: '80px', alignItems: 'center' }}>
+                        <div style={{ 
+                            display: 'grid', 
+                            gridTemplateColumns: isTablet ? '1fr' : '1.3fr 1fr', 
+                            gap: isTablet ? '40px' : '80px', 
+                            alignItems: 'center' 
+                        }}>
                             <motion.div
                                 initial={{ opacity: 0, x: -40 }}
                                 animate={{ opacity: 1, x: 0 }}
@@ -161,11 +175,11 @@ const OurHospitals = () => {
                                         display: 'inline-flex',
                                         alignItems: 'center',
                                         gap: '10px',
-                                        padding: '10px 20px',
+                                        padding: '8px 16px', /* Reduced from 10px 20px */
                                         background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%)',
                                         border: '1px solid rgba(59, 130, 246, 0.3)',
                                         borderRadius: '12px',
-                                        marginBottom: '32px',
+                                        marginBottom: '24px', /* Reduced from 32px */
                                         backdropFilter: 'blur(10px)'
                                     }}
                                 >
@@ -184,10 +198,10 @@ const OurHospitals = () => {
                                     </span>
                                 </motion.div>
                                 <h1 style={{
-                                    fontSize: '64px',
+                                    fontSize: '48px',
                                     fontWeight: '900',
                                     color: 'white',
-                                    marginBottom: '24px',
+                                    marginBottom: '20px',
                                     lineHeight: '1.05',
                                     letterSpacing: '-2px'
                                 }}>
@@ -205,10 +219,10 @@ const OurHospitals = () => {
                                     </span>
                                 </h1>
                                 <p style={{
-                                    fontSize: '18px',
+                                    fontSize: '17px', /* Reduced from 18px */
                                     color: '#94a3b8',
-                                    lineHeight: '1.8',
-                                    marginBottom: '40px',
+                                    lineHeight: '1.7', /* Reduced from 1.8 */
+                                    marginBottom: '32px', /* Reduced from 40px */
                                     maxWidth: '580px'
                                 }}>
                                     Actively collaborating with premier healthcare institutions to expand our network and provide comprehensive, world-class medical services across the region.
@@ -220,8 +234,8 @@ const OurHospitals = () => {
                                     backdropFilter: 'blur(20px)',
                                     border: '1px solid rgba(51, 65, 85, 0.6)',
                                     borderRadius: '16px',
-                                    padding: '24px',
-                                    marginBottom: '32px'
+                                    padding: '20px', /* Reduced from 24px */
+                                    marginBottom: '28px' /* Reduced from 32px */
                                 }}>
                                     <div style={{
                                         display: 'flex',
@@ -324,8 +338,8 @@ const OurHospitals = () => {
                                                 backdropFilter: 'blur(30px)',
                                                 border: '1px solid',
                                                 borderColor: isHovered ? `${stat.color}50` : 'rgba(51, 65, 85, 0.8)',
-                                                borderRadius: '20px',
-                                                padding: '28px',
+                                                borderRadius: '16px', /* Reduced from 20px */
+                                                padding: '20px 24px', /* Reduced from 28px */
                                                 display: 'flex',
                                                 alignItems: 'center',
                                                 gap: '24px',
@@ -362,7 +376,7 @@ const OurHospitals = () => {
                                             </div>
                                             <div style={{ flex: 1 }}>
                                                 <div style={{
-                                                    fontSize: '36px',
+                                                    fontSize: '28px', /* Reduced from 36px */
                                                     fontWeight: '900',
                                                     color: 'white',
                                                     lineHeight: '1',
@@ -430,29 +444,29 @@ const OurHospitals = () => {
                             boxShadow: '0 0 30px rgba(59, 130, 246, 0.6)'
                         }}></div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '40px', alignItems: 'center' }}>
-                            <motion.div
-                                animate={{ 
-                                    boxShadow: [
-                                        '0 0 40px rgba(59, 130, 246, 0.4)',
-                                        '0 0 60px rgba(59, 130, 246, 0.6)',
-                                        '0 0 40px rgba(59, 130, 246, 0.4)'
-                                    ]
-                                }}
-                                transition={{ duration: 3, repeat: Infinity }}
-                                style={{
-                                    width: '96px',
-                                    height: '96px',
-                                    borderRadius: '20px',
-                                    background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    border: '1px solid rgba(96, 165, 250, 0.4)'
-                                }}
-                            >
-                                <Building2 size={48} color="white" strokeWidth={2} />
-                            </motion.div>
+                         <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '30px', alignItems: 'center' }}>
+                             <motion.div
+                                 animate={{ 
+                                     boxShadow: [
+                                         '0 0 30px rgba(59, 130, 246, 0.4)',
+                                         '0 0 45px rgba(59, 130, 246, 0.6)',
+                                         '0 0 30px rgba(59, 130, 246, 0.4)'
+                                     ]
+                                 }}
+                                 transition={{ duration: 3, repeat: Infinity }}
+                                 style={{
+                                     width: '72px',
+                                     height: '72px',
+                                     borderRadius: '16px',
+                                     background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                                     display: 'flex',
+                                     alignItems: 'center',
+                                     justifyContent: 'center',
+                                     border: '1px solid rgba(96, 165, 250, 0.4)'
+                                 }}
+                             >
+                                 <Building2 size={36} color="white" strokeWidth={2} />
+                             </motion.div>
 
                             <div>
                                 <h2 style={{
@@ -479,8 +493,8 @@ const OurHospitals = () => {
                     {/* Enhanced Features Grid */}
                     <div style={{
                         display: 'grid',
-                        gridTemplateColumns: 'repeat(4, 1fr)',
-                        gap: '24px',
+                        gridTemplateColumns: isMobile ? '1fr' : (isTablet ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)'),
+                        gap: isMobile ? '16px' : '24px',
                         marginBottom: '48px'
                     }}>
                         {features.map((feature, index) => {
@@ -535,26 +549,26 @@ const OurHospitals = () => {
                                         </>
                                     )}
 
-                                    <motion.div
-                                        animate={isHovered ? { scale: 1.15, rotate: 5 } : { scale: 1, rotate: 0 }}
-                                        transition={{ duration: 0.3 }}
-                                        style={{
-                                            width: '64px',
-                                            height: '64px',
-                                            borderRadius: '16px',
-                                            background: feature.bgGradient,
-                                            border: `1px solid ${feature.color}40`,
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            marginBottom: '24px',
-                                            boxShadow: isHovered ? `0 0 30px ${feature.color}50` : 'none',
-                                            position: 'relative',
-                                            zIndex: 1
-                                        }}
-                                    >
-                                        <Icon size={32} color="white" strokeWidth={2} />
-                                    </motion.div>
+                                     <motion.div
+                                         animate={isHovered ? { scale: 1.1, rotate: 5 } : { scale: 1, rotate: 0 }}
+                                         transition={{ duration: 0.3 }}
+                                         style={{
+                                             width: '52px',
+                                             height: '52px',
+                                             borderRadius: '14px',
+                                             background: feature.bgGradient,
+                                             border: `1px solid ${feature.color}40`,
+                                             display: 'flex',
+                                             alignItems: 'center',
+                                             justifyContent: 'center',
+                                             marginBottom: '16px',
+                                             boxShadow: isHovered ? `0 0 20px ${feature.color}50` : 'none',
+                                             position: 'relative',
+                                             zIndex: 1
+                                         }}
+                                     >
+                                         <Icon size={24} color="white" strokeWidth={2} />
+                                     </motion.div>
 
                                     <h4 style={{
                                         fontSize: '20px',
@@ -591,15 +605,15 @@ const OurHospitals = () => {
                         style={{
                             background: 'linear-gradient(135deg, rgba(30, 64, 175, 0.25) 0%, rgba(124, 58, 237, 0.25) 100%)',
                             backdropFilter: 'blur(30px)',
-                            borderRadius: '24px',
-                            padding: '48px',
-                            display: 'grid',
-                            gridTemplateColumns: '1fr auto',
-                            gap: '48px',
-                            alignItems: 'center',
-                            border: '1px solid rgba(96, 165, 250, 0.3)',
-                            position: 'relative',
-                            overflow: 'hidden'
+                             borderRadius: '24px',
+                             padding: isMobile ? '32px 24px' : '28px 40px',
+                             display: 'grid',
+                             gridTemplateColumns: isTablet ? '1fr' : '1fr auto',
+                             gap: isMobile ? '24px' : '30px',
+                             alignItems: 'center',
+                             border: '1px solid rgba(96, 165, 250, 0.3)',
+                             position: 'relative',
+                             overflow: 'hidden'
                         }}
                     >
                         <div style={{

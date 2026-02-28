@@ -1,0 +1,333 @@
+/* DBloodCamps.css - Premium Glassmorphic Design for Blood Camp Admin */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+.dbc-container {
+    min-height: 100vh;
+    background: #f8fafc;
+    padding: 1.5rem;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    margin-top: 60px;
+}
+
+.dbc-max-width {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Header Section */
+.dbc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.dbc-title-section h1 {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: #1e293b;
+    letter-spacing: -0.025em;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.dbc-title-section p {
+    color: #64748b;
+    margin-top: 0.5rem;
+}
+
+.dbc-organize-btn {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.dbc-organize-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(239, 68, 68, 0.3);
+}
+
+/* Controls Layer */
+.dbc-controls {
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.dbc-search-wrapper {
+    position: relative;
+    flex: 1;
+    min-width: 280px;
+    max-width: 500px;
+}
+
+.dbc-search-input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 3rem;
+    border-radius: 50px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    font-size: 0.95rem;
+}
+
+.dbc-search-input:focus {
+    outline: none;
+    border-color: #ef4444;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+}
+
+.dbc-search-icon {
+    position: absolute;
+    left: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+}
+
+/* Camp Grid & Cards */
+.dbc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 1.5rem;
+}
+
+.dbc-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 1.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.dbc-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.1);
+    border-color: #ef444440;
+}
+
+.dbc-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.dbc-camp-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.dbc-status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.dbc-status-active { background: #dcfce7; color: #15803d; }
+.dbc-status-upcoming { background: #eff6ff; color: #1d4ed8; }
+
+.dbc-info-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #64748b;
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+}
+
+.dbc-icon { color: #94a3b8; flex-shrink: 0; }
+
+.dbc-description {
+    font-size: 0.85rem;
+    color: #475569;
+    line-height: 1.6;
+    margin: 0.5rem 0 1.25rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.dbc-card-footer {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1.25rem;
+    border-top: 1px solid #f1f5f9;
+}
+
+.dbc-stats {
+    display: flex;
+    gap: 1rem;
+}
+
+.dbc-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.dbc-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.dbc-action-btn {
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    border: none;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.dbc-edit-btn { background: #f1f5f9; color: #475569; }
+.dbc-edit-btn:hover { background: #e2e8f0; }
+
+.dbc-manage-btn { background: #ef444415; color: #ef4444; }
+.dbc-manage-btn:hover { background: #ef444425; }
+
+/* Modal Styles */
+.dbc-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 1200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.dbc-modal {
+    background: white;
+    border-radius: 24px;
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+}
+
+.dbc-modal-header {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 10;
+}
+
+.dbc-modal-content {
+    padding: 2rem;
+}
+
+.dbc-form-section {
+    margin-bottom: 2rem;
+}
+
+.dbc-section-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.dbc-input-group {
+    margin-bottom: 1.25rem;
+}
+
+.dbc-input-group label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+}
+
+.dbc-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    font-family: inherit;
+    transition: all 0.2s;
+}
+
+.dbc-input:focus {
+    outline: none;
+    border-color: #ef4444;
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+}
+
+.dbc-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.dbc-modal-footer {
+    padding: 1.5rem 2rem;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    background: #f8fafc;
+}
+
+/* Responsivity */
+@media (max-width: 768px) {
+    .dbc-container { padding: 1rem; }
+    .dbc-grid { grid-template-columns: 1fr; }
+    .dbc-header { flex-direction: column; align-items: stretch; text-align: center; }
+    .dbc-title-section h1 { justify-content: center; }
+    .dbc-organize-btn { justify-content: center; }
+    .dbc-controls { flex-direction: column; align-items: stretch; }
+}

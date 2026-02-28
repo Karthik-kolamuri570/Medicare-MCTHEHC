@@ -401,9 +401,9 @@ function MedicareIndex() {
   return (
     <div style={{ marginTop: '130px', paddingBottom: '40px' }}>
       <div>
-        {/* Book an Appointment */}
-        <div className="home-section-container">
-          <div className="section-text-content">
+        {/* Book an Appointment (Hero Section) */}
+        <div className="hero-container">
+          <div className="hero-text-content">
             <h1>Booking an <span className="highlight">Appointment</span></h1>
             <p>
               Easily schedule an appointment with top healthcare professionals
@@ -412,7 +412,7 @@ function MedicareIndex() {
               system ensures you get the medical care you need at your convenience.
             </p>
           </div>
-          <div className="section-image-content">
+          <div className="hero-image-content">
             <img src={bookanappointment} alt="Booking an Appointment" />
           </div>
         </div>

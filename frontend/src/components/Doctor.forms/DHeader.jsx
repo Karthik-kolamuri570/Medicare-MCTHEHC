@@ -252,6 +252,7 @@ function DHeader() {
   const [doctor, setDoctor] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [notifCount, setNotifCount] = useState(0);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -386,35 +387,33 @@ function DHeader() {
             </h1>
           </div>
 
-          {/* Navigation Links */}
-          <ul style={{ display: 'flex', listStyle: 'none', gap: '1.5rem', margin: 0, padding: 0 }}>
 
-            <li style={{ cursor: 'pointer' }} onClick={() => navigate("/doctor/my-appointments")}>My Appointments</li>
-            <li style={{ cursor: 'pointer' }} onClick={() => navigate("/doctor/my-consultations")}>My Consultations</li>
-            <li style={{ cursor: 'pointer' }} onClick={() => navigate("/doctor/doc/blogs")}>My Blogs</li>
-            <li style={{ cursor: 'pointer' }} onClick={() => navigate("/doctor/blood-camp/admin")}>Blood Camp</li>
+          {/* Navigation Links */}
+          <ul className={`d-nav-links ${isMobileMenuOpen ? "active" : ""}`}>
+            {isMobileMenuOpen && (
+              <div className="d-mobile-drawer-header">
+                <h2>Doctor<span className="dot">.</span></h2>
+                <button className="d-close-btn" onClick={() => setIsMobileMenuOpen(false)}>✕</button>
+              </div>
+            )}
+            <li onClick={() => { navigate("/doctor/my-appointments"); setIsMobileMenuOpen(false); }}>My Appointments</li>
+            <li onClick={() => { navigate("/doctor/my-consultations"); setIsMobileMenuOpen(false); }}>My Consultations</li>
+            <li onClick={() => { navigate("/doctor/doc/blogs"); setIsMobileMenuOpen(false); }}>My Blogs</li>
+            <li onClick={() => { navigate("/doctor/blood-camp/admin"); setIsMobileMenuOpen(false); }}>Blood Camp</li>
             <li
-              style={{ cursor: 'pointer', position: 'relative', display: 'flex', alignItems: 'center' }}
-              onClick={() => navigate("/doctor/notifications")}
+              className="d-nav-notification"
+              onClick={() => { navigate("/doctor/notifications"); setIsMobileMenuOpen(false); }}
               title="Notifications"
             >
               🔔
               {notifCount > 0 && (
-                <span style={{
-                  position: 'absolute', top: -6, right: -10,
-                  background: '#ef4444', color: '#fff',
-                  fontSize: '0.65rem', fontWeight: 800,
-                  width: 18, height: 18, borderRadius: '50%',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  border: '2px solid #fff',
-                  animation: 'ntfPulse 2s infinite'
-                }}>{notifCount > 9 ? '9+' : notifCount}</span>
+                <span className="d-notif-badge">{notifCount > 9 ? '9+' : notifCount}</span>
               )}
             </li>
             {!isLoading && (doctor ?
-              <li style={{ cursor: 'pointer' }} onClick={handleLogout}>Logout</li> :
-              <li style={{ cursor: 'pointer' }}>
-                <button className="h-login-btn" onClick={() => navigate("/login?role=doctor")}>
+              <li onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }}>Logout</li> :
+              <li>
+                <button className="h-login-btn" onClick={() => { navigate("/login?role=doctor"); setIsMobileMenuOpen(false); }}>
                   Login
                 </button>
               </li>)}
@@ -438,6 +437,11 @@ function DHeader() {
             >
               🔍
             </button>
+            {/* Hamburger Menu (Mobile Only) - Moved here */}
+            <div className="d-mobile-menu-btn" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+              ☰
+            </div>
+
             {searchedData.length > 0 && (
               <ul style={{
                 position: 'absolute',

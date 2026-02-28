@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { blogAPI } from '../services/api';
 import BlogForm from '../components/BlogForm';
+import { 
+  FiPlus, FiSearch, FiEdit2, FiTrash2, 
+  FiEye, FiMessageSquare, FiHeart, FiCalendar,
+  FiFileText, FiX
+} from "react-icons/fi";
+import { motion, AnimatePresence } from "framer-motion";
+import toast from "react-hot-toast";
+import Loader from "../../ui/Loader";
+import "../../../styles/DBlogs.css";
 
 const DoctorDashboardPage = () => {
   const [blogs, setBlogs] = useState([]);
@@ -9,6 +18,10 @@ const DoctorDashboardPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingBlog, setEditingBlog] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  
+  // Search and Filter states
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   useEffect(() => {
     fetchBlogs();
@@ -22,7 +35,7 @@ const DoctorDashboardPage = () => {
       setBlogs(response.data || []);
     } catch (err) {
       setError('Failed to fetch your blogs. Please try again.');
-      console.error('Error fetching doctor blogs:', err);
+      toast.error('Failed to load blogs');
     } finally {
       setLoading(false);
     }
@@ -33,10 +46,10 @@ const DoctorDashboardPage = () => {
     try {
       await blogAPI.createBlog(blogData);
       setShowForm(false);
+      toast.success("Blog created successfully!");
       fetchBlogs();
     } catch (err) {
-      alert('Failed to create blog. Please try again.');
-      console.error('Error creating blog:', err);
+      toast.error('Failed to create blog');
     } finally {
       setSubmitting(false);
     }
@@ -48,10 +61,10 @@ const DoctorDashboardPage = () => {
       await blogAPI.updateBlog(editingBlog._id, blogData);
       setEditingBlog(null);
       setShowForm(false);
+      toast.success("Blog updated successfully!");
       fetchBlogs();
     } catch (err) {
-      alert('Failed to update blog. Please try again.');
-      console.error('Error updating blog:', err);
+      toast.error('Failed to update blog');
     } finally {
       setSubmitting(false);
     }
@@ -62,10 +75,10 @@ const DoctorDashboardPage = () => {
 
     try {
       await blogAPI.deleteBlog(blogId);
+      toast.success("Blog deleted");
       fetchBlogs();
     } catch (err) {
-      alert('Failed to delete blog. Please try again.');
-      console.error('Error deleting blog:', err);
+      toast.error('Failed to delete blog');
     }
   };
 
@@ -79,230 +92,172 @@ const DoctorDashboardPage = () => {
     setEditingBlog(null);
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'published':
-        return 'green';
-      case 'draft':
-        return 'orange';
-      case 'archived':
-        return 'gray';
-      default:
-        return 'gray';
-    }
-  };
+  const filteredBlogs = blogs.filter(blog => {
+    const matchesSearch = blog.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                         blog.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === "all" || blog.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
-  // Inline styles
-  const styles = {
-    container: {
-      maxWidth: 960,
-      margin: '5rem auto',
-      padding: '0 1rem',
-      fontFamily: 'Arial, sans-serif',
-      color: '#333',
-    },
-    header: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      flexWrap: 'wrap',
-      gap: '1rem',
-      marginBottom: '2rem',
-    },
-    title: {
-      fontSize: '2rem',
-      fontWeight: '700',
-      margin: 0,
-    },
-    createButton: {
-      padding: '12px 25px',
-      fontSize: '1rem',
-      fontWeight: '600',
-      borderRadius: 6,
-      border: 'none',
-      backgroundColor: '#007acc',
-      color: 'white',
-      cursor: 'pointer',
-      userSelect: 'none',
-      transition: 'background-color 0.3s',
-      disabled: {
-        backgroundColor: '#7ca3d4',
-        cursor: 'not-allowed',
-      },
-    },
-    errorMessage: {
-      backgroundColor: '#f8d7da',
-      color: '#721c24',
-      borderRadius: 6,
-      padding: '1rem',
-      marginBottom: '1rem',
-      border: '1px solid #f5c6cb',
-      fontWeight: '500',
-    },
-    formContainer: {
-      backgroundColor: '#fff',
-      padding: '2rem',
-      borderRadius: 8,
-      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-      marginBottom: '2rem',
-    },
-    blogsTable: {
-      width: '100%',
-      borderCollapse: 'collapse',
-    },
-    th: {
-      textAlign: 'left',
-      borderBottom: '2px solid #ddd',
-      padding: '12px',
-      fontWeight: '600',
-    },
-    td: {
-      padding: '12px',
-      borderBottom: '1px solid #ddd',
-      verticalAlign: 'middle',
-      fontSize: '1rem',
-    },
-    statusBadge: (color) => ({
-      padding: '0.3rem 0.8rem',
-      borderRadius: '1rem',
-      color: color,
-      fontWeight: '600',
-      textTransform: 'capitalize',
-    }),
-    actionButtons: {
-      display: 'flex',
-      gap: '10px',
-      flexWrap: 'wrap',
-    },
-    button: {
-      padding: '6px 12px',
-      fontSize: '0.9rem',
-      borderRadius: 4,
-      fontWeight: '600',
-      cursor: 'pointer',
-      userSelect: 'none',
-      border: 'none',
-      color: 'white',
-      transition: 'background-color 0.3s',
-    },
-    editButton: {
-      backgroundColor: '#6c757d', // gray
-    },
-    deleteButton: {
-      backgroundColor: '#dc3545', // red
-    },
-    viewButton: {
-      backgroundColor: '#007acc', // blue
-      textDecoration: 'none',
-      padding: '6px 12px',
-      fontSize: '0.9rem',
-      borderRadius: 4,
-      fontWeight: '600',
-      color: 'white',
-      display: 'inline-block',
-      transition: 'background-color 0.3s',
-    }
-  };
+  if (loading) return <div className="db-container"><Loader /></div>;
 
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
-        <h1 style={styles.title}>My Blogs</h1>
-        <button
-          style={{
-            ...styles.createButton,
-            ...(showForm ? styles.createButton.disabled : {}),
-          }}
-          onClick={() => setShowForm(true)}
-          disabled={showForm}
-        >
-          Create New Blog
-        </button>
-      </div>
+    <div className="db-container">
+      <div className="db-max-width">
+        <header className="db-header">
+          <div className="db-title-section">
+            <h1>My Blogs</h1>
+            <p>Share your medical expertise and insights with the community</p>
+          </div>
+          <button
+            className="db-create-btn"
+            onClick={() => setShowForm(true)}
+            disabled={showForm}
+          >
+            <FiPlus /> Create New Blog
+          </button>
+        </header>
 
-      {error && <div style={styles.errorMessage}>{error}</div>}
+        {error && <div className="dbc-alert" style={{background: '# fee2e2', color: '#ef4444', border: '1px solid #fecaca'}}>{error}</div>}
 
-      {showForm && (
-        <div style={styles.formContainer}>
-          <h2>{editingBlog ? 'Edit Blog' : 'Create New Blog'}</h2>
-          <BlogForm
-            blog={editingBlog}
-            onSubmit={editingBlog ? handleUpdateBlog : handleCreateBlog}
-            onCancel={cancelForm}
-            loading={submitting}
-          />
+        <div className="db-controls">
+          <div className="db-search-wrapper">
+            <FiSearch className="db-search-icon" />
+            <input 
+              type="text" 
+              className="db-search-input"
+              placeholder="Search your blogs..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <div className="db-filters">
+            {["all", "published", "draft", "archived"].map(status => (
+              <button 
+                key={status}
+                onClick={() => setStatusFilter(status)}
+                className={`db-filter-btn ${statusFilter === status ? 'active' : ''}`}
+              >
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+              </button>
+            ))}
+          </div>
         </div>
-      )}
 
-      {loading ? (
-        <div>Loading your blogs...</div>
-      ) : (
-        <>
-          {blogs.length === 0 ? (
-            <div>
-              <h3>No blogs yet</h3>
-              <p>Create your first blog to get started!</p>
-            </div>
-          ) : (
-            <table style={styles.blogsTable}>
-              <thead>
-                <tr>
-                  <th style={styles.th}>Title</th>
-                  <th style={styles.th}>Status</th>
-                  <th style={styles.th}>Likes</th>
-                  <th style={styles.th}>Comments</th>
-                  <th style={styles.th}>Created</th>
-                  <th style={styles.th}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {blogs.map(blog => (
-                  <tr key={blog._id}>
-                    <td style={styles.td}>
-                      <div>
-                        <strong>{blog.title}</strong>
-                        <p style={{ margin: 0, color: '#666' }}>{blog.description}</p>
-                      </div>
-                    </td>
-                    <td style={{ ...styles.td, color: getStatusColor(blog.status) }}>
-                      <span style={styles.statusBadge(getStatusColor(blog.status))}>{blog.status}</span>
-                    </td>
-                    <td style={styles.td}>{blog.likes_count}</td>
-                    <td style={styles.td}>{blog.comments_count}</td>
-                    <td style={styles.td}>{new Date(blog.Created).toLocaleDateString()}</td>
-                    <td style={styles.td}>
-                      <div style={styles.actionButtons}>
-                        <button
-                          style={{ ...styles.button, ...styles.editButton }}
-                          onClick={() => startEdit(blog)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          style={{ ...styles.button, ...styles.deleteButton }}
-                          onClick={() => handleDeleteBlog(blog._id)}
-                        >
-                          Delete
-                        </button>
-                        {blog.status === 'published' && (
-                          <a
-                            href={`/blog/${blog._id}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={styles.viewButton}
-                          >
-                            View
-                          </a>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <AnimatePresence mode="wait">
+          {showForm && (
+            <motion.div 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="dbc-modal-overlay"
+              style={{position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center'}}
+              onClick={cancelForm}
+            >
+              <div 
+                className="dbc-modal" 
+                style={{maxWidth: '800px', background: 'white', borderRadius: '24px', overflow: 'hidden'}}
+                onClick={e => e.stopPropagation()}
+              >
+                <header className="dbc-modal-header" style={{display: 'flex', justifyContent: 'space-between', padding: '1.5rem 2rem', borderBottom: '1px solid #f1f5f9'}}>
+                  <h2 style={{margin: 0, fontSize: '1.5rem'}}>{editingBlog ? 'Edit Blog' : 'Create New Blog'}</h2>
+                  <button onClick={cancelForm} style={{background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.5rem'}}><FiX /></button>
+                </header>
+                <div style={{padding: '2rem', maxHeight: '70vh', overflowY: 'auto'}}>
+                  <BlogForm
+                    blog={editingBlog}
+                    onSubmit={editingBlog ? handleUpdateBlog : handleCreateBlog}
+                    onCancel={cancelForm}
+                    loading={submitting}
+                  />
+                </div>
+              </div>
+            </motion.div>
           )}
-        </>
-      )}
+        </AnimatePresence>
+
+        <div className="db-grid">
+          <AnimatePresence>
+            {filteredBlogs.length === 0 ? (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="db-empty"
+                style={{gridColumn: '1 / -1'}}
+              >
+                <span className="db-empty-icon">📝</span>
+                <h3>No blogs found</h3>
+                <p>Try adjusting your search or create your first health blog!</p>
+              </motion.div>
+            ) : (
+              filteredBlogs.map(blog => (
+                <motion.div 
+                  key={blog._id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="db-card"
+                >
+                  {blog.image_url && (
+                    <img src={blog.image_url} alt={blog.title} className="db-card-image" />
+                  )}
+                  <div className="db-card-content">
+                    <span className={`db-status-badge db-status-${blog.status}`}>
+                      {blog.status}
+                    </span>
+                    <h3 className="db-blog-title">{blog.title}</h3>
+                    <p className="db-blog-desc">{blog.description}</p>
+                    
+                    <div className="db-info-row" style={{marginTop: 'auto', color: '#94a3b8', fontSize: '0.8rem'}}>
+                      <FiCalendar className="db-icon" style={{marginRight: '0.5rem'}} />
+                      {new Date(blog.Created).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                    </div>
+                  </div>
+                  
+                  <div className="db-card-footer">
+                    <div className="db-stats">
+                      <div className="db-stat-item">
+                        <FiHeart /> {blog.likes_count || 0}
+                      </div>
+                      <div className="db-stat-item">
+                        <FiMessageSquare /> {blog.comments_count || 0}
+                      </div>
+                    </div>
+                    <div className="db-actions">
+                      {blog.status === 'published' && (
+                        <a
+                          href={`/blog/${blog._id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="db-action-btn db-view-btn"
+                          title="View Post"
+                        >
+                          <FiEye />
+                        </a>
+                      )}
+                      <button
+                        className="db-action-btn db-edit-btn"
+                        onClick={() => startEdit(blog)}
+                        title="Edit Blog"
+                      >
+                        <FiEdit2 />
+                      </button>
+                      <button
+                        className="db-action-btn db-delete-btn"
+                        onClick={() => handleDeleteBlog(blog._id)}
+                        title="Delete Blog"
+                      >
+                        <FiTrash2 />
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
     </div>
   );
 };

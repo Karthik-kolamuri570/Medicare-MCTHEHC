@@ -32,6 +32,15 @@ const Treatments = () => {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [hoveredCard, setHoveredCard] = useState(null);
+    const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+
+    useEffect(() => {
+        const handleResize = () => setWindowWidth(window.innerWidth);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    const isMobile = windowWidth <= 768;
 
     useEffect(() => {
         const fetchSpecializations = async () => {
@@ -112,8 +121,8 @@ const Treatments = () => {
 
                 {/* Hero Section */}
                 <div style={{
-                    paddingTop: '140px',
-                    paddingBottom: '100px',
+                    paddingTop: isMobile ? '70px' : '65px', /* Reduced from 110px */
+                    paddingBottom: isMobile ? '30px' : '40px', /* Reduced from 60px */
                     paddingLeft: '24px',
                     paddingRight: '24px',
                     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -146,9 +155,9 @@ const Treatments = () => {
                                     gap: '10px',
                                     backgroundColor: 'rgba(255, 255, 255, 0.15)',
                                     backdropFilter: 'blur(20px)',
-                                    padding: '10px 24px',
+                                    padding: '8px 20px', /* Reduced from 10px 24px */
                                     borderRadius: '50px',
-                                    marginBottom: '40px',
+                                    marginBottom: '28px', /* Reduced from 40px */
                                     border: '1px solid rgba(255, 255, 255, 0.2)',
                                     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
                                 }}
@@ -160,10 +169,10 @@ const Treatments = () => {
                             </motion.div>
 
                             <h1 style={{
-                                fontSize: '64px',
+                                fontSize: isMobile ? '32px' : '48px', /* Reduced from 64px and added mobile scaling */
                                 fontWeight: '900',
                                 color: 'white',
-                                marginBottom: '28px',
+                                marginBottom: '20px', /* Reduced from 28px */
                                 lineHeight: '1.1',
                                 letterSpacing: '-2px',
                                 textShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
@@ -180,10 +189,10 @@ const Treatments = () => {
                             </h1>
 
                             <p style={{
-                                fontSize: '20px',
+                                fontSize: '18px', /* Reduced from 20px */
                                 color: 'rgba(255, 255, 255, 0.95)',
                                 maxWidth: '700px',
-                                margin: '0 auto 50px',
+                                margin: '0 auto 36px', /* Reduced from 50px */
                                 lineHeight: '1.7',
                                 fontWeight: '400'
                             }}>
@@ -212,10 +221,10 @@ const Treatments = () => {
                                     placeholder="Search for a medical specialization..."
                                     style={{
                                         width: '100%',
-                                        padding: '20px 24px 20px 60px',
+                                        padding: '14px 24px 14px 60px', /* Reduced from 20px */
                                         borderRadius: '16px',
                                         border: 'none',
-                                        fontSize: '17px',
+                                        fontSize: '16px', /* Reduced from 17px */
                                         backgroundColor: 'white',
                                         boxShadow: '0 20px 60px rgba(0, 0, 0, 0.15)',
                                         outline: 'none',
@@ -234,8 +243,8 @@ const Treatments = () => {
                 {/* Specializations Grid */}
                 <main style={{
                     maxWidth: '1400px',
-                    margin: '-60px auto 0',
-                    padding: '0 24px 100px',
+                    margin: '-40px auto 0', /* Reduced from -60px */
+                    padding: '0 24px 80px', /* Reduced from 100px */
                     position: 'relative',
                     zIndex: 10
                 }}>
@@ -302,7 +311,7 @@ const Treatments = () => {
                                             style={{
                                                 backgroundColor: 'white',
                                                 borderRadius: '24px',
-                                                padding: '36px',
+                                                padding: '24px 28px', /* Reduced from 36px */
                                                 boxShadow: isHovered
                                                     ? '0 30px 60px rgba(0, 0, 0, 0.12)'
                                                     : '0 10px 40px rgba(0, 0, 0, 0.08)',
@@ -349,19 +358,19 @@ const Treatments = () => {
                                                 display: 'flex',
                                                 alignItems: 'center',
                                                 justifyContent: 'center',
-                                                marginBottom: '24px',
+                                                marginBottom: '20px', /* Reduced from 24px */
                                                 boxShadow: `0 12px 28px ${specData.color}40`,
                                                 transition: 'all 0.4s cubic-bezier(0.22, 1, 0.36, 1)',
                                                 transform: isHovered ? 'scale(1.1) rotate(5deg)' : 'scale(1) rotate(0deg)'
                                             }}>
-                                                <Icon size={36} color="white" strokeWidth={2} />
+                                                <Icon size={28} color="white" strokeWidth={2} /> {/* Reduced from 36 */}
                                             </div>
 
                                             <h3 style={{
-                                                fontSize: '26px',
+                                                fontSize: '20px', /* Reduced from 26px */
                                                 fontWeight: '700',
                                                 color: '#0f172a',
-                                                marginBottom: '14px',
+                                                marginBottom: '10px', /* Reduced from 14px */
                                                 lineHeight: '1.3',
                                                 transition: 'color 0.3s ease'
                                             }}>
