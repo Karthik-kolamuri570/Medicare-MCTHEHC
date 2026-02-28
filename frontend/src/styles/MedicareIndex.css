@@ -1,507 +1,900 @@
 /* Header Component */
 /* Reset Styles */
 * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-          font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', 'Roboto', Arial, sans-serif; /* Modern typography */
 }
 
+body {
+  background-color: #f8fafc; /* Very soft slate background */
+  color: #334155;
+  line-height: 1.6;
+}
+
+/* Base Styles applied from Header/App usually, but keeping these intact */
+/* ... existing navbar styles ... */
 /* Main Navbar */
 .navbar {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 15px 50px;
-          background-color: white;
-          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-          
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 40px; /* Reduced vertical padding */
+  background-color: white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); /* Softer, larger shadow */
 }
 
 .mlogo {
-          height: 60px;
-          display: block;
+  height: 60px;
+  display: block;
 }
 
 /* Logo */
 .logo {
-          font-size: 24px;
-          font-weight: bold;
-          color: #000;
-          display: flex;
-          align-items: center;
+  font-size: 24px;
+  font-weight: 800; /* Bolder logo */
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  letter-spacing: -0.5px;
 }
 
 .alogo {
-          text-decoration: none;
-          color: black;
+  text-decoration: none;
+  color: #0f172a;
+}
 
-
+.left-nav-group {
+  display: flex;
+  align-items: center;
+  gap: 40px;
 }
 
 /* Navigation Links */
 .nav-links {
-          list-style: none;
-          display: flex;
-          gap: 20px;
-          float: right;
-}
-
-.nav-links li {
-          display: inline;
+  list-style: none;
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  padding: 0;
+  margin: 0;
 }
 
 .nav-links a {
-          text-decoration: none;
-          color: #000;
-          font-size: 16px;
-          transition: color 0.3s ease;
+  text-decoration: none;
+  color: #475569;
+  font-size: 16px;
+  font-weight: 500;
+  transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.mobile-only-link {
+  display: none !important; /* Hidden on desktop */
 }
 
 .nav-links a:hover {
-          color: #007bff;
+  color: #2074d4;
+  transform: translateY(-1px);
 }
 
 /* Search Bar */
+.search-wrapper {
+  margin-left: auto; /* Push search bar to the right on desktop */
+}
+
 .search-container {
-          display: flex;
-          align-items: center;
-          border: 1px solid #ccc;
-          border-radius: 20px;
-          overflow: hidden;
+  display: flex;
+  align-items: center;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 99px; /* Pill shape */
+  overflow: hidden;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  background: white;
+}
+
+.search-container:focus-within {
+  border-color: #2074d4;
+  box-shadow: 0 0 0 3px rgba(32, 116, 212, 0.15);
 }
 
 .search-container input {
-          border: none;
-          padding: 8px 12px;
-          outline: none;
-          width: 180px;
+  border: none;
+  padding: 10px 16px;
+  outline: none;
+  width: 200px;
+  font-size: 14px;
 }
 
 .search-container button {
-          border: none;
-          background: none;
-          padding: 8px;
-          cursor: pointer;
-          font-size: 18px;
+  border: none;
+  background: none;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-size: 18px;
+  color: #64748b;
+  transition: color 0.3s ease;
+}
+.search-container button:hover {
+  color: #2074d4;
 }
 
 /* Secondary Navbar (Yellow Background) */
 .secondary-navbar {
-          display: flex;
-          justify-content: right;
-          gap: 20px;
-          background-color: #ffcc00;  
-          padding: 5px;
-          margin-left: 800px;
-          border-radius: 50px;
+  display: flex;
+  justify-content: right;
+  gap: 15px; /* Reduced gap */
+  background-color: #FFD600;  
+  padding: 6px 15px; /* Thinner padding */
+  margin-left: auto;
+  margin-right: 50px;
+  max-width: fit-content;
+  border-radius: 50px;
+  box-shadow: 0 4px 12px rgba(255, 214, 0, 0.2);
 }
 .secondary-navbar a {
-          text-decoration: none;
-          color: black;
-          font-weight: bold;
-          padding: 8px 12px;
-          border-radius: 10px;
-          transition: background 0.3s;
+  text-decoration: none;
+  color: #1e293b;
+  font-weight: 600;
+  font-size: 13px; /* Slightly smaller text */
+  padding: 6px 12px; /* Tighter click targets */
+  border-radius: 99px;
+  transition: background 0.3s, transform 0.2s;
 }
 
 .secondary-navbar a:hover {
-          background: rgba(0, 0, 0, 0.1);
-          transition: 0.5s ;
-
+  background: rgba(0, 0, 0, 0.05);
+  transform: scale(1.02);
 }
 
-/* Bookanappointment */
-.book-appointment-container {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          max-width: 1200px;
-          margin: 50px auto;
-          /* Space between Header and this section */
-          padding: 20px;
-          gap: 40px;
-          /* Space between text and image */
-          border: 2px solid #ddd;
-          /* Light gray border */
-          border-radius: 10px;
-          /* Rounded corners */
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-          /* Soft shadow */
-          background-color: #fff;
-          /* White background */
-        }
-        
-        .book-appointment-text {
-          flex: 1;
-          text-align: left;
-        }
-        
-        .book-appointment-text h1 {
-          font-size: 32px;
-          margin-bottom: 10px;
-          color: #333;
-        }
-        
-        .book-appointment-text p {
-          font-size: 16px;
-          line-height: 1.6;
-          color: #555;
-        }
-        
-        .book-appointment-text ul {
-          padding-left: 20px;
-        }
-        
-        .book-appointment-text li {
-          margin-bottom: 10px;
-        }
-        
-        .book-appointment-image {
-          flex: 1;
-          display: flex;
-          justify-content: center;
-        }
-        
-        .book-appointment-image img {
-          max-width: 100%;
-          height: auto;
-          border-radius: 10px;
-          /* Smooth corners */
-        }
-        
-/* Findahospital */
-.find-hospital-container {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          max-width: 1200px;
-          margin: 50px auto; /* Space between Header and this section */
-          padding: 20px;
-          gap: 40px; /* Space between image and text */
-          border: 2px solid #ddd; /* Light border */
-          border-radius: 10px; /* Rounded corners */
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* Soft shadow */
-          background-color: #fff; /* White background */
-        }
-        
-        .find-hospital-image {
-          flex: 1;
-          display: flex;
-          justify-content: center;
-        }
-        
-        .find-hospital-image img {
-          max-width: 100%;
-          height: auto;
-          border-radius: 10px; /* Smooth corners */
-        }
-        
-        .find-hospital-text {
-          flex: 1;
-          text-align: left;
-        }
-        
-        .find-hospital-text h1 {
-          font-size: 32px;
-          margin-bottom: 10px;
-          color: #333;
-        }
-        
-        .find-hospital-text p {
-          font-size: 16px;
-          line-height: 1.6;
-          color: #555;
-        }
-        
-/* Specialities */
-.specialities-container {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          max-width: 1200px;
-          margin: 50px auto; /* Space from other sections */
-          padding: 20px;
-          gap: 40px; /* Space between text and image */
-          border: 2px solid #ddd; /* Light border */
-          border-radius: 10px; /* Smooth corners */
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* Soft shadow */
-          background-color: #fff; /* Clean background */
-        }
-        
-        .specialities-text {
-          flex: 1;
-          text-align: left;
-        }
-        
-        .specialities-text h1 {
-          font-size: 32px;
-          margin-bottom: 10px;
-          color: #333;
-        }
-        
-        .specialities-text p {
-          font-size: 16px;
-          line-height: 1.6;
-          color: #555;
-        }
-        
-        .specialities-image {
-          flex: 1;
-          display: flex;
-          justify-content: center;
-        }
-        
-        .specialities-image img {
-          max-width: 100%;
-          height: auto;
-          border-radius: 10px; /* Smooth edges */
-        }
+/* =========================================
+   Home Page Sections (MedicareIndex)
+   ========================================= */
 
+/* Common Section Container Style */
+.home-section-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 40px auto; /* Reduced from 80px */
+  padding: 30px; /* Reduced from 40px */
+  gap: 30px; /* Reduced from 60px */
+  border-radius: 20px; 
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04); 
+  background-color: #fff; 
+  border: 1px solid rgba(255,255,255,0.8);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
 
-/* FindaDoctor */
+.home-section-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+}
+
+/* Optional soft gradient background for alternate sections */
+.home-section-container.alt-bg {
+  background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+}
+
+/* Common Text Styles */
+.section-text-content {
+  flex: 1.2;
+  text-align: left;
+  z-index: 2;
+}
+
+.section-text-content h1 {
+  font-size: 36px; /* Slightly smaller from 40px */
+  font-weight: 800;
+  margin-bottom: 15px; /* Reduced from 20px */
+  color: #0f172a;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+}
+
+.section-text-content h1 span.highlight {
+  color: #2074d4;
+}
+
+.section-text-content p {
+  font-size: 16px; /* Slightly smaller */
+  line-height: 1.6; /* Tighter line height */
+  color: #475569;
+  margin-bottom: 20px; /* Tighter spacing below paragraph */
+}
+
+/* Common Image Styles */
+.section-image-content {
+  flex: 0.8;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+}
+
+.section-image-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 16px; 
+  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+  transition: transform 0.4s ease;
+}
+
+.home-section-container:hover .section-image-content img {
+  transform: scale(1.03) rotate(-1deg);
+}
+
+/* Specific Section Overrides (if needed) */
+/* Kept the old class names for compatibility, but styled to match the new system */
+.book-appointment-container,
+.find-hospital-container,
+.specialities-container,
 .find-a-doctor-container {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          max-width: 1200px;
-          margin: 50px auto; /* Space from other sections */
-          padding: 20px;
-          gap: 40px; /* Space between text and image */
-          border: 2px solid #ddd; /* Light border */
-          border-radius: 10px; /* Smooth corners */
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* Soft shadow */
-          background-color: #fff; /* Clean background */
-        }
-        
-        .find-a-doctor-image {
-          flex: 1;
-          display: flex;
-          justify-content: center;
-        }
-        
-        .find-a-doctor-image img {
-          max-width: 90%; /* Adjusted image width */
-          height: auto;
-          border-radius: 8px; /* Smooth edges */
-        }
-        
-        .find-a-doctor-text {
-          flex: 1;
-          text-align: left;
-        }
-        
-        .find-a-doctor-text h1 {
-          font-size: 28px; /* Keep heading size consistent */
-          margin-bottom: 8px;
-          color: #333;
-        }
-        
-        .find-a-doctor-text p {
-          font-size: 15px;
-          line-height: 1.5;
-          color: #555;
-        }
-        
+  /* Inherit from .home-section-container now, but fallback styles here just in case */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 60px auto; 
+  padding: 40px;
+  gap: 50px; 
+  border-radius: 20px; 
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04); 
+  background-color: #fff; 
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
 
-/* Blogs */
+.book-appointment-container:hover,
+.find-hospital-container:hover,
+.specialities-container:hover,
+.find-a-doctor-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+}
+
+/* Legacy inner content mappings */
+.book-appointment-text, .find-hospital-text, .specialities-text, .find-a-doctor-text {
+  flex: 1.2;
+  text-align: left;
+}
+
+.book-appointment-text h1, .find-hospital-text h1, .specialities-text h1, .find-a-doctor-text h1 {
+  font-size: 34px; /* Reduced */
+  font-weight: 800;
+  margin-bottom: 15px; /* Reduced */
+  color: #0f172a;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+}
+
+.book-appointment-text p, .find-hospital-text p, .specialities-text p, .find-a-doctor-text p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #475569;
+  margin-bottom: 20px;
+}
+
+.book-appointment-image, .find-hospital-image, .specialities-image, .find-a-doctor-image {
+  flex: 0.8;
+  display: flex;
+  justify-content: center;
+}
+
+.book-appointment-image img, .find-hospital-image img, .specialities-image img, .find-a-doctor-image img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 16px; 
+  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+  transition: transform 0.4s ease;
+}
+
+.book-appointment-container:hover .book-appointment-image img,
+.find-hospital-container:hover .find-hospital-image img,
+.specialities-container:hover .specialities-image img,
+.find-a-doctor-container:hover .find-a-doctor-image img {
+  transform: scale(1.03) rotate(-1deg);
+}
+
+/* Reverse layout for alternating sections */
+.row-reverse {
+  flex-direction: row-reverse;
+}
+
+
+/* =========================================
+   Blogs Section
+   ========================================= */
 .blogs-section {
-          width: 100%;
-          padding: 3px 0;
-          display: flex;
-          justify-content: center; /* Light background to highlight the border */
-        }
-        
-        .blogs-container {
-          width: 100%;
-          max-width: 1200px;
-          text-align: center;
-          padding: 20px;
-          border: 2px solid #ddd; /* Outside border */
-          border-radius: 10px;
-          background-color: white;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* Soft shadow effect */
-        }
-        
-        .blogs-heading {
-          font-size: 2.5rem;
-          font-weight: bold;
-          margin-bottom: 20px;
-          color: #333;
-        }
-        
-        .blogs-grid {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 20px;
-        }
-        
-        .blog-card {
-          background-color: #f9f9f9;
-          border: 1px solid #ccc;
-          border-radius: 8px;
-          padding: 20px;
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-          text-align: center;
-        }
-        
-        .blog-card img {
-          width: 100%;
-          height: auto;
-          border-radius: 8px;
-        }
-        
-        .blog-card h3 {
-          font-size: 1.2rem;
-          margin: 10px 0;
-        }
-        
-        .blog-card p {
-          font-size: 0.9rem;
-          color: #666;
-        }
-        
-        .blog-card button {
-          background-color: #007bff;
-          color: white;
-          padding: 10px 20px;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-          margin-top: 10px;
-        }
-        
-        .blog-card button:hover {
-          background-color: #0056b3;
-        }
-        
+  width: 100%;
+  padding: 20px 0; /* Reduced from 40px */
+  display: flex;
+  justify-content: center; 
+  background-color: #f8fafc; /* Match body bg */
+}
 
-        /* TopDoctors */
-        .top-doctors-section {
-          width: 100%;
-          padding: 3px 0;
-          display: flex;
-          justify-content: center;
-        }
-        
-        .top-doctors-container {
-          width: 100%;
-          max-width: 1200px;
-          text-align: center;
-          padding: 20px;
-          margin: 10px;
-          border: 2px solid #ddd;
-          border-radius: 10px;
-          background-color: white;
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        .top-doctors-heading {
-          font-size: 2.5rem;
-          font-weight: bold;
-          margin-bottom: 20px;
-          color: #333;
-        }
-        
-        .doctors-grid {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 20px;
-        }
-        
-        .doctor-card {
-          background-color: #f9f9f9;
-          border: 1px solid #ccc;
-          border-radius: 8px;
-          padding: 20px;
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-          text-align: center;
-        }
-        
-        .doctor-img {
-          width: 100%;
-          height: auto;
-          border-radius: 8px;
-        }
-        
-        .doctor-name {
-          font-size: 1.2rem;
-          margin: 10px 0;
-        }
-        
-        .doctor-description {
-          font-size: 0.9rem;
-          color: #666;
-        }
-        
-        .appointment-btn {
-          background-color: #007bff;
-          color: white;
-          padding: 10px 20px;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-          margin-top: 10px;
-        }
-        
-        .appointment-btn:hover {
-          background-color: #0056b3;
-        }
-        
+.blogs-container {
+  width: 100%;
+  max-width: 1200px;
+  text-align: center;
+  padding: 20px; /* Reduced from 40px 20px */
+}
+
+.blogs-container h1, .top-doctors-container h1 {
+  font-size: 36px;
+  font-weight: 800;
+  margin-bottom: 25px; /* Reduced from 40px */
+  color: #0f172a;
+  letter-spacing: -0.5px;
+  position: relative;
+  display: inline-block;
+}
+
+.blogs-container h1::after, .top-doctors-container h1::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 4px;
+  background-color: #2074d4;
+  border-radius: 2px;
+}
+
+.blogs-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px; /* Reduced from 30px */
+}
+
+.blog-card {
+  background-color: #ffffff;
+  border: 1px solid rgba(0,0,0,0.04);
+  border-radius: 16px;
+  padding: 0; /* Remove padding to let image stretch */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+  text-align: left; /* Better readability */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.blog-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+}
+
+.blog-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 16px 16px 0 0;
+}
+
+.blog-card-content {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.blog-card h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #1e293b;
+  line-height: 1.4;
+  /* Truncate long titles */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.blog-card p {
+  font-size: 15px;
+  color: #64748b;
+  line-height: 1.6;
+  margin-bottom: 24px;
+  flex-grow: 1;
+  /* Truncate long descriptions */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.blog-card-footer {
+  margin-top: auto;
+}
+
+.blog-card button {
+  background-color: transparent;
+  color: #2074d4;
+  padding: 0;
+  border: none;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.3s ease;
+}
+
+.blog-card button a {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.blog-card button a::after {
+  content: '→';
+  transition: transform 0.3s ease;
+}
+
+.blog-card button:hover {
+  color: #1e3a8a;
+}
+.blog-card button:hover a::after {
+  transform: translateX(4px);
+}
 
 
-/* Footer */
+/* =========================================
+   Top Doctors Section
+   ========================================= */
+.top-doctors-section {
+  width: 100%;
+  padding: 20px 0 40px 0; /* Reduced from 40px 0 80px 0 */
+  display: flex;
+  justify-content: center;
+  background-color: #f8fafc;
+}
+
+.top-doctors-container {
+  width: 100%;
+  max-width: 1200px;
+  text-align: center;
+  padding: 20px;
+}
+
+.doctors-grid {
+  display: grid !important; /* Override inline styles temporarily */
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 20px; /* Reduced from 30px */
+  justify-items: center;
+}
+
+/* Modern Doctor Card styling to override inline styles where possible */
+.modern-doctor-card {
+  border: 1px solid rgba(0,0,0,0.04) !important;
+  border-radius: 16px !important;
+  padding: 20px !important; /* Reduced from 24px */
+  margin: 0 !important;
+  width: 100%;
+  min-height: 320px !important; /* Reduced from 360px */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04) !important;
+  background: #ffffff !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: left;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.modern-doctor-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08) !important;
+}
+
+.modern-doctor-card img {
+  width: 100% !important;
+  height: 180px !important;
+  object-fit: cover !important;
+  border-radius: 12px !important;
+  background: #f1f5f9 !important;
+  border: none !important;
+  margin-bottom: 16px;
+}
+
+.modern-doctor-card h3 {
+  margin: 0 0 12px 0 !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+  font-size: 22px;
+}
+
+.modern-doctor-card p {
+  color: #475569 !important;
+  font-size: 14px !important;
+  margin-bottom: 8px !important;
+  line-height: 1.5;
+}
+
+.modern-doctor-card p strong {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.modern-doctor-btn {
+  margin-top: 20px !important;
+  padding: 12px 16px !important;
+  border-radius: 99px !important; /* Pill shape */
+  border: none !important;
+  background-color: #2074d4 !important;
+  color: white !important;
+  font-weight: 600 !important;
+  font-size: 15px !important;
+  cursor: pointer !important;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease !important;
+  box-shadow: 0 4px 12px rgba(32, 116, 212, 0.2) !important;
+  text-align: center;
+}
+
+.modern-doctor-btn:hover {
+  background-color: #1d64b8 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 16px rgba(32, 116, 212, 0.3) !important;
+}
+
+
+/* =========================================
+   Footer
+   ========================================= */
 .footer {
-          background-color: #333;
-          color: white;
-          padding: 20px 0;
-          text-align: center;
-        }
-        
-        .footer-container {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 15px;
-        }
-        
-        .footer-logo h2 {
-          font-size: 1.8rem;
-          font-weight: bold;
-        }
-        
-        .footer-links {
-          display: flex;
-          gap: 15px;
-        }
-        
-        .footer-links a {
-          color: white;
-          text-decoration: none;
-          font-size: 1rem;
-        }
-        
-        .footer-links a:hover {
-          text-decoration: underline;
-        }
-        
-        .footer-social {
-          display: flex;
-          gap: 15px;
-        }
-        
-        .footer-social a {
-          color: white;
-          font-size: 1.5rem;
-          transition: 0.3s ease-in-out;
-        }
-        
-        .footer-social a:hover {
-          color: #007bff;
-        }
-        
-        .footer-bottom {
-          margin-top: 10px;
-          font-size: 0.9rem;
-        }
-        
+  background-color: #0f172a; /* Deeper, more modern dark blue/slate */
+  color: #f8fafc;
+  padding: 60px 0 30px 0;
+  text-align: center;
+}
+
+.footer-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.footer-logo h2 {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 24px;
+}
+
+.footer-links a {
+  color: #cbd5e1;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+  color: #38bdf8; /* Light blue accent */
+}
+
+.footer-social {
+  display: flex;
+  gap: 20px;
+  margin-top: 10px;
+}
+
+.footer-social a {
+  color: #cbd5e1;
+  font-size: 24px;
+  transition: color 0.3s ease, transform 0.3s ease;
+  display: inline-block;
+}
+
+.footer-social a:hover {
+  color: #38bdf8;
+  transform: translateY(-3px);
+}
+
+.footer-bottom {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  font-size: 14px;
+  color: #94a3b8;
+  width: 80%;
+  max-width: 1200px;
+}
+
+
+/* =========================================
+   Responsive Adjustments (including Mobile Menu)
+   ========================================= */
+/* Mobile Menu Overlay */
+.mobile-menu-overlay {
+  display: none;
+}
+
+/* Mobile Hamburger Icon Base (Hidden on Desktop) */
+.hamburger-icon {
+  display: none;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 32px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1001; /* Above mobile menu overlay */
+}
+
+.hamburger-icon .bar {
+  width: 100%;
+  height: 3px;
+  background: #0f172a;
+  border-radius: 10px;
+  transition: all 0.3s linear;
+  position: relative;
+  transform-origin: 1px;
+}
+
+.hamburger-icon .bar.open:nth-child(1) {
+  transform: rotate(45deg);
+}
+.hamburger-icon .bar.open:nth-child(2) {
+  opacity: 0;
+  transform: translateX(20px);
+}
+.hamburger-icon .bar.open:nth-child(3) {
+  transform: rotate(-45deg);
+}
+
+@media (max-width: 900px) {
+  /* Mobile Menu Styles */
+  .hamburger-icon {
+    display: flex;
+    order: 3; /* Move hamburger to the right */
+  }
+
+  .navbar {
+    padding: 10px 20px;
+    position: relative;
+    /* Ensure flex wraps or stays clean on mobile */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .left-nav-group {
+    gap: 10px !important; /* Minimal gap on mobile so logo fits */
+  }
+
+  .right-nav-group {
+    gap: 10px !important; /* Tighter gap on mobile between search and hamburger */
+  }
+
+  /* Overlay trick when menu is open */
+  body:has(.nav-links.active) {
+    overflow: hidden;
+  }
+
+  .mobile-menu-overlay {
+    display: block;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(11, 15, 25, 0.7); /* Deeper overlay */
+    backdrop-filter: blur(8px); /* Stronger glass effect */
+    z-index: 999;
+  }
+
+  .nav-links {
+    position: fixed;
+    top: 0;
+    right: -100vw; 
+    width: 340px;
+    max-width: 90vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.95); /* Semi-transparent rugged slate */
+    backdrop-filter: blur(16px);
+    box-shadow: -20px 0 60px rgba(0,0,0,0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 30px 30px 40px; /* Adjusted padding for top header */
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1); /* Snappier easing */
+    transform: translateX(100%); /* Use transform instead of right for better performance */
+    right: 0; /* Base position */
+    z-index: 1000;
+    border-left: 1px solid rgba(255, 255, 255, 0.1); /* Subtle metallic edge */
+  }
+
+  .nav-links.active {
+    transform: translateX(0);
+  }
+
+  .mobile-drawer-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    padding-bottom: 25px;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.15); /* Industrial dashed line */
+  }
+
+  .mobile-drawer-header h2 {
+    color: #f8fafc;
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: -1.5px;
+    margin: 0;
+    text-transform: uppercase;
+  }
+
+  .mobile-drawer-header h2 .dot {
+    color: #ffd600; /* Industrial accent */
+  }
+
+  .close-btn {
+    background: rgba(255, 255, 255, 0.05); /* Slight button base */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+    font-size: 18px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px; /* Slightly squared industrial button */
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .close-btn:hover {
+    color: #ffffff;
+    background: rgba(255,214,0, 0.1); /* Hover glow */
+    border-color: #ffd600;
+  }
+
+  .nav-links li {
+    width: 100%;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 16px 0;
+    color: #cbd5e1; /* Brighter default text */
+    font-size: 15px; /* Slightly smaller, more precise */
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase; 
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden; /* For hover effect */
+  }
+
+  /* Sweep background effect */
+  .nav-links li::after {
+    content: '';
+    position: absolute;
+    left: -100%;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,214,0,0.05), transparent);
+    transition: left 0.4s ease;
+    z-index: 0;
+  }
+
+  /* Left accent block */
+  .nav-links li::before {
+    content: '';
+    position: absolute;
+    left: 0; 
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background-color: #ffd600;
+    transform: scaleY(0);
+    transition: transform 0.2s ease;
+    transform-origin: bottom;
+    z-index: 1;
+  }
+
+  .nav-links li:last-child {
+    border-bottom: none;
+    margin-top: auto; 
+  }
+
+  .nav-links li:hover {
+    color: #ffffff;
+    padding-left: 15px; /* Technical indent */
+  }
+
+  .nav-links li:hover::after {
+    left: 100%; /* Sweep effect */
+  }
+
+  .nav-links li:hover::before {
+    transform: scaleY(1);
+  }
+
+  .nav-links a, .nav-links span {
+    font-size: inherit;
+    color: inherit;
+    display: block;
+    width: 100%;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Hamburger Color when open over dark bg */
+  body:has(.nav-links.active) .hamburger-icon .bar {
+    background: #ffd600; /* Yellow X */
+  }
+
+  .mobile-only-link {
+    display: list-item !important; /* Show in mobile drawer */
+  }
+
+  /* Search container needs to be hidden or adjusted in standard navbar */
+  .search-container {
+    display: none; /* Let's hide it for extreme simplicity on phone, or you could move it inside the nav-links */
+  }
+
+  .secondary-navbar {
+    display: none !important; /* Secondary navbar hidden on mobile for cleaner look */
+  }
+
+  /* Body Content Layout fixes on Mobile */
+  .book-appointment-container,
+  .find-hospital-container,
+  .specialities-container,
+  .find-a-doctor-container,
+  .home-section-container {
+    flex-direction: column;
+    text-align: center;
+    padding: 20px 15px; /* Reduced padding */
+    gap: 20px; /* Reduced gap */
+    margin: 30px auto; /* Tighter vertical spacing between cards on mobile */
+  }
+  
+  .row-reverse {
+    flex-direction: column !important;
+  }
+
+  .book-appointment-text, 
+  .find-hospital-text, 
+  .specialities-text, 
+  .find-a-doctor-text,
+  .section-text-content {
+    text-align: center;
+  }
+
+  .book-appointment-text h1, 
+  .find-hospital-text h1, 
+  .specialities-text h1, 
+  .find-a-doctor-text h1,
+  .section-text-content h1 {
+    font-size: 30px;
+  }
+  
+  .blogs-grid, .doctors-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .blogs-grid, .doctors-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

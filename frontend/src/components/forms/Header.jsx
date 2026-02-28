@@ -379,6 +379,7 @@ function Header() {
   const [isLoading, setIsLoading] = useState(true);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [notifCount, setNotifCount] = useState(0);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // Mobile Menu State
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -546,7 +547,7 @@ function Header() {
   };
 
   return (
-    <header style={{ marginBottom: 70 }}>
+    <header style={{ marginBottom: 140 }}>
       <div
         style={{
           position: "fixed",
@@ -555,17 +556,9 @@ function Header() {
           zIndex: 1000,
         }}
       >
-        <div style={{ boxShadow: "0 2px 5px rgba(0,0,0,0.1)" }}>
-          <nav
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              padding: "1rem 2rem",
-              backgroundColor: "#fff",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <div className="navbar-container" style={{ boxShadow: "0 2px 5px rgba(0,0,0,0.1)" }}>
+          <nav className="navbar">
+            <div className="left-nav-group" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <img src={logo} alt="Medicare Logo" style={{ height: "40px" }} />
               <h1
                 style={{ margin: 0, fontSize: "1.5rem", cursor: "pointer" }}
@@ -574,60 +567,82 @@ function Header() {
                 Medicare
               </h1>
             </div>
-            <ul
-              style={{
-                display: "flex",
-                listStyle: "none",
-                gap: "1.5rem",
-                marginLeft: 450,
-                padding: 0,
-              }}
-            >
-              <li style={{ cursor: "pointer" }} onClick={() => navigate("/top-doctors")}>
-                Find a Doctor
-              </li>
-              <li style={{ cursor: "pointer" }} onClick={() => navigate("/get-second-opinion")}>
-                Get Second Opinion
-              </li>
-              <li style={{ cursor: "pointer" }} onClick={() => navigate("/blogs")}>
-                Blogs
-              </li>
-              <li style={{ cursor: "pointer" }} onClick={() => setIsContactModalOpen(true)}>
-                Contact Us
-              </li>
-              {user && (
-                <li
-                  style={{ cursor: "pointer", position: "relative", display: "flex", alignItems: "center" }}
-                  onClick={() => navigate("/notifications")}
-                  title="Notifications"
-                >
-                  🔔
-                  {notifCount > 0 && (
-                    <span style={{
-                      position: "absolute", top: -6, right: -10,
-                      background: "#ef4444", color: "#fff",
-                      fontSize: "0.65rem", fontWeight: 800,
-                      width: 18, height: 18, borderRadius: "50%",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      border: "2px solid #fff",
-                      animation: "ntfPulse 2s infinite"
-                    }}>{notifCount > 9 ? '9+' : notifCount}</span>
-                  )}
+
+            <div className="right-nav-group" style={{ display: "flex", alignItems: "center", gap: "25px" }}>
+              <ul
+                className={`nav-links ${isMobileMenuOpen ? "active" : ""}`}
+              >
+                {isMobileMenuOpen && (
+                   <div className="mobile-drawer-header">
+                      <h2>Medicare<span className="dot">.</span></h2>
+                      <button className="close-btn" onClick={() => setIsMobileMenuOpen(false)}>✕</button>
+                   </div>
+                )}
+                <li style={{ cursor: "pointer" }} onClick={() => { navigate("/top-doctors"); setIsMobileMenuOpen(false); }}>
+                  <span>Find a Doctor</span>
                 </li>
-              )}
-              {!isLoading && (
-                user ? (
-                  <li style={{ cursor: "pointer" }} onClick={handleLogout}>
-                    Logout
+                <li style={{ cursor: "pointer" }} onClick={() => { navigate("/get-second-opinion"); setIsMobileMenuOpen(false); }}>
+                  <span>Get Second Opinion</span>
+                </li>
+                <li style={{ cursor: "pointer" }} onClick={() => { navigate("/blogs"); setIsMobileMenuOpen(false); }}>
+                  <span>Blogs</span>
+                </li>
+                <li style={{ cursor: "pointer" }} onClick={() => { setIsContactModalOpen(true); setIsMobileMenuOpen(false); }}>
+                  <span>Contact Us</span>
+                </li>
+                {user && (
+                  <li
+                    style={{ cursor: "pointer", position: "relative", display: "flex", alignItems: "center" }}
+                    onClick={() => { navigate("/notifications"); setIsMobileMenuOpen(false); }}
+                    title="Notifications"
+                  >
+                    <span>🔔</span>
+                    {notifCount > 0 && (
+                      <span style={{
+                        position: "absolute", top: -6, right: -10,
+                        background: "#ef4444", color: "#fff",
+                        fontSize: "0.65rem", fontWeight: 800,
+                        width: 18, height: 18, borderRadius: "50%",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        border: "2px solid #fff",
+                        animation: "ntfPulse 2s infinite"
+                      }}>{notifCount > 9 ? '9+' : notifCount}</span>
+                    )}
                   </li>
-                ) : (
-                  <li style={{ cursor: "pointer" }} onClick={() => navigate("/SignUp")}>
-                    Sign Up
-                  </li>
-                )
-              )}
-            </ul>
+                )}
+                <li className="mobile-only-link" style={{ cursor: "pointer" }} onClick={() => { navigate("/hospitals"); setIsMobileMenuOpen(false); }}>
+                  <span>Our Hospitals</span>
+                </li>
+                <li className="mobile-only-link" style={{ cursor: "pointer" }} onClick={() => { navigate("/patient/online-consultation"); setIsMobileMenuOpen(false); }}>
+                  <span>Online Consultancy</span>
+                </li>
+                <li className="mobile-only-link" style={{ cursor: "pointer" }} onClick={() => { navigate("/treatments"); setIsMobileMenuOpen(false); }}>
+                  <span>Treatments</span>
+                </li>
+                <li className="mobile-only-link" style={{ cursor: "pointer" }} onClick={() => { navigate("/blood-bank"); setIsMobileMenuOpen(false); }}>
+                  <span>Blood Camps and Banks</span>
+                </li>
+                {!isLoading && (
+                  user ? (
+                    <li style={{ cursor: "pointer" }} onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }}>
+                      <span>Logout</span>
+                    </li>
+                  ) : (
+                    <li style={{ cursor: "pointer" }} onClick={() => { navigate("/SignUp"); setIsMobileMenuOpen(false); }}>
+                      <span>Sign Up</span>
+                    </li>
+                  )
+                )}
+              </ul>
+
+            {/* Hamburger Icon for Mobile */}
+            <div className="hamburger-icon" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+              <div className={`bar ${isMobileMenuOpen ? 'open' : ''}`}></div>
+              <div className={`bar ${isMobileMenuOpen ? 'open' : ''}`}></div>
+              <div className={`bar ${isMobileMenuOpen ? 'open' : ''}`}></div>
+            </div>
             <div
+              className="search-wrapper"
               ref={dropdownRef}
               style={{
                 position: "relative",
@@ -699,19 +714,23 @@ function Header() {
                 </ul>
               )}
             </div>
+          </div>
           </nav>
         </div>
+
+        {/* Mobile Menu Overlay */}
+        {isMobileMenuOpen && (
+          <div 
+            className="mobile-menu-overlay" 
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+        )}
 
         {/* Secondary Yellow Navbar with original inline styles and toggle display */}
         <div
           className="secondary-navbar"
           style={{
-            backgroundColor: "#FFD600",
             display: showSecondaryNavbar ? "flex" : "none",
-            // gap: "2rem",
-            // padding: "0.7rem 2rem",
-            // fontWeight: "bold",
-            // fontSize: "1rem",
           }}
         >
           <a href="/hospitals" style={{ textDecoration: "none", color: "#222" }}>

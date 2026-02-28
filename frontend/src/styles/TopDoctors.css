@@ -102,34 +102,6 @@
   gap: 30px;
 }
 
-@media (max-width: 1400px) {
-  .grid-container {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 1024px) {
-  .grid-container {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .doctors-header-container {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 20px;
-  }
-
-  .search-box {
-    width: 100%;
-  }
-}
-
-@media (max-width: 640px) {
-  .grid-container {
-    grid-template-columns: 1fr;
-  }
-}
-
 /* Card Styling */
 .simple-doctor-card {
   display: flex;
@@ -364,4 +336,314 @@
 
 .page-info strong {
   color: var(--text-main);
+}
+
+/* Results Count */
+.td-results-count {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.td-results-count strong {
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+/* ============================================================ */
+/*                     RESPONSIVE BREAKPOINTS                    */
+/* ============================================================ */
+
+/* ---- ≤1400px: 3-column grid ---- */
+@media (max-width: 1400px) {
+  .grid-container {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+}
+
+/* ---- ≤1024px: 2-column grid, stacked header ---- */
+@media (max-width: 1024px) {
+  .doctors-page-wrapper {
+    padding: 40px 24px 80px;
+  }
+
+  .grid-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .doctors-header-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .search-box {
+    width: 100%;
+  }
+
+  .page-title {
+    font-size: 2rem;
+  }
+}
+
+/* ---- ≤768px: Compact spacing ---- */
+@media (max-width: 768px) {
+  .doctors-page-wrapper {
+    padding: 28px 16px 80px;
+  }
+
+  .grid-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .page-title {
+    font-size: 1.7rem;
+  }
+
+  .page-title::after {
+    width: 45px;
+    height: 3px;
+  }
+
+  .doctors-header-container {
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+  }
+
+  .doctors-header-container > div:first-child > p {
+    font-size: 0.9rem;
+  }
+
+  .search-box input {
+    padding: 12px 16px 12px 42px;
+    font-size: 0.9rem;
+    border-radius: 10px;
+  }
+
+  .simple-doctor-card {
+    height: 180px;
+  }
+
+  .card-left {
+    width: 110px;
+    min-width: 110px;
+  }
+
+  .card-right {
+    padding: 12px 14px;
+  }
+
+  .doc-name {
+    font-size: 0.95rem;
+  }
+
+  .doc-spec {
+    font-size: 0.7rem;
+    margin: 3px 0 6px;
+  }
+
+  .doc-info-grid {
+    gap: 6px 10px;
+    margin-bottom: 8px;
+  }
+
+  .info-item {
+    font-size: 0.75rem;
+  }
+
+  .time-badge {
+    font-size: 0.7rem;
+    padding: 3px 6px;
+  }
+
+  .book-btn {
+    padding: 8px;
+    font-size: 0.8rem;
+    border-radius: 6px;
+  }
+
+  .pagination-container {
+    margin-top: 40px;
+    gap: 16px;
+  }
+
+  .page-btn {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* ---- ≤600px: Single column ---- */
+@media (max-width: 600px) {
+  .doctors-page-wrapper {
+    padding: 20px 12px 70px;
+  }
+
+  .grid-container {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .simple-doctor-card {
+    height: auto;
+    min-height: 165px;
+  }
+
+  .card-left {
+    width: 120px;
+    min-width: 120px;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .doctors-header-container {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    gap: 14px;
+  }
+
+  .empty-state {
+    padding: 40px 20px;
+  }
+}
+
+/* ---- ≤480px: Maximum compactness ---- */
+@media (max-width: 480px) {
+  .doctors-page-wrapper {
+    padding: 14px 10px 60px;
+  }
+
+  .page-title {
+    font-size: 1.3rem;
+  }
+
+  .page-title::after {
+    width: 35px;
+    height: 3px;
+    bottom: -7px;
+  }
+
+  .doctors-header-container > div:first-child > p {
+    font-size: 0.82rem;
+    margin-top: 8px;
+  }
+
+  .search-box input {
+    padding: 10px 14px 10px 38px;
+    font-size: 0.85rem;
+  }
+
+  .search-box::before {
+    left: 13px;
+    font-size: 0.9rem;
+  }
+
+  .simple-doctor-card {
+    border-radius: 12px;
+  }
+
+  .card-left {
+    width: 100px;
+    min-width: 100px;
+  }
+
+  .availability-tag {
+    font-size: 0.55rem;
+    padding: 2px 6px;
+    top: 6px;
+    left: 6px;
+  }
+
+  .card-right {
+    padding: 10px 12px;
+  }
+
+  .doc-name {
+    font-size: 0.88rem;
+  }
+
+  .doc-spec {
+    font-size: 0.65rem;
+    margin: 2px 0 5px;
+  }
+
+  .info-item {
+    font-size: 0.72rem;
+    gap: 4px;
+  }
+
+  .time-badge {
+    font-size: 0.68rem;
+    padding: 3px 6px;
+  }
+
+  .book-btn {
+    padding: 7px 8px;
+    font-size: 0.78rem;
+  }
+
+  .pagination-container {
+    gap: 12px;
+    margin-top: 30px;
+  }
+
+  .page-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .page-info {
+    font-size: 0.85rem;
+  }
+
+  .td-results-count {
+    font-size: 0.8rem;
+  }
+}
+
+/* ---- ≤360px: Micro screen ---- */
+@media (max-width: 360px) {
+  .doctors-page-wrapper {
+    padding: 10px 6px 50px;
+  }
+
+  .page-title {
+    font-size: 1.15rem;
+  }
+
+  .card-left {
+    width: 85px;
+    min-width: 85px;
+  }
+
+  .doc-name {
+    font-size: 0.82rem;
+  }
+
+  .doc-spec {
+    font-size: 0.6rem;
+  }
+
+  .info-item {
+    font-size: 0.68rem;
+  }
+
+  .book-btn {
+    font-size: 0.72rem;
+    padding: 6px;
+  }
+
+  .empty-state {
+    padding: 30px 12px;
+  }
+
+  .page-info {
+    font-size: 0.8rem;
+  }
 }

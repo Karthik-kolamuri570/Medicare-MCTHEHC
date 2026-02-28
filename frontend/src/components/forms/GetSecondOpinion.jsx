@@ -163,16 +163,27 @@ const GetSecondOpinion = () => {
             <h1>Get Second Opinion</h1>
             <p>Consult with top specialists for a better diagnosis.</p>
           </div>
-          {/* Horizontal Stepper */}
-          <div className="gso-h-stepper">
+          {/* Horizontal Stepper (desktop) */}
+          <div className="gso-h-stepper" role="navigation" aria-label="Form steps">
             {steps.map((s, i) => (
-              <div key={i} className={`gso-step ${step === i ? 'active' : ''} ${step > i ? 'done' : ''}`}>
+              <div key={i} className={`gso-step ${step === i ? 'active' : ''} ${step > i ? 'done' : ''}`} aria-current={step === i ? 'step' : undefined}>
                 <div className="gso-step-icon">
                   {step > i ? <FiCheckCircle /> : (i + 1)}
                 </div>
                 <span>{s.title}</span>
                 {i < steps.length - 1 && <div className="gso-step-line"></div>}
               </div>
+            ))}
+          </div>
+          {/* Mobile Stepper (dots) */}
+          <div className="gso-mobile-stepper" role="navigation" aria-label="Form steps">
+            {steps.map((s, i) => (
+              <div
+                key={i}
+                className={`gso-mobile-dot ${step === i ? 'active' : ''} ${step > i ? 'done' : ''}`}
+                aria-label={`Step ${i + 1}: ${s.title}`}
+                aria-current={step === i ? 'step' : undefined}
+              />
             ))}
           </div>
         </div>
@@ -191,6 +202,8 @@ const GetSecondOpinion = () => {
               {/* STEP 0: DOCTOR SELECTION */}
               {step === 0 && (
                 <div className="gso-step-container">
+                  <h2>Choose Your Specialist</h2>
+                  <p className="gso-step-subtitle">Browse and select a doctor who matches your needs.</p>
                   <div className="gso-filters">
                     <div className="gso-search-wrap">
                       <FiSearch />
@@ -246,6 +259,11 @@ const GetSecondOpinion = () => {
                             <div className="gso-info-row">
                               <FiClock /> {doc.fromTime || "09:00"} - {doc.toTime || "17:00"}
                             </div>
+                            {doc.feePerConsultation && (
+                              <div className="gso-fee-badge">
+                                ₹{doc.feePerConsultation}
+                              </div>
+                            )}
                             <div className={`gso-avail-tag ${isAvailable ? 'yes' : 'no'}`}>
                               {isAvailable ? "Available Now" : "Offline"}
                             </div>
@@ -291,6 +309,7 @@ const GetSecondOpinion = () => {
               {step === 1 && (
                 <div className="gso-step-container xs-width">
                   <h2>Explain your Condition</h2>
+                  <p className="gso-step-subtitle">Help the specialist understand your symptoms and history.</p>
                   <div className="gso-input-group">
                     <label>Chief Complaint / Symptoms</label>
                     <textarea
@@ -317,7 +336,8 @@ const GetSecondOpinion = () => {
               {/* STEP 2: SCHEDULE */}
               {step === 2 && (
                 <div className="gso-step-container xs-width">
-                  <h2>Preferences</h2>
+                  <h2>Schedule & Preferences</h2>
+                  <p className="gso-step-subtitle">Choose how and when you'd like to consult.</p>
                   <div className="gso-mode-row">
                     <div
                       className={`gso-mode-box ${formData.mode === 'online' ? 'active' : ''}`}
@@ -369,7 +389,8 @@ const GetSecondOpinion = () => {
               {/* STEP 3: UPLOADS */}
               {step === 3 && (
                 <div className="gso-step-container xs-width">
-                  <h2>Medical Reports</h2>
+                  <h2>Upload Medical Reports</h2>
+                  <p className="gso-step-subtitle">Attach relevant files so the doctor can review your case.</p>
                   <div
                     className="gso-upload-box"
                     onClick={() => fileInputRef.current.click()}

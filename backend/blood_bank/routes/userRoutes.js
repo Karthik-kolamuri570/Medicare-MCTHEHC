@@ -20,19 +20,20 @@
 const express = require('express');
 const router = express.Router();
 const bloodBankUserController = require('../controllers/bloodBankUserController');
-const userAuth=require('./../../middleware/auth')
+const userAuth=require('./../../middleware/auth');
+const { requireBankAuth } = require('../middleware/auth');
 //In Future i have to include Blood bank Admin middleware because accept and rejection of donations and request arenreplaced there soo. 
 
 
 
 router.get('/blood-requests', userAuth.patientAuth, bloodBankUserController.getAllBloodRequestsForBank);
 router.get('/donation-requests', userAuth.patientAuth, bloodBankUserController.getAllDonationRequestsForBank);
-router.post('/request-blood',bloodBankUserController.requestDonation);
-router.post('/donation-request',bloodBankUserController.donateBlood);
-router.put('/accept-request/:id', bloodBankUserController.acceptBloodRequest);
-router.put('/reject-request/:id', bloodBankUserController.rejectBloodRequest);
-router.put('/accept-donation/:id', bloodBankUserController.acceptDonation);
-router.put('/reject-donation/:id', bloodBankUserController.rejectDonation);
+router.post('/request-blood', userAuth.patientAuth, bloodBankUserController.requestDonation);
+router.post('/donation-request', userAuth.patientAuth, bloodBankUserController.donateBlood);
+router.put('/accept-request/:id', requireBankAuth, bloodBankUserController.acceptBloodRequest);
+router.put('/reject-request/:id', requireBankAuth, bloodBankUserController.rejectBloodRequest);
+router.put('/accept-donation/:id', requireBankAuth, bloodBankUserController.acceptDonation);
+router.put('/reject-donation/:id', requireBankAuth, bloodBankUserController.rejectDonation);
 router.get('/blood/urgent-requests',  bloodBankUserController.getUrgentRequests);
 
 module.exports = router;

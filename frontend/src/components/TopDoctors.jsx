@@ -92,7 +92,15 @@ function TopDoctors() {
         </div>
       </div>
 
-      <div className="grid-container">
+      {/* Results Count */}
+      {!loading && filteredDoctors.length > 0 && (
+        <div className="td-results-count">
+          Showing <strong>{currentDoctors.length}</strong> of <strong>{filteredDoctors.length}</strong> specialists
+          {searchInput && <> matching &ldquo;<strong>{searchInput}</strong>&rdquo;</>}
+        </div>
+      )}
+
+      <div className="grid-container" role="list" aria-label="Doctors list">
         {loading && <div style={{ gridColumn: '1/-1', display: 'flex', justifyContent: 'center', padding: '50px' }}><Loader /></div>}
 
         {!loading && !error && filteredDoctors.length === 0 && (
@@ -103,7 +111,7 @@ function TopDoctors() {
         )}
 
         {!loading && currentDoctors.map((doc, index) => (
-          <div key={doc._id || index} className="simple-doctor-card">
+          <div key={doc._id || index} className="simple-doctor-card" role="listitem" aria-label={`Doctor ${doc.name}`}>
             {/* LEFT: Image */}
 
             {/* LEFT: Image */}

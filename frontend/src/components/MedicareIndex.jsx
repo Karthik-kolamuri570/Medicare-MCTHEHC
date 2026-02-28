@@ -283,56 +283,20 @@ import { useNavigate } from "react-router-dom";
 const DoctorCard = ({ doctor }) => {
   const navigate = useNavigate();
   return (
-    <div
-      className="doctor-card"
-      style={{
-        border: "1px solid #2074d4",
-        borderRadius: 8,
-        padding: 18,
-        margin: 12,
-        maxWidth: 320,
-        minHeight: 340,
-        boxShadow: "0 2px 12px rgba(0,0,0,0.07)",
-        background: "#fcfcfc",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-
-      }}
-    >
+    <div className="modern-doctor-card">
       <img
         src={doctor.profileImage || defaultDoctorImage}
         alt={doctor.name}
         onError={(e) => { e.target.src = defaultDoctorImage; }}
-        style={{
-          width: "100%",
-          height: 140,
-          objectFit: "cover",
-          borderRadius: 8,
-          background: "#f0f0f0",
-          border: "1px solid #e3e3e3",
-        }}
       />
-      <h3 style={{ margin: "14px 0 8px 0", fontWeight: 700, color: "#222" }}>{doctor.name}</h3>
+      <h3>{doctor.name}</h3>
       <p><strong>Specialization:</strong> {doctor.specialization}</p>
       <p><strong>Experience:</strong> {doctor.experience} years</p>
-      {/* <p><strong>Contact:</strong> {doctor.contact}</p> */}
-      {/* <p><strong>Email:</strong> {doctor.email}</p> */}
       <p><strong>Hospital:</strong> {doctor.hospital}</p>
-      {/* <p><strong>Location:</strong> {doctor.location}</p> */}
       <p><strong>Consultation Fee:</strong> ₹{doctor.feePerConsultation}</p>
-      {/* <p><strong>Timings:</strong> {doctor.fromTime} - {doctor.toTime}</p> */}
+      
       <button
-        style={{
-          marginTop: 12,
-          padding: "10px 12px",
-          borderRadius: 6,
-          border: "none",
-          backgroundColor: "#2074d4",
-          color: "white",
-          fontWeight: 600,
-          cursor: "pointer",
-        }}
+        className="modern-doctor-btn"
         onClick={() => navigate(`/book-appointment/${doctor._id}`)}
       >
         Book an Appointment
@@ -340,6 +304,7 @@ const DoctorCard = ({ doctor }) => {
     </div>
   );
 };
+
 
 function MedicareIndex() {
   const [loading, setLoading] = useState(true);
@@ -434,12 +399,12 @@ function MedicareIndex() {
   };
 
   return (
-    <div style={{ marginTop: '150px' }}>
+    <div style={{ marginTop: '130px', paddingBottom: '40px' }}>
       <div>
         {/* Book an Appointment */}
-        <div className="book-appointment-container">
-          <div className="book-appointment-text">
-            <h1>Booking an Appointment</h1>
+        <div className="home-section-container">
+          <div className="section-text-content">
+            <h1>Booking an <span className="highlight">Appointment</span></h1>
             <p>
               Easily schedule an appointment with top healthcare professionals
               using our Medicare platform. Whether you need a routine check-up,
@@ -447,56 +412,56 @@ function MedicareIndex() {
               system ensures you get the medical care you need at your convenience.
             </p>
           </div>
-          <div className="book-appointment-image">
+          <div className="section-image-content">
             <img src={bookanappointment} alt="Booking an Appointment" />
           </div>
         </div>
 
         {/* Find a Hospital */}
-        <div className="find-hospital-container">
-          <div className="find-hospital-image">
-            <img src={Hospital} alt="Find a Hospital" />
-          </div>
-          <div className="find-hospital-text">
-            <h1>Find a Hospital</h1>
+        <div className="home-section-container row-reverse alt-bg">
+          <div className="section-text-content">
+            <h1>Find a <span className="highlight">Hospital</span></h1>
             <p>
               Easily locate the nearest hospitals with our Medicare platform.
               Search by location and specialty, access emergency services, and
               check hospital details and ratings. Find the right hospital for your needs quickly and efficiently!
             </p>
           </div>
+          <div className="section-image-content">
+            <img src={Hospital} alt="Find a Hospital" />
+          </div>
         </div>
 
         {/* Specialities */}
-        <div className="specialities-container">
-          <div className="specialities-text">
-            <h1>Specialities We Offer</h1>
+        <div className="home-section-container">
+          <div className="section-text-content">
+            <h1>Specialities <span className="highlight">We Offer</span></h1>
             <p>
               Our Medicare platform connects you with top specialists in cardiology for heart health,
               neurology for brain and nerve care, orthopedics for bones and joints, and pediatrics for child healthcare.
-              We also provide expert consultations in dermatology for skin and hair care, gynecology for women's health,
-              oncology for cancer treatment, psychiatry for mental health support, gastroenterology for digestive issues,
-              and endocrinology for hormonal disorders. Find the right specialist with ease and get the care you need.
+              We also provide expert consultations in dermatology, gynecology,
+              oncology, psychiatry, gastroenterology,
+              and endocrinology. Find the right specialist with ease and get the care you need.
             </p>
           </div>
-          <div className="specialities-image">
+          <div className="section-image-content">
             <img src={specialities} alt="Specialities" />
           </div>
         </div>
 
         {/* Find a Doctor */}
-        <div className="find-a-doctor-container">
-          <div className="find-a-doctor-image">
-            <img src={searchdoctor} alt="Find a Doctor" />
-          </div>
-          <div className="find-a-doctor-text">
-            <h1>Find a Doctor</h1>
+        <div className="home-section-container row-reverse alt-bg">
+           <div className="section-text-content">
+            <h1>Find a <span className="highlight">Doctor</span></h1>
             <p>
               Our Medicare platform helps you connect with qualified doctors across multiple specialties.
               Search by name, specialty, or location to find the right expert for your health needs.
               View doctor profiles, check patient reviews, and book appointments with ease.
               Whether you need a general consultation or a specialist opinion, we make healthcare accessible and convenient for you.
             </p>
+          </div>
+          <div className="section-image-content">
+            <img src={searchdoctor} alt="Find a Doctor" />
           </div>
         </div>
 
@@ -509,14 +474,18 @@ function MedicareIndex() {
                 <div key={blog._id || index} className="blog-card">
                   <img
                     src={blog.image_url}
-                    alt="blogpic"
+                    alt={blog.title || "blog image"}
                     onError={(e) => { e.target.src = 'https://via.placeholder.com/400x200?text=No+Image'; }}
                   />
-                  <h3>{blog.title}</h3>
-                  <p>{blog.description}</p>
-                  <button>
-                    <a href={`/blog/${blog._id}`}>Read More</a>
-                  </button>
+                  <div className="blog-card-content">
+                    <h3>{blog.title}</h3>
+                    <p>{blog.description}</p>
+                    <div className="blog-card-footer">
+                      <button>
+                        <a href={`/blog/${blog._id}`}>Read More</a>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -557,10 +526,7 @@ function MedicareIndex() {
         <section className="top-doctors-section">
           <div className="top-doctors-container">
             <h1>Top Doctors</h1>
-            <div
-              className="doctors-grid"
-              style={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}
-            >
+            <div className="doctors-grid">
               {currentDoctors.length === 0 ? (
                 <p>No doctors found.</p>
               ) : (

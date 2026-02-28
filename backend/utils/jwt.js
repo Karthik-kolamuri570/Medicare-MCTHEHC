@@ -1,8 +1,10 @@
 const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
-const JWT_SECRET = process.env.JWT_SECRET;
 const ACCESS_TOKEN_EXPIRY = '24h';
 const REFRESH_TOKEN_EXPIRY = '7d';
+
+const getJwtSecret = () => process.env.JWT_SECRET || 'fallback_secret';
 
 /**
  * Generate an access token
@@ -10,7 +12,7 @@ const REFRESH_TOKEN_EXPIRY = '7d';
  * @returns {string} JWT token
  */
 const generateAccessToken = (payload) => {
-    return jwt.sign(payload, JWT_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRY });
+    return jwt.sign(payload, getJwtSecret(), { expiresIn: ACCESS_TOKEN_EXPIRY });
 };
 
 /**
@@ -19,7 +21,7 @@ const generateAccessToken = (payload) => {
  * @returns {string} JWT token
  */
 const generateRefreshToken = (payload) => {
-    return jwt.sign(payload, JWT_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRY });
+    return jwt.sign(payload, getJwtSecret(), { expiresIn: REFRESH_TOKEN_EXPIRY });
 };
 
 /**
@@ -29,7 +31,7 @@ const generateRefreshToken = (payload) => {
  * @throws {JsonWebTokenError|TokenExpiredError}
  */
 const verifyToken = (token) => {
-    return jwt.verify(token, JWT_SECRET);
+    return jwt.verify(token, getJwtSecret());
 };
 
 /**

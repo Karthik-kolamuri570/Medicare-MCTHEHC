@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { MessageSquare, Calendar, Clock, AlertCircle, Search, Filter, History, FileText, CheckCircle, XCircle, RefreshCw, X } from 'lucide-react';
 import "../../styles/OnlineConsultation.css";
 import toast from 'react-hot-toast';
+import defaultDoctorImage from "../../assets/doctor1.png";
 
 const OnlineConsultation = () => {
   const navigate = useNavigate();
@@ -307,52 +308,50 @@ const OnlineConsultation = () => {
 
               return (
                 <div key={item._id} className="oc-card">
-                  <div className={`oc-card-header-stripe ${isAppt ? 'stripe-appointment' : 'stripe-second-opinion'}`}></div>
-                  <div className="oc-card-body">
-                    {/* Type Badge */}
-                    <span className={`oc-type-badge ${isAppt ? 'type-appointment' : 'type-second-opinion'}`}>
-                      {isAppt ? 'Appointment' : 'Second Opinion'}
+                  <div className={`oc-card-img-section ${isAppt ? 'img-appointment' : 'img-second-opinion'}`}>
+                    <img
+                      src={item.doctorId?.profileImage || defaultDoctorImage}
+                      alt={docName}
+                      className="oc-card-img"
+                      onError={(e) => { e.target.src = defaultDoctorImage; }}
+                    />
+                    <span className={`oc-type-tag ${isAppt ? 'tag-appointment' : 'tag-second-opinion'}`}>
+                      {isAppt ? 'Appointment' : '2nd Opinion'}
                     </span>
+                  </div>
 
-                    {/* Status Badge */}
-                    <span className={`oc-status-badge status-${status.toLowerCase()}`}>
-                      {status.toLowerCase() === 'accepted' && <CheckCircle size={14} />}
-                      {status.toLowerCase() === 'cancelled' && <XCircle size={14} />}
-                      {status}
-                    </span>
+                  <div className="oc-card-content">
+                    {/* Header: Name + Status */}
+                    <div className="oc-card-top">
+                      <div className="oc-card-title-group">
+                        <h3 className="oc-doc-name">{docName}</h3>
+                        <span className="oc-doc-spec">{item.doctorId?.specialization || (isAppt ? "Specialist" : "Second Opinion")}</span>
+                      </div>
+                      <span className={`oc-status-pill status-${status.toLowerCase()}`}>
+                        {status.toLowerCase() === 'accepted' && <CheckCircle size={12} />}
+                        {status.toLowerCase() === 'cancelled' && <XCircle size={12} />}
+                        {status}
+                      </span>
+                    </div>
 
-                    <div className="oc-doctor-info">
-                      <div className="oc-avatar">{initial}</div>
-                      <div className="oc-details">
-                        <h3>{docName}</h3>
-                        <p>{item.doctorId?.specialization || (isAppt ? "Specialist" : "Second Opinion")}</p>
+                    {/* Meta Info */}
+                    <div className="oc-card-meta">
+                      <div className="oc-meta-item">
+                        <AlertCircle size={14} />
+                        <span>{item.problem?.substring(0, 25) || "N/A"}{item.problem?.length > 25 ? "..." : ""}</span>
+                      </div>
+                      <div className="oc-meta-item">
+                        <Calendar size={14} />
+                        <span>{item.date || "N/A"}</span>
+                      </div>
+                      <div className="oc-meta-item">
+                        <Clock size={14} />
+                        <span>{item.time || "N/A"}</span>
                       </div>
                     </div>
 
-                    <div className="oc-meta">
-                      <div className="oc-meta-row">
-                        <span className="oc-meta-label">
-                          <AlertCircle size={14} /> Problem
-                        </span>
-                        <span className="oc-meta-value">
-                          {item.problem?.substring(0, 20) || "N/A"}{item.problem?.length > 20 ? "..." : ""}
-                        </span>
-                      </div>
-                      <div className="oc-meta-row">
-                        <span className="oc-meta-label">
-                          <Calendar size={14} /> Date
-                        </span>
-                        <span className="oc-meta-value">{item.date || "N/A"}</span>
-                      </div>
-                      <div className="oc-meta-row">
-                        <span className="oc-meta-label">
-                          <Clock size={14} /> Time
-                        </span>
-                        <span className="oc-meta-value">{item.time || "N/A"}</span>
-                      </div>
-                    </div>
-
-                    <div className="oc-actions">
+                    {/* Actions */}
+                    <div className="oc-card-actions">
                       {!isPresentOrFuture(item.date, item.time) ? (
                         <div className="oc-status-display">
                           <span className="oc-status-label">Status:</span>
@@ -360,17 +359,14 @@ const OnlineConsultation = () => {
                         </div>
                       ) : (
                         <div className="oc-action-buttons">
-                          {/* Chat button for accepted items */}
                           {canChat && (
                             <button
                               className="oc-btn-chat"
                               onClick={() => handleStartChat(item.patientId, doctorId)}
                             >
-                              <MessageSquare size={16} /> Chat
+                              <MessageSquare size={15} /> Chat
                             </button>
                           )}
-
-                          {/* Cancel & Reschedule for modifiable items */}
                           {canModify(item) && (
                             <>
                               <button
@@ -378,22 +374,20 @@ const OnlineConsultation = () => {
                                 onClick={() => openRescheduleModal(item)}
                                 disabled={isItemLoading}
                               >
-                                <RefreshCw size={16} /> Reschedule
+                                <RefreshCw size={14} /> Reschedule
                               </button>
                               <button
                                 className="oc-btn-cancel"
                                 onClick={() => handleCancel(item)}
                                 disabled={isItemLoading}
                               >
-                                {isItemLoading ? '...' : <><X size={16} /> Cancel</>}
+                                {isItemLoading ? '...' : <><X size={14} /> Cancel</>}
                               </button>
                             </>
                           )}
-
-                          {/* Status indicator for non-modifiable future items */}
                           {!canModify(item) && !canChat && (
-                            <div className={`oc-btn-disabled`}>
-                              <XCircle size={18} /> {status}
+                            <div className="oc-btn-disabled">
+                              <XCircle size={16} /> {status}
                             </div>
                           )}
                         </div>

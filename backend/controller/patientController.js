@@ -318,7 +318,7 @@ exports.getPatientAppointments = async (req, res) => {
             });
         }
 
-        const appointments = await Appointment.find({ patientId: patientId }).populate('doctorId', 'name specialization');
+        const appointments = await Appointment.find({ patientId: patientId }).populate('doctorId', 'name specialization profileImage');
         console.log("Fetched Appointments:", appointments);
 
         if (!appointments || appointments.length === 0) {
@@ -328,9 +328,18 @@ exports.getPatientAppointments = async (req, res) => {
             });
         }
 
+        // Generate presigned URLs for doctor profile images
+        const enrichedAppointments = await Promise.all(appointments.map(async (appt) => {
+            const apptObj = appt.toObject();
+            if (apptObj.doctorId && apptObj.doctorId.profileImage) {
+                apptObj.doctorId.profileImage = await generatePresignedUrl(apptObj.doctorId.profileImage);
+            }
+            return apptObj;
+        }));
+
         res.status(200).json({
             success: true,
-            data: appointments
+            data: enrichedAppointments
         });
     } catch (err) {
         console.error("Error in fetching appointments:", err);
@@ -616,16 +625,19 @@ exports.getSecondOpinionsAccepted = async (req, res) => {
         if (!patient) {
             return res.status(404).json({ success: false, message: 'Patient Not Found...' });
         }
-        const secondOpinions = await GetSecondOpinion.find({ patientId: patientId, status: "accepted" }).populate('doctorId', 'name specialization contact');
+        const secondOpinions = await GetSecondOpinion.find({ patientId: patientId, status: "accepted" }).populate('doctorId', 'name specialization contact profileImage');
         if (!secondOpinions || secondOpinions.length === 0) {
             return res.status(201).json({ success: true, data: [], message: 'No Accepted Second Opinions Found...' });
         }
 
-        // Generate signed URLs for all files in each second opinion
+        // Generate signed URLs for all files and doctor profile images
         const enrichedSecondOpinions = await Promise.all(secondOpinions.map(async (opinion) => {
             const opinionObj = opinion.toObject();
             if (opinionObj.files && opinionObj.files.length > 0) {
                 opinionObj.files = await Promise.all(opinionObj.files.map(file => generatePresignedUrl(file)));
+            }
+            if (opinionObj.doctorId && opinionObj.doctorId.profileImage) {
+                opinionObj.doctorId.profileImage = await generatePresignedUrl(opinionObj.doctorId.profileImage);
             }
             return opinionObj;
         }));
@@ -649,13 +661,16 @@ exports.getAllSecondOpinions = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Patient Not Found...' });
         }
         // Fetch ALL second opinions (no status filter)
-        const secondOpinions = await GetSecondOpinion.find({ patientId: patientId }).populate('doctorId', 'name specialization contact');
+        const secondOpinions = await GetSecondOpinion.find({ patientId: patientId }).populate('doctorId', 'name specialization contact profileImage');
 
-        // Generate signed URLs for all files
+        // Generate signed URLs for all files and doctor profile images
         const enrichedSecondOpinions = await Promise.all((secondOpinions || []).map(async (opinion) => {
             const opinionObj = opinion.toObject();
             if (opinionObj.files && opinionObj.files.length > 0) {
                 opinionObj.files = await Promise.all(opinionObj.files.map(file => generatePresignedUrl(file)));
+            }
+            if (opinionObj.doctorId && opinionObj.doctorId.profileImage) {
+                opinionObj.doctorId.profileImage = await generatePresignedUrl(opinionObj.doctorId.profileImage);
             }
             return opinionObj;
         }));

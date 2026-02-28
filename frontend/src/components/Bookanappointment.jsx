@@ -209,6 +209,9 @@ function Bookanappointment() {
       ) : (
         <>
           <h1 className="page-title">Secure Your Appointment</h1>
+          <p style={{ textAlign: 'center', color: '#6b7280', fontSize: '0.95rem', marginTop: '-28px', marginBottom: '36px', fontWeight: 500 }}>
+            Review the doctor's profile and fill in your details to book a slot.
+          </p>
 
           <div className="booking-grid">
 
