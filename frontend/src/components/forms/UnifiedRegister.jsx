@@ -357,7 +357,7 @@ const UnifiedRegister = ({ defaultTab = "patient" }) => {
                   <label className="unified-form-label">Password</label>
                   <div className="unified-input-wrapper">
                     <Lock className="unified-input-icon" />
-                    <input type="password" style={{ WebkitTextSecurity: showPassword ? 'none' : 'disc' }} className="unified-form-input" placeholder="••••••••" value={password} onChange={e=>setPassword(e.target.value)} required disabled={loading}/>
+                    <input type={showPassword ? "text" : "password"} className="unified-form-input" placeholder="••••••••" value={password} onChange={e=>setPassword(e.target.value)} required disabled={loading}/>
                     <button type="button" className="unified-password-toggle" onClick={() => setShowPassword(!showPassword)}>
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
@@ -367,7 +367,7 @@ const UnifiedRegister = ({ defaultTab = "patient" }) => {
                   <label className="unified-form-label">Confirm Password</label>
                   <div className="unified-input-wrapper">
                     <Lock className="unified-input-icon" />
-                    <input type="password" style={{ WebkitTextSecurity: showConfirmPassword ? 'none' : 'disc' }} className="unified-form-input" placeholder="••••••••" value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} required disabled={loading}/>
+                    <input type={showConfirmPassword ? "text" : "password"} className="unified-form-input" placeholder="••••••••" value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} required disabled={loading}/>
                     <button type="button" className="unified-password-toggle" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
                       {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>

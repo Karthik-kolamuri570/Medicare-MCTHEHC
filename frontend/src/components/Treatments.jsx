@@ -5,8 +5,6 @@ import {
     Heart, Brain, Bone, Stethoscope, Baby, Eye, Activity, Smile,
     Accessibility, Ear, Search, Sparkles, ArrowRight, Star
 } from 'lucide-react';
-import Header from './forms/Header';
-import Footer from './forms/Footer';
 
 // Icon mapping with color themes
 const specializationData = {
@@ -116,13 +114,12 @@ const Treatments = () => {
                 }}></div>
             </div>
 
-            <div style={{ position: 'relative', zIndex: 1 }}>
-                <Header />
+            <div style={{ position: 'relative', zIndex: 1, marginTop: '0px' }}>
 
                 {/* Hero Section */}
                 <div style={{
-                    paddingTop: isMobile ? '70px' : '65px', /* Reduced from 110px */
-                    paddingBottom: isMobile ? '30px' : '40px', /* Reduced from 60px */
+                    paddingTop: '40px', 
+                    paddingBottom: isMobile ? '30px' : '40px',
                     paddingLeft: '24px',
                     paddingRight: '24px',
                     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -412,8 +409,6 @@ const Treatments = () => {
                         </div>
                     )}
                 </main>
-
-                <Footer />
             </div>
 
             <style>{`

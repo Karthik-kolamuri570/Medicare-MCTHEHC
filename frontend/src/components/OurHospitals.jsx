@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { Building2, Users, Award, Clock, CheckCircle2, AlertCircle, TrendingUp, Shield, Zap, ChevronRight, Activity, Sparkles, ArrowUpRight } from 'lucide-react';
-import Header from './forms/Header';
-import Footer from './forms/Footer';
 
 const OurHospitals = () => {
     const [hoveredFeature, setHoveredFeature] = useState(null);
@@ -102,12 +100,10 @@ const OurHospitals = () => {
                 zIndex: 0
             }}></div>
 
-            <div style={{ position: 'relative', zIndex: 1 }}>
-                <Header />
+            <div style={{ position: 'relative', zIndex: 1, marginTop: '0px' }}>
                 
                 {/* Premium Development Notice */}
                 <div style={{
-                    marginTop: '85px', /* Reduced from 110px */
                     background: 'linear-gradient(90deg, rgba(245, 158, 11, 0.08) 0%, rgba(217, 119, 6, 0.08) 100%)',
                     backdropFilter: 'blur(20px)',
                     padding: '12px 24px', /* Reduced from 16px */
@@ -675,8 +671,6 @@ const OurHospitals = () => {
                         </motion.button>
                     </motion.div>
                 </main>
-
-                <Footer />
             </div>
 
             <style>{`

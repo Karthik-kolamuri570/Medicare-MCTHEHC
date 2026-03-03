@@ -354,10 +354,9 @@ const UnifiedLogin = ({ defaultTab = "patient" }) => {
               <div className="unified-input-wrapper">
                 <Lock className="unified-input-icon" />
                 <input 
-                  type="password" 
+                  type={showPassword ? "text" : "password"} 
                   className="unified-form-input" 
                   placeholder="••••••••"
-                  style={{ WebkitTextSecurity: showPassword ? 'none' : 'disc' }}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={loading}
