@@ -947,6 +947,7 @@ body {
     transform: translateX(100%); 
     z-index: 2000;
     border-left: 1px solid rgba(0, 0, 0, 0.05); 
+    overflow-y: auto; /* Enable scrolling for small screens */
   }
 
   .nav-links.active {

@@ -627,7 +627,7 @@ function Header() {
                           padding: 0,
                           listStyle: "none",
                           boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-                          maxHeight: "150px",
+                          maxHeight: "300px",
                           overflowY: "auto",
                           position: "absolute",
                           zIndex: 2001

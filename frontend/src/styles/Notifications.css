@@ -8,7 +8,7 @@
   background-image:
         radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.12) 0%, transparent 50%),
         radial-gradient(at 100% 100%, rgba(245, 158, 11, 0.12) 0%, transparent 50%);
-  padding: 140px 20px 40px; /* Clear fixed header */
+  padding: 40px 20px 40px; /* Reduced top padding to clear header properly */
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   position: relative;
   overflow-x: hidden;
@@ -64,7 +64,7 @@
 .ntf-header-left {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 12px;
 }
 
 .ntf-bell-wrapper {
@@ -286,8 +286,8 @@
 .ntf-item {
   display: flex;
   align-items: flex-start;
-  gap: 20px; /* More gap between icon and content */
-  padding: 24px 28px; /* Luxuriant breathing room */
+  gap: 16px; /* Reduced gap between icon and content */
+  padding: 20px 20px; /* Reduced padding for more space-efficiency */
   background: rgba(255, 255, 255, 0.85); /* Premium glass */
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.9);
@@ -465,7 +465,7 @@
 /* ===== Responsive ===== */
 @media (max-width: 640px) {
   .ntf-page {
-    padding: 110px 14px 20px; /* Accounts for fixed header */
+    padding: 10px 14px 20px; /* Reduced from 110px */
   }
 
   .ntf-header {
