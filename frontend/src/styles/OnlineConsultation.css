@@ -457,6 +457,12 @@
     border: 1px solid #e0f2fe;
 }
 
+.status-completed {
+    background: #ecfdf5;
+    color: #059669;
+    border: 1px solid #d1fae5;
+}
+
 /* -- Meta Info -- */
 .oc-card-meta {
     display: flex;
@@ -653,6 +659,7 @@
 
 .status-text-pending { color: var(--oc-warning); }
 .status-text-accepted { color: var(--oc-success); }
+.status-text-completed { color: var(--oc-success); }
 .status-text-rejected { color: var(--oc-error); }
 .status-text-cancelled { color: #dc2626; }
 

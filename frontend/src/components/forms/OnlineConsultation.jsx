@@ -20,8 +20,27 @@ const OnlineConsultation = () => {
   const [rescheduleTime, setRescheduleTime] = useState('');
   const [actionLoading, setActionLoading] = useState(null); // Track which item is being acted on
 
-  // Helper to check if date/time is present or future
-  const isPresentOrFuture = (dateString, timeString) => {
+  // Helper to check if date is within last 7 days or future
+  const isRecentOrFuture = (dateString) => {
+    if (!dateString) return true;
+    try {
+      const datePart = typeof dateString === 'string' ? dateString.split('T')[0] : new Date(dateString).toISOString().split('T')[0];
+      const apptDate = new Date(datePart);
+      apptDate.setHours(0, 0, 0, 0);
+      
+      const now = new Date();
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(now.getDate() - 7);
+      sevenDaysAgo.setHours(0, 0, 0, 0);
+
+      return apptDate >= sevenDaysAgo;
+    } catch {
+      return true;
+    }
+  };
+
+  // Helper to check if date/time is strictly future
+  const isFuture = (dateString, timeString) => {
     if (!dateString) return true;
     try {
       const datePart = typeof dateString === 'string' ? dateString.split('T')[0] : new Date(dateString).toISOString().split('T')[0];
@@ -179,19 +198,19 @@ const OnlineConsultation = () => {
   // --- Filtering Logic ---
   const getFilteredItems = () => {
     return allItems.filter(item => {
-      const isFuture = isPresentOrFuture(item.date, item.time);
+      const isActive = isRecentOrFuture(item.date);
 
       // Tab Filters
       if (filter === 'all') {
-        if (!isFuture) return false;
+        if (!isActive) return false;
       } else if (filter === 'appointments') {
         if (item.type !== 'appointment') return false;
-        if (!isFuture) return false;
+        if (!isActive) return false;
       } else if (filter === 'second-opinions') {
         if (item.type !== 'second-opinion') return false;
-        if (!isFuture) return false;
+        if (!isActive) return false;
       } else if (filter === 'history') {
-        if (isFuture) return false;
+        if (isActive) return false;
       }
 
       // Search Filter
@@ -218,7 +237,10 @@ const OnlineConsultation = () => {
   // Helper: Can this item be cancelled or rescheduled?
   const canModify = (item) => {
     const s = item.status.toLowerCase();
-    return (s === 'pending' || s === 'accepted') && isPresentOrFuture(item.date, item.time);
+    // Allow modification for all future items, and for pending items within the last 7 days
+    if (s === 'pending') return isRecentOrFuture(item.date);
+    if (s === 'accepted') return isFuture(item.date, item.time);
+    return false;
   };
 
   return (
@@ -300,9 +322,11 @@ const OnlineConsultation = () => {
             {filteredItems.map(item => {
               const isAppt = item.type === 'appointment';
               const docName = item.doctorId?.name || "Pending Assignment";
-              const initial = docName[0] || "?";
               const status = item.status;
-              const canChat = status.toLowerCase() === 'accepted';
+              const isPast = !isFuture(item.date, item.time);
+              const displayStatus = (status.toLowerCase() === 'accepted' && isPast) ? 'Completed' : status;
+              
+              const canChat = status.toLowerCase() === 'accepted' && !isPast; // Disable chat for past items
               const doctorId = item.doctorId?._id || item.doctorId;
               const isItemLoading = actionLoading === item._id;
 
@@ -327,10 +351,10 @@ const OnlineConsultation = () => {
                         <h3 className="oc-doc-name">{docName}</h3>
                         <span className="oc-doc-spec">{item.doctorId?.specialization || (isAppt ? "Specialist" : "Second Opinion")}</span>
                       </div>
-                      <span className={`oc-status-pill status-${status.toLowerCase()}`}>
-                        {status.toLowerCase() === 'accepted' && <CheckCircle size={12} />}
-                        {status.toLowerCase() === 'cancelled' && <XCircle size={12} />}
-                        {status}
+                      <span className={`oc-status-pill status-${displayStatus.toLowerCase()}`}>
+                        {(displayStatus.toLowerCase() === 'accepted' || displayStatus.toLowerCase() === 'completed') && <CheckCircle size={12} />}
+                        {displayStatus.toLowerCase() === 'cancelled' && <XCircle size={12} />}
+                        {displayStatus}
                       </span>
                     </div>
 
@@ -352,10 +376,10 @@ const OnlineConsultation = () => {
 
                     {/* Actions */}
                     <div className="oc-card-actions">
-                      {!isPresentOrFuture(item.date, item.time) ? (
+                      {!isRecentOrFuture(item.date) ? (
                         <div className="oc-status-display">
                           <span className="oc-status-label">Status:</span>
-                          <span className={`oc-status-value status-text-${status.toLowerCase()}`}>{status}</span>
+                          <span className={`oc-status-value status-text-${displayStatus.toLowerCase()}`}>{displayStatus}</span>
                         </div>
                       ) : (
                         <div className="oc-action-buttons">
