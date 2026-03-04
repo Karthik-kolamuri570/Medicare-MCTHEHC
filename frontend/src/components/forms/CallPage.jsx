@@ -19,12 +19,13 @@ import "@stream-io/video-react-sdk/dist/css/styles.css";
 import api from '../../utils/api';
 import toast from "react-hot-toast";
 import Loader from "../ui/Loader"
+import ReviewModal from "./ReviewModal";
 
 // Singleton video client
 let globalVideoClient = null;
 
-// ✅ Custom CallControls with leave handling + redirect
-const CustomControls = () => {
+// ✅ Custom CallControls with leave handling + review modal trigger
+const CustomControls = ({ onCallEnd }) => {
   const { useCallCallingState } = useCallStateHooks();
   const callingState = useCallCallingState();
   const call = useCall();
@@ -40,7 +41,12 @@ const CustomControls = () => {
     } catch (err) {
       console.warn("⚠️ Leave failed:", err.message);
     } finally {
-      navigate("/"); // ✅ Always redirect
+      // Trigger the review modal callback instead of navigating directly
+      if (onCallEnd) {
+        onCallEnd();
+      } else {
+        navigate("/");
+      }
     }
   };
 
@@ -51,8 +57,11 @@ const CustomControls = () => {
 
 const CallPage = () => {
   const { receiverId } = useParams(); // Format: doctorId-patientId
+  const navigate = useNavigate();
   const [videoClient, setVideoClient] = useState(null);
   const [call, setCall] = useState(null);
+  const [showReview, setShowReview] = useState(false);
+  const [callMetadata, setCallMetadata] = useState(null); // { userId, doctorId, patientId, isPatient }
   const hasJoinedRef = useRef(false); // Prevents duplicate joins
 
   useEffect(() => {
@@ -76,9 +85,13 @@ const CallPage = () => {
           return;
         }
 
-        //  Step 2: Parse peerId
+        //  Step 2: Parse peerId and determine role
         const [doctorId, patientId] = receiverId.split("-");
         const peerId = userId === doctorId ? patientId : doctorId;
+        const isPatient = userId === patientId;
+
+        // Store metadata for review modal
+        setCallMetadata({ userId, doctorId, patientId, isPatient });
 
         //  Step 3: Sync users with Stream
         await api.post(
@@ -124,6 +137,33 @@ const CallPage = () => {
     };
   }, [receiverId]);
 
+  // Handle call end – show review modal for patients, redirect for doctors
+  const handleCallEnd = () => {
+    if (callMetadata?.isPatient) {
+      setShowReview(true);
+    } else {
+      navigate("/doctor");
+    }
+  };
+
+  // Handle review modal close (after submit or skip)
+  const handleReviewClose = () => {
+    setShowReview(false);
+    navigate("/");
+  };
+
+  // Show review modal after call ends
+  if (showReview && callMetadata) {
+    return (
+      <ReviewModal
+        appointmentId={null} // Will be handled gracefully – patient can still rate
+        doctorId={callMetadata.doctorId}
+        doctorName={null}
+        onClose={handleReviewClose}
+      />
+    );
+  }
+
   if (!call) return <Loader />;
 
   return (
@@ -131,7 +171,7 @@ const CallPage = () => {
       <StreamCall call={call}>
         <StreamTheme>
           <SpeakerLayout />
-          <CustomControls />
+          <CustomControls onCallEnd={handleCallEnd} />
         </StreamTheme>
       </StreamCall>
     </StreamVideo>

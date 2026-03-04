@@ -110,6 +110,18 @@ const userSchema = new Schema({
     certification: {
         type: String,
         default: null
+    },
+    rating: {
+        type: Number,
+        default: 0
+    },
+    totalRatings: {
+        type: Number,
+        default: 0
+    },
+    totalRatingScore: {
+        type: Number,
+        default: 0
     }
 })
 module.exports = mongoose.model('Doctor', userSchema);

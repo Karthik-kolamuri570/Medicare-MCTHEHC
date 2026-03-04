@@ -33,7 +33,10 @@ router.get("/verify-auth", auth.patientAuth, (req, res) => {
     res.json({ message: "Authenticated", user: { id: req.user._id, name: req.user.name, email: req.user.email } });
 });
 
-
+// Review routes
+const reviewController = require('../controller/reviewController');
+router.post('/review', auth.patientAuth, reviewController.submitReview);
+router.get('/review/:appointmentId', auth.patientAuth, reviewController.getReview);
 
 
 module.exports = router;

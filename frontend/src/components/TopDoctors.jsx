@@ -164,7 +164,7 @@ function TopDoctors() {
                 <div className="doc-info-grid">
                   <div className="info-item rating">
                     <Star size={14} className="icon-star" fill="#f59e0b" />
-                    <span>{doc.rating || "4.8"}</span>
+                    <span>{doc.rating ? doc.rating.toFixed(1) : "New"}</span>
                   </div>
 
                   <div className="info-item">

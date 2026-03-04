@@ -114,6 +114,8 @@ function DoctorDashboard() {
     todayAppointments: 0,
     todayConsultations: 0,
     weeklyConsultations: 0,
+    rating: 0,
+    totalRatings: 0
   });
   const [chartData, setChartData] = useState([
     { name: "Mon", Appointments: 0 },
@@ -140,6 +142,11 @@ function DoctorDashboard() {
           if (profileData.data.profileImage) {
             setProfileImage(profileData.data.profileImage);
           }
+          setStats(prev => ({
+            ...prev,
+            rating: profileData.data.rating || 0,
+            totalRatings: profileData.data.totalRatings || 0,
+          }));
         }
 
         // 2. Fetch Doctor's Appointments
@@ -443,6 +450,29 @@ function DoctorDashboard() {
                  </div>
                  <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "#f5f3ff", color: "#8b5cf6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem" }}>
                      <FaUserMd />
+                 </div>
+             </div>
+
+             {/* Stat Card 4 - Rating */}
+             <div style={{
+                 background: "white",
+                 borderRadius: "16px",
+                 padding: "1.5rem",
+                 boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
+                 border: "1px solid #f8fafc",
+                 display: "flex",
+                 justifyContent: "space-between",
+                 alignItems: "center"
+             }}>
+                 <div>
+                     <p style={{ color: "#64748b", margin: 0, fontSize: "0.95rem", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.5px" }}>Professional Rating</p>
+                     <p style={{ margin: "0.5rem 0 0", fontSize: "2rem", fontWeight: "800", color: "#0f172a" }}>
+                       {stats.rating ? stats.rating.toFixed(1) : "N/A"}<span style={{ fontSize: '1rem', color: '#94a3b8', marginLeft: '4px' }}>/ 5.0</span>
+                     </p>
+                     <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>From {stats.totalRatings} patient reviews</p>
+                 </div>
+                 <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "#fef3c7", color: "#f59e0b", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem" }}>
+                     <span style={{ fontSize: '1.2rem' }}>⭐</span>
                  </div>
              </div>
           </div>

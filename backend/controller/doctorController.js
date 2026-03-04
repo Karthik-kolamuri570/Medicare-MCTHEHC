@@ -289,7 +289,7 @@ exports.getAllDoctors = async (req, res, next) => {
   try {
     const filter = {};
     if (req.query.verified === 'approved') filter.verifiedByAdmin = 'approved';
-    const doctors = await Doctor.find(filter);
+    const doctors = await Doctor.find(filter).sort({ rating: -1 });
 
     // Generate presigned URLs for profile images
     const doctorsWithSignedUrls = await Promise.all(

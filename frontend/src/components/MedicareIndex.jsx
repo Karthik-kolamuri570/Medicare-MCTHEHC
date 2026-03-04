@@ -294,6 +294,12 @@ const DoctorCard = ({ doctor }) => {
       <p><strong>Experience:</strong> {doctor.experience} years</p>
       <p><strong>Hospital:</strong> {doctor.hospital}</p>
       <p><strong>Consultation Fee:</strong> ₹{doctor.feePerConsultation}</p>
+
+      <div className="modern-doctor-rating">
+        <span className="star-icon">⭐</span>
+        <span className="rating-value">{doctor.rating ? doctor.rating.toFixed(1) : "New"}</span>
+        <span className="total-ratings">({doctor.totalRatings || 0} reviews)</span>
+      </div>
       
       <button
         className="modern-doctor-btn"
