@@ -906,11 +906,13 @@ body {
   }
 
   .left-nav-group {
-    gap: 10px !important; /* Minimal gap on mobile so logo fits */
+    gap: 10px !important;
+    flex-shrink: 1; /* Allow logo area to shrink if needed */
   }
 
   .right-nav-group {
-    gap: 10px !important; /* Tighter gap on mobile between search and hamburger */
+    gap: 10px !important;
+    flex-shrink: 0; /* Don't allow this to shrink */
   }
 
   /* Overlay trick when menu is open */
@@ -930,22 +932,21 @@ body {
   .nav-links {
     position: fixed;
     top: 0;
-    right: -100vw; 
-    width: 340px;
-    max-width: 90vw;
+    right: 0; 
+    width: 200px; /* Extremely compact width */
+    max-width: 85vw;
     height: 100vh;
-    background: rgba(15, 23, 42, 0.95); /* Semi-transparent rugged slate */
-    backdrop-filter: blur(16px);
-    box-shadow: -20px 0 60px rgba(0,0,0,0.8);
+    background: rgba(255, 255, 255, 0.98); 
+    backdrop-filter: blur(20px);
+    box-shadow: -10px 0 30px rgba(0,0,0,0.08); 
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    padding: 30px 30px 40px; /* Adjusted padding for top header */
-    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1); /* Snappier easing */
-    transform: translateX(100%); /* Use transform instead of right for better performance */
-    right: 0; /* Base position */
-    z-index: 1000;
-    border-left: 1px solid rgba(255, 255, 255, 0.1); /* Subtle metallic edge */
+    padding: 15px 10px; /* Ultra tight internal padding */
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translateX(100%); 
+    z-index: 2000;
+    border-left: 1px solid rgba(0, 0, 0, 0.05); 
   }
 
   .nav-links.active {
@@ -957,103 +958,67 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 40px;
-    padding-bottom: 25px;
-    border-bottom: 1px dashed rgba(255, 255, 255, 0.15); /* Industrial dashed line */
+    margin-bottom: 5px; /* Minimal margin */
+    padding-bottom: 5px; /* Minimal padding */
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05); 
   }
 
   .mobile-drawer-header h2 {
-    color: #f8fafc;
-    font-size: 26px;
-    font-weight: 900;
-    letter-spacing: -1.5px;
+    color: #0f172a; 
+    font-size: 20px; /* Compact header size */
+    font-weight: 800;
+    letter-spacing: -0.5px;
     margin: 0;
-    text-transform: uppercase;
+    text-transform: none; 
   }
 
   .mobile-drawer-header h2 .dot {
-    color: #ffd600; /* Industrial accent */
+    color: #2074d4; /* Medicare Blue accent instead of yellow */
   }
 
   .close-btn {
-    background: rgba(255, 255, 255, 0.05); /* Slight button base */
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #94a3b8;
-    font-size: 18px;
-    width: 40px;
-    height: 40px;
+    background: rgba(0, 0, 0, 0.03); /* Very slight button base */
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    color: #64748b; /* Medium slate */
+    font-size: 16px;
+    width: 32px;
+    height: 32px;
     display: flex;
     justify-content: center;
     align-items: center;
-    border-radius: 8px; /* Slightly squared industrial button */
+    border-radius: 8px; 
     cursor: pointer;
     transition: all 0.2s ease;
   }
 
   .close-btn:hover {
-    color: #ffffff;
-    background: rgba(255,214,0, 0.1); /* Hover glow */
-    border-color: #ffd600;
+    color: #0f172a; /* Darker on hover */
+    background: rgba(0, 0, 0, 0.06); 
+    border-color: rgba(0, 0, 0, 0.1);
   }
 
   .nav-links li {
     width: 100%;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    padding: 16px 0;
-    color: #cbd5e1; /* Brighter default text */
-    font-size: 15px; /* Slightly smaller, more precise */
+    border-bottom: 1px solid rgba(0, 0, 0, 0.03); /* Lighter divider */
+    padding: 6px 4px; /* Ultra tight padding */
+    margin-bottom: 0px; 
+    color: #475569; 
+    font-size: 13px; /* Smaller, compact font */
     font-weight: 600;
-    letter-spacing: 1.5px;
-    text-transform: uppercase; 
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden; /* For hover effect */
-  }
-
-  /* Sweep background effect */
-  .nav-links li::after {
-    content: '';
-    position: absolute;
-    left: -100%;
-    top: 0;
-    bottom: 0;
-    width: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,214,0,0.05), transparent);
-    transition: left 0.4s ease;
-    z-index: 0;
-  }
-
-  /* Left accent block */
-  .nav-links li::before {
-    content: '';
-    position: absolute;
-    left: 0; 
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background-color: #ffd600;
-    transform: scaleY(0);
-    transition: transform 0.2s ease;
-    transform-origin: bottom;
-    z-index: 1;
+    transition: all 0.2s ease;
+    border-radius: 4px; 
   }
 
   .nav-links li:last-child {
     border-bottom: none;
     margin-top: auto; 
+    margin-bottom: 0;
   }
 
   .nav-links li:hover {
-    color: #ffffff;
-    padding-left: 15px; /* Technical indent */
-  }
-
-  .nav-links li:hover::after {
-    left: 100%; /* Sweep effect */
-  }
-
-  .nav-links li:hover::before {
-    transform: scaleY(1);
+    color: #2074d4; /* Medicare Blue */
+    background: rgba(32, 116, 212, 0.04); /* Very light blue background on hover */
+    padding-left: 14px; /* Subtle indent */
   }
 
   .nav-links a, .nav-links span {
@@ -1065,9 +1030,9 @@ body {
     z-index: 2;
   }
 
-  /* Hamburger Color when open over dark bg */
+  /* Hamburger Color when open over light bg */
   body:has(.nav-links.active) .hamburger-icon .bar {
-    background: #ffd600; /* Yellow X */
+    background: #0f172a; /* Dark X for contrast on white menu */
   }
 
   .mobile-only-link {
@@ -1075,8 +1040,8 @@ body {
   }
 
   /* Search container needs to be hidden or adjusted in standard navbar */
-  .search-container {
-    display: none; /* Let's hide it for extreme simplicity on phone, or you could move it inside the nav-links */
+  .search-wrapper {
+    display: none !important; /* Hide search input on mobile to prevent overflow */
   }
 
   .secondary-navbar {

@@ -578,6 +578,81 @@ function Header() {
                       <button className="close-btn" onClick={() => setIsMobileMenuOpen(false)}>✕</button>
                    </div>
                 )}
+                {/* Mobile Search Bar */}
+                {isMobileMenuOpen && (
+                  <div className="mobile-search-wrapper" style={{ width: '100%', marginBottom: '10px', position: 'relative' }}>
+                    <div style={{ display: 'flex', width: '100%' }}>
+                      <input
+                        type="text"
+                        value={searchInput}
+                        onChange={(e) => handleSearchInputChange(e.target.value)}
+                        placeholder="Search services..."
+                        style={{
+                          flex: 1,
+                          padding: "8px 10px",
+                          borderRadius: "6px 0 0 6px",
+                          border: "1px solid rgba(0,0,0,0.1)",
+                          outline: "none",
+                          fontSize: "13px",
+                          backgroundColor: "rgba(0,0,0,0.02)",
+                          color: "#0f172a"
+                        }}
+                      />
+                      <button
+                        onClick={handleSearchButtonClick}
+                        style={{
+                          padding: "8px 10px",
+                          border: "none",
+                          borderRadius: "0 6px 6px 0",
+                          backgroundColor: "#2074d4",
+                          color: "#fff",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center"
+                        }}
+                      >
+                        🔍
+                      </button>
+                    </div>
+                    {/* Mobile Search Suggestions */}
+                    {searchedData.length > 0 && (
+                      <ul
+                        style={{
+                          width: '100%',
+                          backgroundColor: "#fff",
+                          border: "1px solid rgba(0,0,0,0.1)",
+                          borderRadius: "8px",
+                          marginTop: "5px",
+                          padding: 0,
+                          listStyle: "none",
+                          boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+                          maxHeight: "150px",
+                          overflowY: "auto",
+                          position: "absolute",
+                          zIndex: 2001
+                        }}
+                      >
+                        {searchedData.map((item) => (
+                          <li
+                            key={item.id}
+                            onClick={() => { handleSuggestionClick(item.link); setIsMobileMenuOpen(false); }}
+                            style={{
+                              padding: "8px 12px",
+                              cursor: "pointer",
+                              borderBottom: "1px solid rgba(0,0,0,0.05)",
+                              fontSize: "12px",
+                              color: "#475569",
+                              fontWeight: 500
+                            }}
+                          >
+                            {item.name}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
                 <li style={{ cursor: "pointer" }} onClick={() => { navigate("/top-doctors"); setIsMobileMenuOpen(false); }}>
                   <span>Find a Doctor</span>
                 </li>
