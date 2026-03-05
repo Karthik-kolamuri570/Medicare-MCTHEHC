@@ -46,6 +46,12 @@ const appointmentSchema=new Schema({
     status:{
         type:String,
         default:"Pending"
-    },
+    }
 })
+
+// Indexes for fast querying
+appointmentSchema.index({ patientId: 1, date: -1 }); // Fast patient history
+appointmentSchema.index({ doctorId: 1, date: 1 });   // Fast doctor schedule
+appointmentSchema.index({ status: 1 });              // Fast admin filtering
+
 module.exports=new mongoose.model('appointment',appointmentSchema);

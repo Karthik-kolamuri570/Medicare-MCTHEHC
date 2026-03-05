@@ -96,6 +96,213 @@ const sendPasswordResetEmail = async (toEmail, resetUrl, userName = 'User') => {
     await transporter.sendMail(mailOptions);
 };
 
+
+const sendBookingConfirmation = async (toEmail, details) => {
+    const transporter = createTransporter();
+    
+    const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+    </head>
+    <body style="font-family: Arial, sans-serif; background-color: #f4f7fa; padding: 20px;">
+        <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; max-width: 600px; margin: 0 auto; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+            <h2 style="color: #0072ff; text-align: center;">Appointment Confirmed!</h2>
+            <p>Hi <strong>${details.patientName}</strong>,</p>
+            <p>Your appointment has been successfully booked. Here are your details:</p>
+            <ul style="list-style-type: none; padding: 0;">
+                <li style="margin-bottom: 10px;"><strong>Doctor:</strong> Dr. ${details.doctorName}</li>
+                <li style="margin-bottom: 10px;"><strong>Date:</strong> ${details.date}</li>
+                <li style="margin-bottom: 10px;"><strong>Time:</strong> ${details.time}</li>
+            </ul>
+            <p>Please log in to your patient portal if you need to reschedule or view more details.</p>
+            <p style="text-align: center; margin-top: 30px; font-size: 12px; color: #888;">
+                © ${new Date().getFullYear()} Medicare - The Healthcare. All rights reserved.
+            </p>
+        </div>
+    </body>
+    </html>
+    `;
+
+    const mailOptions = {
+        from: `"${process.env.SMTP_FROM_NAME || 'Medicare - The HealthCare'}" <${process.env.SMTP_FROM_EMAIL}>`,
+        to: toEmail,
+        subject: 'Appointment Confirmation — Medicare',
+        html: htmlContent,
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`Booking confirmation email sent to ${toEmail}`);
+    } catch (error) {
+        console.error('Failed to send booking confirmation email:', error);
+    }
+};
+
+// Send a payment receipt email
+const sendPaymentReceipt = async (toEmail, details) => {
+    const transporter = createTransporter();
+    
+    const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+    </head>
+    <body style="font-family: Arial, sans-serif; background-color: #f4f7fa; padding: 20px;">
+        <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; max-width: 600px; margin: 0 auto; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+            <h2 style="color: #28a745; text-align: center;">Payment Successful</h2>
+            <p>Hi <strong>${details.patientName}</strong>,</p>
+            <p>We have successfully received your payment. Here is your receipt:</p>
+            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 6px; margin: 15px 0;">
+                <p><strong>Amount Paid:</strong> ₹${details.amount}</p>
+                <p><strong>Transaction ID:</strong> ${details.transactionId}</p>
+                <p><strong>Appointment ID:</strong> ${details.appointmentId}</p>
+            </div>
+            <p>Thank you for choosing Medicare.</p>
+            <p style="text-align: center; margin-top: 30px; font-size: 12px; color: #888;">
+                © ${new Date().getFullYear()} Medicare - The Healthcare. All rights reserved.
+            </p>
+        </div>
+    </body>
+    </html>
+    `;
+
+    const mailOptions = {
+        from: `"${process.env.SMTP_FROM_NAME || 'Medicare - The HealthCare'}" <${process.env.SMTP_FROM_EMAIL}>`,
+        to: toEmail,
+        subject: 'Payment Receipt — Medicare',
+        html: htmlContent,
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`Payment receipt email sent to ${toEmail}`);
+    } catch (error) {
+        console.error('Failed to send payment receipt email:', error);
+    }
+};
+
+// Send a notification to the doctor about a new booking
+const sendDoctorNotification = async (toEmail, details) => {
+    const transporter = createTransporter();
+    
+    const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+    </head>
+    <body style="font-family: Arial, sans-serif; background-color: #f4f7fa; padding: 20px;">
+        <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; max-width: 600px; margin: 0 auto; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+            <h2 style="color: #0072ff; text-align: center;">New Appointment Request</h2>
+            <p>Hi <strong>Dr. ${details.doctorName}</strong>,</p>
+            <p>You have a new appointment request from <strong>${details.patientName}</strong>.</p>
+            <ul style="list-style-type: none; padding: 0;">
+                <li style="margin-bottom: 10px;"><strong>Date:</strong> ${details.date}</li>
+                <li style="margin-bottom: 10px;"><strong>Time:</strong> ${details.time}</li>
+                <li style="margin-bottom: 10px;"><strong>Type:</strong> ${details.type || 'Standard Appointment'}</li>
+            </ul>
+            <p>Please log in to your portal to accept or reject this request.</p>
+        </div>
+    </body>
+    </html>
+    `;
+
+    const mailOptions = {
+        from: `"${process.env.SMTP_FROM_NAME || 'Medicare - The HealthCare'}" <${process.env.SMTP_FROM_EMAIL}>`,
+        to: toEmail,
+        subject: 'New Appointment Request — Medicare',
+        html: htmlContent,
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`Doctor notification email sent to ${toEmail}`);
+    } catch (error) {
+        console.error('Failed to send doctor notification email:', error);
+    }
+};
+
+// Send a cancellation email to the patient
+const sendCancellationEmail = async (toEmail, details) => {
+    const transporter = createTransporter();
+    
+    const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+    </head>
+    <body style="font-family: Arial, sans-serif; background-color: #f4f7fa; padding: 20px;">
+        <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; max-width: 600px; margin: 0 auto; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+            <h2 style="color: #dc3545; text-align: center;">Appointment Cancelled</h2>
+            <p>Hi <strong>${details.patientName}</strong>,</p>
+            <p>We're writing to inform you that your appointment with <strong>Dr. ${details.doctorName}</strong> on <strong>${details.date}</strong> at <strong>${details.time}</strong> has been cancelled.</p>
+            <p>If you have already paid, a refund will be processed according to our policy.</p>
+            <p>You can book another appointment through your portal at any time.</p>
+        </div>
+    </body>
+    </html>
+    `;
+
+    const mailOptions = {
+        from: `"${process.env.SMTP_FROM_NAME || 'Medicare - The HealthCare'}" <${process.env.SMTP_FROM_EMAIL}>`,
+        to: toEmail,
+        subject: 'Appointment Cancellation — Medicare',
+        html: htmlContent,
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`Cancellation email sent to ${toEmail}`);
+    } catch (error) {
+        console.error('Failed to send cancellation email:', error);
+    }
+};
+
+// Send an acceptance email to the patient
+const sendAcceptanceEmail = async (toEmail, details) => {
+    const transporter = createTransporter();
+    
+    const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+    </head>
+    <body style="font-family: Arial, sans-serif; background-color: #f4f7fa; padding: 20px;">
+        <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; max-width: 600px; margin: 0 auto; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+            <h2 style="color: #28a745; text-align: center;">Appointment Accepted</h2>
+            <p>Hi <strong>${details.patientName}</strong>,</p>
+            <p>Great news! Your appointment with <strong>Dr. ${details.doctorName}</strong> on <strong>${details.date}</strong> at <strong>${details.time}</strong> has been accepted.</p>
+            <p>Please ensure you are available at the scheduled time.</p>
+        </div>
+    </body>
+    </html>
+    `;
+
+    const mailOptions = {
+        from: `"${process.env.SMTP_FROM_NAME || 'Medicare - The HealthCare'}" <${process.env.SMTP_FROM_EMAIL}>`,
+        to: toEmail,
+        subject: 'Appointment Accepted — Medicare',
+        html: htmlContent,
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`Acceptance email sent to ${toEmail}`);
+    } catch (error) {
+        console.error('Failed to send acceptance email:', error);
+    }
+};
+
 module.exports = {
     sendPasswordResetEmail,
+    sendBookingConfirmation,
+    sendPaymentReceipt,
+    sendDoctorNotification,
+    sendCancellationEmail,
+    sendAcceptanceEmail
 };

@@ -13,6 +13,7 @@ const { createNotification } = require('../utils/notification');
 const Stripe = require('stripe');
 const { generatePresignedUrl } = require('../utils/s3Config');
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+const { sendCancellationEmail } = require('../utils/emailService');
 
 const adminController = {
   // ===== AUTHENTICATION =====
@@ -602,8 +603,19 @@ const adminController = {
     try {
       const appointmentStats = await Appointment.aggregate([
         {
+          $project: {
+            status: { $toLower: "$status" }
+          }
+        },
+        {
           $group: {
-            _id: "$status",
+            _id: {
+              $cond: {
+                if: { $in: ["$status", ["pending", "accepted", "scheduled"]] },
+                then: "scheduled",
+                else: "$status"
+              }
+            },
             count: { $sum: 1 }
           }
         }
@@ -620,7 +632,10 @@ const adminController = {
   // Get all patients (users)
   getAllUsers: async (req, res) => {
     try {
-      const users = await Patient.find().select('name email contact address gender age').lean();
+      const users = await Patient.find()
+        .select('name email contact address gender age')
+        .sort({ createdAt: -1 })
+        .lean();
 
       // Add a createdAt value derived from the ObjectId timestamp if not present
       const usersWithCreatedAt = users.map(u => ({
@@ -628,7 +643,10 @@ const adminController = {
         createdAt: u.createdAt || (u._id ? u._id.getTimestamp() : null)
       }));
 
-      res.json({ success: true, users: usersWithCreatedAt });
+      res.json({ 
+        success: true, 
+        users: usersWithCreatedAt
+      });
     } catch (error) {
       console.error('Error in getAllUsers:', error);
       res.status(500).json({ success: false, error: error.message });
@@ -660,8 +678,7 @@ const adminController = {
   // Get all appointments with patient & doctor info (supports filters & pagination)
   getAllAppointments: async (req, res) => {
     try {
-      const { page = 1, limit = 20, status, doctorId, fromDate, toDate, q } = req.query;
-      const skip = (Math.max(1, Number(page)) - 1) * Number(limit);
+      const { status, doctorId, fromDate, toDate, q } = req.query;
 
       const baseMatch = {};
       if (status) baseMatch.status = status;
@@ -672,7 +689,7 @@ const adminController = {
         if (toDate) baseMatch.date.$lte = toDate;
       }
 
-      // Build aggregation to support text search and total count
+      // Build aggregation to support text search
       const pipeline = [
         { $match: baseMatch },
         {
@@ -706,17 +723,17 @@ const adminController = {
         pipeline.push({ $match: { $or: [{ doctorName: { $regex: q, $options: 'i' } }, { patientName: { $regex: q, $options: 'i' } }] } });
       }
 
-      const countPipeline = [...pipeline, { $count: 'total' }];
-      const dataPipeline = [...pipeline, { $sort: { date: -1 } }, { $skip: skip }, { $limit: Number(limit) }];
+      pipeline.push({ $sort: { date: -1 } });
 
-      const [countRes, dataRes] = await Promise.all([
-        Appointment.aggregate(countPipeline),
-        Appointment.aggregate(dataPipeline)
-      ]);
+      const dataRes = await Appointment.aggregate(pipeline);
 
-      const total = (countRes[0] && countRes[0].total) || 0;
-
-      res.json({ success: true, data: dataRes, meta: { total, page: Number(page), limit: Number(limit) } });
+      res.json({ 
+        success: true, 
+        data: dataRes,
+        meta: {
+          total: dataRes.length
+        }
+      });
     } catch (error) {
       console.error('Error in getAllAppointments:', error);
       res.status(500).json({ success: false, error: error.message });
@@ -754,8 +771,22 @@ const adminController = {
         // notify patient and doctor
         const patientNotify = createNotification('appointment-cancelled', `Your appointment on ${appt.date} ${appt.time} was cancelled by admin`, { appointmentId: appt._id });
         const doctorNotify = createNotification('appointment-cancelled', `An appointment on ${appt.date} ${appt.time} was cancelled by admin`, { appointmentId: appt._id });
-        await Patient.findByIdAndUpdate(appt.patientId, { $push: { unseenNotifications: patientNotify } }).catch(() => { });
-        await Doctor.findByIdAndUpdate(appt.doctorId, { $push: { unseenNotifications: doctorNotify } }).catch(() => { });
+        const patient = await Patient.findById(appt.patientId);
+        const doctor = await Doctor.findById(appt.doctorId);
+
+        if (patient) {
+          await Patient.findByIdAndUpdate(appt.patientId, { $push: { unseenNotifications: patientNotify } }).catch(() => { });
+          // Send Email to Patient
+          await sendCancellationEmail(patient.email, {
+            patientName: patient.name,
+            doctorName: doctor?.name || 'Doctor',
+            date: appt.date,
+            time: appt.time
+          });
+        }
+        if (doctor) {
+          await Doctor.findByIdAndUpdate(appt.doctorId, { $push: { unseenNotifications: doctorNotify } }).catch(() => { });
+        }
       }
       res.json({ success: true, data: appt });
     } catch (error) {
@@ -829,8 +860,17 @@ const adminController = {
       const { opinionId } = req.params;
       const opinion = await GetSecondOpinion.findByIdAndUpdate(opinionId, { status: 'rejected' }, { new: true });
 
-      if (!opinion) {
-        return res.status(404).json({ success: false, message: 'Second opinion request not found' });
+      if (opinion) {
+        const patient = await Patient.findById(opinion.patientId);
+        const doctor = await Doctor.findById(opinion.doctorId);
+        if (patient) {
+          await sendCancellationEmail(patient.email, {
+            patientName: patient.name,
+            doctorName: doctor?.name || 'Doctor',
+            date: opinion.date,
+            time: opinion.time
+          });
+        }
       }
 
       res.json({ success: true, data: opinion, message: 'Second opinion request cancelled' });

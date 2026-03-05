@@ -7,7 +7,7 @@ const GetSecondOpinion = require('./../models/GetSecondOpinion');
 const { generateAccessToken, generateRefreshToken } = require('../utils/jwt');
 const { createNotification } = require('../utils/notification');
 const crypto = require('crypto');
-const { sendPasswordResetEmail } = require('../utils/emailService');
+const { sendPasswordResetEmail, sendAcceptanceEmail } = require('../utils/emailService');
 const { generatePresignedUrl } = require('../utils/s3Config');
 
 const multer = require("multer");
@@ -29,7 +29,8 @@ const upload = multer({
       const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
       cb(null, folder + file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname));
     }
-  })
+  }),
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
 });
 
 exports.uploadProfile = upload.fields([
@@ -578,6 +579,17 @@ exports.acceptAppointment = async (req, res) => {
       message: 'Appointment accepted successfully',
       data: appointment
     });
+
+    // Send Email to Patient
+    const patient = await Patient.findById(appointment.patientId);
+    if (patient) {
+      await sendAcceptanceEmail(patient.email, {
+        patientName: patient.name,
+        doctorName: doctor.name,
+        date: appointment.date,
+        time: appointment.time
+      });
+    }
   }
   catch (error) {
     console.error("Error accepting appointment:", error);
@@ -929,6 +941,19 @@ exports.acceptGetSecondOpinion = async (req, res) => {
         message: `Request ${status} successfully`,
         data: updatedRequestObj
       });
+
+      // Send Email to Patient if status is Accepted
+      if (status === 'Accepted' || status === 'accepted') {
+        const patient = await Patient.findById(updatedRequest.patientId);
+        if (patient) {
+          await sendAcceptanceEmail(patient.email, {
+            patientName: patient.name,
+            doctorName: doctor?.name || 'Doctor',
+            date: updatedRequest.date,
+            time: updatedRequest.time
+          });
+        }
+      }
 
     } catch (updateError) {
       console.error("❌ Update failed:", updateError.message);

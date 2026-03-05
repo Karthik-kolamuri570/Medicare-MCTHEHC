@@ -125,6 +125,8 @@ const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 const Appointment = require("./../models/appointments");
 const GetSecondOpinion = require("../models/GetSecondOpinion"); // IMPORT ADDED - adjust path/file name as per your project
+const Patient = require("../models/patient");
+const { sendPaymentReceipt } = require('../utils/emailService');
 
 // Step 1: Create Stripe Checkout Session
 router.post("/check-out", async (req, res) => {
@@ -260,4 +262,79 @@ router.get("/cancel", (req, res) => {
   }
   return res.redirect(`${frontendUrl}/payment/cancel`);
 });
+
+// Step 4: Stripe Webhook — Secure server-side payment verification
+// This ensures payment is recorded even if the user closes the browser during redirect
+router.post("/webhook", express.raw({ type: 'application/json' }), async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+  // If webhook secret is not configured, skip verification (development mode)
+  if (!webhookSecret) {
+    console.warn("⚠️ STRIPE_WEBHOOK_SECRET not set. Webhook verification skipped.");
+    return res.status(200).json({ received: true, warning: "No webhook secret configured" });
+  }
+
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+  } catch (err) {
+    console.error(`❌ Webhook signature verification failed: ${err.message}`);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  // Handle the checkout.session.completed event
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    const appointmentId = session.metadata.appointmentId;
+    const paidAmount = session.amount_total ? (session.amount_total / 100) : null;
+
+    const updateData = {
+      status: "Pending",
+      paymentId: session.payment_intent,
+      paymentStatus: "Paid",
+      ...(paidAmount != null ? { price: paidAmount, fee: paidAmount } : {})
+    };
+
+    try {
+      const updatedAppointment = await Appointment.findByIdAndUpdate(appointmentId, updateData, { new: true });
+      const updatedSecondOpinion = await GetSecondOpinion.findByIdAndUpdate(appointmentId, updateData, { new: true });
+
+      if (updatedAppointment) {
+        console.log(`✅ Webhook: Appointment payment verified for ID ${appointmentId}`);
+        // Fetch patient to send email 
+        if (updatedAppointment.patientId) {
+            const patient = await Patient.findById(updatedAppointment.patientId);
+            if (patient) {
+                await sendPaymentReceipt(patient.email, {
+                    patientName: patient.name,
+                    amount: paidAmount,
+                    transactionId: session.payment_intent,
+                    appointmentId: updatedAppointment._id
+                });
+            }
+        }
+      }
+      if (updatedSecondOpinion) {
+        console.log(`✅ Webhook: SecondOpinion payment verified for ID ${appointmentId}`);
+        if (updatedSecondOpinion.patientId) {
+            const patient = await Patient.findById(updatedSecondOpinion.patientId);
+            if (patient) {
+                await sendPaymentReceipt(patient.email, {
+                    patientName: patient.name,
+                    amount: paidAmount,
+                    transactionId: session.payment_intent,
+                    appointmentId: updatedSecondOpinion._id
+                });
+            }
+        }
+      }
+    } catch (dbErr) {
+      console.error(`❌ Webhook DB Update Error: ${dbErr.message}`);
+    }
+  }
+
+  res.json({ received: true });
+});
+
 module.exports = router;

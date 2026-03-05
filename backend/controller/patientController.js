@@ -7,7 +7,7 @@ const GetSecondOpinion = require('../models/GetSecondOpinion');
 const { generateAccessToken, generateRefreshToken } = require('../utils/jwt');
 const { createNotification } = require('../utils/notification');
 const crypto = require('crypto');
-const { sendPasswordResetEmail } = require('../utils/emailService');
+const { sendPasswordResetEmail, sendBookingConfirmation, sendDoctorNotification, sendCancellationEmail } = require('../utils/emailService');
 const { generatePresignedUrl } = require('../utils/s3Config');
 exports.registerPatient = async (req, res) => {
     try {
@@ -290,6 +290,24 @@ exports.bookAppointment = async (req, res) => {
             $push: { unseenNotifications: patientNotification }
         });
 
+        // Send Email Confirmation
+        const emailDetails = {
+            patientName: patient.name,
+            doctorName: doctor.name,
+            date: date,
+            time: time
+        };
+        await sendBookingConfirmation(patient.email, emailDetails);
+
+        // Send Email to Doctor
+        await sendDoctorNotification(doctor.email, {
+            doctorName: doctor.name,
+            patientName: patient.name,
+            date: date,
+            time: time,
+            type: 'Standard Appointment'
+        });
+
         return res.status(201).json({
             success: true,
             message: "Appointment booked successfully",
@@ -396,6 +414,13 @@ exports.cancelAppointment = async (req, res) => {
             $push: { unseenNotifications: patientNotification }
         });
 
+        // Send Email to Patient
+        await sendCancellationEmail(patient.email, {
+            patientName: patient.name,
+            doctorName: doctor.name,
+            date: appointment.date,
+            time: appointment.time
+        });
 
         return res.status(200).json({
             success: true,
@@ -524,7 +549,8 @@ const upload = multer({
             const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
             cb(null, folder + file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname));
         }
-    })
+    }),
+    limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
 });
 
 // Export multer upload middleware for routes
@@ -603,6 +629,23 @@ exports.getSecondOpinion = async (req, res) => {
         });
 
         res.status(201).json({ success: true, message: "Second opinion request created", data: newSecondOpinion });
+
+        // Send Email to Patient
+        await sendBookingConfirmation(patient.email, {
+            patientName: patient.name,
+            doctorName: doctor.name,
+            date: date,
+            time: time
+        });
+
+        // Send Email to Doctor
+        await sendDoctorNotification(doctor.email, {
+            doctorName: doctor.name,
+            patientName: patient.name,
+            date: date,
+            time: time,
+            type: 'Second Opinion Request'
+        });
     } catch (err) {
         console.error("Error in getSecondOpinion:", err);
         res.status(500).json({
@@ -854,6 +897,16 @@ exports.cancelSecondOpinion = async (req, res) => {
         await Patient.findByIdAndUpdate(patientId, {
             $push: { unseenNotifications: patientNotification }
         });
+
+        // Send Email to Patient
+        if (patient) {
+            await sendCancellationEmail(patient.email, {
+                patientName: patient.name,
+                doctorName: doctor?.name || 'Doctor',
+                date: secondOpinion.date,
+                time: secondOpinion.time
+            });
+        }
 
         return res.json({ success: true, message: 'Second opinion cancelled successfully.' });
     } catch (error) {

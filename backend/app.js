@@ -11,6 +11,9 @@ const { StreamChat } = require('stream-chat');
 // Configure dotenv
 dotEnv.config();
 
+// Stripe webhook needs raw body BEFORE express.json() parses it
+app.use('/api/payment/webhook', express.raw({ type: 'application/json' }));
+
 app.use(express.json()); // to parse the incoming request with JSON payloads
 app.use(bodyParser.urlencoded({ extended: true }));
 // app.set("view engine", "pug");
@@ -55,11 +58,16 @@ const BloodCampRoutes = require('./blood_bank/routes/bloodCamp');
 const BlogRoutes = require('./Blogs/routes/BlogRoutes');
 const AdminRoutes = require('./routes/adminRoutes');
 
+const { globalLimiter, paymentLimiter } = require('./middleware/rateLimit');
+
+// Apply global rate limiting to all API routes
+app.use('/api', globalLimiter);
+
 app.use('/api/patient', patientRoutes);
 
 app.use('/api/doctor', doctorRoutes);
 
-app.use('/api/payment', paymentRoutes);
+app.use('/api/payment', paymentLimiter, paymentRoutes);
 
 app.use('/api/blood-bank', BloodBankRoutes);
 

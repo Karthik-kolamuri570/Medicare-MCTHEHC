@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const userSchema = new Schema({
+const doctorSchema = new Schema({
     name: {
         type: String,
         required: [true, "Name is required"]
@@ -123,5 +123,11 @@ const userSchema = new Schema({
         type: Number,
         default: 0
     }
-})
-module.exports = mongoose.model('Doctor', userSchema);
+});
+
+// Indexes for fast querying
+doctorSchema.index({ specialization: 1 });
+doctorSchema.index({ rating: -1 });
+doctorSchema.index({ verifiedByAdmin: 1 });
+
+module.exports = mongoose.model('Doctor', doctorSchema);
