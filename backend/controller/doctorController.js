@@ -5,7 +5,7 @@ const Admin = require('../models/admin');
 const Appointment = require('./../models/appointments');
 const GetSecondOpinion = require('./../models/GetSecondOpinion');
 const { generateAccessToken, generateRefreshToken } = require('../utils/jwt');
-const { createNotification } = require('../utils/notification');
+const { createNotification, emitNotification } = require('../utils/notification');
 const crypto = require('crypto');
 const { sendPasswordResetEmail, sendAcceptanceEmail } = require('../utils/emailService');
 const { generatePresignedUrl } = require('../utils/s3Config');
@@ -124,6 +124,15 @@ exports.registerDoctor = async (req, res, next) => {
     });
     // Push to all active admins
     await Admin.updateMany({ status: 'active' }, { $push: { unseenNotifications: adminNotify } }).catch(e => console.error("Admin notification failed:", e));
+
+    // Emit Socket Notifications to all active admins
+    const io = req.app.get('socketio');
+    if (io) {
+      const activeAdmins = await Admin.find({ status: 'active' }).select('_id');
+      activeAdmins.forEach(admin => {
+        emitNotification(io, admin._id, 'admin');
+      });
+    }
 
     // Create tokens
     const tokenPayload = { id: doctor._id, role: 'doctor' };
@@ -574,6 +583,9 @@ exports.acceptAppointment = async (req, res) => {
     });
     await Patient.findByIdAndUpdate(appointment.patientId, { $push: { unseenNotifications: patientNotify } });
 
+    // Emit Socket Notification
+    emitNotification(req.app.get('socketio'), appointment.patientId, 'patient');
+
     res.status(200).json({
       success: true,
       message: 'Appointment accepted successfully',
@@ -636,6 +648,9 @@ exports.rejectAppointment = async (req, res) => {
       time: appointment.time
     });
     await Patient.findByIdAndUpdate(appointment.patientId, { $push: { unseenNotifications: patientNotify } });
+
+    // Emit Socket Notification
+    emitNotification(req.app.get('socketio'), appointment.patientId, 'patient');
 
     console.log("Appointment rejected successfully:", appointment);
     res.status(200).json({
@@ -935,6 +950,9 @@ exports.acceptGetSecondOpinion = async (req, res) => {
         status: status
       });
       await Patient.findByIdAndUpdate(updatedRequest.patientId, { $push: { unseenNotifications: patientNotify } });
+
+      // Emit Socket Notification
+      emitNotification(req.app.get('socketio'), updatedRequest.patientId, 'patient');
 
       res.status(200).json({
         success: true,

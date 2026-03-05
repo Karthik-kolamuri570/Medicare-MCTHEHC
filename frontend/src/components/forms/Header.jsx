@@ -313,6 +313,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import logo from "../../assets/logo.png"; // keep your original path
 import ContactModal from "../ContactModal";
+import socket, { connectSocket, disconnectSocket } from "../../utils/socket";
 
 const searchData = [
   {
@@ -400,11 +401,15 @@ function Header() {
           "Authorization": `Bearer ${token}`,
         },
       });
-      const data = await response.json();
-
-      if (data.success && data.data) {
-        setUser(data.data);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data) {
+          setUser(data.data);
+        } else {
+          setUser(null);
+        }
       } else {
+        // Clear user if auth check fails (e.g. 401)
         setUser(null);
       }
     } catch (error) {
@@ -425,15 +430,6 @@ function Header() {
     setIsLoading(true);
     checkUserLogin();
   }, [location.pathname, location.search]);
-
-  // Periodic check every 30 seconds to ensure auth status is current
-  useEffect(() => {
-    const interval = setInterval(() => {
-      checkUserLogin();
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   // Check auth status when window regains focus
   useEffect(() => {
@@ -467,7 +463,7 @@ function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Poll notification count every 30s
+  // Socket Notification listener
   useEffect(() => {
     const fetchCount = async () => {
       try {
@@ -477,14 +473,37 @@ function Header() {
           headers: { "Authorization": `Bearer ${token}` }
         });
         if (res.ok) {
-          const data = await res.json();
-          setNotifCount(data.count || 0);
+          const text = await res.text();
+          try {
+            const data = JSON.parse(text);
+            setNotifCount(data.count || 0);
+          } catch (parseError) {
+            console.error("Error parsing notification count:", parseError);
+          }
         }
-      } catch (e) { /* silent */ }
+      } catch (e) {
+        // silent fail
+      }
     };
-    fetchCount();
-    const interval = setInterval(fetchCount, 30000);
-    return () => clearInterval(interval);
+
+    if (user && user._id) {
+      fetchCount(); // Initial fetch
+      connectSocket(user._id);
+      
+      const handleNewNotification = (data) => {
+        // console.log("Socket received new notification:", data);
+        setNotifCount(data.count);
+      };
+
+      socket.on('newNotification', handleNewNotification);
+
+      return () => {
+        socket.off('newNotification', handleNewNotification);
+        // We don't disconnect here as the user might still be logged in
+      };
+    } else {
+      disconnectSocket();
+    }
   }, [user]);
 
   const handleSearchInputChange = (value) => {
@@ -534,6 +553,7 @@ function Header() {
         localStorage.removeItem("refreshToken");
         localStorage.removeItem("user");
         sessionStorage.removeItem("token");
+        disconnectSocket();
         navigate("/login");
         setTimeout(() => {
           checkUserLogin();

@@ -204,6 +204,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import logo from '../../assets/logo.png'; // make sure this path is correct
+import socket, { connectSocket, disconnectSocket } from "../../utils/socket";
 
 const searchData = [
   {
@@ -271,9 +272,13 @@ function DHeader() {
             "Authorization": `Bearer ${token}`,
           }
         });
-        const data = await response.json();
-        if (data.success && data.data) setDoctor(data.data);
-        else setDoctor(null);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data) setDoctor(data.data);
+          else setDoctor(null);
+        } else {
+          setDoctor(null);
+        }
       } catch {
         setDoctor(null);
       } finally {
@@ -339,7 +344,7 @@ function DHeader() {
         setDoctor(null);
         localStorage.removeItem("token");
         localStorage.removeItem("refreshToken");
-        localStorage.removeItem("user");
+        disconnectSocket();
         navigate("/login");
       } else {
         console.error("Logout failed");
@@ -349,7 +354,7 @@ function DHeader() {
     }
   };
 
-  // Poll notification count every 30s
+  // Socket Notification listener
   useEffect(() => {
     const fetchCount = async () => {
       try {
@@ -359,14 +364,35 @@ function DHeader() {
           headers: { "Authorization": `Bearer ${token}` }
         });
         if (res.ok) {
-          const data = await res.json();
-          setNotifCount(data.count || 0);
+          const text = await res.text();
+          try {
+            const data = JSON.parse(text);
+            setNotifCount(data.count || 0);
+          } catch (parseError) {
+            console.error("Error parsing notification count:", parseError);
+          }
         }
-      } catch (e) { /* silent */ }
+      } catch (e) {
+        // silent fail
+      }
     };
-    fetchCount();
-    const interval = setInterval(fetchCount, 30000);
-    return () => clearInterval(interval);
+
+    if (doctor && doctor._id) {
+      fetchCount(); // Initial fetch
+      connectSocket(doctor._id);
+      
+      const handleNewNotification = (data) => {
+        setNotifCount(data.count);
+      };
+
+      socket.on('newNotification', handleNewNotification);
+
+      return () => {
+        socket.off('newNotification', handleNewNotification);
+      };
+    } else {
+      disconnectSocket();
+    }
   }, [doctor]);
 
   return (

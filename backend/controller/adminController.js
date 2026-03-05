@@ -9,7 +9,7 @@ const BloodCamp = require('../blood_bank/models/BloodCamp');
 const GetSecondOpinion = require('../models/GetSecondOpinion');
 const bcryptjs = require('bcryptjs');
 const { generateAccessToken, generateRefreshToken, verifyToken } = require('../utils/jwt');
-const { createNotification } = require('../utils/notification');
+const { createNotification, emitNotification } = require('../utils/notification');
 const Stripe = require('stripe');
 const { generatePresignedUrl } = require('../utils/s3Config');
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
@@ -315,7 +315,11 @@ const adminController = {
       const affected = await Appointment.find({ paymentId });
       for (const appt of affected) {
         if (appt.patientId) {
-          await Patient.findByIdAndUpdate(appt.patientId, { $push: { unseenNotifications: createNotification('payment-refund', `Payment for appointment ${appt._id} has been refunded.`, { appointmentId: appt._id, refundId: refund.id }) } });
+        if (appt.patientId) {
+          const pNotify = createNotification('payment-refund', `Payment for appointment ${appt._id} has been refunded.`, { appointmentId: appt._id, refundId: refund.id });
+          await Patient.findByIdAndUpdate(appt.patientId, { $push: { unseenNotifications: pNotify } });
+          emitNotification(req.app.get('socketio'), appt.patientId, 'patient');
+        }
         }
       }
 
@@ -503,6 +507,7 @@ const adminController = {
       if (doctor) {
         const notification = createNotification('doctor-approved', 'Your application has been approved. You can now receive appointments.', { doctorId: doctor._id });
         await Doctor.findByIdAndUpdate(doctorId, { $push: { unseenNotifications: notification } });
+        emitNotification(req.app.get('socketio'), doctorId, 'doctor');
       }
       res.json(doctor);
     } catch (error) {
@@ -523,6 +528,7 @@ const adminController = {
       if (doctor) {
         const notification = createNotification('doctor-rejected', 'Your application has been rejected. Contact support for more details.', { doctorId: doctor._id });
         await Doctor.findByIdAndUpdate(doctorId, { $push: { unseenNotifications: notification } });
+        emitNotification(req.app.get('socketio'), doctorId, 'doctor');
       }
       res.json(doctor);
     } catch (error) {
@@ -775,7 +781,10 @@ const adminController = {
         const doctor = await Doctor.findById(appt.doctorId);
 
         if (patient) {
+        if (appt.patientId) {
           await Patient.findByIdAndUpdate(appt.patientId, { $push: { unseenNotifications: patientNotify } }).catch(() => { });
+          emitNotification(req.app.get('socketio'), appt.patientId, 'patient');
+        }
           // Send Email to Patient
           await sendCancellationEmail(patient.email, {
             patientName: patient.name,
@@ -785,7 +794,10 @@ const adminController = {
           });
         }
         if (doctor) {
+        if (appt.doctorId) {
           await Doctor.findByIdAndUpdate(appt.doctorId, { $push: { unseenNotifications: doctorNotify } }).catch(() => { });
+          emitNotification(req.app.get('socketio'), appt.doctorId, 'doctor');
+        }
         }
       }
       res.json({ success: true, data: appt });
@@ -803,11 +815,18 @@ const adminController = {
       const result = await Appointment.updateMany({ _id: { $in: appointmentIds } }, { $set: { status: 'Cancelled' } });
       // Optionally push notifications in background
       const appts = await Appointment.find({ _id: { $in: appointmentIds } });
+      const io = req.app.get('socketio');
       for (const appt of appts) {
         const pNotify = createNotification('appointment-cancelled', `Your appointment on ${appt.date} ${appt.time} was cancelled by admin`, { appointmentId: appt._id });
         const dNotify = createNotification('appointment-cancelled', `An appointment on ${appt.date} ${appt.time} was cancelled by admin`, { appointmentId: appt._id });
-        await Patient.findByIdAndUpdate(appt.patientId, { $push: { unseenNotifications: pNotify } }).catch(() => { });
-        await Doctor.findByIdAndUpdate(appt.doctorId, { $push: { unseenNotifications: dNotify } }).catch(() => { });
+        
+        await Promise.all([
+          Patient.findByIdAndUpdate(appt.patientId, { $push: { unseenNotifications: pNotify } }).catch(() => { }),
+          Doctor.findByIdAndUpdate(appt.doctorId, { $push: { unseenNotifications: dNotify } }).catch(() => { })
+        ]);
+
+        emitNotification(io, appt.patientId, 'patient');
+        emitNotification(io, appt.doctorId, 'doctor');
       }
       res.json({ success: true, modifiedCount: result.nModified || result.modifiedCount || 0 });
     } catch (error) {

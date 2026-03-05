@@ -25,6 +25,7 @@ import '../styles/AdminLayout.css';
 import '../styles/theme.css';
 import adminService from '../services/adminService';
 import { useTheme } from '../context/ThemeContext';
+import socket, { connectSocket, disconnectSocket } from '../../utils/socket';
 
 const AdminLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -34,7 +35,7 @@ const AdminLayout = ({ children }) => {
   const { theme, toggleTheme } = useTheme();
   const [notificationCount, setNotificationCount] = useState(0);
 
-  // Poll for notification count
+  // Socket Notification listener
   useEffect(() => {
     const fetchCount = async () => {
       try {
@@ -42,10 +43,24 @@ const AdminLayout = ({ children }) => {
         if (res.data?.success) setNotificationCount(res.data.count);
       } catch (err) { /* silent */ }
     };
-    fetchCount();
-    const interval = setInterval(fetchCount, 30000);
-    return () => clearInterval(interval);
-  }, []);
+
+    if (adminUser && adminUser.id) {
+      fetchCount(); // Initial fetch
+      connectSocket(adminUser.id);
+      
+      const handleNewNotification = (data) => {
+        setNotificationCount(data.count);
+      };
+
+      socket.on('newNotification', handleNewNotification);
+
+      return () => {
+        socket.off('newNotification', handleNewNotification);
+      };
+    } else {
+      disconnectSocket();
+    }
+  }, [adminUser.id]);
 
   const adminUser = JSON.parse(localStorage.getItem('adminUser') || '{}');
 
@@ -64,6 +79,7 @@ const AdminLayout = ({ children }) => {
 
   const handleLogout = async () => {
     try {
+      disconnectSocket();
       await adminService.logout();
       navigate('/login');
     } catch (error) {

@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 const GetSecondOpinion = require('../models/GetSecondOpinion');
 const { generateAccessToken, generateRefreshToken } = require('../utils/jwt');
-const { createNotification } = require('../utils/notification');
+const { createNotification, emitNotification } = require('../utils/notification');
 const crypto = require('crypto');
 const { sendPasswordResetEmail, sendBookingConfirmation, sendDoctorNotification, sendCancellationEmail } = require('../utils/emailService');
 const { generatePresignedUrl } = require('../utils/s3Config');
@@ -230,18 +230,8 @@ exports.bookAppointment = async (req, res) => {
             });
         }
 
-        // Check if appointment already exists & fetch doctor info in parallel
-        const [existingAppointment, doctor] = await Promise.all([
-            Appointment.findOne({ patientId: new mongoose.Types.ObjectId(patientId), doctorId: new mongoose.Types.ObjectId(doctorId), date, time }),
-            Doctor.findById(doctorId)
-        ]);
-
-        if (existingAppointment) {
-            return res.status(400).json({
-                success: false,
-                message: "Appointment already exists for this patient and doctor"
-            });
-        }
+        // Fetch doctor info
+        const doctor = await Doctor.findById(doctorId);
 
         if (!doctor) {
             return res.status(404).json({
@@ -277,10 +267,12 @@ exports.bookAppointment = async (req, res) => {
             patientId: patient._id, patientName: patient.name, date, time
         });
 
-        // Update doctor's unseenNotifications
         await Doctor.findByIdAndUpdate(doctorId, {
             $push: { unseenNotifications: notification }
         });
+
+        // Emit Socket Notification
+        emitNotification(req.app.get('socketio'), doctorId, 'doctor');
 
         //sending nootifiaction to patient for confirmation
         const patientNotification = createNotification('appointment-booked', `Appointment booked successfully with Dr. ${doctor.name}`, {
@@ -289,6 +281,11 @@ exports.bookAppointment = async (req, res) => {
         await Patient.findByIdAndUpdate(patientId, {
             $push: { unseenNotifications: patientNotification }
         });
+
+        // Emit Socket Notifications
+        const io = req.app.get('socketio');
+        emitNotification(io, doctorId, 'doctor');
+        emitNotification(io, patientId, 'patient');
 
         // Send Email Confirmation
         const emailDetails = {
@@ -398,6 +395,8 @@ exports.cancelAppointment = async (req, res) => {
             $push: { unseenNotifications: notification }
         });
 
+        // Emit Socket Notification
+        emitNotification(req.app.get('socketio'), appointment.doctorId, 'doctor');
 
         const doctor = await Doctor.findById(appointment.doctorId);
         if (!doctor) {
@@ -407,12 +406,17 @@ exports.cancelAppointment = async (req, res) => {
             });
         }
 
-        const patientNotification = createNotification('appointment-cancelled', `Appointment cancelled successfully with Dr. ${doctor.name}`, {
-            doctorId: doctor._id, doctorName: doctor.name, date: appointment.date, time: appointment.time
+        const patientNotification = createNotification('appointment-cancelled', `Your appointment with Dr. ${doctor.name} on ${appointment.date} was cancelled.`, {
+            appointmentId: appointment._id
         });
         await Patient.findByIdAndUpdate(patient._id, {
             $push: { unseenNotifications: patientNotification }
         });
+
+        // Emit Socket Notifications
+        const io = req.app.get('socketio');
+        emitNotification(io, appointment.doctorId, 'doctor');
+        emitNotification(io, patient._id, 'patient');
 
         // Send Email to Patient
         await sendCancellationEmail(patient.email, {
@@ -627,6 +631,27 @@ exports.getSecondOpinion = async (req, res) => {
             date: appointmentDate,
             time,
         });
+
+        //sending notification to doctor
+        const notification = createNotification('new-second-opinion', `New second opinion request from ${patient.name}`, {
+            patientId: patient._id, patientName: patient.name, date, time
+        });
+
+        await Doctor.findByIdAndUpdate(doctorId, {
+            $push: { unseenNotifications: notification }
+        });
+
+        const patientNotification = createNotification('second-opinion-requested', `Second opinion request submitted successfully`, {
+            doctorId: doctor._id, doctorName: doctor.name
+        });
+        await Patient.findByIdAndUpdate(userId, {
+            $push: { unseenNotifications: patientNotification }
+        });
+
+        // Emit Socket Notifications
+        const io = req.app.get('socketio');
+        emitNotification(io, doctorId, 'doctor');
+        emitNotification(io, userId, 'patient');
 
         res.status(201).json({ success: true, message: "Second opinion request created", data: newSecondOpinion });
 
@@ -849,6 +874,21 @@ exports.rescheduleAppointment = async (req, res) => {
             $push: { unseenNotifications: notification }
         });
 
+        // Emit Socket Notification
+        emitNotification(req.app.get('socketio'), appointment.doctorId, 'doctor');
+
+        // Notify patient
+        const doctor = await Doctor.findById(appointment.doctorId);
+        const patientNotification = createNotification('appointment-rescheduled', `Your appointment with Dr. ${doctor?.name || 'Doctor'} has been rescheduled to ${date} ${time}`, {
+            doctorId: doctor?._id, doctorName: doctor?.name, newDate: date, newTime: time
+        });
+        await Patient.findByIdAndUpdate(patientId, {
+            $push: { unseenNotifications: patientNotification }
+        });
+
+        // Emit Socket Notification
+        emitNotification(req.app.get('socketio'), patientId, 'patient');
+
         return res.json({ success: true, message: 'Appointment rescheduled successfully.' });
     } catch (error) {
         console.error('Reschedule appointment error:', error);
@@ -889,6 +929,9 @@ exports.cancelSecondOpinion = async (req, res) => {
             $push: { unseenNotifications: notification }
         });
 
+        // Emit Socket Notification
+        emitNotification(req.app.get('socketio'), secondOpinion.doctorId, 'doctor');
+
         // Notify patient
         const doctor = await Doctor.findById(secondOpinion.doctorId);
         const patientNotification = createNotification('second-opinion-cancelled', `Second opinion with Dr. ${doctor?.name || 'Doctor'} cancelled successfully`, {
@@ -897,6 +940,9 @@ exports.cancelSecondOpinion = async (req, res) => {
         await Patient.findByIdAndUpdate(patientId, {
             $push: { unseenNotifications: patientNotification }
         });
+
+        // Emit Socket Notification
+        emitNotification(req.app.get('socketio'), patientId, 'patient');
 
         // Send Email to Patient
         if (patient) {
