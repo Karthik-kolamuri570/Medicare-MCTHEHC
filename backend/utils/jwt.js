@@ -4,7 +4,12 @@ require('dotenv').config();
 const ACCESS_TOKEN_EXPIRY = '24h';
 const REFRESH_TOKEN_EXPIRY = '7d';
 
-const getJwtSecret = () => process.env.JWT_SECRET || 'fallback_secret';
+const getJwtSecret = () => {
+    if (!process.env.JWT_SECRET) {
+        throw new Error('JWT_SECRET is not set');
+    }
+    return process.env.JWT_SECRET;
+};
 
 /**
  * Generate an access token

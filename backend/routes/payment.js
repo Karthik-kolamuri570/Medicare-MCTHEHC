@@ -130,9 +130,41 @@ const { sendPaymentReceipt } = require('../utils/emailService');
 
 // Step 1: Create Stripe Checkout Session
 router.post("/check-out", async (req, res) => {
-  const { appointmentId, patientEmail, doctorName, price } = req.body;
+  const { appointmentId } = req.body;
+  let { patientEmail } = req.body;
 
   try {
+    if (!appointmentId) {
+      return res.status(400).json({ success: false, message: "appointmentId is required" });
+    }
+
+    // Determine if this is an Appointment or a SecondOpinion by ID
+    let record = await Appointment.findById(appointmentId).populate('doctorId', 'name feePerConsultation').populate('patientId', 'email');
+    let isSecondOpinion = false;
+    if (!record) {
+      record = await GetSecondOpinion.findById(appointmentId).populate('doctorId', 'name feePerConsultation').populate('patientId', 'email');
+      isSecondOpinion = !!record;
+    }
+
+    if (!record) {
+      return res.status(404).json({ success: false, message: "Record not found for payment" });
+    }
+
+    if (!patientEmail && record.patientId && record.patientId.email) {
+      patientEmail = record.patientId.email;
+    }
+
+    if (!patientEmail) {
+      return res.status(400).json({ success: false, message: "patientEmail is required" });
+    }
+
+    // Compute price server-side. Prefer explicit price/fee field if present; else take doctor's fee
+    const doctorName = record.doctorId?.name || 'Doctor';
+    const derivedPrice = (record.price || record.fee || record.doctorId?.feePerConsultation);
+    if (!derivedPrice || Number.isNaN(Number(derivedPrice))) {
+      return res.status(400).json({ success: false, message: "Unable to determine price for this payment" });
+    }
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
@@ -142,9 +174,9 @@ router.post("/check-out", async (req, res) => {
           price_data: {
             currency: "inr",
             product_data: {
-              name: `Consultation with Dr. ${doctorName}`,
+              name: isSecondOpinion ? `Second opinion with Dr. ${doctorName}` : `Consultation with Dr. ${doctorName}`,
             },
-            unit_amount: price * 100, // price in paise
+            unit_amount: Math.round(Number(derivedPrice) * 100), // price in paise
           },
           quantity: 1,
         },
@@ -153,6 +185,7 @@ router.post("/check-out", async (req, res) => {
       cancel_url: `${req.protocol}://${req.get("host")}/api/payment/cancel`,
       metadata: {
         appointmentId,
+        type: isSecondOpinion ? 'second-opinion' : 'appointment'
       },
     });
 

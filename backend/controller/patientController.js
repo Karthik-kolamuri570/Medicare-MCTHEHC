@@ -540,6 +540,8 @@ const { s3Client: s3 } = require('../utils/s3Config');
 const multerS3 = require('multer-s3');
 
 // Multer-S3 config for multiple files
+const allowedImageTypes = new Set(['image/jpeg','image/jpg','image/png','image/webp']);
+const allowedReportTypes = new Set(['application/pdf','image/jpeg','image/jpg','image/png']);
 const upload = multer({
     storage: multerS3({
         s3: s3,
@@ -554,6 +556,19 @@ const upload = multer({
             cb(null, folder + file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname));
         }
     }),
+    fileFilter: (req, file, cb) => {
+        try {
+            if (file.fieldname === 'profileImage') {
+                return cb(null, allowedImageTypes.has(file.mimetype));
+            }
+            if (file.fieldname === 'files') {
+                return cb(null, allowedReportTypes.has(file.mimetype));
+            }
+            return cb(null, false);
+        } catch (e) {
+            return cb(null, false);
+        }
+    },
     limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
 });
 
