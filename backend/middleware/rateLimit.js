@@ -5,10 +5,10 @@ const rateLimit = require('express-rate-limit');
  * Protects against brute-force, spam, and DDoS attacks
  */
 
-// Global API Rate Limit — 100 requests per 15 minutes per IP
+// Global API Rate Limit — 1000 requests per 15 minutes per IP
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100,
+  max: 1000,
   message: {
     success: false,
     message: 'Too many requests from this IP, please try again after 15 minutes.'
@@ -29,10 +29,10 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-// Booking & Review Rate Limit — 20 requests per 15 minutes per IP
+// Booking & Review Rate Limit — 100 requests per 15 minutes per IP
 const bookingLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 20,
+  max: 100,
   message: {
     success: false,
     message: 'Too many booking/review requests. Please try again later.'

@@ -21,16 +21,22 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.997.0",
     "@aws-sdk/s3-request-presigner": "^3.997.0",
+    "@sentry/node": "^7.91.0",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
     "body-parser": "^1.20.3",
+    "celebrate": "^15.0.1",
     "connect-mongodb-session": "^5.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "^4.21.2",
+    "express-mongo-sanitize": "^2.2.0",
     "express-rate-limit": "^8.2.1",
     "express-session": "^1.18.1",
     "fs": "^0.0.1-security",
+    "helmet": "^7.1.0",
+    "hpp": "^0.2.3",
+    "joi": "^17.11.0",
     "jsonwebtoken": "^9.0.2",
     "medicare": "file:",
     "mongoose": "^8.12.1",
@@ -42,6 +48,7 @@
     "pug": "^3.0.3",
     "socket.io": "^4.8.3",
     "stream-chat": "^9.9.0",
-    "stripe": "^18.4.0"
+    "stripe": "^18.4.0",
+    "winston": "^3.11.0"
   }
 }

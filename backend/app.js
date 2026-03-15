@@ -8,10 +8,55 @@ const mongoose = require("mongoose");
 const { StreamChat } = require('stream-chat');
 const http = require('http');
 const { Server } = require('socket.io');
-
+const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const hpp = require('hpp');
+const Sentry = require('@sentry/node');
+const logger = require('./utils/logger');
+const { verifyToken } = require('./utils/jwt');
 
 // Configure dotenv
 dotEnv.config();
+
+// Validate required environment variables
+const requiredEnvVars = [
+  'MONGO_URI',
+  'JWT_SECRET',
+  'STRIPE_SECRET_KEY',
+  'STREAM_API_KEY',
+  'STREAM_API_SECRET',
+  'AWS_ACCESS_KEY_ID',
+  'AWS_SECRET_ACCESS_KEY',
+  'AWS_BUCKET_NAME',
+  'SMTP_HOST',
+  'SMTP_USERNAME',
+  'SMTP_PASSWORD'
+];
+
+const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+
+if (missingEnvVars.length > 0) {
+  console.error('❌ Missing required environment variables:', missingEnvVars);
+  process.exit(1);
+}
+
+console.log('✅ All required environment variables are set');
+
+// Initialize Sentry (if DSN is provided)
+if (process.env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    environment: process.env.NODE_ENV,
+    tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+    integrations: [
+      new Sentry.Integrations.Http({ tracing: true }),
+      new Sentry.Integrations.Express({ app: true, request: true })
+    ]
+  });
+
+  app.use(Sentry.Handlers.requestHandler());
+  app.use(Sentry.Handlers.tracingHandler());
+}
 
 // Stripe webhook needs raw body BEFORE express.json() parses it
 app.use('/api/payment/webhook', express.raw({ type: 'application/json' }));
@@ -34,6 +79,55 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+// Security Headers
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://js.stripe.com", "https://cdn.jsdelivr.net"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      imgSrc: ["'self'", "data:", "https:", "https://medicare-k.s3.ap-south-1.amazonaws.com"],
+      connectSrc: ["'self'", "https://api.stripe.com", "https://stream-io.com"],
+      fontSrc: ["'self'", "https://fonts.googleapis.com"],
+      frameSrc: ["'self'", "https://js.stripe.com"],
+      mediaSrc: ["'self'"],
+      objectSrc: ["'none'"]
+    }
+  },
+  hsts: {
+    maxAge: 31536000, // 1 year
+    includeSubDomains: true,
+    preload: true
+  },
+  noSniff: true,
+  xssFilter: true,
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+  frameguard: { action: 'deny' }
+}));
+
+// Data Sanitization
+app.use(mongoSanitize()); // Prevent NoSQL injection
+app.use(hpp()); // Prevent HTTP Parameter Pollution
+
+// HTTPS Redirect (for production)
+if (process.env.NODE_ENV === 'production') {
+  app.use((req, res, next) => {
+    if (req.header('x-forwarded-proto') !== 'https') {
+      return res.redirect(`https://${req.header('host')}${req.url}`);
+    }
+    next();
+  });
+}
+
+// Request logging middleware
+app.use((req, res, next) => {
+  logger.info(`${req.method} ${req.path}`, {
+    ip: req.ip,
+    userAgent: req.get('user-agent')
+  });
+  next();
+});
+
 
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -49,19 +143,44 @@ const io = new Server(server, {
   }
 });
 
-// Socket.io connection handler
+// Socket.io Authentication Middleware
+io.use(async (socket, next) => {
+  try {
+    const token = socket.handshake.auth.token || socket.handshake.query.token;
+    
+    if (!token) {
+      return next(new Error('Authentication error: No token provided'));
+    }
+
+    const decoded = verifyToken(token);
+    
+    socket.userId = decoded.id;
+    socket.userRole = decoded.role;
+    
+    next();
+  } catch (err) {
+    logger.error('Socket authentication error', { error: err.message });
+    next(new Error('Authentication error: Invalid token'));
+  }
+});
+
+// Socket.io Connection Handler
 io.on('connection', (socket) => {
-  // console.log('A user connected:', socket.id);
+  logger.info(`User ${socket.userId} connected with role ${socket.userRole}`);
 
   socket.on('join', (userId) => {
-    if (userId) {
-      socket.join(userId);
-      // console.log(`User ${userId} joined room`);
+    if (userId !== socket.userId.toString()) {
+      logger.warn(`Unauthorized join attempt: ${userId} vs ${socket.userId}`);
+      socket.disconnect();
+      return;
     }
+    
+    socket.join(userId);
+    logger.info(`User ${userId} joined their notification room`);
   });
 
   socket.on('disconnect', () => {
-    // console.log('User disconnected:', socket.id);
+    logger.info(`User ${socket.userId} disconnected`);
   });
 });
 
@@ -93,6 +212,64 @@ const BlogRoutes = require('./Blogs/routes/BlogRoutes');
 const AdminRoutes = require('./routes/adminRoutes');
 
 const { globalLimiter, paymentLimiter } = require('./middleware/rateLimit');
+
+// --- STREAM CHAT API (Moved above globalLimiter to avoid 429 Too Many Requests) ---
+const streamApiKey = process.env.STREAM_API_KEY;
+const streamApiSecret = process.env.STREAM_API_SECRET;
+const streamClient = StreamChat.getInstance(streamApiKey, streamApiSecret);
+
+app.get('/api/stream/token', async (req, res) => {
+  try {
+    const token = extractToken(req);
+    if (!token) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
+
+    const decoded = verifyToken(token);
+    const userId = decoded.id;
+
+    if (!userId) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
+
+    const streamToken = streamClient.createToken(userId.toString());
+    return res.json({ token: streamToken, userId: userId.toString(), apiKey: streamApiKey });
+  } catch (err) {
+    if (err.name === 'TokenExpiredError' || err.name === 'JsonWebTokenError') {
+      return res.status(401).json({ error: "Invalid or expired token" });
+    }
+    console.error("Stream Token Generation Error:", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.post('/api/stream/upsert-users', async (req, res) => {
+  try {
+    let { users } = req.body;
+
+    if (!Array.isArray(users) || users.length === 0) {
+      return res.status(400).json({ error: 'Users array is required' });
+    }
+
+    console.log("Upserting users:", users);
+
+    const formattedUsers = users.map(user => {
+      console.log("Processing user:", user.id);
+      if (!user || !user.id) throw new Error("User object missing `id`");
+      return {
+        id: user.id.toString(),
+      };
+    });
+
+    await streamClient.upsertUsers(formattedUsers);
+
+    return res.status(200).json({ message: 'Users upserted successfully' });
+  } catch (err) {
+    console.error('Upsert Error:', err);
+    return res.status(500).json({ error: 'Failed to upsert users', details: err.message });
+  }
+});
+// ---------------------------------------------------------------------------------
 
 // Apply global rate limiting to all API routes
 app.use('/api', globalLimiter);
@@ -126,7 +303,7 @@ if (isVercel) {
 
 const auth = require('./middleware/auth');
 
-const { verifyToken, extractToken } = require('./utils/jwt');
+const { extractToken } = require('./utils/jwt');
 const { generatePresignedUrl } = require('./utils/s3Config');
 const Doctor = require('./models/doctor')
 const Patient = require('./models/patient');
@@ -181,63 +358,91 @@ app.get('/api/video-call/:id', (req, res) => {
   res.redirect(`/video-call/${req.params.id}`);
 });
 
+// Stream API routes are moved up, before global rate limiting.
 
-const streamApiKey = process.env.STREAM_API_KEY;
-const streamApiSecret = process.env.STREAM_API_SECRET;
-const streamClient = StreamChat.getInstance(streamApiKey, streamApiSecret);
-
-app.get('/api/stream/token', async (req, res) => {
+// Health check endpoint
+app.get('/api/health', async (req, res) => {
   try {
-    const token = extractToken(req);
-    if (!token) {
-      return res.status(401).json({ error: "User not authenticated" });
-    }
-
-    const decoded = verifyToken(token);
-    const userId = decoded.id;
-
-    if (!userId) {
-      return res.status(401).json({ error: "User not authenticated" });
-    }
-
-    const streamToken = streamClient.createToken(userId.toString());
-    return res.json({ token: streamToken, userId: userId.toString(), apiKey: streamApiKey });
+    const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+    
+    res.status(200).json({
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      database: dbStatus,
+      environment: process.env.NODE_ENV
+    });
   } catch (err) {
-    if (err.name === 'TokenExpiredError' || err.name === 'JsonWebTokenError') {
-      return res.status(401).json({ error: "Invalid or expired token" });
-    }
-    console.error("Stream Token Generation Error:", err);
-    return res.status(500).json({ error: "Internal server error" });
+    logger.error('Health check error', { error: err.message });
+    res.status(503).json({
+      status: 'error',
+      message: 'Service unavailable',
+      error: err.message
+    });
   }
 });
-app.post('/api/stream/upsert-users', async (req, res) => {
-  try {
-    let { users } = req.body;
 
-    if (!Array.isArray(users) || users.length === 0) {
-      return res.status(400).json({ error: 'Users array is required' });
+// Global error handling middleware
+app.use((err, req, res, next) => {
+  logger.error('Unhandled error', {
+    error: err.message,
+    stack: err.stack,
+    path: req.path,
+    method: req.method
+  });
+  
+  res.status(err.status || 500).json({
+    success: false,
+    message: process.env.NODE_ENV === 'production' 
+      ? 'Internal server error' 
+      : err.message
+  });
+});
+
+// Sentry error handler (if enabled)
+if (process.env.SENTRY_DSN) {
+  app.use(Sentry.Handlers.errorHandler());
+}
+
+// Graceful shutdown
+process.on('SIGTERM', async () => {
+  logger.info('SIGTERM received, shutting down gracefully...');
+  
+  server.close(async () => {
+    logger.info('HTTP server closed');
+    
+    try {
+      await mongoose.connection.close();
+      logger.info('MongoDB connection closed');
+    } catch (err) {
+      logger.error('Error closing MongoDB', { error: err.message });
     }
+    
+    process.exit(0);
+  });
 
-    // ✅ Debug logging
-    console.log("Upserting users:", users);
+  // Force shutdown after 30 seconds
+  setTimeout(() => {
+    logger.error('Forced shutdown after 30 seconds');
+    process.exit(1);
+  }, 30000);
+});
 
-    // 👇 This will throw if any `user.id` is falsy
-    const formattedUsers = users.map(user => {
-
-      console.log("Processing user:", user.id);
-      if (!user || !user.id) throw new Error("User object missing `id`");
-      return {
-        id: user.id.toString(), // ensure it's a string
-      };
-    });
-
-    await streamClient.upsertUsers(formattedUsers);
-
-    return res.status(200).json({ message: 'Users upserted successfully' });
-  } catch (err) {
-    console.error('Upsert Error:', err);
-    return res.status(500).json({ error: 'Failed to upsert users', details: err.message });
-  }
+process.on('SIGINT', async () => {
+  logger.info('SIGINT received, shutting down gracefully...');
+  
+  server.close(async () => {
+    logger.info('HTTP server closed');
+    
+    try {
+      await mongoose.connection.close();
+      logger.info('MongoDB connection closed');
+    } catch (err) {
+      logger.error('Error closing MongoDB', { error: err.message });
+    }
+    
+    process.exit(0);
+  });
 });
 
 module.exports = app;
