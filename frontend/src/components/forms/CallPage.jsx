@@ -85,15 +85,20 @@ const CallPage = () => {
           return;
         }
 
-        //  Step 2: Parse peerId and determine role
-        const [doctorId, patientId] = receiverId.split("-");
-        const peerId = userId === doctorId ? patientId : doctorId;
-        const isPatient = userId === patientId;
+        //  Step 2: Determine role from /api/me (reliable, JWT-based)
+        const meRes = await api.get("/api/me");
+        const userRole = meRes.data?.role; // "patient" or "doctor"
+        const isPatient = userRole === "patient";
+
+        //  Step 3: Parse peerId from the sorted channel ID
+        const ids = receiverId.split("-");
+        const peerId = ids[0] === userId ? ids[1] : ids[0];
+        const doctorId = isPatient ? peerId : userId;
 
         // Store metadata for review modal
-        setCallMetadata({ userId, doctorId, patientId, isPatient });
+        setCallMetadata({ userId, doctorId, patientId: isPatient ? userId : peerId, isPatient });
 
-        //  Step 3: Sync users with Stream
+        //  Step 4: Sync users with Stream
         await api.post(
           "/api/stream/upsert-users",
           {
@@ -101,7 +106,7 @@ const CallPage = () => {
           }
         );
 
-        // ⚙️ Step 4: Create or reuse singleton client
+        // ⚙️ Step 5: Create or reuse singleton client
         if (!globalVideoClient) {
           globalVideoClient = new StreamVideoClient({
             apiKey,
@@ -110,7 +115,7 @@ const CallPage = () => {
           });
         }
 
-        //  Step 5: Create/join call
+        //  Step 6: Create/join call
         const callId = [userId, peerId].sort().join("-");
         activeCall = globalVideoClient.call("default", callId);
 
