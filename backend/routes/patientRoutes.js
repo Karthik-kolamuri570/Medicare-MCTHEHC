@@ -38,5 +38,9 @@ const reviewController = require('../controller/reviewController');
 router.post('/review', auth.patientAuth, reviewController.submitReview);
 router.get('/review/:appointmentId', auth.patientAuth, reviewController.getReview);
 
+// Prescription routes
+const prescriptionController = require('../controller/prescriptionController');
+router.get('/prescriptions', auth.patientAuth, prescriptionController.getPatientPrescriptions);
+router.get('/prescription/:appointmentId', auth.patientAuth, prescriptionController.getPrescriptionByAppointment);
 
 module.exports = router;

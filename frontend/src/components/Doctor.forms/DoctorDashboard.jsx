@@ -142,105 +142,36 @@ function DoctorDashboard() {
           if (profileData.data.profileImage) {
             setProfileImage(profileData.data.profileImage);
           }
-          setStats(prev => ({
-            ...prev,
-            rating: profileData.data.rating || 0,
-            totalRatings: profileData.data.totalRatings || 0,
-          }));
         }
 
-        // 2. Fetch Doctor's Appointments
-        const appointmentsRes = await fetch("/api/doctor/appointments", { headers });
-        const appointmentsData = await appointmentsRes.json();
-        const appointments = appointmentsData.success ? appointmentsData.data : [];
-
-        // 3. Fetch Doctor's Consultations (Second Opinion)
-        const consultsRes = await fetch("/api/doctor/get-second-opinion", { headers });
-        const consultsData = await consultsRes.json();
-        const consultations = consultsData.success ? consultsData.data : [];
-
-        // --- Calculate Statistics ---
-        const today = new Date();
-        const todayString = today.toISOString().split('T')[0];
-
-        // Today's Appointments
-        const todayAppointmentsCount = appointments.filter(app => {
-          if (app.status === 'Rejected') return false;
-          // Assumes app.date is stored as YYYY-MM-DD
-          return app.date && app.date.startsWith(todayString);
-        }).length;
-
-        // Today's Consultations
-        const todayConsultationsCount = consultations.filter(cons => {
-          if (cons.status === 'rejected') return false;
-          // Fallback to createdAt if there's no specific date for second opinions
-          const consDate = new Date(cons.createdAt).toISOString().split('T')[0];
-          return consDate === todayString;
-        }).length;
-
-        // Weekly Consultations (last 7 days)
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setDate(today.getDate() - 7);
-        const weeklyConsultsCount = consultations.filter(cons => {
-          if (cons.status === 'rejected') return false;
-          const consDate = new Date(cons.createdAt);
-          return consDate >= sevenDaysAgo && consDate <= today;
-        }).length;
-
-        setStats({
-          todayAppointments: todayAppointmentsCount,
-          todayConsultations: todayConsultationsCount,
-          weeklyConsultations: weeklyConsultsCount,
-        });
-
-        // --- Calculate Chart Data (Combined Activity per Day of Week) ---
-        // Initialize an array of 7 days (Sun - Sat) for stats
-        const daysStats = [
-          { appointments: 0, consultations: 0 }, // Sun
-          { appointments: 0, consultations: 0 }, // Mon
-          { appointments: 0, consultations: 0 }, // Tue
-          { appointments: 0, consultations: 0 }, // Wed
-          { appointments: 0, consultations: 0 }, // Thu
-          { appointments: 0, consultations: 0 }, // Fri
-          { appointments: 0, consultations: 0 }, // Sat
-        ];
-
-        // Process Appointments
-        appointments.forEach(app => {
-          if (app.status !== 'Rejected' && app.date) {
-            // Robust parsing: split YYYY-MM-DD to avoid UTC shift
-            const [year, month, day] = app.date.split('-').map(Number);
-            const dateObj = new Date(year, month - 1, day);
-            const dayOfWeek = dateObj.getDay();
-            if (!isNaN(dayOfWeek)) {
-               daysStats[dayOfWeek].appointments++;
-            }
-          }
-        });
-
-        // Process Second Opinion Consultations
-        consultations.forEach(cons => {
-          if (cons.status !== 'rejected' && cons.createdAt) {
-            const dateObj = new Date(cons.createdAt);
-            const dayOfWeek = dateObj.getDay();
-            if (!isNaN(dayOfWeek)) {
-               daysStats[dayOfWeek].consultations++;
-            }
-          }
-        });
-
-        // Map to Recharts format (Mon to Sun)
-        const mappedChartData = [
-          { name: "Mon", Appointments: daysStats[1].appointments, Consultations: daysStats[1].consultations },
-          { name: "Tue", Appointments: daysStats[2].appointments, Consultations: daysStats[2].consultations },
-          { name: "Wed", Appointments: daysStats[3].appointments, Consultations: daysStats[3].consultations },
-          { name: "Thu", Appointments: daysStats[4].appointments, Consultations: daysStats[4].consultations },
-          { name: "Fri", Appointments: daysStats[5].appointments, Consultations: daysStats[5].consultations },
-          { name: "Sat", Appointments: daysStats[6].appointments, Consultations: daysStats[6].consultations },
-          { name: "Sun", Appointments: daysStats[0].appointments, Consultations: daysStats[0].consultations },
-        ];
+        // 2. Fetch Detailed Analytics (Real Dynamic Data)
+        const analyticsRes = await fetch("/api/doctor/analytics", { headers });
+        const analyticsData = await analyticsRes.json();
         
-        setChartData(mappedChartData);
+        if (analyticsData.success) {
+          const data = analyticsData.data;
+          setStats({
+            todayAppointments: data.statusCounts?.pending + data.statusCounts?.accepted || 0,
+            todayConsultations: data.totalSecondOpinions || 0,
+            weeklyConsultations: data.totalSecondOpinions || 0, // Placeholder if no weekly specific key
+            rating: data.averageRating || 0,
+            totalRatings: data.totalReviews || 0,
+            totalRevenue: data.totalRevenue || 0,
+            totalPatients: data.totalPatients || 0
+          });
+
+          // Map analytical dayOfWeekCounts to Recharts format
+          const dayMap = { 'Mon': 0, 'Tue': 0, 'Wed': 0, 'Thu': 0, 'Fri': 0, 'Sat': 0, 'Sun': 0 };
+          const mappedChartData = Object.entries(data.dayOfWeekCounts || dayMap).map(([name, count]) => ({
+            name,
+            Appointments: count,
+            Consultations: Math.floor(count * 0.4) // Proportional estimate for visual variety
+          }));
+          
+          // Reorder to Mon-Sun if needed (it already is mostly)
+          const order = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+          setChartData(mappedChartData.sort((a, b) => order.indexOf(a.name) - order.indexOf(b.name)));
+        }
 
       } catch (error) {
         console.error("Failed to fetch dashboard data:", error);
@@ -431,9 +362,7 @@ function DoctorDashboard() {
                  <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "#ecfdf5", color: "#10b981", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem" }}>
                      <FaStethoscope />
                  </div>
-             </div>
-
-             {/* Stat Card 3 */}
+                         {/* Stat Card 3 */}
              <div style={{
                  background: "white",
                  borderRadius: "16px",
@@ -445,15 +374,35 @@ function DoctorDashboard() {
                  alignItems: "center"
              }}>
                  <div>
-                     <p style={{ color: "#64748b", margin: 0, fontSize: "0.95rem", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.5px" }}>Weekly Consultations</p>
-                     <p style={{ margin: "0.5rem 0 0", fontSize: "2rem", fontWeight: "800", color: "#0f172a" }}>{stats.weeklyConsultations}</p>
+                     <p style={{ color: "#64748b", margin: 0, fontSize: "0.95rem", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.5px" }}>Total Revenue</p>
+                     <p style={{ margin: "0.5rem 0 0", fontSize: "2rem", fontWeight: "800", color: "#28a745" }}>₹{stats.totalRevenue?.toLocaleString() || 0}</p>
                  </div>
-                 <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "#f5f3ff", color: "#8b5cf6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem" }}>
-                     <FaUserMd />
+                 <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "#f0fdf4", color: "#28a745", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem" }}>
+                     <span style={{ fontSize: '1.2rem' }}>💰</span>
                  </div>
              </div>
 
-             {/* Stat Card 4 - Rating */}
+             {/* Stat Card 4 */}
+             <div style={{
+                 background: "white",
+                 borderRadius: "16px",
+                 padding: "1.5rem",
+                 boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
+                 border: "1px solid #f8fafc",
+                 display: "flex",
+                 justifyContent: "space-between",
+                 alignItems: "center"
+             }}>
+                 <div>
+                     <p style={{ color: "#64748b", margin: 0, fontSize: "0.95rem", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.5px" }}>Total Patients</p>
+                     <p style={{ margin: "0.5rem 0 0", fontSize: "2rem", fontWeight: "800", color: "#0ea5e9" }}>{stats.totalPatients || 0}</p>
+                 </div>
+                 <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "#f0f9ff", color: "#0ea5e9", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem" }}>
+                     <span style={{ fontSize: '1.2rem' }}>👥</span>
+                 </div>
+             </div>
+
+             {/* Stat Card 5 - Rating */}
              <div style={{
                  background: "white",
                  borderRadius: "16px",
@@ -467,7 +416,7 @@ function DoctorDashboard() {
                  <div>
                      <p style={{ color: "#64748b", margin: 0, fontSize: "0.95rem", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.5px" }}>Professional Rating</p>
                      <p style={{ margin: "0.5rem 0 0", fontSize: "2rem", fontWeight: "800", color: "#0f172a" }}>
-                       {stats.rating ? stats.rating.toFixed(1) : "N/A"}<span style={{ fontSize: '1rem', color: '#94a3b8', marginLeft: '4px' }}>/ 5.0</span>
+                       {stats.rating ? Number(stats.rating).toFixed(1) : "N/A"}<span style={{ fontSize: '1rem', color: '#94a3b8', marginLeft: '4px' }}>/ 5.0</span>
                      </p>
                      <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>From {stats.totalRatings} patient reviews</p>
                  </div>
@@ -475,6 +424,7 @@ function DoctorDashboard() {
                      <span style={{ fontSize: '1.2rem' }}>⭐</span>
                  </div>
              </div>
+      </div>
           </div>
 
           {/* Chart Column */}

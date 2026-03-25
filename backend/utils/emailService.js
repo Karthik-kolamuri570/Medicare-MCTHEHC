@@ -298,11 +298,66 @@ const sendAcceptanceEmail = async (toEmail, details) => {
     }
 };
 
+// Send an appointment reminder email
+const sendAppointmentReminder = async (toEmail, details) => {
+    const transporter = createTransporter();
+
+    const isOneHour = details.hoursAhead === 1;
+    const urgencyColor = isOneHour ? '#ff6b35' : '#0072ff';
+    const timeLabel = isOneHour ? '1 Hour' : '24 Hours';
+
+    const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+    </head>
+    <body style="font-family: Arial, sans-serif; background-color: #f4f7fa; padding: 20px;">
+        <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; max-width: 600px; margin: 0 auto; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+            <div style="background: linear-gradient(135deg, ${urgencyColor} 0%, #00c6ff 100%); padding: 20px; border-radius: 8px 8px 0 0; text-align: center;">
+                <h2 style="color: #ffffff; margin: 0;">⏰ Appointment Reminder</h2>
+                <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0; font-size: 14px;">Your appointment is in ${timeLabel}</p>
+            </div>
+            <div style="padding: 20px;">
+                <p>Hi <strong>${details.patientName}</strong>,</p>
+                <p>This is a friendly reminder that you have an upcoming appointment:</p>
+                <div style="background-color: #f8f9fa; padding: 15px; border-radius: 6px; margin: 15px 0; border-left: 4px solid ${urgencyColor};">
+                    <p style="margin: 5px 0;"><strong>Doctor:</strong> Dr. ${details.doctorName}</p>
+                    <p style="margin: 5px 0;"><strong>Specialization:</strong> ${details.specialization || 'General'}</p>
+                    <p style="margin: 5px 0;"><strong>Date:</strong> ${details.date}</p>
+                    <p style="margin: 5px 0;"><strong>Time:</strong> ${details.time}</p>
+                </div>
+                <p>Please ensure you are available at the scheduled time. If you need to reschedule, please log in to your portal.</p>
+            </div>
+            <p style="text-align: center; margin-top: 20px; font-size: 12px; color: #888;">
+                © ${new Date().getFullYear()} Medicare - The Healthcare. All rights reserved.
+            </p>
+        </div>
+    </body>
+    </html>
+    `;
+
+    const mailOptions = {
+        from: `"${process.env.SMTP_FROM_NAME || 'Medicare - The HealthCare'}" <${process.env.SMTP_FROM_EMAIL}>`,
+        to: toEmail,
+        subject: `⏰ Appointment Reminder (${timeLabel}) — Medicare`,
+        html: htmlContent,
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`Reminder email sent to ${toEmail}`);
+    } catch (error) {
+        console.error('Failed to send reminder email:', error);
+    }
+};
+
 module.exports = {
     sendPasswordResetEmail,
     sendBookingConfirmation,
     sendPaymentReceipt,
     sendDoctorNotification,
     sendCancellationEmail,
-    sendAcceptanceEmail
+    sendAcceptanceEmail,
+    sendAppointmentReminder
 };

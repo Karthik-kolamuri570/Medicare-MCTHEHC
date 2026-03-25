@@ -369,6 +369,12 @@ const searchData = [
     name: "Contact Us",
     link: "/contact",
     tags: ["contact", "help", "support", "reach out", "email", "phone", "address"]
+  },
+  {
+    id: 10,
+    name: "My Prescriptions",
+    link: "/patient/prescriptions",
+    tags: ["prescription", "medicine", "scripts", "doctor orders", "my drugs", "medical documents"]
   }
 ];
 
@@ -382,6 +388,7 @@ function Header() {
   const [notifCount, setNotifCount] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // Mobile Menu State
   const dropdownRef = useRef(null);
+  const connectedUserIdRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -488,10 +495,14 @@ function Header() {
 
     if (user && user._id) {
       fetchCount(); // Initial fetch
-      connectSocket(user._id);
+
+      // Only connect socket if not already connected for this user
+      if (connectedUserIdRef.current !== user._id) {
+        connectSocket(user._id);
+        connectedUserIdRef.current = user._id;
+      }
       
       const handleNewNotification = (data) => {
-        // console.log("Socket received new notification:", data);
         setNotifCount(data.count);
       };
 
@@ -499,10 +510,12 @@ function Header() {
 
       return () => {
         socket.off('newNotification', handleNewNotification);
-        // We don't disconnect here as the user might still be logged in
       };
     } else {
-      disconnectSocket();
+      if (connectedUserIdRef.current) {
+        disconnectSocket();
+        connectedUserIdRef.current = null;
+      }
     }
   }, [user]);
 
@@ -685,6 +698,11 @@ function Header() {
                 <li style={{ cursor: "pointer" }} onClick={() => { setIsContactModalOpen(true); setIsMobileMenuOpen(false); }}>
                   <span>Contact Us</span>
                 </li>
+                {user && (
+                  <li style={{ cursor: "pointer" }} onClick={() => { navigate("/patient/prescriptions"); setIsMobileMenuOpen(false); }}>
+                    <span>My Prescriptions</span>
+                  </li>
+                )}
                 {user && (
                   <li
                     style={{ cursor: "pointer", position: "relative", display: "flex", alignItems: "center" }}

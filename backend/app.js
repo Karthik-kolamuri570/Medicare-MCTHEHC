@@ -175,8 +175,11 @@ io.on('connection', (socket) => {
       return;
     }
     
-    socket.join(userId);
-    logger.info(`User ${userId} joined their notification room`);
+    // Only join if not already in the room (prevents duplicate logs)
+    if (!socket.rooms.has(userId)) {
+      socket.join(userId);
+      logger.info(`User ${userId} joined their notification room`);
+    }
   });
 
   socket.on('disconnect', () => {
@@ -187,6 +190,8 @@ io.on('connection', (socket) => {
 // Make io accessible to routers
 app.set('socketio', io);
 
+const { startReminderScheduler } = require('./utils/reminderScheduler');
+
 const PORT = process.env.PORT || 1600;
 mongoose.connect(process.env.MONGO_URI)
   .then(async (result) => {
@@ -195,6 +200,8 @@ mongoose.connect(process.env.MONGO_URI)
       server.listen(PORT, () => {
         console.log(`Server is running on PORT: ${PORT}`);
       });
+      // Start the appointment reminder scheduler
+      startReminderScheduler();
     }
     console.log("Data Base is connected... ");
   })

@@ -67,5 +67,15 @@ router.post('/notifications/mark-seen', auth.doctorAuth, doctorController.markNo
 router.delete('/notifications/clear', auth.doctorAuth, doctorController.clearAllNotifications);
 router.post('/notifications/delete', auth.doctorAuth, doctorController.deleteNotification);
 
+// Prescriptions
+const prescriptionController = require('../controller/prescriptionController');
+router.post('/prescription', auth.doctorAuth, prescriptionController.createPrescription);
+router.get('/prescription/:appointmentId', auth.doctorAuth, prescriptionController.getPrescriptionByAppointment);
+router.get('/prescriptions', auth.doctorAuth, prescriptionController.getDoctorPrescriptions);
+
+// Analytics
+const analyticsController = require('../controller/analyticsController');
+router.get('/analytics', auth.doctorAuth, analyticsController.getDoctorAnalytics);
+
 module.exports = router;
 

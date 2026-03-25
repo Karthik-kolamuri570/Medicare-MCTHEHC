@@ -17,6 +17,9 @@ import DBlogs from "./components/Doctor.forms/DBlogs";
 import DAppointments from "./components/Doctor.forms/DAppointments";
 import DOnlineConsultation from "./components/Doctor.forms/DOnlineConsultation";
 import DNotifications from "./components/Doctor.forms/DNotifications";
+import DAnalytics from "./components/Doctor.forms/DAnalytics";
+import PrescriptionForm from "./components/Doctor.forms/PrescriptionForm";
+import MyPrescriptions from "./components/Patient.forms/MyPrescriptions";
 import LogoutPatient from "./components/forms/LogoutPatient";
 import LogoutDoctor from "./components/Doctor.forms/LogoutDoctor";
 import OnlineConsultation from './components/forms/OnlineConsultation'
@@ -137,7 +140,11 @@ function App() {
         <Route path="/doctor/second-opinion" element={<DLayout><DSecondOpinions /></DLayout>} />
         <Route path="/my-blogs" element={<DLayout><DBlogs /></DLayout>} />
         <Route path="/doctor/notifications" element={<DLayout><DNotifications /></DLayout>} />
+        <Route path="/doctor/analytics" element={<DLayout><DAnalytics /></DLayout>} />
         <Route path="/doctor/logout" element={<LogoutDoctor />} />
+
+        {/* Patient Prescription Routes */}
+        <Route path="/patient/prescriptions" element={<ProtectedPatientRoute><Layout><MyPrescriptions /></Layout></ProtectedPatientRoute>} />
         <Route path="/chat/:receiverId" element={<ChatWrapper />} />
         <Route path="/video-call/:receiverId" element={<CallPage />} />
 

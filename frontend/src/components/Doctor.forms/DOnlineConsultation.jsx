@@ -200,6 +200,9 @@
 import React, { useState, useEffect } from "react";
 import api from "../../utils/api";
 import { useNavigate } from "react-router-dom";
+import PrescriptionForm from "./PrescriptionForm";
+import toast from "react-hot-toast";
+import { FileText, X } from "lucide-react";
 
 const styles = {
   container: {
@@ -264,6 +267,8 @@ const DOnlineConsultation = () => {
   const [todayAppointments, setTodayAppointments] = useState([]);
   const [futureAppointments, setFutureAppointments] = useState([]);
   const [consultedIds, setConsultedIds] = useState([]);
+  const [showPrescriptionModal, setShowPrescriptionModal] = useState(false);
+  const [selectedPatientForPrescription, setSelectedPatientForPrescription] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -388,6 +393,34 @@ const DOnlineConsultation = () => {
         {patient.isSecondOpinion && (
           <div style={{ fontWeight: "600", color: "#0288d1" }}>Second Opinion</div>
         )}
+        
+        {isVirtual && (
+          <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #eee' }}>
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedPatientForPrescription(patient);
+                setShowPrescriptionModal(true);
+              }}
+              style={{
+                width: '100%',
+                padding: '8px',
+                background: '#0ea5e9',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                cursor: 'pointer'
+              }}
+            >
+              <FileText size={16} /> Write Prescription
+            </button>
+          </div>
+        )}
       </div>
     );
   };
@@ -421,6 +454,62 @@ const DOnlineConsultation = () => {
           <p>No future appointments</p>
         )}
       </div>
+
+      {/* Prescription Modal */}
+      {showPrescriptionModal && selectedPatientForPrescription && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(15, 23, 42, 0.7)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '1rem'
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '24px',
+            width: '100%',
+            maxWidth: '800px',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            position: 'relative',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+          }}>
+            <button 
+              onClick={() => setShowPrescriptionModal(false)}
+              style={{
+                position: 'absolute',
+                top: '1.5rem', right: '1.5rem',
+                background: '#f1f5f9',
+                border: 'none',
+                width: '32px', height: '32px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                color: '#64748b',
+                zIndex: 10
+              }}
+            >
+              <X size={20} />
+            </button>
+            <div style={{ padding: '2rem' }}>
+              <PrescriptionForm 
+                appointmentId={selectedPatientForPrescription._id} 
+                patientId={typeof selectedPatientForPrescription.patientId === 'object' ? selectedPatientForPrescription.patientId?._id : selectedPatientForPrescription.patientId}
+                onSuccess={() => {
+                  setShowPrescriptionModal(false);
+                  toast.success("Prescription generated successfully!");
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

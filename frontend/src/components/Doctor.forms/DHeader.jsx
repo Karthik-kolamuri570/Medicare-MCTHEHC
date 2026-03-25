@@ -426,6 +426,7 @@ function DHeader() {
             <li onClick={() => { navigate("/doctor/my-consultations"); setIsMobileMenuOpen(false); }}>My Consultations</li>
             <li onClick={() => { navigate("/doctor/doc/blogs"); setIsMobileMenuOpen(false); }}>My Blogs</li>
             <li onClick={() => { navigate("/doctor/blood-camp/admin"); setIsMobileMenuOpen(false); }}>Blood Camp</li>
+            <li onClick={() => { navigate("/doctor/analytics"); setIsMobileMenuOpen(false); }}>📊 Analytics</li>
             <li
               className="d-nav-notification"
               onClick={() => { navigate("/doctor/notifications"); setIsMobileMenuOpen(false); }}

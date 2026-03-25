@@ -46,6 +46,10 @@ const appointmentSchema=new Schema({
     status:{
         type:String,
         default:"Pending"
+    },
+    remindersSent: {
+        twentyFourHour: { type: Boolean, default: false },
+        oneHour: { type: Boolean, default: false }
     }
 })
 
