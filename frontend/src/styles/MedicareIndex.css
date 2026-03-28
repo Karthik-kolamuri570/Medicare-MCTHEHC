@@ -282,9 +282,9 @@ body {
   align-items: center;
   justify-content: space-between;
   max-width: 1200px;
-  margin: 40px auto; /* Reduced from 80px */
-  padding: 30px; /* Reduced from 40px */
-  gap: 30px; /* Reduced from 60px */
+  margin: 24px auto; /* Tighter vertical spacing */
+  padding: 24px; /* Reduced from 30px */
+  gap: 24px; /* Reduced from 30px */
   border-radius: 20px; 
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04); 
   background-color: #fff; 
@@ -386,9 +386,9 @@ body {
   align-items: center;
   justify-content: space-between;
   max-width: 1280px;
-  margin: 180px auto 60px; /* Large top margin to confidently clear any fixed header */
-  padding: 60px 40px;
-  gap: 40px;
+  margin: 30px auto 30px; /* Tighter top margin, relies on parent marginTop */
+  padding: 40px 30px;
+  gap: 30px;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(241, 245, 249, 0.6) 100%);
   border-radius: 24px;
   box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
@@ -537,23 +537,23 @@ body {
    ========================================= */
 .blogs-section {
   width: 100%;
-  padding: 20px 0; /* Reduced from 40px */
+  padding: 10px 0; /* Reduced from 20px */
   display: flex;
   justify-content: center; 
-  background-color: #f8fafc; /* Match body bg */
+  background-color: #f8fafc;
 }
 
 .blogs-container {
   width: 100%;
   max-width: 1200px;
   text-align: center;
-  padding: 20px; /* Reduced from 40px 20px */
+  padding: 10px 20px; /* Reduced from 20px */
 }
 
 .blogs-container h1, .top-doctors-container h1 {
-  font-size: 36px;
+  font-size: 32px;
   font-weight: 800;
-  margin-bottom: 25px; /* Reduced from 40px */
+  margin-bottom: 20px; /* Reduced from 25px */
   color: #0f172a;
   letter-spacing: -0.5px;
   position: relative;
@@ -682,7 +682,7 @@ body {
    ========================================= */
 .top-doctors-section {
   width: 100%;
-  padding: 20px 0 40px 0; /* Reduced from 40px 0 80px 0 */
+  padding: 10px 0 30px 0; /* Reduced */
   display: flex;
   justify-content: center;
   background-color: #f8fafc;
@@ -690,9 +690,9 @@ body {
 
 .top-doctors-container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1440px; /* Wider to fit 4 horizontal cards */
   text-align: center;
-  padding: 20px;
+  padding: 10px 20px;
 }
 
 .doctors-grid {

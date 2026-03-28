@@ -276,37 +276,86 @@ import searchdoctor from "../assets/searchdoctor.png";
 import Hospital from "../assets/Hospital.png";
 import specialities from "../assets/Specialities.png";
 import Loader from "./ui/Loader";
-import defaultDoctorImage from "../assets/Anu.jpg"
+import defaultDoctorImage from "../assets/doctor1.png"
 import { useNavigate } from "react-router-dom";
+import { MapPin, Clock, Star, Building2 } from 'lucide-react';
 
-// Updated DoctorCard to render full profile details with fallback image and clear styling
+// DoctorCard matching TopDoctors page layout (simple-doctor-card)
 const DoctorCard = ({ doctor }) => {
   const navigate = useNavigate();
-  return (
-    <div className="modern-doctor-card">
-      <img
-        src={doctor.profileImage || defaultDoctorImage}
-        alt={doctor.name}
-        onError={(e) => { e.target.src = defaultDoctorImage; }}
-      />
-      <h3>{doctor.name}</h3>
-      <p><strong>Specialization:</strong> {doctor.specialization}</p>
-      <p><strong>Experience:</strong> {doctor.experience} years</p>
-      <p><strong>Hospital:</strong> {doctor.hospital}</p>
-      <p><strong>Consultation Fee:</strong> ₹{doctor.feePerConsultation}</p>
 
-      <div className="modern-doctor-rating">
-        <span className="star-icon">⭐</span>
-        <span className="rating-value">{doctor.rating ? doctor.rating.toFixed(1) : "New"}</span>
-        <span className="total-ratings">({doctor.totalRatings || 0} reviews)</span>
+  const now = new Date();
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  const [startH, startM] = (doctor.fromTime || "09:00").split(':').map(Number);
+  const [endH, endM] = (doctor.toTime || "17:00").split(':').map(Number);
+  const startMinutes = startH * 60 + startM;
+  const endMinutes = endH * 60 + endM;
+  const isAvailable = currentMinutes >= startMinutes && currentMinutes <= endMinutes;
+
+  return (
+    <div className="simple-doctor-card">
+      {/* LEFT: Image */}
+      <div className="card-left">
+        <img
+          src={doctor.profileImage || defaultDoctorImage}
+          alt={doctor.name}
+          onError={(e) => { e.target.src = defaultDoctorImage; }}
+        />
+        <div className={`availability-tag ${isAvailable ? 'tag-available' : 'tag-unavailable'}`}
+          style={{
+            backgroundColor: isAvailable ? '#dcfce7' : '#f3f4f6',
+            color: isAvailable ? '#16a34a' : '#64748b'
+          }}>
+          <span
+            style={{
+              width: '8px', height: '8px', borderRadius: '50%',
+              background: isAvailable ? '#22c55e' : '#94a3b8',
+              display: 'inline-block', marginRight: '6px'
+            }}
+          ></span>
+          {isAvailable ? 'Available' : 'Unavailable'}
+        </div>
       </div>
-      
-      <button
-        className="modern-doctor-btn"
-        onClick={() => navigate(`/book-appointment/${doctor._id}`)}
-      >
-        Book an Appointment
-      </button>
+
+      {/* RIGHT: Content */}
+      <div className="card-right">
+        <div>
+          <h3 className="doc-name">{doctor.name}</h3>
+          <p className="doc-spec">{doctor.specialization}</p>
+
+          <div className="doc-info-grid">
+            <div className="info-item rating">
+              <Star size={14} className="icon-star" fill="#f59e0b" />
+              <span>{doctor.rating ? doctor.rating.toFixed(1) : "New"}</span>
+            </div>
+            <div className="info-item">
+              <MapPin size={14} className="icon-loc" />
+              <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '80px' }}>
+                {doctor.location || "New York"}
+              </span>
+            </div>
+          </div>
+
+          {doctor.hospital && (
+            <div className="info-item" style={{ marginBottom: '8px' }}>
+              <Building2 size={12} style={{ color: '#64748b' }} />
+              <span style={{ fontSize: '0.75rem', color: '#64748b' }}>{doctor.hospital}</span>
+            </div>
+          )}
+
+          <div className="time-badge">
+            <Clock size={12} />
+            <span>{doctor.fromTime || "09:00"} - {doctor.toTime || "17:00"}</span>
+          </div>
+        </div>
+
+        <button
+          className="book-btn"
+          onClick={() => navigate(`/book-appointment/${doctor._id}`)}
+        >
+          <span>Book Visit • ₹{doctor.feePerConsultation || 500}</span>
+        </button>
+      </div>
     </div>
   );
 };
@@ -532,7 +581,7 @@ function MedicareIndex() {
         <section className="top-doctors-section">
           <div className="top-doctors-container">
             <h1>Top Doctors</h1>
-            <div className="doctors-grid">
+            <div className="grid-container">
               {currentDoctors.length === 0 ? (
                 <p>No doctors found.</p>
               ) : (
