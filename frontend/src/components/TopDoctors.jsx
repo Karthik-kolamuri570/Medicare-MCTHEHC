@@ -4,7 +4,8 @@ import "../styles/TopDoctors.css";
 import api from '../utils/api';
 import defaultDoctorImage from "../assets/doctor1.png";
 import Loader from './ui/Loader';
-import { MapPin, Clock, Star, Building2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { MapPin, Clock, Star, Building2, ChevronLeft, ChevronRight, Navigation } from 'lucide-react';
+import NearestHospitalPanel from './NearestHospitalPanel';
 
 function TopDoctors() {
   const navigate = useNavigate();
@@ -13,6 +14,34 @@ function TopDoctors() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchInput, setSearchInput] = useState("");
+
+  // Nearest Hospital panel state
+  const [showHospitalPanel, setShowHospitalPanel] = useState(false);
+  const [userLocation, setUserLocation] = useState(null);
+  const [locationLoading, setLocationLoading] = useState(false);
+
+  const handleFindHospital = () => {
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by your browser');
+      return;
+    }
+    setLocationLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        });
+        setShowHospitalPanel(true);
+        setLocationLoading(false);
+      },
+      (error) => {
+        setLocationLoading(false);
+        alert('Please enable location access to find nearby hospitals.');
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -82,13 +111,28 @@ function TopDoctors() {
             Book appointments with top-rated doctors across the best hospitals.
           </p>
         </div>
-        <div className="search-box">
-          <input
-            type="text"
-            placeholder="Search by Doctor Name, Speciality, or Hospital..."
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-          />
+        <div className="header-actions">
+          <button
+            className="find-hospital-btn"
+            onClick={handleFindHospital}
+            disabled={locationLoading}
+            id="find-nearest-hospital-btn"
+          >
+            {locationLoading ? (
+              <span className="btn-spinner"></span>
+            ) : (
+              <Navigation size={18} />
+            )}
+            {locationLoading ? 'Locating...' : 'Find Nearest Hospital'}
+          </button>
+          <div className="search-box">
+            <input
+              type="text"
+              placeholder="Search by Doctor Name, Speciality, or Hospital..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+            />
+          </div>
         </div>
       </div>
 
@@ -223,6 +267,14 @@ function TopDoctors() {
             <ChevronRight size={20} />
           </button>
         </div>
+      )}
+
+      {/* Nearest Hospital Slide-in Panel */}
+      {showHospitalPanel && userLocation && (
+        <NearestHospitalPanel
+          userLocation={userLocation}
+          onClose={() => setShowHospitalPanel(false)}
+        />
       )}
     </div>
   );
