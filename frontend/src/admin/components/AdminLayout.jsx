@@ -35,6 +35,8 @@ const AdminLayout = ({ children }) => {
   const { theme, toggleTheme } = useTheme();
   const [notificationCount, setNotificationCount] = useState(0);
 
+  const adminUser = JSON.parse(localStorage.getItem('adminUser') || '{}');
+
   // Socket Notification listener
   useEffect(() => {
     const fetchCount = async () => {
@@ -61,8 +63,6 @@ const AdminLayout = ({ children }) => {
       disconnectSocket();
     }
   }, [adminUser.id]);
-
-  const adminUser = JSON.parse(localStorage.getItem('adminUser') || '{}');
 
   const menuItems = [
     { label: 'Dashboard', icon: <DashboardIcon />, path: '/admin/dashboard' },
