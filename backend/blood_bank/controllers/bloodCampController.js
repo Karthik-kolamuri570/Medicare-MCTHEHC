@@ -176,11 +176,71 @@ exports.addDonorToCamp = async (req, res) => {
 // Get donors list (doctor/admin only)
 exports.getDonorsByCamp = async (req, res) => {
   try {
-    const camp = await BloodCamp.findById(req.params.campId).populate('donations', 'name email phone blood_group');
+    const camp = await BloodCamp.findById(req.params.campId).populate('donations.donor', 'name email phone');
     if (!camp) return res.status(404).json({ message: 'Camp not found' });
-    console.log(`Fetched donors for camp ${req.params.campId}:`, camp.donations);
-    res.json(camp.donations.donor || []);
+    res.json(camp.donations || []);
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch donors' });
+  }
+};
+
+// Patient registers for a blood camp
+exports.registerForCamp = async (req, res) => {
+  try {
+    const camp = await BloodCamp.findById(req.params.campId);
+    if (!camp) return res.status(404).json({ message: 'Camp not found' });
+    
+    // Check if patient is already registered
+    const isRegistered = camp.donations.some(d => d.donor.toString() === req.user._id.toString());
+    if (isRegistered) {
+      return res.status(400).json({ message: 'You are already registered for this camp' });
+    }
+
+    camp.donations.push({
+      donor: req.user._id,
+      blood_group: req.body.blood_group || 'Unknown',
+      units: 0,
+      status: 'not yet donated'
+    });
+
+    await camp.save();
+    res.json({ message: 'Successfully registered for blood camp', camp });
+  } catch (error) {
+    console.error('Failed to register for camp:', error);
+    res.status(500).json({ message: 'Failed to register for camp' });
+  }
+};
+
+// Doctor updates donor status
+exports.updateDonorStatus = async (req, res) => {
+  try {
+    const { campId, donorId } = req.params;
+    const { status, units, blood_group } = req.body;
+
+    const camp = await BloodCamp.findById(campId);
+    if (!camp) return res.status(404).json({ message: 'Camp not found' });
+
+    // Ensure the doctor owns the camp
+    if (camp.organizer.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized to manage this camp' });
+    }
+
+    const donation = camp.donations.find(d => d.donor.toString() === donorId);
+    if (!donation) return res.status(404).json({ message: 'Donor not found in this camp' });
+
+    if (status) donation.status = status;
+    if (units !== undefined) donation.units = Number(units);
+    if (blood_group) donation.blood_group = blood_group;
+
+    if (status === 'donated') {
+      donation.verified = true;
+      if (!donation.donation_time) donation.donation_time = new Date();
+    }
+
+    await camp.save();
+    res.json({ message: 'Donor updated successfully', donation });
+  } catch (error) {
+    console.error('Failed to update donor:', error);
+    res.status(500).json({ message: 'Failed to update donor' });
   }
 };

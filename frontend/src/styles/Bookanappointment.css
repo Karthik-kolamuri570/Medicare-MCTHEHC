@@ -614,3 +614,143 @@ textarea.form-control {
         font-size: 0.82rem;
     }
 }
+
+/* =====================================================
+   SLOT PICKER
+   ===================================================== */
+
+/* Loader spinner */
+.ba-loader {
+    width: 20px;
+    height: 20px;
+    border: 2.5px solid #e2e8f0;
+    border-top-color: var(--ba-primary);
+    border-radius: 50%;
+    animation: baSpin 0.7s linear infinite;
+    flex-shrink: 0;
+}
+@keyframes baSpin { to { transform: rotate(360deg); } }
+
+.ba-slots-loading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--ba-border-light);
+    border-radius: var(--ba-radius-xs);
+    font-size: 0.88rem;
+    color: var(--ba-text-sub);
+    font-weight: 500;
+}
+
+.ba-no-slots {
+    padding: 16px 20px;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: var(--ba-radius-xs);
+    font-size: 0.88rem;
+    color: #92400e;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Selected label badge next to heading */
+.ba-selected-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    background: #dcfce7;
+    border: 1px solid #bbf7d0;
+    border-radius: 100px;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #059669;
+    margin-left: 6px;
+}
+
+/* Slot grid */
+.ba-slot-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+/* Individual slot button */
+.ba-slot-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 11px 10px;
+    border: 1.5px solid var(--ba-border);
+    border-radius: var(--ba-radius-xs);
+    background: #fff;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--ba-text-main);
+    cursor: pointer;
+    transition: var(--ba-transition);
+    position: relative;
+    font-family: inherit;
+    min-height: 56px;
+}
+
+.ba-slot-btn:hover:not(:disabled) {
+    border-color: var(--ba-primary);
+    color: var(--ba-primary);
+    background: #eff6ff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37,99,235,0.1);
+}
+
+/* Selected slot */
+.ba-slot-selected {
+    border-color: var(--ba-primary) !important;
+    background: #eff6ff !important;
+    color: var(--ba-primary) !important;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.12) !important;
+}
+
+/* Booked / disabled slot */
+.ba-slot-booked {
+    border-color: #f1f5f9 !important;
+    background: #f8fafc !important;
+    color: #cbd5e1 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.ba-slot-booked-tag {
+    font-size: 10px;
+    font-weight: 700;
+    color: #94a3b8;
+    letter-spacing: 0.3px;
+}
+
+.ba-slot-check {
+    color: var(--ba-primary);
+    position: absolute;
+    top: 6px;
+    right: 6px;
+}
+
+.ba-slot-time {
+    font-size: 12.5px;
+    font-weight: 700;
+}
+
+/* Responsive slot grid */
+@media (max-width: 480px) {
+    .ba-slot-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    .ba-slot-btn {
+        padding: 9px 8px;
+        font-size: 11.5px;
+        min-height: 50px;
+    }
+}

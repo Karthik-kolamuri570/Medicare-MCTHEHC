@@ -1,4 +1,5 @@
 // import React, { useState, useEffect } from "react";
+
 // import axios from "axios";
 
 // function BloodPortal() {
@@ -117,7 +118,7 @@
 //       const response = await axios.post('/api/blood-bank-user/donation-request', donationData);
 
 //       if (response.data.message) {
-//         alert('🎉 ' + response.data.message);
+//         alert(' ' + response.data.message);
 //         await refreshData();
 //       }
 //     } catch (error) {
@@ -132,7 +133,7 @@
 //       const response = await axios.post('/api/blood-bank-user/request-blood', requestData);
 
 //       if (response.data.message) {
-//         alert('🙏 ' + response.data.message);
+//         alert(' ' + response.data.message);
 //         await refreshData();
 //       }
 //     } catch (error) {
@@ -143,12 +144,12 @@
 
 //   if (loading) {
 //     return (
-//       <div style={styles.loadingContainer}>
-//         <div style={styles.loadingContent}>
-//           <div style={styles.loadingIcon}>🩸</div>
-//           <div style={styles.loadingText}>Loading Blood Portal...</div>
-//           <div style={styles.progressBar}>
-//             <div style={styles.progressFill}></div>
+//       <div className="bu-loadingContainer">
+//         <div className="bu-loadingContent">
+//           <div className="bu-loadingIcon"></div>
+//           <div className="bu-loadingText">Loading Blood Portal...</div>
+//           <div className="bu-progressBar">
+//             <div className="bu-progressFill"></div>
 //           </div>
 //         </div>
 //       </div>
@@ -156,58 +157,58 @@
 //   }
 
 //   return (
-//     <div style={styles.container}>
+//     <div className="bu-container">
 //       {/* Enhanced Header with Notifications, My Donations, My Requests */}
-//       <header style={styles.header}>
-//         <div style={styles.headerContent}>
-//           <div style={styles.logo}>
-//             <span style={styles.logoIcon}>🩸</span>
-//             <span style={styles.logoText}>BloodBank Portal</span>
+//       <header className="bu-header">
+//         <div className="bu-headerContent">
+//           <div className="bu-logo">
+//             <span className="bu-logoIcon"></span>
+//             <span className="bu-logoText">BloodBank Portal</span>
 //           </div>
 
-//           <div style={styles.headerActions}>
+//           <div className="bu-headerActions">
 //             {/* Notifications Dropdown */}
-//             <div style={styles.headerActionItem}>
+//             <div className="bu-headerActionItem">
 //               <button 
 //                 onClick={() => setShowNotifications(!showNotifications)}
-//                 style={styles.headerButton}
+//                 className="bu-headerButton"
 //               >
-//                 <span style={styles.headerButtonIcon}>🔔</span>
-//                 <span style={styles.headerButtonText}>Notifications</span>
+//                 <span className="bu-headerButtonIcon"></span>
+//                 <span className="bu-headerButtonText">Notifications</span>
 //                 {bloodData.notifications.length > 0 && (
-//                   <span style={styles.notificationBadge}>{bloodData.notifications.length}</span>
+//                   <span className="bu-notificationBadge">{bloodData.notifications.length}</span>
 //                 )}
 //               </button>
 
 //               {showNotifications && (
-//                 <div style={styles.dropdown}>
-//                   <div style={styles.dropdownHeader}>
+//                 <div className="bu-dropdown">
+//                   <div className="bu-dropdownHeader">
 //                     <h4>Recent Notifications</h4>
 //                   </div>
-//                   <div style={styles.dropdownContent}>
+//                   <div className="bu-dropdownContent">
 //                     {bloodData.notifications.length === 0 ? (
-//                       <div style={styles.emptyDropdown}>
-//                         <span style={styles.emptyIcon}>🔔</span>
+//                       <div className="bu-emptyDropdown">
+//                         <span className="bu-emptyIcon"></span>
 //                         <p>No notifications yet</p>
 //                       </div>
 //                     ) : (
 //                       bloodData.notifications.map(notification => (
-//                         <div key={notification.id} style={styles.notificationItem}>
-//                           <div style={styles.notificationIcon}>
-//                             {notification.type === 'donation' ? '🩸' : '🆘'}
+//                         <div key={notification.id} className="bu-notificationItem">
+//                           <div className="bu-notificationIcon">
+//                             {notification.type === 'donation' ? '' : ''}
 //                           </div>
-//                           <div style={styles.notificationContent}>
-//                             <h5 style={styles.notificationTitle}>{notification.title}</h5>
-//                             <p style={styles.notificationMessage}>{notification.message}</p>
-//                             <span style={styles.notificationTime}>{notification.time}</span>
+//                           <div className="bu-notificationContent">
+//                             <h5 className="bu-notificationTitle">{notification.title}</h5>
+//                             <p className="bu-notificationMessage">{notification.message}</p>
+//                             <span className="bu-notificationTime">{notification.time}</span>
 //                           </div>
 //                           <div style={{
 //                             ...styles.notificationStatus,
 //                             backgroundColor: notification.status === 'accepted' ? '#27ae60' : 
 //                                             notification.status === 'rejected' ? '#e74c3c' : '#f39c12'
 //                           }}>
-//                             {notification.status === 'accepted' ? '✅' :
-//                              notification.status === 'rejected' ? '❌' : '⏳'}
+//                             {notification.status === 'accepted' ? '' :
+//                              notification.status === 'rejected' ? '' : ''}
 //                           </div>
 //                         </div>
 //                       ))
@@ -218,63 +219,63 @@
 //             </div>
 
 //             {/* My Donations Dropdown */}
-//             <div style={styles.headerActionItem}>
+//             <div className="bu-headerActionItem">
 //               <button 
 //                 onClick={() => setShowMyDonations(!showMyDonations)}
-//                 style={styles.headerButton}
+//                 className="bu-headerButton"
 //               >
-//                 <span style={styles.headerButtonIcon}>🩸</span>
-//                 <span style={styles.headerButtonText}>My Donations</span>
-//                 <span style={styles.countBadge}>{bloodData.userStats.acceptedDonations}</span>
+//                 <span className="bu-headerButtonIcon"></span>
+//                 <span className="bu-headerButtonText">My Donations</span>
+//                 <span className="bu-countBadge">{bloodData.userStats.acceptedDonations}</span>
 //               </button>
 
 //               {showMyDonations && (
-//                 <div style={styles.dropdown}>
-//                   <div style={styles.dropdownHeader}>
+//                 <div className="bu-dropdown">
+//                   <div className="bu-dropdownHeader">
 //                     <h4>My Donations ({bloodData.myDonations.length})</h4>
-//                     <div style={styles.statsRow}>
-//                       <span style={styles.statBadge}>✅ {bloodData.userStats.acceptedDonations} Accepted</span>
-//                       <span style={styles.statBadge}>⏳ {bloodData.userStats.pendingDonations} Pending</span>
+//                     <div className="bu-statsRow">
+//                       <span className="bu-statBadge"> {bloodData.userStats.acceptedDonations} Accepted</span>
+//                       <span className="bu-statBadge"> {bloodData.userStats.pendingDonations} Pending</span>
 //                     </div>
 //                   </div>
-//                   <div style={styles.dropdownContent}>
+//                   <div className="bu-dropdownContent">
 //                     {bloodData.myDonations.length === 0 ? (
-//                       <div style={styles.emptyDropdown}>
-//                         <span style={styles.emptyIcon}>🩸</span>
+//                       <div className="bu-emptyDropdown">
+//                         <span className="bu-emptyIcon"></span>
 //                         <p>No donations yet</p>
 //                         <button 
 //                           onClick={() => setActiveSection('donate')}
-//                           style={styles.emptyActionButton}
+//                           className="bu-emptyActionButton"
 //                         >
 //                           Make First Donation
 //                         </button>
 //                       </div>
 //                     ) : (
 //                       bloodData.myDonations.slice(0, 5).map(donation => (
-//                         <div key={donation._id} style={styles.dropdownItem}>
-//                           <div style={styles.itemLeft}>
-//                             <span style={styles.bloodTypeSmall}>{donation.blood_group}</span>
-//                             <span style={styles.itemUnits}>{donation.units_donated}u</span>
+//                         <div key={donation._id} className="bu-dropdownItem">
+//                           <div className="bu-itemLeft">
+//                             <span className="bu-bloodTypeSmall">{donation.blood_group}</span>
+//                             <span className="bu-itemUnits">{donation.units_donated}u</span>
 //                           </div>
-//                           <div style={styles.itemCenter}>
-//                             <span style={styles.itemBank}>{donation.bank_id?.name || 'Blood Bank'}</span>
-//                             <span style={styles.itemDate}>{new Date(donation.requested_date).toLocaleDateString()}</span>
+//                           <div className="bu-itemCenter">
+//                             <span className="bu-itemBank">{donation.bank_id?.name || 'Blood Bank'}</span>
+//                             <span className="bu-itemDate">{new Date(donation.requested_date).toLocaleDateString()}</span>
 //                           </div>
-//                           <div style={styles.itemRight}>
+//                           <div className="bu-itemRight">
 //                             <span style={{
 //                               ...styles.itemStatus,
 //                               color: donation.status === 'accepted' ? '#27ae60' : 
 //                                      donation.status === 'rejected' ? '#e74c3c' : '#f39c12'
 //                             }}>
-//                               {donation.status === 'accepted' ? '✅' :
-//                                donation.status === 'rejected' ? '❌' : '⏳'}
+//                               {donation.status === 'accepted' ? '' :
+//                                donation.status === 'rejected' ? '' : ''}
 //                             </span>
 //                           </div>
 //                         </div>
 //                       ))
 //                     )}
 //                     {bloodData.myDonations.length > 5 && (
-//                       <div style={styles.viewAllButton} onClick={() => setActiveSection('history')}>
+//                       <div className="bu-viewAllButton" onClick={() => setActiveSection('history')}>
 //                         View All Donations ({bloodData.myDonations.length})
 //                       </div>
 //                     )}
@@ -284,63 +285,63 @@
 //             </div>
 
 //             {/* My Requests Dropdown */}
-//             <div style={styles.headerActionItem}>
+//             <div className="bu-headerActionItem">
 //               <button 
 //                 onClick={() => setShowMyRequests(!showMyRequests)}
-//                 style={styles.headerButton}
+//                 className="bu-headerButton"
 //               >
-//                 <span style={styles.headerButtonIcon}>🆘</span>
-//                 <span style={styles.headerButtonText}>My Requests</span>
-//                 <span style={styles.countBadge}>{bloodData.userStats.acceptedRequests}</span>
+//                 <span className="bu-headerButtonIcon"></span>
+//                 <span className="bu-headerButtonText">My Requests</span>
+//                 <span className="bu-countBadge">{bloodData.userStats.acceptedRequests}</span>
 //               </button>
 
 //               {showMyRequests && (
-//                 <div style={styles.dropdown}>
-//                   <div style={styles.dropdownHeader}>
+//                 <div className="bu-dropdown">
+//                   <div className="bu-dropdownHeader">
 //                     <h4>My Requests ({bloodData.myRequests.length})</h4>
-//                     <div style={styles.statsRow}>
-//                       <span style={styles.statBadge}>✅ {bloodData.userStats.acceptedRequests} Fulfilled</span>
-//                       <span style={styles.statBadge}>⏳ {bloodData.userStats.pendingRequests} Pending</span>
+//                     <div className="bu-statsRow">
+//                       <span className="bu-statBadge"> {bloodData.userStats.acceptedRequests} Fulfilled</span>
+//                       <span className="bu-statBadge"> {bloodData.userStats.pendingRequests} Pending</span>
 //                     </div>
 //                   </div>
-//                   <div style={styles.dropdownContent}>
+//                   <div className="bu-dropdownContent">
 //                     {bloodData.myRequests.length === 0 ? (
-//                       <div style={styles.emptyDropdown}>
-//                         <span style={styles.emptyIcon}>🆘</span>
+//                       <div className="bu-emptyDropdown">
+//                         <span className="bu-emptyIcon"></span>
 //                         <p>No requests yet</p>
 //                         <button 
 //                           onClick={() => setActiveSection('request')}
-//                           style={styles.emptyActionButton}
+//                           className="bu-emptyActionButton"
 //                         >
 //                           Make First Request
 //                         </button>
 //                       </div>
 //                     ) : (
 //                       bloodData.myRequests.slice(0, 5).map(request => (
-//                         <div key={request._id} style={styles.dropdownItem}>
-//                           <div style={styles.itemLeft}>
-//                             <span style={styles.bloodTypeSmall}>{request.blood_group}</span>
-//                             <span style={styles.itemUnits}>{request.units_requested}u</span>
+//                         <div key={request._id} className="bu-dropdownItem">
+//                           <div className="bu-itemLeft">
+//                             <span className="bu-bloodTypeSmall">{request.blood_group}</span>
+//                             <span className="bu-itemUnits">{request.units_requested}u</span>
 //                           </div>
-//                           <div style={styles.itemCenter}>
-//                             <span style={styles.itemBank}>{request.bank_id?.name || 'Blood Bank'}</span>
-//                             <span style={styles.itemDate}>{new Date(request.requested_date).toLocaleDateString()}</span>
+//                           <div className="bu-itemCenter">
+//                             <span className="bu-itemBank">{request.bank_id?.name || 'Blood Bank'}</span>
+//                             <span className="bu-itemDate">{new Date(request.requested_date).toLocaleDateString()}</span>
 //                           </div>
-//                           <div style={styles.itemRight}>
+//                           <div className="bu-itemRight">
 //                             <span style={{
 //                               ...styles.itemStatus,
 //                               color: request.status === 'accepted' ? '#27ae60' : 
 //                                      request.status === 'rejected' ? '#e74c3c' : '#f39c12'
 //                             }}>
-//                               {request.status === 'accepted' ? '✅' :
-//                                request.status === 'rejected' ? '❌' : '⏳'}
+//                               {request.status === 'accepted' ? '' :
+//                                request.status === 'rejected' ? '' : ''}
 //                             </span>
 //                           </div>
 //                         </div>
 //                       ))
 //                     )}
 //                     {bloodData.myRequests.length > 5 && (
-//                       <div style={styles.viewAllButton} onClick={() => setActiveSection('history')}>
+//                       <div className="bu-viewAllButton" onClick={() => setActiveSection('history')}>
 //                         View All Requests ({bloodData.myRequests.length})
 //                       </div>
 //                     )}
@@ -350,10 +351,10 @@
 //             </div>
 
 //             {/* Quick Stats */}
-//             <div style={styles.quickStats}>
-//               <div style={styles.quickStat}>
-//                 <span style={styles.quickStatNumber}>{bloodData.userStats.livesSaved}</span>
-//                 <span style={styles.quickStatLabel}>Lives Saved</span>
+//             <div className="bu-quickStats">
+//               <div className="bu-quickStat">
+//                 <span className="bu-quickStatNumber">{bloodData.userStats.livesSaved}</span>
+//                 <span className="bu-quickStatLabel">Lives Saved</span>
 //               </div>
 //             </div>
 //           </div>
@@ -363,7 +364,7 @@
 //       {/* Click outside to close dropdowns */}
 //       {(showNotifications || showMyDonations || showMyRequests) && (
 //         <div 
-//           style={styles.overlay} 
+//           className="bu-overlay" 
 //           onClick={() => {
 //             setShowNotifications(false);
 //             setShowMyDonations(false);
@@ -373,53 +374,53 @@
 //       )}
 
 //       {/* Enhanced Hero Section */}
-//       <section style={styles.hero}>
-//         <div style={styles.heroContent}>
-//           <div style={styles.heroLeft}>
-//             <h1 style={styles.heroTitle}>
-//               Save Lives Through <span style={styles.highlight}>Blood Donation</span>
+//       <section className="bu-hero">
+//         <div className="bu-heroContent">
+//           <div className="bu-heroLeft">
+//             <h1 className="bu-heroTitle">
+//               Save Lives Through <span className="bu-highlight">Blood Donation</span>
 //             </h1>
-//             <p style={styles.heroSubtitle}>
+//             <p className="bu-heroSubtitle">
 //               Your contribution can save up to 3 lives. Join our community of life-savers!
 //             </p>
-//             <div style={styles.heroButtons}>
+//             <div className="bu-heroButtons">
 //               <button 
 //                 onClick={() => setActiveSection('donate')}
-//                 style={styles.heroPrimaryButton}
+//                 className="bu-heroPrimaryButton"
 //               >
-//                 🩸 Donate Now
+//                  Donate Now
 //               </button>
 //               <button 
 //                 onClick={() => setActiveSection('request')}
-//                 style={styles.heroSecondaryButton}
+//                 className="bu-heroSecondaryButton"
 //               >
-//                 🆘 Request Blood
+//                  Request Blood
 //               </button>
 //             </div>
 //           </div>
-//           <div style={styles.heroRight}>
-//             <div style={styles.heroStatsCard}>
-//               <h3 style={styles.heroStatsTitle}>Your Impact</h3>
-//               <div style={styles.heroStatsList}>
-//                 <div style={styles.heroStatItem}>
-//                   <span style={styles.heroStatIcon}>🩸</span>
+//           <div className="bu-heroRight">
+//             <div className="bu-heroStatsCard">
+//               <h3 className="bu-heroStatsTitle">Your Impact</h3>
+//               <div className="bu-heroStatsList">
+//                 <div className="bu-heroStatItem">
+//                   <span className="bu-heroStatIcon"></span>
 //                   <div>
-//                     <div style={styles.heroStatNumber}>{bloodData.userStats.acceptedDonations}</div>
-//                     <div style={styles.heroStatLabel}>Successful Donations</div>
+//                     <div className="bu-heroStatNumber">{bloodData.userStats.acceptedDonations}</div>
+//                     <div className="bu-heroStatLabel">Successful Donations</div>
 //                   </div>
 //                 </div>
-//                 <div style={styles.heroStatItem}>
-//                   <span style={styles.heroStatIcon}>🆘</span>
+//                 <div className="bu-heroStatItem">
+//                   <span className="bu-heroStatIcon"></span>
 //                   <div>
-//                     <div style={styles.heroStatNumber}>{bloodData.userStats.acceptedRequests}</div>
-//                     <div style={styles.heroStatLabel}>Fulfilled Requests</div>
+//                     <div className="bu-heroStatNumber">{bloodData.userStats.acceptedRequests}</div>
+//                     <div className="bu-heroStatLabel">Fulfilled Requests</div>
 //                   </div>
 //                 </div>
-//                 <div style={styles.heroStatItem}>
-//                   <span style={styles.heroStatIcon}>❤️</span>
+//                 <div className="bu-heroStatItem">
+//                   <span className="bu-heroStatIcon"></span>
 //                   <div>
-//                     <div style={styles.heroStatNumber}>{bloodData.userStats.livesSaved}</div>
-//                     <div style={styles.heroStatLabel}>Lives Saved</div>
+//                     <div className="bu-heroStatNumber">{bloodData.userStats.livesSaved}</div>
+//                     <div className="bu-heroStatLabel">Lives Saved</div>
 //                   </div>
 //                 </div>
 //               </div>
@@ -429,14 +430,14 @@
 //       </section>
 
 //       {/* Enhanced Navigation */}
-//       <nav style={styles.nav}>
-//         <div style={styles.navContent}>
+//       <nav className="bu-nav">
+//         <div className="bu-navContent">
 //           {[
-//             { id: "home", label: "Dashboard", icon: "🏠", color: "#3498db" },
-//             { id: "donate", label: "Donate Blood", icon: "🩸", color: "#e74c3c" },
-//             { id: "request", label: "Request Blood", icon: "🆘", color: "#f39c12" },
-//             { id: "history", label: "My History", icon: "📊", color: "#9b59b6" },
-//             { id: "urgent", label: "Urgent Needs", icon: "⚡", color: "#e67e22" }
+//             { id: "home", label: "Dashboard", icon: "", color: "#3498db" },
+//             { id: "donate", label: "Donate Blood", icon: "", color: "#e74c3c" },
+//             { id: "request", label: "Request Blood", icon: "", color: "#f39c12" },
+//             { id: "history", label: "My History", icon: "", color: "#9b59b6" },
+//             { id: "urgent", label: "Urgent Needs", icon: "", color: "#e67e22" }
 //           ].map(item => (
 //             <button
 //               key={item.id}
@@ -465,16 +466,16 @@
 //                 }
 //               }}
 //             >
-//               <span style={styles.navIcon}>{item.icon}</span>
-//               <span style={styles.navLabel}>{item.label}</span>
+//               <span className="bu-navIcon">{item.icon}</span>
+//               <span className="bu-navLabel">{item.label}</span>
 //             </button>
 //           ))}
 //         </div>
 //       </nav>
 
 //       {/* Content with better styling */}
-//       <div style={styles.content}>
-//         <div style={styles.contentWrapper}>
+//       <div className="bu-content">
+//         <div className="bu-contentWrapper">
 //           {activeSection === "home" && (
 //             <HomeSection 
 //               urgentRequests={bloodData.urgentRequests} 
@@ -519,42 +520,42 @@
 
 // function HomeSection({ urgentRequests, bloodBanks, userStats, setActiveSection }) {
 //   return (
-//     <div style={styles.section}>
-//       <div style={styles.welcomeCard}>
-//         <div style={styles.welcomeContent}>
-//           <h2 style={styles.welcomeTitle}>Your Blood Bank Journey 🌟</h2>
-//           <p style={styles.welcomeText}>
+//     <div className="bu-section">
+//       <div className="bu-welcomeCard">
+//         <div className="bu-welcomeContent">
+//           <h2 className="bu-welcomeTitle">Your Blood Bank Journey </h2>
+//           <p className="bu-welcomeText">
 //             Track your life-saving contributions and make a real difference in your community!
 //           </p>
 
-//           <div style={styles.achievementShowcase}>
-//             <div style={styles.achievementItem}>
-//               <div style={styles.achievementNumber}>{userStats.acceptedDonations}</div>
-//               <div style={styles.achievementLabel}>Successful Donations</div>
-//               <div style={styles.achievementDesc}>Accepted by blood banks</div>
+//           <div className="bu-achievementShowcase">
+//             <div className="bu-achievementItem">
+//               <div className="bu-achievementNumber">{userStats.acceptedDonations}</div>
+//               <div className="bu-achievementLabel">Successful Donations</div>
+//               <div className="bu-achievementDesc">Accepted by blood banks</div>
 //             </div>
-//             <div style={styles.achievementDivider}>→</div>
-//             <div style={styles.achievementItem}>
-//               <div style={styles.achievementNumber}>{userStats.livesSaved}</div>
-//               <div style={styles.achievementLabel}>Lives Saved</div>
-//               <div style={styles.achievementDesc}>Through your donations</div>
+//             <div className="bu-achievementDivider"></div>
+//             <div className="bu-achievementItem">
+//               <div className="bu-achievementNumber">{userStats.livesSaved}</div>
+//               <div className="bu-achievementLabel">Lives Saved</div>
+//               <div className="bu-achievementDesc">Through your donations</div>
 //             </div>
-//             <div style={styles.achievementDivider}>→</div>
-//             <div style={styles.achievementItem}>
-//               <div style={styles.achievementNumber}>{userStats.acceptedRequests}</div>
-//               <div style={styles.achievementLabel}>Requests Fulfilled</div>
-//               <div style={styles.achievementDesc}>When you needed help</div>
+//             <div className="bu-achievementDivider"></div>
+//             <div className="bu-achievementItem">
+//               <div className="bu-achievementNumber">{userStats.acceptedRequests}</div>
+//               <div className="bu-achievementLabel">Requests Fulfilled</div>
+//               <div className="bu-achievementDesc">When you needed help</div>
 //             </div>
 //           </div>
 
 //           {(userStats.pendingDonations > 0 || userStats.pendingRequests > 0) && (
-//             <div style={styles.pendingAlert}>
-//               <span style={styles.pendingIcon}>⏳</span>
-//               <div style={styles.pendingText}>
+//             <div className="bu-pendingAlert">
+//               <span className="bu-pendingIcon"></span>
+//               <div className="bu-pendingText">
 //                 {userStats.pendingDonations > 0 && (
 //                   <span>{userStats.pendingDonations} donation{userStats.pendingDonations > 1 ? 's' : ''} pending approval</span>
 //                 )}
-//                 {userStats.pendingDonations > 0 && userStats.pendingRequests > 0 && <span> • </span>}
+//                 {userStats.pendingDonations > 0 && userStats.pendingRequests > 0 && <span>  </span>}
 //                 {userStats.pendingRequests > 0 && (
 //                   <span>{userStats.pendingRequests} request{userStats.pendingRequests > 1 ? 's' : ''} pending approval</span>
 //                 )}
@@ -565,56 +566,56 @@
 //       </div>
 
 //       {/* Quick Action Cards */}
-//       <div style={styles.quickActionCards}>
+//       <div className="bu-quickActionCards">
 //         <div 
 //           onClick={() => setActiveSection('donate')}
 //           style={{...styles.quickCard, ...styles.donateCard}}
 //         >
-//           <div style={styles.quickCardIcon}>🩸</div>
-//           <h3 style={styles.quickCardTitle}>Donate Blood</h3>
-//           <p style={styles.quickCardDesc}>Save up to 3 lives with one donation</p>
-//           <div style={styles.quickCardArrow}>→</div>
+//           <div className="bu-quickCardIcon"></div>
+//           <h3 className="bu-quickCardTitle">Donate Blood</h3>
+//           <p className="bu-quickCardDesc">Save up to 3 lives with one donation</p>
+//           <div className="bu-quickCardArrow"></div>
 //         </div>
 
 //         <div 
 //           onClick={() => setActiveSection('request')}
 //           style={{...styles.quickCard, ...styles.requestCard}}
 //         >
-//           <div style={styles.quickCardIcon}>🆘</div>
-//           <h3 style={styles.quickCardTitle}>Request Blood</h3>
-//           <p style={styles.quickCardDesc}>Get help when you need it most</p>
-//           <div style={styles.quickCardArrow}>→</div>
+//           <div className="bu-quickCardIcon"></div>
+//           <h3 className="bu-quickCardTitle">Request Blood</h3>
+//           <p className="bu-quickCardDesc">Get help when you need it most</p>
+//           <div className="bu-quickCardArrow"></div>
 //         </div>
 
 //         <div 
 //           onClick={() => setActiveSection('urgent')}
 //           style={{...styles.quickCard, ...styles.urgentCard}}
 //         >
-//           <div style={styles.quickCardIcon}>⚡</div>
-//           <h3 style={styles.quickCardTitle}>Urgent Needs</h3>
-//           <p style={styles.quickCardDesc}>Help someone in critical need</p>
-//           <div style={styles.quickCardArrow}>→</div>
+//           <div className="bu-quickCardIcon"></div>
+//           <h3 className="bu-quickCardTitle">Urgent Needs</h3>
+//           <p className="bu-quickCardDesc">Help someone in critical need</p>
+//           <div className="bu-quickCardArrow"></div>
 //         </div>
 //       </div>
 
 //       {/* Available Blood Banks Carousel */}
 //       {bloodBanks.length > 0 && (
-//         <div style={styles.bloodBanksSection}>
-//           <h3 style={styles.sectionSubtitle}>🏥 Available Blood Banks ({bloodBanks.length})</h3>
-//           <div style={styles.bloodBanksCarousel}>
+//         <div className="bu-bloodBanksSection">
+//           <h3 className="bu-sectionSubtitle"> Available Blood Banks ({bloodBanks.length})</h3>
+//           <div className="bu-bloodBanksCarousel">
 //             {bloodBanks.slice(0, 6).map(bank => (
-//               <div key={bank._id} style={styles.bankCard}>
-//                 <div style={styles.bankCardIcon}>🏥</div>
-//                 <h4 style={styles.bankCardName}>{bank.name}</h4>
-//                 <p style={styles.bankCardLocation}>📍 {bank.location || bank.address}</p>
+//               <div key={bank._id} className="bu-bankCard">
+//                 <div className="bu-bankCardIcon"></div>
+//                 <h4 className="bu-bankCardName">{bank.name}</h4>
+//                 <p className="bu-bankCardLocation"> {bank.location || bank.address}</p>
 //                 {bank.phone && (
-//                   <p style={styles.bankCardContact}>📞 {bank.phone}</p>
+//                   <p className="bu-bankCardContact"> {bank.phone}</p>
 //                 )}
 //               </div>
 //             ))}
 //           </div>
 //           {bloodBanks.length > 6 && (
-//             <div style={styles.showMoreBanks}>
+//             <div className="bu-showMoreBanks">
 //               <span>And {bloodBanks.length - 6} more blood banks available...</span>
 //             </div>
 //           )}
@@ -623,27 +624,27 @@
 
 //       {/* Urgent Requests Preview */}
 //       {urgentRequests.length > 0 && (
-//         <div style={styles.urgentSection}>
-//           <h3 style={styles.urgentSectionTitle}>🚨 Critical Blood Needs</h3>
-//           <div style={styles.urgentCarousel}>
+//         <div className="bu-urgentSection">
+//           <h3 className="bu-urgentSectionTitle"> Critical Blood Needs</h3>
+//           <div className="bu-urgentCarousel">
 //             {urgentRequests.slice(0, 3).map(request => (
-//               <div key={request._id} style={styles.urgentPreviewCard}>
-//                 <div style={styles.urgentCardTop}>
-//                   <span style={styles.urgentBloodTypeBig}>{request.blood_group}</span>
-//                   <span style={styles.urgentPriorityBadge}>
-//                     {request.urgency === 'critical' ? '🔴 CRITICAL' : '🟠 URGENT'}
+//               <div key={request._id} className="bu-urgentPreviewCard">
+//                 <div className="bu-urgentCardTop">
+//                   <span className="bu-urgentBloodTypeBig">{request.blood_group}</span>
+//                   <span className="bu-urgentPriorityBadge">
+//                     {request.urgency === 'critical' ? ' CRITICAL' : ' URGENT'}
 //                   </span>
 //                 </div>
-//                 <div style={styles.urgentCardDetails}>
-//                   <p>📍 {request.location}</p>
-//                   <p>🩸 {request.units_requested} units needed</p>
-//                   <p>⏰ {request.timeAgo}</p>
+//                 <div className="bu-urgentCardDetails">
+//                   <p> {request.location}</p>
+//                   <p> {request.units_requested} units needed</p>
+//                   <p> {request.timeAgo}</p>
 //                 </div>
-//                 <button style={styles.urgentHelpBtn}>💪 Help Now</button>
+//                 <button className="bu-urgentHelpBtn"> Help Now</button>
 //               </div>
 //             ))}
 //           </div>
-//           <div style={styles.viewAllUrgent} onClick={() => setActiveSection('urgent')}>
+//           <div className="bu-viewAllUrgent" onClick={() => setActiveSection('urgent')}>
 //             View All Urgent Requests ({urgentRequests.length})
 //           </div>
 //         </div>
@@ -1501,17 +1502,32 @@
 
 
 import React, { useState, useEffect } from "react";
+import { Heart, Droplet, Calendar, Building2, Activity, MapPin } from "lucide-react";
+import "../../styles/BloodBankUserPortal.css";
+import { useLocation } from "react-router-dom";
 import api from "../../utils/api";
 
 function BloodPortal() {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const initialSection = queryParams.get('section') || "home";
+
   const [loading, setLoading] = useState(true);
-  const [activeSection, setActiveSection] = useState("home");
+  const [activeSection, setActiveSection] = useState(initialSection);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showMyDonations, setShowMyDonations] = useState(false);
   const [showMyRequests, setShowMyRequests] = useState(false);
+
+  useEffect(() => {
+    const currentSection = new URLSearchParams(location.search).get('section');
+    if (currentSection && currentSection !== activeSection) {
+      setActiveSection(currentSection);
+    }
+  }, [location.search]);
   const [bloodData, setBloodData] = useState({
     bloodBanks: [],
     urgentRequests: [],
+    camps: [],
     userStats: {
       acceptedDonations: 0,
       acceptedRequests: 0,
@@ -1533,15 +1549,24 @@ function BloodPortal() {
     try {
       setLoading(true);
 
-      const [banksRes, urgentRes, donationsRes, requestsRes] = await Promise.all([
+      const [banksRes, urgentRes, donationsRes, requestsRes, campsRes] = await Promise.all([
         api.get('/api/blood-bank/banks'),
         api.get('/api/blood-bank-user/blood/urgent-requests'),
         api.get('/api/blood-bank-user/donation-requests'),
-        api.get('/api/blood-bank-user/blood-requests')
+        api.get('/api/blood-bank-user/blood-requests'),
+        api.get('/api/blood-camp/camps')
       ]);
 
       const donations = donationsRes.data.donations || [];
       const requests = requestsRes.data.requests || [];
+      const allCamps = campsRes.data || [];
+      // Filter: only show camps whose end_date (or start_date) is today or in the future
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const camps = allCamps.filter(camp => {
+        const endDate = camp.end_date ? new Date(camp.end_date) : new Date(camp.start_date);
+        return endDate >= today;
+      });
 
       const acceptedDonations = donations.filter(d => d.status === 'accepted').length;
       const acceptedRequests = requests.filter(r => r.status === 'accepted').length;
@@ -1571,6 +1596,7 @@ function BloodPortal() {
       setBloodData({
         bloodBanks: banksRes.data.banks || banksRes.data || [],
         urgentRequests: urgentRes.data.urgent || [],
+        camps: camps,
         userStats: {
           acceptedDonations,
           acceptedRequests,
@@ -1589,6 +1615,7 @@ function BloodPortal() {
       setBloodData({
         bloodBanks: [],
         urgentRequests: [],
+        camps: [],
         userStats: {
           acceptedDonations: 0,
           acceptedRequests: 0,
@@ -1616,7 +1643,7 @@ function BloodPortal() {
       const response = await api.post('/api/blood-bank-user/donation-request', donationData);
 
       if (response.data.message) {
-        alert('🎉 ' + response.data.message);
+        alert(' ' + response.data.message);
         await refreshData();
       }
     } catch (error) {
@@ -1631,7 +1658,7 @@ function BloodPortal() {
       const response = await api.post('/api/blood-bank-user/request-blood', requestData);
 
       if (response.data.message) {
-        alert('🙏 ' + response.data.message);
+        alert(' ' + response.data.message);
         await refreshData();
       }
     } catch (error) {
@@ -1640,14 +1667,27 @@ function BloodPortal() {
     }
   };
 
+  const handleCampRegister = async (campId, bloodGroup) => {
+    try {
+      const response = await api.post(`/api/blood-camp/${campId}/register`, { blood_group: bloodGroup });
+      if (response.data.message) {
+        alert(' ' + response.data.message);
+        await refreshData();
+      }
+    } catch (error) {
+      console.error('Camp registration failed:', error);
+      alert(error.response?.data?.message || 'Failed to register for camp');
+    }
+  };
+
   if (loading) {
     return (
-      <div style={styles.loadingContainer}>
-        <div style={styles.loadingContent}>
-          <div style={styles.loadingIcon}>🩸</div>
-          <div style={styles.loadingText}>Loading Blood Portal...</div>
-          <div style={styles.progressBar}>
-            <div style={styles.progressFill}></div>
+      <div className="bu-loadingContainer">
+        <div className="bu-loadingContent">
+          <div className="bu-loadingIcon"></div>
+          <div className="bu-loadingText">Loading Blood Portal...</div>
+          <div className="bu-progressBar">
+            <div className="bu-progressFill"></div>
           </div>
         </div>
       </div>
@@ -1655,58 +1695,58 @@ function BloodPortal() {
   }
 
   return (
-    <div style={styles.container}>
+    <div className="bu-container">
       {/* Enhanced Header with Notifications, My Donations, My Requests */}
-      <header style={styles.header}>
-        <div style={styles.headerContent}>
-          <div style={styles.logo}>
-            <span style={styles.logoIcon}>🩸</span>
-            <span style={styles.logoText}>BloodBank Portal</span>
+      <header className="bu-header">
+        <div className="bu-headerContent">
+          <div className="bu-logo">
+            <span className="bu-logoIcon"></span>
+            <span className="bu-logoText">BloodBank Portal</span>
           </div>
 
-          <div style={styles.headerActions}>
+          <div className="bu-headerActions">
             {/* Notifications Dropdown */}
-            <div style={styles.headerActionItem}>
+            <div className="bu-headerActionItem">
               <button
                 onClick={() => setShowNotifications(!showNotifications)}
-                style={styles.headerButton}
+                className="bu-headerButton"
               >
-                <span style={styles.headerButtonIcon}>🔔</span>
-                <span style={styles.headerButtonText}>Notifications</span>
+                <span className="bu-headerButtonIcon"></span>
+                <span className="bu-headerButtonText">Notifications</span>
                 {bloodData.notifications.length > 0 && (
-                  <span style={styles.notificationBadge}>{bloodData.notifications.length}</span>
+                  <span className="bu-notificationBadge">{bloodData.notifications.length}</span>
                 )}
               </button>
 
               {showNotifications && (
-                <div style={styles.dropdown}>
-                  <div style={styles.dropdownHeader}>
+                <div className="bu-dropdown">
+                  <div className="bu-dropdownHeader">
                     <h4>Recent Notifications</h4>
                   </div>
-                  <div style={styles.dropdownContent}>
+                  <div className="bu-dropdownContent">
                     {bloodData.notifications.length === 0 ? (
-                      <div style={styles.emptyDropdown}>
-                        <span style={styles.emptyIcon}>🔔</span>
+                      <div className="bu-emptyDropdown">
+                        <span className="bu-emptyIcon"></span>
                         <p>No notifications yet</p>
                       </div>
                     ) : (
                       bloodData.notifications.map(notification => (
-                        <div key={notification.id} style={styles.notificationItem}>
-                          <div style={styles.notificationIcon}>
-                            {notification.type === 'donation' ? '🩸' : '🆘'}
+                        <div key={notification.id} className="bu-notificationItem">
+                          <div className="bu-notificationIcon">
+                            {notification.type === 'donation' ? '' : ''}
                           </div>
-                          <div style={styles.notificationContent}>
-                            <h5 style={styles.notificationTitle}>{notification.title}</h5>
-                            <p style={styles.notificationMessage}>{notification.message}</p>
-                            <span style={styles.notificationTime}>{notification.time}</span>
+                          <div className="bu-notificationContent">
+                            <h5 className="bu-notificationTitle">{notification.title}</h5>
+                            <p className="bu-notificationMessage">{notification.message}</p>
+                            <span className="bu-notificationTime">{notification.time}</span>
                           </div>
                           <div style={{
                             ...styles.notificationStatus,
                             backgroundColor: notification.status === 'accepted' ? '#27ae60' :
                               notification.status === 'rejected' ? '#e74c3c' : '#f39c12'
                           }}>
-                            {notification.status === 'accepted' ? '✅' :
-                              notification.status === 'rejected' ? '❌' : '⏳'}
+                            {notification.status === 'accepted' ? '' :
+                              notification.status === 'rejected' ? '' : ''}
                           </div>
                         </div>
                       ))
@@ -1717,63 +1757,63 @@ function BloodPortal() {
             </div>
 
             {/* My Donations Dropdown */}
-            <div style={styles.headerActionItem}>
+            <div className="bu-headerActionItem">
               <button
                 onClick={() => setShowMyDonations(!showMyDonations)}
-                style={styles.headerButton}
+                className="bu-headerButton"
               >
-                <span style={styles.headerButtonIcon}>🩸</span>
-                <span style={styles.headerButtonText}>My Donations</span>
-                <span style={styles.countBadge}>{bloodData.userStats.acceptedDonations}</span>
+                <span className="bu-headerButtonIcon"></span>
+                <span className="bu-headerButtonText">My Donations</span>
+                <span className="bu-countBadge">{bloodData.userStats.acceptedDonations}</span>
               </button>
 
               {showMyDonations && (
-                <div style={styles.dropdown}>
-                  <div style={styles.dropdownHeader}>
+                <div className="bu-dropdown">
+                  <div className="bu-dropdownHeader">
                     <h4>My Donations ({bloodData.myDonations.length})</h4>
-                    <div style={styles.statsRow}>
-                      <span style={styles.statBadge}>✅ {bloodData.userStats.acceptedDonations} Accepted</span>
-                      <span style={styles.statBadge}>⏳ {bloodData.userStats.pendingDonations} Pending</span>
+                    <div className="bu-statsRow">
+                      <span className="bu-statBadge"> {bloodData.userStats.acceptedDonations} Accepted</span>
+                      <span className="bu-statBadge"> {bloodData.userStats.pendingDonations} Pending</span>
                     </div>
                   </div>
-                  <div style={styles.dropdownContent}>
+                  <div className="bu-dropdownContent">
                     {bloodData.myDonations.length === 0 ? (
-                      <div style={styles.emptyDropdown}>
-                        <span style={styles.emptyIcon}>🩸</span>
+                      <div className="bu-emptyDropdown">
+                        <span className="bu-emptyIcon"></span>
                         <p>No donations yet</p>
                         <button
                           onClick={() => setActiveSection('donate')}
-                          style={styles.emptyActionButton}
+                          className="bu-emptyActionButton"
                         >
                           Make First Donation
                         </button>
                       </div>
                     ) : (
                       bloodData.myDonations.slice(0, 5).map(donation => (
-                        <div key={donation._id} style={styles.dropdownItem}>
-                          <div style={styles.itemLeft}>
-                            <span style={styles.bloodTypeSmall}>{donation.blood_group}</span>
-                            <span style={styles.itemUnits}>{donation.units_donated}u</span>
+                        <div key={donation._id} className="bu-dropdownItem">
+                          <div className="bu-itemLeft">
+                            <span className="bu-bloodTypeSmall">{donation.blood_group}</span>
+                            <span className="bu-itemUnits">{donation.units_donated}u</span>
                           </div>
-                          <div style={styles.itemCenter}>
-                            <span style={styles.itemBank}>{donation.bank_id?.name || 'Blood Bank'}</span>
-                            <span style={styles.itemDate}>{new Date(donation.requested_date).toLocaleDateString()}</span>
+                          <div className="bu-itemCenter">
+                            <span className="bu-itemBank">{donation.bank_id?.name || 'Blood Bank'}</span>
+                            <span className="bu-itemDate">{new Date(donation.requested_date).toLocaleDateString()}</span>
                           </div>
-                          <div style={styles.itemRight}>
+                          <div className="bu-itemRight">
                             <span style={{
                               ...styles.itemStatus,
                               color: donation.status === 'accepted' ? '#27ae60' :
                                 donation.status === 'rejected' ? '#e74c3c' : '#f39c12'
                             }}>
-                              {donation.status === 'accepted' ? '✅' :
-                                donation.status === 'rejected' ? '❌' : '⏳'}
+                              {donation.status === 'accepted' ? '' :
+                                donation.status === 'rejected' ? '' : ''}
                             </span>
                           </div>
                         </div>
                       ))
                     )}
                     {bloodData.myDonations.length > 5 && (
-                      <div style={styles.viewAllButton} onClick={() => setActiveSection('history')}>
+                      <div className="bu-viewAllButton" onClick={() => setActiveSection('history')}>
                         View All Donations ({bloodData.myDonations.length})
                       </div>
                     )}
@@ -1783,63 +1823,63 @@ function BloodPortal() {
             </div>
 
             {/* My Requests Dropdown */}
-            <div style={styles.headerActionItem}>
+            <div className="bu-headerActionItem">
               <button
                 onClick={() => setShowMyRequests(!showMyRequests)}
-                style={styles.headerButton}
+                className="bu-headerButton"
               >
-                <span style={styles.headerButtonIcon}>🆘</span>
-                <span style={styles.headerButtonText}>My Requests</span>
-                <span style={styles.countBadge}>{bloodData.userStats.acceptedRequests}</span>
+                <span className="bu-headerButtonIcon"></span>
+                <span className="bu-headerButtonText">My Requests</span>
+                <span className="bu-countBadge">{bloodData.userStats.acceptedRequests}</span>
               </button>
 
               {showMyRequests && (
-                <div style={styles.dropdown}>
-                  <div style={styles.dropdownHeader}>
+                <div className="bu-dropdown">
+                  <div className="bu-dropdownHeader">
                     <h4>My Requests ({bloodData.myRequests.length})</h4>
-                    <div style={styles.statsRow}>
-                      <span style={styles.statBadge}>✅ {bloodData.userStats.acceptedRequests} Fulfilled</span>
-                      <span style={styles.statBadge}>⏳ {bloodData.userStats.pendingRequests} Pending</span>
+                    <div className="bu-statsRow">
+                      <span className="bu-statBadge"> {bloodData.userStats.acceptedRequests} Fulfilled</span>
+                      <span className="bu-statBadge"> {bloodData.userStats.pendingRequests} Pending</span>
                     </div>
                   </div>
-                  <div style={styles.dropdownContent}>
+                  <div className="bu-dropdownContent">
                     {bloodData.myRequests.length === 0 ? (
-                      <div style={styles.emptyDropdown}>
-                        <span style={styles.emptyIcon}>🆘</span>
+                      <div className="bu-emptyDropdown">
+                        <span className="bu-emptyIcon"></span>
                         <p>No requests yet</p>
                         <button
                           onClick={() => setActiveSection('request')}
-                          style={styles.emptyActionButton}
+                          className="bu-emptyActionButton"
                         >
                           Make First Request
                         </button>
                       </div>
                     ) : (
                       bloodData.myRequests.slice(0, 5).map(request => (
-                        <div key={request._id} style={styles.dropdownItem}>
-                          <div style={styles.itemLeft}>
-                            <span style={styles.bloodTypeSmall}>{request.blood_group}</span>
-                            <span style={styles.itemUnits}>{request.units_requested}u</span>
+                        <div key={request._id} className="bu-dropdownItem">
+                          <div className="bu-itemLeft">
+                            <span className="bu-bloodTypeSmall">{request.blood_group}</span>
+                            <span className="bu-itemUnits">{request.units_requested}u</span>
                           </div>
-                          <div style={styles.itemCenter}>
-                            <span style={styles.itemBank}>{request.bank_id?.name || 'Blood Bank'}</span>
-                            <span style={styles.itemDate}>{new Date(request.requested_date).toLocaleDateString()}</span>
+                          <div className="bu-itemCenter">
+                            <span className="bu-itemBank">{request.bank_id?.name || 'Blood Bank'}</span>
+                            <span className="bu-itemDate">{new Date(request.requested_date).toLocaleDateString()}</span>
                           </div>
-                          <div style={styles.itemRight}>
+                          <div className="bu-itemRight">
                             <span style={{
                               ...styles.itemStatus,
                               color: request.status === 'accepted' ? '#27ae60' :
                                 request.status === 'rejected' ? '#e74c3c' : '#f39c12'
                             }}>
-                              {request.status === 'accepted' ? '✅' :
-                                request.status === 'rejected' ? '❌' : '⏳'}
+                              {request.status === 'accepted' ? '' :
+                                request.status === 'rejected' ? '' : ''}
                             </span>
                           </div>
                         </div>
                       ))
                     )}
                     {bloodData.myRequests.length > 5 && (
-                      <div style={styles.viewAllButton} onClick={() => setActiveSection('history')}>
+                      <div className="bu-viewAllButton" onClick={() => setActiveSection('history')}>
                         View All Requests ({bloodData.myRequests.length})
                       </div>
                     )}
@@ -1849,10 +1889,10 @@ function BloodPortal() {
             </div>
 
             {/* Quick Stats */}
-            <div style={styles.quickStats}>
-              <div style={styles.quickStat}>
-                <span style={styles.quickStatNumber}>{bloodData.userStats.livesSaved}</span>
-                <span style={styles.quickStatLabel}>Lives Saved</span>
+            <div className="bu-quickStats">
+              <div className="bu-quickStat">
+                <span className="bu-quickStatNumber">{bloodData.userStats.livesSaved}</span>
+                <span className="bu-quickStatLabel">Lives Saved</span>
               </div>
             </div>
           </div>
@@ -1862,7 +1902,7 @@ function BloodPortal() {
       {/* Click outside to close dropdowns */}
       {(showNotifications || showMyDonations || showMyRequests) && (
         <div
-          style={styles.overlay}
+          className="bu-overlay"
           onClick={() => {
             setShowNotifications(false);
             setShowMyDonations(false);
@@ -1872,53 +1912,53 @@ function BloodPortal() {
       )}
 
       {/* Enhanced Hero Section */}
-      <section style={styles.hero}>
-        <div style={styles.heroContent}>
-          <div style={styles.heroLeft}>
-            <h1 style={styles.heroTitle}>
-              Save Lives Through <span style={styles.highlight}>Blood Donation</span>
+      <section className="bu-hero">
+        <div className="bu-heroContent">
+          <div className="bu-heroLeft">
+            <h1 className="bu-heroTitle">
+              Save Lives Through <span className="bu-highlight">Blood Donation</span>
             </h1>
-            <p style={styles.heroSubtitle}>
+            <p className="bu-heroSubtitle">
               Your contribution can save up to 3 lives. Join our community of life-savers!
             </p>
-            <div style={styles.heroButtons}>
+            <div className="bu-heroButtons">
               <button
                 onClick={() => setActiveSection('donate')}
-                style={styles.heroPrimaryButton}
+                className="bu-heroPrimaryButton"
               >
-                🩸 Donate Now
+                 Donate Now
               </button>
               <button
                 onClick={() => setActiveSection('request')}
-                style={styles.heroSecondaryButton}
+                className="bu-heroSecondaryButton"
               >
-                🆘 Request Blood
+                 Request Blood
               </button>
             </div>
           </div>
-          <div style={styles.heroRight}>
-            <div style={styles.heroStatsCard}>
-              <h3 style={styles.heroStatsTitle}>Your Impact</h3>
-              <div style={styles.heroStatsList}>
-                <div style={styles.heroStatItem}>
-                  <span style={styles.heroStatIcon}>🩸</span>
+          <div className="bu-heroRight">
+            <div className="bu-heroStatsCard">
+              <h3 className="bu-heroStatsTitle">Your Impact</h3>
+              <div className="bu-heroStatsList">
+                <div className="bu-heroStatItem">
+                  <span className="bu-heroStatIcon"></span>
                   <div>
-                    <div style={styles.heroStatNumber}>{bloodData.userStats.acceptedDonations}</div>
-                    <div style={styles.heroStatLabel}>Successful Donations</div>
+                    <div className="bu-heroStatNumber">{bloodData.userStats.acceptedDonations}</div>
+                    <div className="bu-heroStatLabel">Successful Donations</div>
                   </div>
                 </div>
-                <div style={styles.heroStatItem}>
-                  <span style={styles.heroStatIcon}>🆘</span>
+                <div className="bu-heroStatItem">
+                  <span className="bu-heroStatIcon"></span>
                   <div>
-                    <div style={styles.heroStatNumber}>{bloodData.userStats.acceptedRequests}</div>
-                    <div style={styles.heroStatLabel}>Fulfilled Requests</div>
+                    <div className="bu-heroStatNumber">{bloodData.userStats.acceptedRequests}</div>
+                    <div className="bu-heroStatLabel">Fulfilled Requests</div>
                   </div>
                 </div>
-                <div style={styles.heroStatItem}>
-                  <span style={styles.heroStatIcon}>❤️</span>
+                <div className="bu-heroStatItem">
+                  <span className="bu-heroStatIcon"></span>
                   <div>
-                    <div style={styles.heroStatNumber}>{bloodData.userStats.livesSaved}</div>
-                    <div style={styles.heroStatLabel}>Lives Saved</div>
+                    <div className="bu-heroStatNumber">{bloodData.userStats.livesSaved}</div>
+                    <div className="bu-heroStatLabel">Lives Saved</div>
                   </div>
                 </div>
               </div>
@@ -1928,52 +1968,71 @@ function BloodPortal() {
       </section>
 
       {/* Enhanced Navigation */}
-      <nav style={styles.nav}>
-        <div style={styles.navContent}>
+      <nav style={{
+        background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(20px)',
+        borderRadius: '50px', padding: '10px',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.8)',
+        border: '1px solid rgba(255,255,255,0.6)',
+        marginBottom: '32px',
+        display: 'flex', justifyContent: 'center',
+        margin: '0 auto 32px auto',
+        width: 'fit-content',
+        maxWidth: '100%',
+      }}>
+        <div style={{
+          display: 'flex', gap: '8px', overflowX: 'auto',
+          scrollbarWidth: 'none', msOverflowStyle: 'none',
+          padding: '0 4px'
+        }}>
           {[
-            { id: "home", label: "Dashboard", icon: "🏠", color: "#3498db" },
-            { id: "donate", label: "Donate Blood", icon: "🩸", color: "#e74c3c" },
-            { id: "request", label: "Request Blood", icon: "🆘", color: "#f39c12" },
-            { id: "history", label: "My History", icon: "📊", color: "#9b59b6" },
-            { id: "urgent", label: "Urgent Needs", icon: "⚡", color: "#e67e22" }
-          ].map(item => (
-            <button
-              key={item.id}
-              onClick={() => setActiveSection(item.id)}
-              style={{
-                ...styles.navButton,
-                ...(activeSection === item.id ? {
-                  ...styles.navButtonActive,
-                  backgroundColor: item.color,
-                  boxShadow: `0 8px 25px ${item.color}40`,
-                  transform: 'translateY(-2px)'
-                } : {})
-              }}
-              onMouseEnter={(e) => {
-                if (activeSection !== item.id) {
-                  e.target.style.backgroundColor = `${item.color}20`;
-                  e.target.style.borderColor = item.color;
-                  e.target.style.color = item.color;
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (activeSection !== item.id) {
-                  e.target.style.backgroundColor = 'white';
-                  e.target.style.borderColor = '#ecf0f1';
-                  e.target.style.color = '#2c3e50';
-                }
-              }}
-            >
-              <span style={styles.navIcon}>{item.icon}</span>
-              <span style={styles.navLabel}>{item.label}</span>
-            </button>
-          ))}
+            { id: "home", label: "Dashboard", icon: <Building2 size={18} />, activeGrad: 'linear-gradient(135deg, #3b82f6, #2563eb)', hoverBg: '#eff6ff', hoverColor: '#2563eb' },
+            { id: "donate", label: "Donate Blood", icon: <Heart size={18} />, activeGrad: 'linear-gradient(135deg, #ef4444, #dc2626)', hoverBg: '#fef2f2', hoverColor: '#dc2626' },
+            { id: "request", label: "Request Blood", icon: <Droplet size={18} />, activeGrad: 'linear-gradient(135deg, #f59e0b, #d97706)', hoverBg: '#fffbeb', hoverColor: '#d97706' },
+            { id: "camps", label: "Blood Camps", icon: <MapPin size={18} />, activeGrad: 'linear-gradient(135deg, #10b981, #059669)', hoverBg: '#f0fdf4', hoverColor: '#059669' },
+            { id: "history", label: "My History", icon: <Activity size={18} />, activeGrad: 'linear-gradient(135deg, #8b5cf6, #7c3aed)', hoverBg: '#f5f3ff', hoverColor: '#7c3aed' },
+            { id: "urgent", label: "Urgent Needs", icon: <Heart size={18} />, activeGrad: 'linear-gradient(135deg, #ef4444, #b91c1c)', hoverBg: '#fef2f2', hoverColor: '#b91c1c' }
+          ].map(item => {
+            const isActive = activeSection === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveSection(item.id)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '8px',
+                  padding: '12px 24px', borderRadius: '50px',
+                  border: 'none', cursor: 'pointer',
+                  fontFamily: 'inherit', fontSize: '0.9rem', fontWeight: '700',
+                  whiteSpace: 'nowrap', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  background: isActive ? item.activeGrad : 'transparent',
+                  color: isActive ? '#fff' : '#64748b',
+                  boxShadow: isActive ? '0 6px 20px rgba(0,0,0,0.15)' : 'none',
+                  transform: isActive ? 'scale(1.02)' : 'scale(1)',
+                  flex: '0 0 auto'
+                }}
+                onMouseEnter={(e) => {
+                  if (!isActive) {
+                    e.currentTarget.style.background = item.hoverBg;
+                    e.currentTarget.style.color = item.hoverColor;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isActive) {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.color = '#64748b';
+                  }
+                }}
+              >
+                {item.icon}
+                {item.label}
+              </button>
+            );
+          })}
         </div>
       </nav>
 
       {/* Content with better styling */}
-      <div style={styles.content}>
-        <div style={styles.contentWrapper}>
+      <div className="bu-content">
+        <div className="bu-contentWrapper">
           {activeSection === "home" && (
             <HomeSection
               urgentRequests={bloodData.urgentRequests}
@@ -2007,6 +2066,9 @@ function BloodPortal() {
           {activeSection === "urgent" && (
             <UrgentSection urgentRequests={bloodData.urgentRequests} />
           )}
+          {activeSection === "camps" && (
+            <CampsSection camps={bloodData.camps} onRegister={handleCampRegister} userId={JSON.parse(localStorage.getItem('user') || '{}')._id} />
+          )}
         </div>
       </div>
     </div>
@@ -2016,42 +2078,42 @@ function BloodPortal() {
 // HOME SECTION
 function HomeSection({ urgentRequests, bloodBanks, userStats, setActiveSection }) {
   return (
-    <div style={styles.section}>
-      <div style={styles.welcomeCard}>
-        <div style={styles.welcomeContent}>
-          <h2 style={styles.welcomeTitle}>Your Blood Bank Journey 🌟</h2>
-          <p style={styles.welcomeText}>
+    <div className="bu-section">
+      <div className="bu-welcomeCard">
+        <div className="bu-welcomeContent">
+          <h2 className="bu-welcomeTitle">Your Blood Bank Journey </h2>
+          <p className="bu-welcomeText">
             Track your life-saving contributions and make a real difference in your community!
           </p>
 
-          <div style={styles.achievementShowcase}>
-            <div style={styles.achievementItem}>
-              <div style={styles.achievementNumber}>{userStats.acceptedDonations}</div>
-              <div style={styles.achievementLabel}>Successful Donations</div>
-              <div style={styles.achievementDesc}>Accepted by blood banks</div>
+          <div className="bu-achievementShowcase">
+            <div className="bu-achievementItem">
+              <div className="bu-achievementNumber">{userStats.acceptedDonations}</div>
+              <div className="bu-achievementLabel">Successful Donations</div>
+              <div className="bu-achievementDesc">Accepted by blood banks</div>
             </div>
-            <div style={styles.achievementDivider}>→</div>
-            <div style={styles.achievementItem}>
-              <div style={styles.achievementNumber}>{userStats.livesSaved}</div>
-              <div style={styles.achievementLabel}>Lives Saved</div>
-              <div style={styles.achievementDesc}>Through your donations</div>
+            <div className="bu-achievementDivider"></div>
+            <div className="bu-achievementItem">
+              <div className="bu-achievementNumber">{userStats.livesSaved}</div>
+              <div className="bu-achievementLabel">Lives Saved</div>
+              <div className="bu-achievementDesc">Through your donations</div>
             </div>
-            <div style={styles.achievementDivider}>→</div>
-            <div style={styles.achievementItem}>
-              <div style={styles.achievementNumber}>{userStats.acceptedRequests}</div>
-              <div style={styles.achievementLabel}>Requests Fulfilled</div>
-              <div style={styles.achievementDesc}>When you needed help</div>
+            <div className="bu-achievementDivider"></div>
+            <div className="bu-achievementItem">
+              <div className="bu-achievementNumber">{userStats.acceptedRequests}</div>
+              <div className="bu-achievementLabel">Requests Fulfilled</div>
+              <div className="bu-achievementDesc">When you needed help</div>
             </div>
           </div>
 
           {(userStats.pendingDonations > 0 || userStats.pendingRequests > 0) && (
-            <div style={styles.pendingAlert}>
-              <span style={styles.pendingIcon}>⏳</span>
-              <div style={styles.pendingText}>
+            <div className="bu-pendingAlert">
+              <span className="bu-pendingIcon"></span>
+              <div className="bu-pendingText">
                 {userStats.pendingDonations > 0 && (
                   <span>{userStats.pendingDonations} donation{userStats.pendingDonations > 1 ? 's' : ''} pending approval</span>
                 )}
-                {userStats.pendingDonations > 0 && userStats.pendingRequests > 0 && <span> • </span>}
+                {userStats.pendingDonations > 0 && userStats.pendingRequests > 0 && <span>  </span>}
                 {userStats.pendingRequests > 0 && (
                   <span>{userStats.pendingRequests} request{userStats.pendingRequests > 1 ? 's' : ''} pending approval</span>
                 )}
@@ -2062,56 +2124,56 @@ function HomeSection({ urgentRequests, bloodBanks, userStats, setActiveSection }
       </div>
 
       {/* Quick Action Cards */}
-      <div style={styles.quickActionCards}>
+      <div className="bu-quickActionCards">
         <div
           onClick={() => setActiveSection('donate')}
           style={{ ...styles.quickCard, ...styles.donateCard }}
         >
-          <div style={styles.quickCardIcon}>🩸</div>
-          <h3 style={styles.quickCardTitle}>Donate Blood</h3>
-          <p style={styles.quickCardDesc}>Save up to 3 lives with one donation</p>
-          <div style={styles.quickCardArrow}>→</div>
+          <div className="bu-quickCardIcon"></div>
+          <h3 className="bu-quickCardTitle">Donate Blood</h3>
+          <p className="bu-quickCardDesc">Save up to 3 lives with one donation</p>
+          <div className="bu-quickCardArrow"></div>
         </div>
 
         <div
           onClick={() => setActiveSection('request')}
           style={{ ...styles.quickCard, ...styles.requestCard }}
         >
-          <div style={styles.quickCardIcon}>🆘</div>
-          <h3 style={styles.quickCardTitle}>Request Blood</h3>
-          <p style={styles.quickCardDesc}>Get help when you need it most</p>
-          <div style={styles.quickCardArrow}>→</div>
+          <div className="bu-quickCardIcon"></div>
+          <h3 className="bu-quickCardTitle">Request Blood</h3>
+          <p className="bu-quickCardDesc">Get help when you need it most</p>
+          <div className="bu-quickCardArrow"></div>
         </div>
 
         <div
           onClick={() => setActiveSection('urgent')}
           style={{ ...styles.quickCard, ...styles.urgentCard }}
         >
-          <div style={styles.quickCardIcon}>⚡</div>
-          <h3 style={styles.quickCardTitle}>Urgent Needs</h3>
-          <p style={styles.quickCardDesc}>Help someone in critical need</p>
-          <div style={styles.quickCardArrow}>→</div>
+          <div className="bu-quickCardIcon"></div>
+          <h3 className="bu-quickCardTitle">Urgent Needs</h3>
+          <p className="bu-quickCardDesc">Help someone in critical need</p>
+          <div className="bu-quickCardArrow"></div>
         </div>
       </div>
 
       {/* Available Blood Banks */}
       {bloodBanks.length > 0 && (
-        <div style={styles.bloodBanksSection}>
-          <h3 style={styles.sectionSubtitle}>🏥 Available Blood Banks ({bloodBanks.length})</h3>
-          <div style={styles.bloodBanksCarousel}>
+        <div className="bu-bloodBanksSection">
+          <h3 className="bu-sectionSubtitle"> Available Blood Banks ({bloodBanks.length})</h3>
+          <div className="bu-bloodBanksCarousel">
             {bloodBanks.slice(0, 6).map(bank => (
-              <div key={bank._id} style={styles.bankCard}>
-                <div style={styles.bankCardIcon}>🏥</div>
-                <h4 style={styles.bankCardName}>{bank.name}</h4>
-                <p style={styles.bankCardLocation}>📍 {bank.location || bank.address}</p>
+              <div key={bank._id} className="bu-bankCard">
+                <div className="bu-bankCardIcon"></div>
+                <h4 className="bu-bankCardName">{bank.name}</h4>
+                <p className="bu-bankCardLocation"> {bank.location || bank.address}</p>
                 {bank.phone && (
-                  <p style={styles.bankCardContact}>📞 {bank.phone}</p>
+                  <p className="bu-bankCardContact"> {bank.phone}</p>
                 )}
               </div>
             ))}
           </div>
           {bloodBanks.length > 6 && (
-            <div style={styles.showMoreBanks}>
+            <div className="bu-showMoreBanks">
               <span>And {bloodBanks.length - 6} more blood banks available...</span>
             </div>
           )}
@@ -2120,27 +2182,27 @@ function HomeSection({ urgentRequests, bloodBanks, userStats, setActiveSection }
 
       {/* Urgent Requests Preview */}
       {urgentRequests.length > 0 && (
-        <div style={styles.urgentSection}>
-          <h3 style={styles.urgentSectionTitle}>🚨 Critical Blood Needs</h3>
-          <div style={styles.urgentCarousel}>
+        <div className="bu-urgentSection">
+          <h3 className="bu-urgentSectionTitle"> Critical Blood Needs</h3>
+          <div className="bu-urgentCarousel">
             {urgentRequests.slice(0, 3).map(request => (
-              <div key={request._id} style={styles.urgentPreviewCard}>
-                <div style={styles.urgentCardTop}>
-                  <span style={styles.urgentBloodTypeBig}>{request.blood_group}</span>
-                  <span style={styles.urgentPriorityBadge}>
-                    {request.urgency === 'critical' ? '🔴 CRITICAL' : '🟠 URGENT'}
+              <div key={request._id} className="bu-urgentPreviewCard">
+                <div className="bu-urgentCardTop">
+                  <span className="bu-urgentBloodTypeBig">{request.blood_group}</span>
+                  <span className="bu-urgentPriorityBadge">
+                    {request.urgency === 'critical' ? ' CRITICAL' : ' URGENT'}
                   </span>
                 </div>
-                <div style={styles.urgentCardDetails}>
-                  <p>📍 {request.location}</p>
-                  <p>🩸 {request.units_requested} units needed</p>
-                  <p>⏰ {request.timeAgo}</p>
+                <div className="bu-urgentCardDetails">
+                  <p> {request.location}</p>
+                  <p> {request.units_requested} units needed</p>
+                  <p> {request.timeAgo}</p>
                 </div>
-                <button style={styles.urgentHelpBtn}>💪 Help Now</button>
+                <button className="bu-urgentHelpBtn"> Help Now</button>
               </div>
             ))}
           </div>
-          <div style={styles.viewAllUrgent} onClick={() => setActiveSection('urgent')}>
+          <div className="bu-viewAllUrgent" onClick={() => setActiveSection('urgent')}>
             View All Urgent Requests ({urgentRequests.length})
           </div>
         </div>
@@ -2182,21 +2244,21 @@ function DonateSection({ bloodBanks, userStats, onSubmit }) {
   };
 
   return (
-    <div style={styles.section}>
-      <div style={styles.formCard}>
-        <div style={styles.formHeader}>
-          <h2 style={styles.formTitle}>🩸 Donate Blood</h2>
-          <p style={styles.formSubtitle}>Your donation can save up to 3 lives!</p>
+    <div className="bu-section">
+      <div className="bu-formCard">
+        <div className="bu-formHeader">
+          <h2 className="bu-formTitle"><Heart className="bu-formTitleIcon" size={32} color="#dc2626" /> Donate Blood</h2>
+          <p className="bu-formSubtitle">Your donation can save up to 3 lives!</p>
         </div>
 
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <div style={styles.formRow}>
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Blood Group *</label>
+        <form onSubmit={handleSubmit} className="bu-form">
+          <div className="bu-formRow">
+            <div className="bu-formGroup">
+              <label className="bu-label" style={{ display: "flex", alignItems: "center", gap: "6px" }}><Droplet size={16} color="#ef4444" /> Blood Group *</label>
               <select
                 value={donationForm.blood_group}
                 onChange={(e) => setDonationForm({ ...donationForm, blood_group: e.target.value })}
-                style={styles.input}
+                className="bu-input"
                 required
                 disabled={submitting}
               >
@@ -2207,12 +2269,12 @@ function DonateSection({ bloodBanks, userStats, onSubmit }) {
               </select>
             </div>
 
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Units to Donate *</label>
+            <div className="bu-formGroup">
+              <label className="bu-label" style={{ display: "flex", alignItems: "center", gap: "6px" }}><Activity size={16} color="#ef4444" /> Units to Donate *</label>
               <select
                 value={donationForm.units}
                 onChange={(e) => setDonationForm({ ...donationForm, units: parseInt(e.target.value) })}
-                style={styles.input}
+                className="bu-input"
                 required
                 disabled={submitting}
               >
@@ -2222,32 +2284,32 @@ function DonateSection({ bloodBanks, userStats, onSubmit }) {
             </div>
           </div>
 
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Select Blood Bank * ({bloodBanks?.length || 0} available)</label>
+          <div className="bu-formGroup">
+            <label className="bu-label" style={{ display: "flex", alignItems: "center", gap: "6px" }}><Building2 size={16} color="#ef4444" /> Select Blood Bank * ({bloodBanks?.length || 0} available)</label>
             <select
               value={donationForm.bankId}
               onChange={(e) => setDonationForm({ ...donationForm, bankId: e.target.value })}
-              style={styles.input}
+              className="bu-input"
               required
               disabled={submitting}
             >
               <option value="">Choose a blood bank</option>
               {bloodBanks && bloodBanks.map(bank => (
                 <option key={bank._id} value={bank._id}>
-                  🏥 {bank.name || 'Blood Bank'} - {bank.location || bank.address || 'Location not specified'}
+                   {bank.name || 'Blood Bank'} - {bank.location || bank.address || 'Location not specified'}
                   {bank.phone ? ` (${bank.phone})` : ''}
                 </option>
               ))}
             </select>
           </div>
 
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Requested Date *</label>
+          <div className="bu-formGroup">
+            <label className="bu-label" style={{ display: "flex", alignItems: "center", gap: "6px" }}><Calendar size={16} color="#ef4444" /> Requested Date *</label>
             <input
               type="date"
               value={donationForm.requestedDate}
               onChange={(e) => setDonationForm({ ...donationForm, requestedDate: e.target.value })}
-              style={styles.input}
+              className="bu-input"
               min={new Date().toISOString().split('T')[0]}
               required
               disabled={submitting}
@@ -2263,17 +2325,17 @@ function DonateSection({ bloodBanks, userStats, onSubmit }) {
             }}
             disabled={submitting || !bloodBanks || bloodBanks.length === 0}
           >
-            {submitting ? "Submitting..." : "🩸 Submit Donation Request"}
+            {submitting ? "Submitting..." : " Submit Donation Request"}
           </button>
         </form>
 
-        <div style={styles.benefits}>
-          <h3 style={styles.benefitsTitle}>Why Donate Blood?</h3>
-          <div style={styles.benefitsList}>
-            <div style={styles.benefitItem}>💪 Improves your health</div>
-            <div style={styles.benefitItem}>❤️ Saves up to 3 lives</div>
-            <div style={styles.benefitItem}>🏆 Builds community</div>
-            <div style={styles.benefitItem}>😊 Gives satisfaction</div>
+        <div className="bu-benefits">
+          <h3 className="bu-benefitsTitle">Why Donate Blood?</h3>
+          <div className="bu-benefitsList">
+            <div className="bu-benefitItem"> Improves your health</div>
+            <div className="bu-benefitItem"> Saves up to 3 lives</div>
+            <div className="bu-benefitItem"> Builds community</div>
+            <div className="bu-benefitItem"> Gives satisfaction</div>
           </div>
         </div>
       </div>
@@ -2314,21 +2376,21 @@ function RequestSection({ bloodBanks, userStats, onSubmit }) {
   };
 
   return (
-    <div style={styles.section}>
-      <div style={styles.formCard}>
-        <div style={styles.formHeader}>
-          <h2 style={styles.formTitle}>🆘 Request Blood</h2>
-          <p style={styles.formSubtitle}>Get the help you need from our community</p>
+    <div className="bu-section">
+      <div className="bu-formCard">
+        <div className="bu-formHeader">
+          <h2 className="bu-formTitle"><Activity className="bu-formTitleIcon" size={32} color="#dc2626" /> Request Blood</h2>
+          <p className="bu-formSubtitle">Get the help you need from our community</p>
         </div>
 
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <div style={styles.formRow}>
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Blood Group Needed *</label>
+        <form onSubmit={handleSubmit} className="bu-form">
+          <div className="bu-formRow">
+            <div className="bu-formGroup">
+              <label className="bu-label" style={{ display: "flex", alignItems: "center", gap: "6px" }}><Droplet size={16} color="#ef4444" /> Blood Group Needed *</label>
               <select
                 value={requestForm.blood_group}
                 onChange={(e) => setRequestForm({ ...requestForm, blood_group: e.target.value })}
-                style={styles.input}
+                className="bu-input"
                 required
                 disabled={submitting}
               >
@@ -2339,12 +2401,12 @@ function RequestSection({ bloodBanks, userStats, onSubmit }) {
               </select>
             </div>
 
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Units Needed *</label>
+            <div className="bu-formGroup">
+              <label className="bu-label" style={{ display: "flex", alignItems: "center", gap: "6px" }}><Activity size={16} color="#ef4444" /> Units Needed *</label>
               <select
                 value={requestForm.units}
                 onChange={(e) => setRequestForm({ ...requestForm, units: parseInt(e.target.value) })}
-                style={styles.input}
+                className="bu-input"
                 required
                 disabled={submitting}
               >
@@ -2355,32 +2417,32 @@ function RequestSection({ bloodBanks, userStats, onSubmit }) {
             </div>
           </div>
 
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Select Blood Bank * ({bloodBanks?.length || 0} available)</label>
+          <div className="bu-formGroup">
+            <label className="bu-label" style={{ display: "flex", alignItems: "center", gap: "6px" }}><Building2 size={16} color="#ef4444" /> Select Blood Bank * ({bloodBanks?.length || 0} available)</label>
             <select
               value={requestForm.bankId}
               onChange={(e) => setRequestForm({ ...requestForm, bankId: e.target.value })}
-              style={styles.input}
+              className="bu-input"
               required
               disabled={submitting}
             >
               <option value="">Choose a blood bank</option>
               {bloodBanks && bloodBanks.map(bank => (
                 <option key={bank._id} value={bank._id}>
-                  🏥 {bank.name || 'Blood Bank'} - {bank.location || bank.address || 'Location not specified'}
+                   {bank.name || 'Blood Bank'} - {bank.location || bank.address || 'Location not specified'}
                   {bank.phone ? ` (${bank.phone})` : ''}
                 </option>
               ))}
             </select>
           </div>
 
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Needed By Date *</label>
+          <div className="bu-formGroup">
+            <label className="bu-label" style={{ display: "flex", alignItems: "center", gap: "6px" }}><Calendar size={16} color="#ef4444" /> Needed By Date *</label>
             <input
               type="date"
               value={requestForm.requestedDate}
               onChange={(e) => setRequestForm({ ...requestForm, requestedDate: e.target.value })}
-              style={styles.input}
+              className="bu-input"
               min={new Date().toISOString().split('T')[0]}
               required
               disabled={submitting}
@@ -2397,7 +2459,7 @@ function RequestSection({ bloodBanks, userStats, onSubmit }) {
             }}
             disabled={submitting || !bloodBanks || bloodBanks.length === 0}
           >
-            {submitting ? "Submitting..." : "🆘 Submit Blood Request"}
+            {submitting ? "Submitting..." : " Submit Blood Request"}
           </button>
         </form>
       </div>
@@ -2407,117 +2469,202 @@ function RequestSection({ bloodBanks, userStats, onSubmit }) {
 
 // HISTORY SECTION
 function HistorySection({ myDonations, myRequests, userStats, setActiveSection }) {
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'accepted': return '#27ae60';
-      case 'rejected': return '#e74c3c';
-      case 'pending': return '#f39c12';
-      default: return '#666';
-    }
-  };
+  const [activeTab, setActiveTab] = useState('donations');
 
-  const getStatusIcon = (status) => {
+  const getStatusStyle = (status) => {
     switch (status) {
-      case 'accepted': return '✅';
-      case 'rejected': return '❌';
-      case 'pending': return '⏳';
-      default: return '❓';
+      case 'accepted': return { bg: '#e8f8f0', color: '#27ae60', border: '#b8e6cd' };
+      case 'rejected': return { bg: '#fef2f2', color: '#ef4444', border: '#fecaca' };
+      case 'pending': return { bg: '#fffbeb', color: '#d97706', border: '#fde68a' };
+      default: return { bg: '#f1f5f9', color: '#64748b', border: '#e2e8f0' };
     }
   };
 
   return (
-    <div style={styles.section}>
-      <div style={styles.historyHeader}>
-        <h2 style={styles.sectionTitle}>📊 Your Achievement History</h2>
-        <div style={styles.historySummary}>
-          <div style={styles.historyStat}>
-            <span style={styles.historyStatNumber}>{userStats?.acceptedDonations || 0}</span>
-            <span style={styles.historyStatLabel}>Successful Donations</span>
+    <div className="bu-section">
+      {/* Achievement Stats Banner */}
+      <div style={{
+        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)',
+        borderRadius: '24px', padding: '32px', marginBottom: '24px',
+        display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px',
+        position: 'relative', overflow: 'hidden'
+      }}>
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'radial-gradient(circle at 20% 50%, rgba(239,68,68,0.15) 0%, transparent 50%), radial-gradient(circle at 80% 30%, rgba(59,130,246,0.1) 0%, transparent 50%)',
+          pointerEvents: 'none'
+        }} />
+        {[
+          { value: userStats?.acceptedDonations || 0, label: 'Successful Donations', icon: <Heart size={24} color="#ef4444" />, gradient: 'linear-gradient(135deg, rgba(239,68,68,0.2), rgba(239,68,68,0.05))' },
+          { value: userStats?.livesSaved || 0, label: 'Lives Saved', icon: <Activity size={24} color="#10b981" />, gradient: 'linear-gradient(135deg, rgba(16,185,129,0.2), rgba(16,185,129,0.05))' },
+          { value: userStats?.acceptedRequests || 0, label: 'Requests Fulfilled', icon: <Droplet size={24} color="#3b82f6" />, gradient: 'linear-gradient(135deg, rgba(59,130,246,0.2), rgba(59,130,246,0.05))' }
+        ].map((stat, i) => (
+          <div key={i} style={{
+            background: stat.gradient, backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px',
+            padding: '24px', textAlign: 'center', position: 'relative', zIndex: 1
+          }}>
+            <div style={{ marginBottom: '12px', display: 'flex', justifyContent: 'center' }}>{stat.icon}</div>
+            <div style={{ fontSize: '2.5rem', fontWeight: '900', color: '#fff', lineHeight: 1, marginBottom: '6px' }}>{stat.value}</div>
+            <div style={{ fontSize: '0.8rem', fontWeight: '700', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{stat.label}</div>
           </div>
-          <div style={styles.historyStat}>
-            <span style={styles.historyStatNumber}>{userStats?.acceptedRequests || 0}</span>
-            <span style={styles.historyStatLabel}>Fulfilled Requests</span>
-          </div>
-          <div style={styles.historyStat}>
-            <span style={styles.historyStatNumber}>{userStats?.livesSaved || 0}</span>
-            <span style={styles.historyStatLabel}>Lives Saved</span>
-          </div>
+        ))}
+      </div>
+
+      {/* Tab Switcher */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
+        {[
+          { id: 'donations', label: `Donations (${myDonations?.length || 0})`, icon: <Heart size={16} /> },
+          { id: 'requests', label: `Requests (${myRequests?.length || 0})`, icon: <Droplet size={16} /> }
+        ].map(tab => (
+          <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
+            display: 'flex', alignItems: 'center', gap: '8px',
+            padding: '12px 24px', borderRadius: '50px', border: 'none',
+            fontFamily: 'inherit', fontSize: '0.9rem', fontWeight: '800',
+            cursor: 'pointer', transition: 'all 0.2s ease',
+            background: activeTab === tab.id ? 'linear-gradient(135deg, #dc2626, #b91c1c)' : '#ffffff',
+            color: activeTab === tab.id ? '#fff' : '#64748b',
+            boxShadow: activeTab === tab.id ? '0 4px 16px rgba(220,38,38,0.25)' : '0 2px 8px rgba(0,0,0,0.04)',
+            border: activeTab === tab.id ? 'none' : '1px solid #e2e8f0'
+          }}>
+            {tab.icon} {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Donations Tab */}
+      {activeTab === 'donations' && (
+        <div style={{
+          background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(20px)',
+          borderRadius: '24px', padding: '28px',
+          border: '1px solid rgba(255,255,255,0.9)',
+          boxShadow: '0 10px 24px rgba(0,0,0,0.03)'
+        }}>
+          {!myDonations || myDonations.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '48px 24px' }}>
+              <Heart size={48} color="#e2e8f0" style={{ marginBottom: '16px' }} />
+              <h3 style={{ fontSize: '1.3rem', fontWeight: '800', color: '#0f172a', marginBottom: '8px' }}>No Donations Yet</h3>
+              <p style={{ color: '#64748b', marginBottom: '20px' }}>Start saving lives today with your first donation!</p>
+              <button onClick={() => setActiveSection('donate')} style={{
+                background: 'linear-gradient(135deg, #dc2626, #b91c1c)', color: '#fff',
+                border: 'none', padding: '12px 28px', borderRadius: '50px',
+                fontFamily: 'inherit', fontSize: '0.9rem', fontWeight: '800',
+                cursor: 'pointer', boxShadow: '0 4px 12px rgba(220,38,38,0.25)'
+              }}>Make Your First Donation</button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {myDonations.map(donation => {
+                const s = getStatusStyle(donation.status);
+                return (
+                  <div key={donation._id || Math.random()} style={{
+                    display: 'grid', gridTemplateColumns: 'auto 1fr auto',
+                    alignItems: 'center', gap: '20px', padding: '16px 20px',
+                    background: '#f8fafc', borderRadius: '16px',
+                    border: '1px solid #f1f5f9', transition: 'all 0.2s ease'
+                  }}>
+                    <div style={{
+                      width: '52px', height: '52px', borderRadius: '14px',
+                      background: 'linear-gradient(135deg, #fef2f2, #fee2e2)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontWeight: '900', fontSize: '0.95rem', color: '#dc2626'
+                    }}>{donation.blood_group || '?'}</div>
+                    <div>
+                      <div style={{ fontWeight: '800', fontSize: '0.95rem', color: '#0f172a', marginBottom: '4px' }}>
+                        {donation.units_donated || 1} Unit{(donation.units_donated || 1) > 1 ? 's' : ''} Donated
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.82rem', color: '#64748b', fontWeight: '600' }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <Calendar size={13} /> {donation.requested_date ? new Date(donation.requested_date).toLocaleDateString() : 'Unknown'}
+                        </span>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <Building2 size={13} /> {donation.bank_id?.name || 'Blood Bank'}
+                        </span>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
+                      <span style={{
+                        background: s.bg, color: s.color, border: `1px solid ${s.border}`,
+                        padding: '4px 14px', borderRadius: '50px',
+                        fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.3px'
+                      }}>{(donation.status || 'unknown').toUpperCase()}</span>
+                      {donation.status === 'accepted' && (
+                        <span style={{ fontSize: '0.75rem', fontWeight: '700', color: '#10b981' }}>
+                          +{(donation.units_donated || 1) * 3} lives saved
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
-      </div>
+      )}
 
-      {/* Donations History */}
-      <div style={styles.historyCard}>
-        <h3 style={styles.historyTitle}>🩸 My Donations ({myDonations?.length || 0})</h3>
-        {!myDonations || myDonations.length === 0 ? (
-          <div style={styles.emptyHistory}>
-            <div style={styles.emptyIcon}>🩸</div>
-            <p>No donations yet. Start saving lives today!</p>
-            <button
-              onClick={() => setActiveSection('donate')}
-              style={styles.emptyActionButton}
-            >
-              Make Your First Donation
-            </button>
-          </div>
-        ) : (
-          <div style={styles.historyList}>
-            {myDonations.map(donation => (
-              <div key={donation._id || Math.random()} style={styles.historyItem}>
-                <div style={styles.historyLeft}>
-                  <span style={styles.historyBloodType}>{donation.blood_group || 'Unknown'}</span>
-                  <span style={styles.historyUnits}>{donation.units_donated || 0} Unit{(donation.units_donated || 0) > 1 ? 's' : ''}</span>
-                </div>
-                <div style={styles.historyCenter}>
-                  <span style={styles.historyDate}>{donation.requested_date ? new Date(donation.requested_date).toLocaleDateString() : 'Unknown'}</span>
-                  <span style={styles.historyBank}>{donation.bank_id?.name || 'Blood Bank'}</span>
-                </div>
-                <div style={styles.historyRight}>
-                  <span style={{ ...styles.historyStatus, color: getStatusColor(donation.status) }}>
-                    {getStatusIcon(donation.status)} {(donation.status || 'unknown').toUpperCase()}
-                  </span>
-                  {donation.status === 'accepted' && (
-                    <span style={styles.livesSavedBadge}>+{(donation.units_donated || 1) * 3} lives saved!</span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Requests History */}
-      <div style={styles.historyCard}>
-        <h3 style={styles.historyTitle}>🆘 My Requests ({myRequests?.length || 0})</h3>
-        {!myRequests || myRequests.length === 0 ? (
-          <div style={styles.emptyHistory}>
-            <div style={styles.emptyIcon}>🆘</div>
-            <p>No blood requests yet.</p>
-          </div>
-        ) : (
-          <div style={styles.historyList}>
-            {myRequests.map(request => (
-              <div key={request._id || Math.random()} style={styles.historyItem}>
-                <div style={styles.historyLeft}>
-                  <span style={styles.historyBloodType}>{request.blood_group || 'Unknown'}</span>
-                  <span style={styles.historyUnits}>{request.units_requested || 0} Unit{(request.units_requested || 0) > 1 ? 's' : ''}</span>
-                </div>
-                <div style={styles.historyCenter}>
-                  <span style={styles.historyDate}>{request.requested_date ? new Date(request.requested_date).toLocaleDateString() : 'Unknown'}</span>
-                  <span style={styles.historyBank}>{request.bank_id?.name || 'Blood Bank'}</span>
-                </div>
-                <div style={styles.historyRight}>
-                  <span style={{ ...styles.historyStatus, color: getStatusColor(request.status) }}>
-                    {getStatusIcon(request.status)} {(request.status || 'unknown').toUpperCase()}
-                  </span>
-                  {request.status === 'accepted' && (
-                    <span style={styles.fulfilledBadge}>✅ Request fulfilled!</span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      {/* Requests Tab */}
+      {activeTab === 'requests' && (
+        <div style={{
+          background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(20px)',
+          borderRadius: '24px', padding: '28px',
+          border: '1px solid rgba(255,255,255,0.9)',
+          boxShadow: '0 10px 24px rgba(0,0,0,0.03)'
+        }}>
+          {!myRequests || myRequests.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '48px 24px' }}>
+              <Droplet size={48} color="#e2e8f0" style={{ marginBottom: '16px' }} />
+              <h3 style={{ fontSize: '1.3rem', fontWeight: '800', color: '#0f172a', marginBottom: '8px' }}>No Requests Yet</h3>
+              <p style={{ color: '#64748b' }}>You haven't made any blood requests.</p>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {myRequests.map(request => {
+                const s = getStatusStyle(request.status);
+                return (
+                  <div key={request._id || Math.random()} style={{
+                    display: 'grid', gridTemplateColumns: 'auto 1fr auto',
+                    alignItems: 'center', gap: '20px', padding: '16px 20px',
+                    background: '#f8fafc', borderRadius: '16px',
+                    border: '1px solid #f1f5f9', transition: 'all 0.2s ease'
+                  }}>
+                    <div style={{
+                      width: '52px', height: '52px', borderRadius: '14px',
+                      background: 'linear-gradient(135deg, #eff6ff, #dbeafe)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontWeight: '900', fontSize: '0.95rem', color: '#2563eb'
+                    }}>{request.blood_group || '?'}</div>
+                    <div>
+                      <div style={{ fontWeight: '800', fontSize: '0.95rem', color: '#0f172a', marginBottom: '4px' }}>
+                        {request.units_requested || 1} Unit{(request.units_requested || 1) > 1 ? 's' : ''} Requested
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.82rem', color: '#64748b', fontWeight: '600' }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <Calendar size={13} /> {request.requested_date ? new Date(request.requested_date).toLocaleDateString() : 'Unknown'}
+                        </span>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <Building2 size={13} /> {request.bank_id?.name || 'Blood Bank'}
+                        </span>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
+                      <span style={{
+                        background: s.bg, color: s.color, border: `1px solid ${s.border}`,
+                        padding: '4px 14px', borderRadius: '50px',
+                        fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.3px'
+                      }}>{(request.status || 'unknown').toUpperCase()}</span>
+                      {request.status === 'accepted' && (
+                        <span style={{ fontSize: '0.75rem', fontWeight: '700', color: '#10b981' }}>
+                          Request fulfilled
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -2525,47 +2672,331 @@ function HistorySection({ myDonations, myRequests, userStats, setActiveSection }
 // URGENT SECTION
 function UrgentSection({ urgentRequests }) {
   return (
-    <div style={styles.section}>
-      <div style={styles.urgentHeader}>
-        <h2 style={styles.sectionTitle}>⚡ Urgent Blood Needs</h2>
-        <p style={styles.urgentSubtitle}>Someone needs your help right now!</p>
+    <div className="bu-section">
+      {/* Urgent Header Banner */}
+      <div style={{
+        background: 'linear-gradient(135deg, #450a0a 0%, #7f1d1d 40%, #991b1b 100%)',
+        borderRadius: '24px', padding: '32px', marginBottom: '24px',
+        position: 'relative', overflow: 'hidden', textAlign: 'center'
+      }}>
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'radial-gradient(circle at 50% 0%, rgba(239,68,68,0.3) 0%, transparent 60%), radial-gradient(circle at 20% 80%, rgba(252,165,165,0.1) 0%, transparent 40%)',
+          pointerEvents: 'none'
+        }} />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: '8px',
+            background: 'rgba(239,68,68,0.3)', border: '1px solid rgba(239,68,68,0.5)',
+            padding: '6px 16px', borderRadius: '50px', marginBottom: '16px',
+            fontSize: '0.78rem', fontWeight: '800', color: '#fca5a5',
+            textTransform: 'uppercase', letterSpacing: '0.08em'
+          }}>
+            <span style={{
+              width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444',
+              animation: 'pulse 2s ease-in-out infinite',
+              boxShadow: '0 0 0 0 rgba(239,68,68,0.4)'
+            }} />
+            Live Urgent Needs
+          </div>
+          <h2 style={{
+            fontSize: '2rem', fontWeight: '900', color: '#fff',
+            margin: '0 0 8px', letterSpacing: '-0.02em'
+          }}>Urgent Blood Needs</h2>
+          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '1rem', margin: 0, fontWeight: '500' }}>
+            Someone needs your help right now. Every minute counts.
+          </p>
+        </div>
       </div>
 
       {!urgentRequests || urgentRequests.length === 0 ? (
-        <div style={styles.emptyState}>
-          <div style={styles.emptyIcon}>🎉</div>
-          <h3>Great News!</h3>
-          <p>No urgent requests right now. Everyone is safe!</p>
+        <div style={{
+          background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(20px)',
+          borderRadius: '24px', padding: '60px 24px', textAlign: 'center',
+          border: '1px solid rgba(255,255,255,0.9)',
+          boxShadow: '0 10px 24px rgba(0,0,0,0.03)'
+        }}>
+          <Activity size={56} color="#10b981" style={{ marginBottom: '16px' }} />
+          <h3 style={{ fontSize: '1.5rem', fontWeight: '900', color: '#0f172a', marginBottom: '8px' }}>All Clear!</h3>
+          <p style={{ color: '#64748b', fontSize: '1rem', margin: 0 }}>
+            No urgent blood requests right now. Everyone is safe!
+          </p>
         </div>
       ) : (
-        <div style={styles.urgentGrid}>
-          {urgentRequests.map(request => (
-            <div key={request._id || Math.random()} style={styles.urgentCard}>
-              <div style={styles.urgentCardHeader}>
-                <span style={styles.urgentBloodTypeLarge}>{request.blood_group || 'Unknown'}</span>
-                <span style={styles.urgentPriority}>
-                  {request.urgency === 'critical' ? '🔴 CRITICAL' : '🟠 HIGH PRIORITY'}
-                </span>
-              </div>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
+          gap: '20px'
+        }}>
+          {urgentRequests.map(request => {
+            const isCritical = request.urgency === 'critical';
+            return (
+              <div key={request._id || Math.random()} style={{
+                background: '#ffffff', borderRadius: '20px',
+                border: isCritical ? '2px solid #fecaca' : '1px solid #e2e8f0',
+                boxShadow: isCritical
+                  ? '0 10px 30px rgba(239,68,68,0.1), inset 0 1px 0 rgba(255,255,255,1)'
+                  : '0 4px 16px rgba(0,0,0,0.04)',
+                overflow: 'hidden', transition: 'all 0.3s ease',
+                display: 'flex', flexDirection: 'column'
+              }}>
+                {/* Card Top Accent */}
+                <div style={{
+                  height: '4px',
+                  background: isCritical
+                    ? 'linear-gradient(90deg, #ef4444, #f87171, #ef4444)'
+                    : 'linear-gradient(90deg, #f59e0b, #fbbf24)',
+                  backgroundSize: '200% 100%',
+                  animation: isCritical ? 'shimmer 2s linear infinite' : 'none'
+                }} />
 
-              <div style={styles.urgentCardBody}>
-                <p><strong>📍 Location:</strong> {request.location || 'Unknown location'}</p>
-                <p><strong>🩸 Units Needed:</strong> {request.units_requested || 0}</p>
-                <p><strong>⏰ Posted:</strong> {request.timeAgo || 'Recently'}</p>
-                {request.patient_condition && (
-                  <p><strong>🏥 Condition:</strong> {request.patient_condition}</p>
-                )}
-              </div>
+                <div style={{ padding: '24px' }}>
+                  {/* Blood Type + Priority Row */}
+                  <div style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    marginBottom: '20px'
+                  }}>
+                    <div style={{
+                      width: '64px', height: '64px', borderRadius: '18px',
+                      background: isCritical
+                        ? 'linear-gradient(135deg, #fef2f2, #fee2e2)'
+                        : 'linear-gradient(135deg, #fffbeb, #fef3c7)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontWeight: '900', fontSize: '1.3rem',
+                      color: isCritical ? '#dc2626' : '#d97706',
+                      border: isCritical ? '2px solid #fecaca' : '2px solid #fde68a'
+                    }}>{request.blood_group || '?'}</div>
 
-              <div style={styles.urgentCardFooter}>
-                <button style={styles.urgentHelpButton}>
-                  💪 I Can Help!
-                </button>
+                    <div style={{
+                      display: 'flex', alignItems: 'center', gap: '6px',
+                      background: isCritical
+                        ? 'linear-gradient(135deg, #dc2626, #ef4444)'
+                        : 'linear-gradient(135deg, #d97706, #f59e0b)',
+                      color: '#fff', padding: '6px 16px', borderRadius: '50px',
+                      fontSize: '0.72rem', fontWeight: '800',
+                      textTransform: 'uppercase', letterSpacing: '0.5px',
+                      boxShadow: isCritical
+                        ? '0 4px 12px rgba(220,38,38,0.3)'
+                        : '0 4px 12px rgba(217,119,6,0.3)'
+                    }}>
+                      {isCritical && <span style={{
+                        width: '6px', height: '6px', borderRadius: '50%', background: '#fff',
+                        animation: 'pulse 1.5s ease-in-out infinite'
+                      }} />}
+                      {isCritical ? 'CRITICAL' : 'HIGH PRIORITY'}
+                    </div>
+                  </div>
+
+                  {/* Details */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{
+                        width: '32px', height: '32px', borderRadius: '10px',
+                        background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                      }}>
+                        <MapPin size={16} color="#64748b" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Location</div>
+                        <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#0f172a' }}>{request.location || 'Unknown location'}</div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{
+                        width: '32px', height: '32px', borderRadius: '10px',
+                        background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                      }}>
+                        <Droplet size={16} color="#64748b" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Units Needed</div>
+                        <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#0f172a' }}>{request.units_requested || 0} Unit{(request.units_requested || 0) > 1 ? 's' : ''}</div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{
+                        width: '32px', height: '32px', borderRadius: '10px',
+                        background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                      }}>
+                        <Calendar size={16} color="#64748b" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Posted</div>
+                        <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#0f172a' }}>{request.timeAgo || 'Recently'}</div>
+                      </div>
+                    </div>
+
+                    {request.patient_condition && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{
+                          width: '32px', height: '32px', borderRadius: '10px',
+                          background: '#fef2f2', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                        }}>
+                          <Activity size={16} color="#ef4444" />
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Condition</div>
+                          <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#dc2626' }}>{request.patient_condition}</div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* CTA Button */}
+                  <button style={{
+                    width: '100%', padding: '14px',
+                    background: isCritical
+                      ? 'linear-gradient(135deg, #dc2626, #b91c1c)'
+                      : 'linear-gradient(135deg, #16a34a, #15803d)',
+                    color: '#fff', border: 'none', borderRadius: '14px',
+                    fontFamily: 'inherit', fontSize: '0.95rem', fontWeight: '800',
+                    cursor: 'pointer', transition: 'all 0.2s ease',
+                    boxShadow: isCritical
+                      ? '0 6px 20px rgba(220,38,38,0.25)'
+                      : '0 6px 20px rgba(22,163,74,0.25)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'
+                  }}>
+                    <Heart size={18} /> I Can Help!
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
+
+      {/* Shimmer animation for critical accent bar */}
+      <style>{`
+        @keyframes shimmer {
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+// CAMPS SECTION
+function CampsSection({ camps, onRegister, userId }) {
+  if (!camps || camps.length === 0) {
+    return (
+      <div className="bu-section">
+        <div className="bu-emptyContainer">
+          <span style={{ fontSize: "4rem", marginBottom: "1rem", display: "inline-block" }}></span>
+          <h3 style={{ fontSize: "1.8rem", color: "#2c3e50" }}>No Upcoming Blood Camps</h3>
+          <p style={{ color: "#7f8c8d" }}>There are currently no upcoming blood camps. Please check back later!</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bu-section">
+      <h3 className="bu-sectionTitle">Upcoming Blood Camps</h3>
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+        gap: "2rem",
+        marginBottom: "2rem"
+      }}>
+        {camps.map(camp => {
+          // Check if user is already registered for this camp
+          const isRegistered = userId && camp.donations && camp.donations.some(
+            d => (d.donor === userId || d.donor?._id === userId)
+          );
+
+          return (
+            <div key={camp._id} style={{
+              backgroundColor: "white",
+              borderRadius: "20px",
+              padding: "2rem",
+              boxShadow: "0 15px 40px rgba(0,0,0,0.1)",
+              border: isRegistered ? "2px solid #27ae60" : "1px solid rgba(0,0,0,0.05)",
+              transition: "transform 0.3s ease",
+              display: "flex",
+              flexDirection: "column",
+              position: "relative"
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = "translateY(-5px)"}
+            onMouseLeave={(e) => e.currentTarget.style.transform = "translateY(0)"}>
+              
+              {isRegistered && (
+                <div style={{
+                  position: "absolute", top: "12px", right: "12px",
+                  background: "linear-gradient(135deg, #27ae60, #2ecc71)",
+                  color: "white", padding: "4px 14px", borderRadius: "50px",
+                  fontSize: "0.75rem", fontWeight: "800", letterSpacing: "0.5px",
+                  boxShadow: "0 4px 12px rgba(39, 174, 96, 0.3)"
+                }}>REGISTERED</div>
+              )}
+
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "1rem" }}>
+                <div style={{ backgroundColor: "#e2f0d9", color: "#27ae60", padding: "0.4rem 1rem", borderRadius: "15px", fontWeight: "bold", fontSize: "0.8rem" }}>
+                  {camp.status.toUpperCase()}
+                </div>
+                <div style={{ backgroundColor: "#fdeced", color: "#e74c3c", padding: "0.4rem 1rem", borderRadius: "15px", fontWeight: "bold", fontSize: "0.8rem" }}>
+                  {camp.location?.city || 'Local'}
+                </div>
+              </div>
+
+              <h4 style={{ fontSize: "1.4rem", color: "#2c3e50", marginBottom: "0.5rem" }}>{camp.name}</h4>
+              <p style={{ color: "#7f8c8d", fontSize: "0.9rem", marginBottom: "1.5rem", flexGrow: 1 }}>{camp.description || 'Join us and save lives.'}</p>
+              
+              <div style={{ backgroundColor: "#f8f9fa", padding: "1rem", borderRadius: "12px", marginBottom: "1.5rem" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
+                  <MapPin size={16} color="#e74c3c" />
+                  <span style={{ color: "#2c3e50", fontWeight: "600", fontSize: "0.9rem" }}>{camp.location?.address}</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <Calendar size={16} color="#3498db" />
+                  <span style={{ color: "#7f8c8d", fontSize: "0.9rem" }}>
+                    {new Date(camp.start_date).toLocaleDateString()} - {new Date(camp.end_date).toLocaleDateString()}
+                  </span>
+                </div>
+              </div>
+
+              {isRegistered ? (
+                <div style={{
+                  backgroundColor: "#e8f8f0",
+                  color: "#27ae60",
+                  border: "1px solid #b8e6cd",
+                  padding: "1rem 1.5rem",
+                  borderRadius: "15px",
+                  fontWeight: "bold",
+                  textAlign: "center",
+                  fontSize: "0.95rem"
+                }}>
+                  You are registered for this camp
+                </div>
+              ) : (
+                <button 
+                  onClick={() => {
+                    const bloodGroup = prompt('Optional: What is your blood group (leave blank if unknown)?');
+                    onRegister(camp._id, bloodGroup || 'Unknown');
+                  }}
+                  style={{
+                    backgroundColor: "#27ae60",
+                    color: "white",
+                    border: "none",
+                    padding: "1rem 1.5rem",
+                    borderRadius: "15px",
+                    fontWeight: "bold",
+                    cursor: "pointer",
+                    transition: "opacity 0.2s",
+                    boxShadow: "0 8px 20px rgba(39, 174, 96, 0.3)"
+                  }}
+                  onMouseEnter={(e) => e.target.style.opacity = 0.9}
+                  onMouseLeave={(e) => e.target.style.opacity = 1}
+                >
+                  Register to Donate
+                </button>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -3649,4 +4080,9 @@ styleSheet.textContent = `
 document.head.appendChild(styleSheet);
 
 export default BloodPortal;
+
+
+
+
+
 

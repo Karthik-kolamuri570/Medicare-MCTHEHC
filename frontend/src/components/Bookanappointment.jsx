@@ -6,186 +6,107 @@ import "../styles/Bookanappointment.css";
 import docImg from "../assets/doctor1.png";
 import toast from "react-hot-toast";
 import Payment from "../payments/Payment";
-import { Clock, MapPin, Building2, AlertCircle, Calendar } from "lucide-react";
+import { Clock, MapPin, Building2, Calendar, CheckCircle2, AlertCircle } from "lucide-react";
 
 function Bookanappointment() {
   const navigate = useNavigate();
   const { doctorId } = useParams();
 
-  // State
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Form State
+  // Form state
   const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
+  const [selectedSlot, setSelectedSlot] = useState(null);
   const [problem, setProblem] = useState("");
-  const [timeError, setTimeError] = useState("");
+
+  // Slot state
+  const [slots, setSlots] = useState([]);
+  const [slotsLoading, setSlotsLoading] = useState(false);
+  const [slotsError, setSlotsError] = useState(null);
 
   const [appointmentDetails, setAppointmentDetails] = useState(null);
 
-  // 1. Auth Check & Fetch Doctor
+  // 1. Auth check + fetch doctor
   useEffect(() => {
-    const token = localStorage.getItem("token"); // Changed to 'token' based on LoginPatient.jsx
+    const token = localStorage.getItem("token");
     if (!token) {
       toast.error("Please login to book an appointment.");
       navigate("/login?role=patient");
       return;
     }
-
     const fetchDoctor = async () => {
-      if (!doctorId) {
-        setError("Invalid booking request.");
-        setLoading(false);
-        return;
-      }
-
+      if (!doctorId) { setError("Invalid booking request."); setLoading(false); return; }
       try {
         setLoading(true);
-        const response = await api.get(`/api/doctor/profile/${doctorId}`);
-        if (response.data && response.data.data) {
-          setSelectedDoctor(response.data.data);
-        } else {
-          setError("Doctor not found.");
-        }
-      } catch (err) {
-        console.error(err);
+        const res = await api.get(`/api/doctor/profile/${doctorId}`);
+        if (res.data?.data) setSelectedDoctor(res.data.data);
+        else setError("Doctor not found.");
+      } catch {
         setError("Failed to load doctor profile.");
       } finally {
         setLoading(false);
       }
     };
-
     fetchDoctor();
   }, [doctorId, navigate]);
 
-
-  // 2. Time Validation Logic
-  const handleTimeChange = (e) => {
-    const selectedTime = e.target.value;
-    setTime(selectedTime);
-
-    if (!selectedDoctor) return;
-
-    // Logic: Convert times to comparable minutes or date objects
-    // Format: "HH:MM" (24h)
-    const { fromTime, toTime } = selectedDoctor;
-
-    // Simple String Comparison for HH:MM (works for same day, assuming 24h format stored/entered)
-    // If Times are 12h format (e.g. "09:00 AM"), we need parsing logic. 
-    // Usually input type="time" gives 24h format "14:30".
-    // I will assume db sends simple strings or standard format.
-    // If comparison fails, I'll fallback to loose validation or just display warning.
-
-    // Let's assume input="time" returns "HH:MM" (24h).
-    // Let's assume DB fields `fromTime`/`toTime` are comparable strings or need normalization.
-    // For specific requirement: Validate and Prompt.
-
-    if (fromTime && toTime) {
-      // Check if DB time is "HH:MM" or "HH:MM AM/PM"
-      // To be safe, let's just parse logic if we can, or do a direct string compare 
-      // nicely if formats match. 
-      // If format is complex, I will just show the warning if it *looks* wrong
-      // But user wants STRICT validation.
-
-      // Heuristic: If we can't parse, allow it but show "Please double check".
-      // If we can parse, show error.
-
-      // Since I don't know EXACT db format from the previous `doctor.js` file (type: String),
-      // I'll create a robust checker assuming standard time formats.
-
-      const isValid = isTimeWithinRange(selectedTime, fromTime, toTime);
-      if (!isValid) {
-        setTimeError(`Doctor is only available between ${fromTime} and ${toTime}.`);
-      } else {
-        setTimeError("");
+  // 2. Fetch available slots when date changes
+  useEffect(() => {
+    if (!date || !doctorId) { setSlots([]); setSelectedSlot(null); return; }
+    const fetchSlots = async () => {
+      try {
+        setSlotsLoading(true);
+        setSlotsError(null);
+        setSelectedSlot(null);
+        const res = await api.get(`/api/doctor/slots/${doctorId}?date=${date}`);
+        setSlots(res.data?.data?.slots || []);
+      } catch {
+        setSlotsError("Could not load available slots. Please try again.");
+        setSlots([]);
+      } finally {
+        setSlotsLoading(false);
       }
-    }
-  };
-
-  // Helper: Time Range Validator
-  const isTimeWithinRange = (target, start, end) => {
-    if (!target || !start || !end) return true; // generic fallback
-
-    // Normalizer: Convert "09:00 AM" or "09:00" to minutes from midnight
-    const toMinutes = (timeStr) => {
-      // Remove spaces, lowertext
-      let t = timeStr.toLowerCase().trim();
-      let [hours, minutes] = t.split(":").map(x => parseInt(x));
-
-      // Handle AM/PM
-      if (t.includes("pm") && hours < 12) hours += 12;
-      if (t.includes("am") && hours === 12) hours = 0;
-
-      // Handle input type="time" which might technically be strict HH:MM
-      if (Number.isNaN(minutes)) {
-        // try parsing "10:00 AM" split by space
-        const parts = timeStr.split(" ");
-        if (parts.length > 1) {
-          const [h, m] = parts[0].split(":");
-          let hr = parseInt(h);
-          if (parts[1].toLowerCase() === 'pm' && hr < 12) hr += 12;
-          if (parts[1].toLowerCase() === 'am' && hr === 12) hr = 0;
-          hours = hr;
-          minutes = parseInt(m);
-        }
-      }
-
-      return hours * 60 + (minutes || 0);
     };
-
-    const targetMin = toMinutes(target);
-    const startMin = toMinutes(start);
-    const endMin = toMinutes(end);
-
-    return targetMin >= startMin && targetMin <= endMin;
-  };
-
+    fetchSlots();
+  }, [date, doctorId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (timeError) {
-      toast.error("Please select a valid time within working hours.");
+    if (!selectedDoctor || !date || !selectedSlot || !problem) {
+      toast.error("Please select a date, a time slot, and describe your concern.");
       return;
     }
-    if (!selectedDoctor || !date || !time || !problem) {
-      toast.error("Please fill in all fields.");
-      return;
-    }
-
     try {
-      const response = await api.post(
-        "/api/patient/book-appointment",
-        {
-          doctorId: selectedDoctor._id,
-          date,
-          time,
-          problem,
-        }
-      );
-
-      // 201 Created logic
-      if (response.status === 201 && response.data.data) {
-        toast.success("Details verified. Proceeding to payment...");
+      const res = await api.post("/api/patient/book-appointment", {
+        doctorId: selectedDoctor._id,
+        date,
+        time: selectedSlot.startTime,
+        problem,
+      });
+      if (res.status === 201 && res.data.data) {
+        toast.success("Slot reserved! Proceeding to payment...");
         setAppointmentDetails({
-          _id: response.data.data._id,
-          email: response.data.data.patientEmail,
+          _id: res.data.data._id,
+          email: res.data.data.patientEmail,
           doctorName: selectedDoctor.name,
           date,
           price: selectedDoctor.feePerConsultation || 500,
         });
       }
     } catch (err) {
-      console.error("Booking Error:", err);
-      // Enhanced error handling
-      const msg = err.response?.data?.message || "Failed to book appointment.";
-      toast.error(msg);
+      toast.error(err.response?.data?.message || "Failed to book appointment.");
     }
   };
 
-  if (loading) return <div className="loading-state">Loading booking details...</div>;
+  if (loading) return (
+    <div className="loading-state">
+      <div className="ba-loader" />
+      Loading booking details...
+    </div>
+  );
+
   if (error) return (
     <div className="appointment-container">
       <div className="error-container">
@@ -193,9 +114,9 @@ function Bookanappointment() {
         <p>{error}</p>
         <button
           onClick={() => navigate('/top-doctors')}
-          style={{ marginTop: '20px', padding: '10px 20px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+          style={{ marginTop: '20px', padding: '10px 20px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}
         >
-          Go Back to Doctors
+          Back to Doctors
         </button>
       </div>
     </div>
@@ -203,19 +124,17 @@ function Bookanappointment() {
 
   return (
     <div className="appointment-container">
-      {/* ⚠️ Dynamic Content for Payment vs Booking */}
       {appointmentDetails ? (
         <Payment appointment={appointmentDetails} />
       ) : (
         <>
           <h1 className="page-title">Secure Your Appointment</h1>
           <p style={{ textAlign: 'center', color: '#6b7280', fontSize: '0.95rem', marginTop: '-28px', marginBottom: '36px', fontWeight: 500 }}>
-            Review the doctor's profile and fill in your details to book a slot.
+            Pick a date and choose your preferred 30-minute slot.
           </p>
 
           <div className="booking-grid">
-
-            {/* LEFT: DOCTOR PROFILE */}
+            {/* LEFT: Doctor Card */}
             <div className="doctor-profile-card">
               <img
                 src={selectedDoctor.profileImage || docImg}
@@ -225,89 +144,120 @@ function Bookanappointment() {
               <div className="doctor-profile-details">
                 <span className="spec-badge">{selectedDoctor.specialization}</span>
                 <h2>{selectedDoctor.name}</h2>
-                <div className="info-row">
-                  <Building2 size={16} />
-                  <span>{selectedDoctor.hospital}</span>
-                </div>
-                <div className="info-row">
-                  <MapPin size={16} />
-                  <span>{selectedDoctor.location}</span>
-                </div>
-
+                <div className="info-row"><Building2 size={15} /><span>{selectedDoctor.hospital}</span></div>
+                <div className="info-row"><MapPin size={15} /><span>{selectedDoctor.location}</span></div>
                 <div className="availability-box">
-                  <span className="availability-title">Available Hours</span>
-                  <div className="availability-time">
-                    {selectedDoctor.fromTime} - {selectedDoctor.toTime}
-                  </div>
+                  <span className="availability-title">Working Hours</span>
+                  <div className="availability-time">{selectedDoctor.fromTime} – {selectedDoctor.toTime}</div>
                 </div>
               </div>
             </div>
 
-            {/* RIGHT: FORM */}
+            {/* RIGHT: Form */}
             <form className="booking-form-container" onSubmit={handleSubmit}>
               <div className="form-header">
                 <h3>Appointment Details</h3>
-                <p style={{ color: '#64748b', fontSize: '0.9rem' }}>Fill in the form to request a slot.</p>
+                <p style={{ color: '#64748b', fontSize: '0.9rem' }}>Select a date, then pick an available 30-min slot.</p>
               </div>
 
+              {/* Date picker */}
               <div className="form-group">
-                <label>Appointment Date</label>
-                <div style={{ position: 'relative' }}>
-                  <input
-                    type="date"
-                    className="form-control"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    min={new Date().toISOString().split("T")[0]} // Disable past dates
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label>Preferred Time</label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700, fontSize: '0.9rem', color: '#0f172a', marginBottom: '8px' }}>
+                  <Calendar size={15} /> Appointment Date
+                </label>
                 <input
-                  type="time"
-                  className={`form-control ${timeError ? 'error-input' : ''}`}
-                  value={time}
-                  onChange={handleTimeChange}
+                  type="date"
+                  className="form-control"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  min={new Date().toISOString().split("T")[0]}
                   required
                 />
-                {/* Validation Error Hint */}
-                {timeError && (
-                  <div className="validation-message">
-                    <AlertCircle size={20} />
-                    <div>
-                      <strong>Time Unavailable</strong>
-                      <p>{timeError} Please choose a valid slot.</p>
-                    </div>
-                  </div>
-                )}
-                {!timeError && selectedDoctor.fromTime && (
-                  <p className="hint-text">✅ Please choose a time between {selectedDoctor.fromTime} and {selectedDoctor.toTime}</p>
-                )}
               </div>
 
+              {/* Slot Picker */}
+              {date && (
+                <div className="form-group">
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700, fontSize: '0.9rem', color: '#0f172a', marginBottom: '10px' }}>
+                    <Clock size={15} /> Select Time Slot
+                    {selectedSlot && (
+                      <span className="ba-selected-label">
+                        <CheckCircle2 size={13} /> {selectedSlot.label}
+                      </span>
+                    )}
+                  </label>
+
+                  {slotsLoading && (
+                    <div className="ba-slots-loading">
+                      <div className="ba-loader" />
+                      <span>Checking availability...</span>
+                    </div>
+                  )}
+
+                  {slotsError && !slotsLoading && (
+                    <div className="validation-message">
+                      <AlertCircle size={18} />
+                      <div><strong>Error</strong><p>{slotsError}</p></div>
+                    </div>
+                  )}
+
+                  {!slotsLoading && !slotsError && slots.length === 0 && (
+                    <div className="ba-no-slots">
+                      No slots available for this date. Please try another day.
+                    </div>
+                  )}
+
+                  {!slotsLoading && slots.length > 0 && (
+                    <div className="ba-slot-grid">
+                      {slots.map((slot) => (
+                        <button
+                          key={slot.startTime}
+                          type="button"
+                          className={[
+                            'ba-slot-btn',
+                            !slot.available ? 'ba-slot-booked' : '',
+                            selectedSlot?.startTime === slot.startTime ? 'ba-slot-selected' : '',
+                          ].join(' ').trim()}
+                          onClick={() => slot.available && setSelectedSlot(slot)}
+                          disabled={!slot.available}
+                          title={slot.available ? `Book ${slot.label}` : 'Already booked'}
+                        >
+                          <span className="ba-slot-time">{slot.label}</span>
+                          {!slot.available && <span className="ba-slot-booked-tag">Booked</span>}
+                          {selectedSlot?.startTime === slot.startTime && (
+                            <CheckCircle2 size={13} className="ba-slot-check" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Problem */}
               <div className="form-group">
-                <label>Describe your health concern</label>
+                <label style={{ fontWeight: 700, fontSize: '0.9rem', color: '#0f172a', display: 'block', marginBottom: '8px' }}>
+                  Describe your health concern
+                </label>
                 <textarea
                   rows="4"
                   className="form-control"
-                  placeholder="e.g. Severe headache for 2 days..."
+                  placeholder="e.g. Severe headache for 2 days, fever, cough..."
                   value={problem}
                   onChange={(e) => setProblem(e.target.value)}
                   required
-                ></textarea>
+                />
               </div>
 
-              <button type="submit" className="booking-btn">
-                Proceed to Payment • ₹{selectedDoctor.feePerConsultation || 500}
+              <button type="submit" className="booking-btn" disabled={!selectedSlot}>
+                {selectedSlot
+                  ? `Proceed to Payment • ₹${selectedDoctor.feePerConsultation || 500}`
+                  : "Please select a time slot"}
               </button>
               <p style={{ textAlign: 'center', marginTop: '10px', fontSize: '0.8rem', color: '#94a3b8' }}>
-                Secure 256-bit encrypted transaction
+                🔒 Secure 256-bit encrypted transaction
               </p>
             </form>
-
           </div>
         </>
       )}

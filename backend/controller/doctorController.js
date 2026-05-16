@@ -9,6 +9,7 @@ const { createNotification, emitNotification } = require('../utils/notification'
 const crypto = require('crypto');
 const { sendPasswordResetEmail, sendAcceptanceEmail } = require('../utils/emailService');
 const { generatePresignedUrl } = require('../utils/s3Config');
+const logger = require('../utils/logger');
 
 const multer = require("multer");
 const path = require("path");
@@ -1226,7 +1227,109 @@ exports.deleteNotification = async (req, res) => {
 
     res.json({ success: true, message: 'Notification deleted' });
   } catch (err) {
-    console.error('Delete doctor notification error:', err);
+    logger.error('Delete doctor notification error:', { error: err.message });
     res.status(500).json({ success: false, message: 'Failed to delete notification' });
+  }
+};
+
+/**
+ * GET /api/doctor/slots/:doctorId?date=YYYY-MM-DD
+ * Returns 30-minute time slots for a doctor on a given date,
+ * marking each slot as available or booked.
+ */
+exports.getAvailableSlots = async (req, res) => {
+  try {
+    const { doctorId } = req.params;
+    const { date } = req.query;
+
+    if (!date) {
+      return res.status(400).json({ success: false, message: 'Date query parameter is required (YYYY-MM-DD)' });
+    }
+
+    const doctor = await Doctor.findById(doctorId).select('fromTime toTime name verifiedByAdmin');
+    if (!doctor) {
+      return res.status(404).json({ success: false, message: 'Doctor not found' });
+    }
+
+    if (doctor.verifiedByAdmin !== 'approved') {
+      return res.status(403).json({ success: false, message: 'Doctor is not yet verified' });
+    }
+
+    // Parse doctor's working hours
+    const parseTime = (timeStr) => {
+      if (!timeStr) return null;
+      const [h, m] = timeStr.split(':').map(Number);
+      return h * 60 + m;
+    };
+
+    const fromMinutes = parseTime(doctor.fromTime || '09:00');
+    const toMinutes = parseTime(doctor.toTime || '17:00');
+
+    if (fromMinutes === null || toMinutes === null) {
+      return res.status(400).json({ success: false, message: 'Doctor availability not configured' });
+    }
+
+    // Generate 30-minute slots
+    const SLOT_DURATION = 30;
+    const allSlots = [];
+    for (let m = fromMinutes; m + SLOT_DURATION <= toMinutes; m += SLOT_DURATION) {
+      const hh = String(Math.floor(m / 60)).padStart(2, '0');
+      const mm = String(m % 60).padStart(2, '0');
+      const endH = String(Math.floor((m + SLOT_DURATION) / 60)).padStart(2, '0');
+      const endM = String((m + SLOT_DURATION) % 60).padStart(2, '0');
+      allSlots.push({
+        startTime: `${hh}:${mm}`,
+        endTime: `${endH}:${endM}`,
+        label: `${hh}:${mm} – ${endH}:${endM}`,
+        available: true,
+      });
+    }
+
+    // Find booked appointments for this doctor on this date
+    const bookedAppointments = await Appointment.find({
+      doctorId,
+      date,
+      status: { $ne: 'Rejected' },
+    }).select('time');
+
+    const bookedTimes = new Set(bookedAppointments.map(a => a.time));
+
+    // Mark slots as booked
+    const slots = allSlots.map(slot => ({
+      ...slot,
+      available: !bookedTimes.has(slot.startTime),
+    }));
+
+    // Also check if selected date is in the past
+    const today = new Date().toISOString().split('T')[0];
+    const isPastDate = date < today;
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        doctorId,
+        date,
+        slots: isPastDate ? [] : slots,
+        isPastDate,
+        workingHours: { from: doctor.fromTime, to: doctor.toTime },
+      },
+    });
+  } catch (error) {
+    logger.error('Error fetching available slots:', { error: error.message });
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+/**
+ * GET /api/doctor/all-specializations
+ * Returns unique list of specializations from approved doctors
+ */
+exports.getAllSpecializations = async (req, res) => {
+  try {
+    const specializations = await Doctor.distinct('specialization', { verifiedByAdmin: 'approved' });
+    return res.status(200).json({ success: true, data: specializations.filter(Boolean).sort() });
+  } catch (error) {
+    logger.error('Error fetching specializations:', { error: error.message });
+    res.status(500).json({ success: false, message: 'Server Error' });
   }
 };

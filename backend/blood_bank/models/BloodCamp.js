@@ -104,9 +104,10 @@ const BloodCampSchema = new mongoose.Schema({
   donations: [{
   donor: { type: mongoose.Schema.Types.ObjectId, ref: 'Patient' },
   blood_group: String,
-  units: Number,
+  units: { type: Number, default: 0 },
   donation_time: Date,
-  verified: { type: Boolean, default: false }
+  verified: { type: Boolean, default: false },
+  status: { type: String, enum: ['not yet donated', 'processing', 'donated'], default: 'not yet donated' }
 }],
 
   contact_phone: String,

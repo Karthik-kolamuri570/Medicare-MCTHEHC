@@ -42,7 +42,9 @@ import DoctorDashboardPage from "./components/Blogs/pages/DoctorDashboardPage";
 import PatientLikesPage from "./components/Blogs/pages/PatientLikesPage";
 import Treatments from "./components/Treatments";
 import ProtectedPatientRoute from "./components/ProtectedPatientRoute";
+import ProtectedDoctorRoute from "./components/ProtectedDoctorRoute";
 import OurHospitals from "./components/OurHospitals";
+import DoctorProfile from "./components/DoctorProfile";
 import AdminLayout from "./admin/components/AdminLayout";
 import ProtectedAdminRoute from "./admin/components/ProtectedAdminRoute";
 import Dashboard from "./admin/pages/Dashboard";
@@ -109,6 +111,7 @@ function App() {
 
 
         <Route path="/top-doctors" element={<Layout><TopDoctors /></Layout>} />
+        <Route path="/top-doctors/:doctorId" element={<Layout><DoctorProfile /></Layout>} />
         <Route path="/treatments" element={<Layout><Treatments /></Layout>} />
         <Route path="/hospitals" element={<Layout><OurHospitals /></Layout>} />
         <Route path="/book-appointment/:doctorId" element={<ProtectedPatientRoute><Layout><Bookanappointment /></Layout></ProtectedPatientRoute>} />
@@ -133,14 +136,14 @@ function App() {
         <Route path="/doctor/doc/blogs" element={<DLayout><DoctorDashboardPage /></DLayout>} />
         <Route path="/patient/likes" element={<Layout><PatientLikesPage /></Layout>} />
 
-        {/* Doctor Dashboard Routes */}
-        <Route path="/doctor" element={<DLayout><DoctorDashboard /></DLayout>} />
-        <Route path="/doctor/my-appointments" element={<DLayout><DAppointments /></DLayout>} />
-        <Route path="/doctor/my-consultations" element={<DLayout><DOnlineConsultation /></DLayout>} />
-        <Route path="/doctor/second-opinion" element={<DLayout><DSecondOpinions /></DLayout>} />
-        <Route path="/my-blogs" element={<DLayout><DBlogs /></DLayout>} />
-        <Route path="/doctor/notifications" element={<DLayout><DNotifications /></DLayout>} />
-        <Route path="/doctor/analytics" element={<DLayout><DAnalytics /></DLayout>} />
+        {/* Doctor Dashboard Routes — Protected */}
+        <Route path="/doctor" element={<ProtectedDoctorRoute><DLayout><DoctorDashboard /></DLayout></ProtectedDoctorRoute>} />
+        <Route path="/doctor/my-appointments" element={<ProtectedDoctorRoute><DLayout><DAppointments /></DLayout></ProtectedDoctorRoute>} />
+        <Route path="/doctor/my-consultations" element={<ProtectedDoctorRoute><DLayout><DOnlineConsultation /></DLayout></ProtectedDoctorRoute>} />
+        <Route path="/doctor/second-opinion" element={<ProtectedDoctorRoute><DLayout><DSecondOpinions /></DLayout></ProtectedDoctorRoute>} />
+        <Route path="/my-blogs" element={<ProtectedDoctorRoute><DLayout><DBlogs /></DLayout></ProtectedDoctorRoute>} />
+        <Route path="/doctor/notifications" element={<ProtectedDoctorRoute><DLayout><DNotifications /></DLayout></ProtectedDoctorRoute>} />
+        <Route path="/doctor/analytics" element={<ProtectedDoctorRoute><DLayout><DAnalytics /></DLayout></ProtectedDoctorRoute>} />
         <Route path="/doctor/logout" element={<LogoutDoctor />} />
 
         {/* Patient Prescription Routes */}

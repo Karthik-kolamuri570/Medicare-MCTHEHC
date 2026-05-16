@@ -167,80 +167,91 @@ function Notifications() {
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="ntf-tabs">
-          <button className={`ntf-tab ${activeTab === 'unseen' ? 'active' : ''}`} onClick={() => setActiveTab('unseen')}>
-            New {unseenNotifications.length > 0 && <span className="ntf-tab-count">{unseenNotifications.length}</span>}
-          </button>
-          <button className={`ntf-tab ${activeTab === 'seen' ? 'active' : ''}`} onClick={() => setActiveTab('seen')}>
-            Read {seenNotifications.length > 0 && <span className="ntf-tab-count read">{seenNotifications.length}</span>}
-          </button>
-        </div>
+        {/* Content Box */}
+        <div className="ntf-content-box">
+          {/* Tabs */}
+          <div className="ntf-tabs">
+            <button className={`ntf-tab ${activeTab === 'unseen' ? 'active' : ''}`} onClick={() => setActiveTab('unseen')}>
+              New {unseenNotifications.length > 0 && <span className="ntf-tab-count">{unseenNotifications.length}</span>}
+            </button>
+            <button className={`ntf-tab ${activeTab === 'seen' ? 'active' : ''}`} onClick={() => setActiveTab('seen')}>
+              Read {seenNotifications.length > 0 && <span className="ntf-tab-count">{seenNotifications.length}</span>}
+            </button>
+          </div>
 
-        {/* Notification List */}
-        <div className="ntf-list">
-          {loading ? (
-            <div className="ntf-empty">
-              <div className="ntf-spinner"></div>
-              <p>Loading notifications...</p>
-            </div>
-          ) : currentList.length === 0 ? (
-            <div className="ntf-empty">
-              <FaBell className="ntf-empty-icon" />
-              <h3>{activeTab === 'unseen' ? "No new notifications" : "No read notifications"}</h3>
-              <p>{activeTab === 'unseen' ? "You're all caught up! 🎉" : "Read notifications will appear here"}</p>
-            </div>
-          ) : (
-            grouped.map((group) => (
-              <div key={group.label} className="ntf-group">
-                <div className="ntf-group-label">{group.label}</div>
-                {group.items.map((notification) => {
-                  const cfg = getConfig(notification.type);
-                  const IconComp = cfg.icon;
-                  return (
-                    <div key={notification._idx} className={`ntf-item ${activeTab === 'unseen' ? 'ntf-item-unseen' : ''}`}>
-                      <div className="ntf-item-icon" style={{ background: `${cfg.color}12`, color: cfg.color }}>
-                        <IconComp />
-                      </div>
-                      <div className="ntf-item-content">
-                        <div className="ntf-item-top">
-                          <span className="ntf-type-label" style={{ color: cfg.color, background: `${cfg.color}12` }}>
-                            {cfg.label}
-                          </span>
-                          {notification.createdAt && (
-                            <span className="ntf-time">{timeAgo(notification.createdAt)}</span>
-                          )}
-                        </div>
-                        <p className="ntf-item-message">{notification.message || 'Notification'}</p>
-                        <div className="ntf-item-meta">
-                          {notification.data?.doctorName && (
-                            <span className="ntf-meta-tag"><FaUserMd /> Dr. {notification.data.doctorName}</span>
-                          )}
-                          {notification.data?.patientName && (
-                            <span className="ntf-meta-tag"><FaUserMd /> {notification.data.patientName}</span>
-                          )}
-                          {notification.data?.date && (
-                            <span className="ntf-meta-tag"><FaCalendarAlt /> {notification.data.date}</span>
-                          )}
-                          {notification.data?.time && (
-                            <span className="ntf-meta-tag"><FaClock /> {notification.data.time}</span>
-                          )}
-                        </div>
-                      </div>
-                      <button
-                        className="ntf-item-delete"
-                        onClick={() => handleDeleteOne(notification._idx, activeTab === 'unseen' ? 'unseen' : 'seen')}
-                        disabled={actionLoading}
-                        title="Delete notification"
-                      >
-                        <FaTrashAlt />
-                      </button>
+          {/* Notification List */}
+          <div className="ntf-list">
+            {loading ? (
+              <>
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="ntf-sk-item">
+                    <div className="ntf-sk-icon ntf-sk-anim"></div>
+                    <div className="ntf-sk-body">
+                      <div className="ntf-sk-line ntf-sk-short ntf-sk-anim"></div>
+                      <div className="ntf-sk-line ntf-sk-long ntf-sk-anim"></div>
+                      <div className="ntf-sk-line ntf-sk-med ntf-sk-anim"></div>
                     </div>
-                  );
-                })}
+                  </div>
+                ))}
+              </>
+            ) : currentList.length === 0 ? (
+              <div className="ntf-empty">
+                <FaBell className="ntf-empty-icon" />
+                <h3>{activeTab === 'unseen' ? "No new notifications" : "No read notifications"}</h3>
+                <p>{activeTab === 'unseen' ? "You're all caught up! 🎉" : "Read notifications will appear here"}</p>
               </div>
-            ))
-          )}
+            ) : (
+              grouped.map((group) => (
+                <div key={group.label} className="ntf-group">
+                  <div className="ntf-group-label">{group.label}</div>
+                  {group.items.map((notification) => {
+                    const cfg = getConfig(notification.type);
+                    const IconComp = cfg.icon;
+                    return (
+                      <div key={notification._idx} className={`ntf-item ${activeTab === 'unseen' ? 'ntf-item-unseen' : ''}`}>
+                        <div className="ntf-item-icon" style={{ background: `${cfg.color}15`, color: cfg.color }}>
+                          <IconComp />
+                        </div>
+                        <div className="ntf-item-content">
+                          <div className="ntf-item-top">
+                            <span className="ntf-type-label" style={{ color: cfg.color }}>
+                              {cfg.label}
+                            </span>
+                            {notification.createdAt && (
+                              <span className="ntf-time">{timeAgo(notification.createdAt)}</span>
+                            )}
+                          </div>
+                          <p className="ntf-item-message">{notification.message || 'Notification'}</p>
+                          <div className="ntf-item-meta">
+                            {notification.data?.doctorName && (
+                              <span className="ntf-meta-tag"><FaUserMd /> Dr. {notification.data.doctorName}</span>
+                            )}
+                            {notification.data?.patientName && (
+                              <span className="ntf-meta-tag"><FaUserMd /> {notification.data.patientName}</span>
+                            )}
+                            {notification.data?.date && (
+                              <span className="ntf-meta-tag"><FaCalendarAlt /> {notification.data.date}</span>
+                            )}
+                            {notification.data?.time && (
+                              <span className="ntf-meta-tag"><FaClock /> {notification.data.time}</span>
+                            )}
+                          </div>
+                        </div>
+                        <button
+                          className="ntf-item-delete"
+                          onClick={() => handleDeleteOne(notification._idx, activeTab === 'unseen' ? 'unseen' : 'seen')}
+                          disabled={actionLoading}
+                          title="Delete notification"
+                        >
+                          <FaTrashAlt />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </div>
     </div>

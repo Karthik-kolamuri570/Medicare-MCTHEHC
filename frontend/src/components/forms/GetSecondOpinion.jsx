@@ -146,6 +146,38 @@ const GetSecondOpinion = () => {
 
   const selectedDoc = doctors.find(d => d._id === formData.doctorId);
 
+  // Generate 30-min slots
+  const availableSlots = React.useMemo(() => {
+    if (!selectedDoc || !formData.date) return [];
+    
+    const [startH, startM] = (selectedDoc.fromTime || "09:00").split(':').map(Number);
+    const [endH, endM] = (selectedDoc.toTime || "17:00").split(':').map(Number);
+    
+    const slots = [];
+    let currentMins = startH * 60 + startM;
+    const endMins = endH * 60 + endM;
+    
+    const now = new Date();
+    const isToday = new Date(formData.date).toDateString() === now.toDateString();
+    const currentNowMins = now.getHours() * 60 + now.getMinutes();
+
+    while (currentMins + 30 <= endMins) {
+      if (!isToday || currentMins > currentNowMins) {
+        const h = Math.floor(currentMins / 60);
+        const m = currentMins % 60;
+        const formatted = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+        
+        const h12 = h % 12 || 12;
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        const display = `${h12}:${m.toString().padStart(2, '0')} ${ampm}`;
+        
+        slots.push({ value: formatted, display });
+      }
+      currentMins += 30;
+    }
+    return slots;
+  }, [selectedDoc, formData.date]);
+
   const steps = [
     { title: "Doctor", icon: <FiUser /> },
     { title: "Details", icon: <FiFileText /> },
@@ -235,12 +267,11 @@ const GetSecondOpinion = () => {
                       const isAvailable = currentMinutes >= startMinutes && currentMinutes <= endMinutes;
 
                       return (
-                         <div
+                          <div
                           key={doc._id}
                           className={`gso-doc-card ${formData.doctorId === doc._id ? 'selected' : ''}`}
                           onClick={() => setFormData(p => ({ ...p, doctorId: doc._id }))}
                         >
-                          <div className="gso-card-glow"></div>
                           
                           <div className="gso-doc-header">
                             <div className="gso-avatar-wrapper">
@@ -396,19 +427,32 @@ const GetSecondOpinion = () => {
                     </div>
                     <div className="gso-input-group">
                       <label>
-                        Time
+                        Time Slot
                         {selectedDoc && (
                           <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 500, marginLeft: 8 }}>
                             (Hours: {selectedDoc.fromTime || "09:00"} - {selectedDoc.toTime || "17:00"})
                           </span>
                         )}
                       </label>
-                      <input
-                        type="time"
-                        name="time"
-                        value={formData.time}
-                        onChange={handleInputChange}
-                      />
+                      {!formData.date ? (
+                        <div className="gso-no-slots">Please select a date first</div>
+                      ) : availableSlots.length === 0 ? (
+                        <div className="gso-no-slots">No slots available for this date</div>
+                      ) : (
+                        <div className="gso-slots-container">
+                          <div className="gso-slots-grid">
+                            {availableSlots.map((slot) => (
+                              <button
+                                key={slot.value}
+                                className={`gso-slot-btn ${formData.time === slot.value ? 'active' : ''}`}
+                                onClick={(e) => { e.preventDefault(); setFormData(p => ({...p, time: slot.value})); }}
+                              >
+                                {slot.display}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

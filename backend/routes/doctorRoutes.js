@@ -1,8 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const doctorController = require('../controller/doctorController');
-// const authMiddleware = require('../middleware/authMiddleware');
-const Doctor = require('../models/doctor'); // Adjust the path as needed
+const Doctor = require('../models/doctor');
 const auth = require('../middleware/auth');
 const { generatePresignedUrl } = require('../utils/s3Config');
 
@@ -24,7 +23,6 @@ router.get('/me', auth.doctorAuth, async (req, res) => {
         })
     }
     catch (err) {
-        console.error("Error in /me route:", err);
         res.status(500).json({ message: 'Server error' });
     }
 })
@@ -33,6 +31,8 @@ router.post('/login', doctorController.loginDoctor);
 router.post('/forgot-password', doctorController.forgotPassword);
 router.post('/reset-password', doctorController.resetPassword);
 
+// Public: slot-based availability for a doctor on a given date
+router.get('/slots/:doctorId', doctorController.getAvailableSlots);
 
 router.get('/profile/:id', doctorController.getDoctorById);
 router.put('/profile/:id', auth.doctorAuth, doctorController.updateDoctor);
@@ -49,8 +49,7 @@ router.put('/availability/', auth.adminAuth, doctorController.updateAvailability
 router.get('/appointments/', auth.doctorAuth, doctorController.getDoctorAppointments);
 router.get('/patients/', auth.doctorAuth, doctorController.getDoctorPatients);
 router.get('/specializations/:specialization', doctorController.getDoctorBySpecialization);
-router.get('/location/:location', doctorController.getDoctorByLocation); // Corrected the path
-// router.get('/search/:search', doctorController.searchDoctors);
+router.get('/location/:location', doctorController.getDoctorByLocation);
 router.put('/accept-appointment/:id', auth.doctorAuth, doctorController.acceptAppointment);
 router.put('/reject-appointment/:id', auth.doctorAuth, doctorController.rejectAppointment);
 router.get('/logout', auth.doctorAuth, doctorController.logoutDoctor);
@@ -78,4 +77,3 @@ const analyticsController = require('../controller/analyticsController');
 router.get('/analytics', auth.doctorAuth, analyticsController.getDoctorAnalytics);
 
 module.exports = router;
-

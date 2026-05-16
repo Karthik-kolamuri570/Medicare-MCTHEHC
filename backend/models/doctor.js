@@ -11,9 +11,9 @@ const doctorSchema = new Schema({
         required: [true, "Contact is required"],
         validate: {
             validator: function (value) {
-                return value.length == 10 && value.isMobilePhone
+                return /^\d{10}$/.test(value);
             },
-            message: "Contact should be of 10 digits"
+            message: "Contact should be a valid 10-digit number"
         }
     },
     email: {
@@ -22,7 +22,7 @@ const doctorSchema = new Schema({
         unique: [true, "Email should be unique"],
         validate: {
             validator: function (value) {
-                return value.isEmail
+                return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
             },
             message: "Email should be valid"
         }
@@ -125,9 +125,10 @@ const doctorSchema = new Schema({
     }
 });
 
-// Indexes for fast querying
+// Indexes for fast querying (email index is implicit from unique:true on the field)
 doctorSchema.index({ specialization: 1 });
 doctorSchema.index({ rating: -1 });
 doctorSchema.index({ verifiedByAdmin: 1 });
+doctorSchema.index({ location: 1 });
 
 module.exports = mongoose.model('Doctor', doctorSchema);

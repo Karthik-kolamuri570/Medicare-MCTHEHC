@@ -1,34 +1,36 @@
+﻿/* ========== Premium Dashboard DSecondOpinions ========== */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
 .dso-container {
-    background: #f8fafc;
+    background: #f1f5f9;
     min-height: 100vh;
-    padding: 1rem;
-    font-family: 'Inter', sans-serif;
-    margin-top: 50px;
+    padding: 40px 20px 80px;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
 }
 
 .dso-max-width {
-    max-width: 1600px;
+    max-width: 1200px;
     margin: 0 auto;
 }
 
 /* Header Section */
 .dso-header {
-    text-align: center;
-    margin-bottom: 2rem;
-    position: relative;
+    margin-bottom: 24px;
 }
 
 .dso-title {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     font-weight: 800;
-    color: #1e293b;
-    letter-spacing: -0.025em;
-    margin-bottom: 0.15rem;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+    margin: 0 0 4px;
 }
 
 .dso-subtitle {
     color: #64748b;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin: 0;
 }
 
 /* Controls Bar */
@@ -36,9 +38,14 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
+    gap: 16px;
+    margin-bottom: 24px;
     flex-wrap: wrap;
+    background: #fff;
+    padding: 16px 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+    border: 1px solid #e2e8f0;
 }
 
 .dso-search-wrapper {
@@ -50,85 +57,90 @@
 
 .dso-search-icon {
     position: absolute;
-    left: 1rem;
+    left: 16px;
     top: 50%;
     transform: translateY(-50%);
     color: #94a3b8;
+    font-size: 1.1rem;
 }
 
 .dso-search-input {
     width: 100%;
-    padding: 0.5rem 1rem 0.5rem 2.5rem;
+    padding: 12px 16px 12px 44px;
     border-radius: 50px;
-    border: 1px solid #e2e8f0;
-    background: white;
-    font-size: 0.85rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    border: 1.5px solid #e2e8f0;
+    background: #f8fafc;
+    font-size: 0.9rem;
+    font-family: inherit;
+    font-weight: 500;
+    transition: all 0.2s;
+    color: #0f172a;
 }
 
 .dso-search-input:focus {
     outline: none;
     border-color: #3b82f6;
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    background: #fff;
+    box-shadow: 0 0 0 4px #eff6ff;
 }
 
 .dso-filters {
     display: flex;
     background: #f1f5f9;
-    padding: 0.4rem;
-    border-radius: 12px;
-    gap: 0.25rem;
+    padding: 6px;
+    border-radius: 50px;
+    gap: 4px;
 }
 
 .dso-filter-btn {
-    padding: 0.35rem 1rem;
-    border-radius: 6px;
+    padding: 8px 16px;
+    border-radius: 50px;
     border: none;
     background: transparent;
     color: #64748b;
-    font-weight: 600;
-    font-size: 0.8rem;
+    font-weight: 700;
+    font-size: 0.85rem;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.dso-filter-btn:hover:not(.active) {
+    color: #0f172a;
 }
 
 .dso-filter-btn.active {
-    background: white;
-    color: #3b82f6;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    background: #fff;
+    color: #2563eb;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 /* Grid Layout */
 .dso-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 20px;
 }
 
-/* Glassmorphic Card */
+/* Premium Card */
 .dso-card {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    border-radius: 8px;
-    padding: 1rem;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 24px;
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    gap: 16px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.02);
     position: relative;
     overflow: hidden;
-    min-height: 320px;
 }
 
 .dso-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-    background: rgba(255, 255, 255, 0.95);
-    border-color: rgba(59, 130, 246, 0.3);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.06);
+    border-color: #cbd5e1;
 }
 
 .dso-card-status-bar {
@@ -147,126 +159,142 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+    gap: 12px;
 }
 
-.dso-patient-info h3 {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #1e293b;
-    margin-bottom: 0.15rem;
+.dso-patient-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.dso-name-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+}
+
+.dso-name-row h3 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .dso-time-ago {
     font-size: 0.8rem;
-    color: #94a3b8;
+    color: #64748b;
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 6px;
+    font-weight: 600;
 }
 
 .dso-status-badge {
-    padding: 0.4rem 0.75rem;
-    border-radius: 50px;
+    padding: 4px 10px;
+    border-radius: 8px;
     font-size: 0.75rem;
-    font-weight: 700;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
 }
+
+.badge-pending { background: #fef3c7; color: #b45309; }
+.badge-accepted { background: #dcfce7; color: #15803d; }
+.badge-rejected { background: #fee2e2; color: #b91c1c; }
 
 /* Slot Info */
 .dso-slot-info {
     display: flex;
-    gap: 1rem;
-    background: #eff6ff;
-    padding: 0.75rem 1rem;
+    gap: 12px;
+    background: #f8fafc;
+    padding: 12px;
     border-radius: 12px;
-    border: 1px solid #dbeafe;
+    border: 1px solid #f1f5f9;
     flex-wrap: wrap;
 }
 
 .dso-slot-item {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
-    font-size: 0.8rem;
+    gap: 6px;
+    font-size: 0.85rem;
     font-weight: 700;
-    color: #1e40af;
-    white-space: nowrap;
+    color: #334155;
 }
 
 .dso-mode-badge {
     color: #3b82f6;
-    background: white;
-    padding: 0.2rem 0.6rem;
-    border-radius: 8px;
-    border: 1px solid #dbeafe;
+    background: #eff6ff;
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-left: auto;
 }
 
 .dso-slot-icon {
-    color: #3b82f6;
+    color: #94a3b8;
 }
 
 /* Patient Badges */
-.dso-name-row {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-}
-
 .dso-patient-badges {
     display: flex;
-    gap: 0.4rem;
+    gap: 6px;
 }
 
 .dso-p-badge {
     background: #f1f5f9;
     color: #475569;
-    padding: 0.2rem 0.5rem;
+    padding: 2px 8px;
     border-radius: 6px;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 800;
     text-transform: uppercase;
 }
 
-.badge-pending { background: #fffbeb; color: #92400e; }
-.badge-accepted { background: #f0fdf4; color: #166534; }
-.badge-rejected { background: #fef2f2; color: #991b1b; }
-
 .dso-info-grid {
     display: grid;
-    grid-gap: 0.75rem;
+    grid-gap: 12px;
 }
 
 .dso-info-item {
     display: flex;
     align-items: flex-start;
-    gap: 0.5rem;
-    padding: 0.5rem;
-    background: rgba(248, 250, 252, 0.8);
-    border-radius: 4px;
+    gap: 10px;
 }
 
 .dso-info-icon {
-    color: #3b82f6;
-    margin-top: 0.1rem;
+    color: #cbd5e1;
+    margin-top: 2px;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.dso-info-content {
+    flex: 1;
+    min-width: 0;
 }
 
 .dso-info-label {
     font-size: 0.75rem;
-    font-weight: 700;
-    color: #64748b;
+    font-weight: 800;
+    color: #94a3b8;
     text-transform: uppercase;
-    letter-spacing: 0.025em;
+    letter-spacing: 0.5px;
     display: block;
-    margin-bottom: 0.1rem;
+    margin-bottom: 2px;
 }
 
 .dso-info-value {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     font-weight: 500;
-    color: #334155;
-    line-height: 1.4;
+    color: #1e293b;
+    line-height: 1.5;
+    margin: 0;
 }
 
 .dso-truncate {
@@ -279,155 +307,146 @@
 
 /* Expand Button */
 .dso-expand-btn {
-    background: transparent;
-    border: none;
-    color: #3b82f6;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #475569;
     font-size: 0.85rem;
     font-weight: 700;
     cursor: pointer;
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    padding: 0;
-    margin-top: -0.5rem;
-    transition: all 0.2s ease;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: all 0.2s;
+    font-family: inherit;
     width: fit-content;
 }
 
 .dso-expand-btn:hover {
-    color: #1d4ed8;
-    gap: 0.6rem;
+    color: #0f172a;
+    background: #f1f5f9;
 }
 
 .dso-attachments {
-    border-top: 1px solid #f1f5f9;
-    padding-top: 1rem;
+    border-top: 1px dashed #e2e8f0;
+    padding-top: 16px;
 }
 
 .dso-attachment-title {
     font-size: 0.8rem;
-    font-weight: 700;
+    font-weight: 800;
     color: #64748b;
-    margin-bottom: 0.5rem;
+    margin-bottom: 8px;
     display: block;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .dso-file-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 8px;
 }
 
 .dso-file-link {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
-    padding: 0.4rem 0.8rem;
-    background: #3b82f6;
-    color: white;
+    gap: 6px;
+    padding: 6px 12px;
+    background: #eff6ff;
+    color: #2563eb;
     border-radius: 8px;
-    font-size: 0.75rem;
-    font-weight: 600;
+    font-size: 0.85rem;
+    font-weight: 700;
     text-decoration: none;
-    transition: all 0.2s ease;
+    transition: all 0.2s;
+    border: 1px solid #dbeafe;
 }
 
 .dso-file-link:hover {
-    background: #2563eb;
-    transform: translateY(-1px);
+    background: #dbeafe;
+    border-color: #bfdbfe;
 }
 
 .dso-actions {
     display: flex;
-    gap: 0.5rem;
-    margin-top: 0.25rem;
+    gap: 12px;
+    margin-top: 4px;
+    padding-top: 16px;
+    border-top: 1px solid #f1f5f9;
 }
 
 .dso-btn {
     flex: 1;
-    padding: 0.5rem;
-    border-radius: 4px;
+    padding: 10px;
+    border-radius: 10px;
     border: none;
-    font-weight: 700;
-    font-size: 0.75rem;
+    font-weight: 800;
+    font-size: 0.85rem;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.3rem;
-    transition: all 0.2s ease;
+    gap: 6px;
+    transition: all 0.2s;
+    font-family: inherit;
 }
 
 .dso-btn-accept {
     background: #10b981;
     color: white;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
 }
 
-.dso-btn-accept:hover {
+.dso-btn-accept:hover:not(:disabled) {
     background: #059669;
-    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16,185,129,0.2);
 }
 
 .dso-btn-reject {
-    background: #ef4444;
-    color: white;
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+    background: #fee2e2;
+    color: #ef4444;
 }
 
-.dso-btn-reject:hover {
-    background: #dc2626;
-    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3);
+.dso-btn-reject:hover:not(:disabled) {
+    background: #fecaca;
 }
 
 .dso-btn:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
-    transform: none !important;
-    box-shadow: none !important;
 }
 
 /* Empty State */
 .dso-empty {
     text-align: center;
-    padding: 5rem 2rem;
-    background: white;
+    padding: 80px 20px;
+    background: #fff;
     border-radius: 20px;
-    border: 2px dashed #e2e8f0;
+    border: 1px solid #e2e8f0;
 }
 
 .dso-empty-icon {
     font-size: 3rem;
     color: #cbd5e1;
-    margin-bottom: 1rem;
+    margin-bottom: 16px;
 }
 
 .dso-empty-text {
     color: #64748b;
-    font-weight: 500;
+    font-weight: 600;
+    font-size: 1rem;
+    margin: 0;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-    .dso-container {
-        padding: 1rem;
-    }
-    .dso-title {
-        font-size: 2rem;
-    }
-    .dso-controls {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    .dso-search-wrapper {
-        max-width: none;
-    }
-    .dso-filters {
-        overflow-x: auto;
-        white-space: nowrap;
-        padding: 0.5rem;
-    }
-    .dso-grid {
-        grid-template-columns: 1fr;
-    }
+    .dso-container { padding: 20px 16px 80px; }
+    .dso-title { font-size: 1.6rem; }
+    .dso-controls { flex-direction: column; align-items: stretch; padding: 12px; }
+    .dso-search-wrapper { max-width: none; }
+    .dso-filters { overflow-x: auto; white-space: nowrap; padding: 4px; }
+    .dso-grid { grid-template-columns: 1fr; }
+    .dso-card { padding: 20px; }
 }

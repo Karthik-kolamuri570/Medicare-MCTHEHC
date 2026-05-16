@@ -101,6 +101,17 @@ const DBloodCamps = () => {
         }
     };
 
+    const handleUpdateDonorStatus = async (donorId, status, units, blood_group) => {
+        try {
+            await api.put(`${API_BASE}/${selectedCamp._id}/donor/${donorId}`, { status, units, blood_group });
+            toast.success("Donor status updated!");
+            const res = await api.get(`${API_BASE}/${selectedCamp._id}/donors`);
+            setDonors(res.data || []);
+        } catch (err) {
+            toast.error(err.response?.data?.message || "Failed to update donor");
+        }
+    };
+
     const handleFormChange = (e, path) => {
         const v = e.target.value;
         if (path.startsWith("location.geo.")) {
@@ -342,15 +353,51 @@ const DBloodCamps = () => {
                                         {donorLoading ? <Loader /> : (
                                             donors.length > 0 ? (
                                                 <div className="dbc-donor-items">
-                                                    {donors.map(d => (
-                                                        <div key={d._id} className="dbc-donor-item" style={{display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: '#f8fafc', borderRadius: '10px', marginBottom: '0.5rem', border: '1px solid #e2e8f0'}}>
-                                                            <div>
-                                                                <div style={{fontWeight: '700', fontSize: '0.9rem'}}>{d.name || d.donorId}</div>
-                                                                <div style={{fontSize: '0.75rem', color: '#64748b'}}>{d.email || d.blood_group}</div>
+                                                    {donors.map(d => {
+                                                        const pId = d.donor?._id || d.donor || d.donorId;
+                                                        return (
+                                                            <div key={d._id} className="dbc-donor-item" style={{display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '1rem', background: '#f8fafc', borderRadius: '10px', marginBottom: '0.5rem', border: '1px solid #e2e8f0'}}>
+                                                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
+                                                                    <div>
+                                                                        <div style={{fontWeight: '700', fontSize: '0.9rem'}}>{d.donor?.name || d.name || pId}</div>
+                                                                        <div style={{fontSize: '0.75rem', color: '#64748b'}}>{d.donor?.email || d.email || 'N/A'}</div>
+                                                                    </div>
+                                                                    <div style={{textAlign: 'right'}}>
+                                                                        <div style={{color: '#ef4444', fontWeight: '800', marginBottom: '4px'}}>{d.blood_group} {d.units > 0 ? `(${d.units} units)` : ''}</div>
+                                                                        <span style={{
+                                                                            fontSize: '0.7rem', padding: '2px 8px', borderRadius: '12px', fontWeight: 'bold',
+                                                                            background: d.status === 'donated' ? '#dcfce7' : d.status === 'processing' ? '#fef08a' : '#f1f5f9',
+                                                                            color: d.status === 'donated' ? '#166534' : d.status === 'processing' ? '#854d0e' : '#475569'
+                                                                        }}>
+                                                                            {d.status?.toUpperCase() || 'NOT YET DONATED'}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                                {d.status !== 'donated' && (
+                                                                    <div style={{display: 'flex', gap: '0.5rem', marginTop: '0.5rem', borderTop: '1px dashed #cbd5e1', paddingTop: '0.5rem'}}>
+                                                                        <select 
+                                                                            style={{padding: '0.3rem', fontSize: '0.8rem', borderRadius: '5px', border: '1px solid #cbd5e1', width: '100%'}}
+                                                                            onChange={(e) => {
+                                                                                const newStatus = e.target.value;
+                                                                                if(newStatus === 'donated') {
+                                                                                    const units = prompt('Enter units donated (e.g. 1):', '1');
+                                                                                    if(units) handleUpdateDonorStatus(pId, 'donated', units, d.blood_group);
+                                                                                    else e.target.value = ""; // Reset if cancelled
+                                                                                } else if (newStatus) {
+                                                                                    handleUpdateDonorStatus(pId, newStatus, d.units, d.blood_group);
+                                                                                }
+                                                                            }}
+                                                                            defaultValue=""
+                                                                        >
+                                                                            <option value="" disabled>Update Status</option>
+                                                                            {d.status !== 'processing' && <option value="processing">Processing</option>}
+                                                                            <option value="donated">Mark as Donated</option>
+                                                                        </select>
+                                                                    </div>
+                                                                )}
                                                             </div>
-                                                            <div style={{color: '#ef4444', fontWeight: '800'}}>{d.blood_group}</div>
-                                                        </div>
-                                                    ))}
+                                                        );
+                                                    })}
                                                 </div>
                                             ) : <p style={{textAlign: 'center', color: '#94a3b8', fontSize: '0.85rem'}}>No donors registered for this camp.</p>
                                         )}

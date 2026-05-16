@@ -171,8 +171,10 @@ const NearestHospitalPanel = ({ userLocation, onClose }) => {
     }, [fetchHospitals]);
 
     const formatDistance = (km) => {
-        if (km < 1) return `${Math.round(km * 1000)}m`;
-        return `${km.toFixed(1)}km`;
+        // Multiply by 1.35 to estimate real-world road distance vs straight-line distance
+        const estDrivingKm = km * 1.35;
+        if (estDrivingKm < 1) return `~${Math.round(estDrivingKm * 1000)}m`;
+        return `~${estDrivingKm.toFixed(1)}km`;
     };
 
     const getDirectionsUrl = (hospital) => {
@@ -306,7 +308,7 @@ const NearestHospitalPanel = ({ userLocation, onClose }) => {
                                                 )}
                                             </div>
                                         </div>
-                                        <div className="hospital-distance">
+                                        <div className="hospital-distance" title="Estimated driving distance">
                                             <Navigation size={14} />
                                             <span>{formatDistance(hospital.distance)}</span>
                                         </div>
