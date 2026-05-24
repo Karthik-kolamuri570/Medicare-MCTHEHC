@@ -533,12 +533,11 @@ exports.getDoctorByLocation = async (req, res, next) => {
 };
 
 exports.logoutDoctor = async (req, res, next) => {
-  // JWT is stateless — client clears the token
   res.status(200).json({
     success: true,
     message: 'Doctor logged out successfully'
   });
-}
+};
 
 //Accepted Appointments for the Doctor... Storing in the Doctor's Collection as appointments
 exports.acceptAppointment = async (req, res) => {

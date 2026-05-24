@@ -72,7 +72,6 @@ const adminController = {
   // Admin Logout
   logout: async (req, res) => {
     try {
-      // JWT is stateless — client clears the token
       res.json({
         success: true,
         message: 'Admin Logout successful'

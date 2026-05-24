@@ -14,6 +14,7 @@ const hpp = require('hpp');
 const Sentry = require('@sentry/node');
 const logger = require('./utils/logger');
 const { verifyToken } = require('./utils/jwt');
+const cookieParser = require('cookie-parser');
 
 // Configure dotenv
 dotEnv.config();
@@ -62,6 +63,7 @@ if (process.env.SENTRY_DSN) {
 app.use('/api/payment/webhook', express.raw({ type: 'application/json' }));
 
 app.use(express.json()); // to parse the incoming request with JSON payloads
+app.use(cookieParser()); // to parse cookies
 app.use(bodyParser.urlencoded({ extended: true }));
 // app.set("view engine", "pug");
 // app.set("views", path.join(__dirname, "views"));
@@ -357,6 +359,79 @@ app.get('/api/me', async (req, res) => {
     }
     console.error("Error in /me route:", error);
     return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// Centralized Token Refresh Route
+app.post('/api/auth/refresh', (req, res) => {
+  try {
+    const { verifyRefreshToken, generateAccessToken, generateRefreshToken } = require('./utils/jwt');
+    
+    // 1. Get refresh token from request body
+    const refreshToken = req.body?.refreshToken;
+
+    if (!refreshToken) {
+      return res.status(401).json({ success: false, message: 'Refresh token not found' });
+    }
+
+    // 2. Verify token
+    const decoded = verifyRefreshToken(refreshToken);
+
+    // 3. Generate new tokens
+    const tokenPayload = { id: decoded.id, role: decoded.role };
+    const newAccessToken = generateAccessToken(tokenPayload);
+    const newRefreshToken = generateRefreshToken(tokenPayload);
+
+    res.json({
+      success: true,
+      token: newAccessToken,
+      refreshToken: newRefreshToken
+    });
+  } catch (error) {
+    console.error('Refresh token error:', error);
+    res.status(401).json({ success: false, message: 'Invalid or expired refresh token' });
+  }
+});
+
+// Secure S3 Presigned URL Upload Route
+app.post('/api/s3/presign', async (req, res) => {
+  try {
+    const { extractToken, verifyToken } = require('./utils/jwt');
+    const token = extractToken(req);
+    if (!token) {
+      return res.status(401).json({ success: false, message: 'Authentication required' });
+    }
+
+    // Verify token to ensure user is logged in
+    verifyToken(token);
+
+    const { fileName, fileType } = req.body;
+    if (!fileName || !fileType) {
+      return res.status(400).json({ success: false, message: 'fileName and fileType are required' });
+    }
+
+    const { generatePresignedPutUrl } = require('./utils/s3Config');
+    
+    // Generate secure unique S3 Key
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const cleanFileName = fileName.replace(/[^a-zA-Z0-9.]/g, '_');
+    const key = `client-uploads/${uniqueSuffix}-${cleanFileName}`;
+
+    // Get signed URL to upload directly from the frontend
+    const uploadUrl = await generatePresignedPutUrl(key, fileType);
+    
+    // The final S3 key or location that will be stored in database
+    const fileUrl = key; // Store the relative S3 key in the DB
+
+    res.json({
+      success: true,
+      uploadUrl,
+      fileUrl,
+      key
+    });
+  } catch (error) {
+    console.error('S3 presign error:', error);
+    res.status(500).json({ success: false, message: 'Failed to generate upload signature' });
   }
 });
 

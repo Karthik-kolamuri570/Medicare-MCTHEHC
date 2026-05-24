@@ -20,10 +20,11 @@ const express = require('express');
 const router = express.Router();
 const bloodBankController = require('../controllers/bloodBankController');
 const { requireBankAuth } = require('../middleware/auth');
+const { authLimiter } = require('../../middleware/rateLimit');
 
 // Public routes (no auth required)
-router.post('/bank-login', bloodBankController.bankLogin);
-router.post('/register', bloodBankController.registerBank);
+router.post('/bank-login', authLimiter, bloodBankController.bankLogin);
+router.post('/register', authLimiter, bloodBankController.registerBank);
 
 // Protected routes (require bank authentication)
 router.get('/verify-auth', bloodBankController.verifyAuth);

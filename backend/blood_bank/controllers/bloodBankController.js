@@ -448,7 +448,6 @@ const updateProfile = async (req, res) => {
 
 // Bank Logout
 const bankLogout = (req, res) => {
-    // JWT is stateless — client clears the token
     res.json({
         success: true,
         message: 'Logout successful'

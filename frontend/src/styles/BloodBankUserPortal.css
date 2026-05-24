@@ -1,4 +1,4 @@
-﻿/* ========== Ultra-Premium Productive Aurora Blood Bank User Portal ========== */
+/* ========== Ultra-Premium Productive Aurora Blood Bank User Portal ========== */
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 .bu-container {
@@ -381,4 +381,21 @@
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
+}
+
+/* ========== Shimmering Skeleton Loader Animations ========== */
+@keyframes bu-shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.bu-skeleton-shimmer [style*="background: rgb(226, 232, 240)"],
+.bu-skeleton-shimmer [style*="background: #e2e8f0"] {
+    background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%) !important;
+    background-size: 200% 100% !important;
+    animation: bu-shimmer 1.5s infinite linear !important;
 }

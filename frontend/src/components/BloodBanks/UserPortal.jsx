@@ -1,1511 +1,85 @@
-// import React, { useState, useEffect } from "react";
-
-// import axios from "axios";
-
-// function BloodPortal() {
-//   const [loading, setLoading] = useState(true);
-//   const [activeSection, setActiveSection] = useState("home");
-//   const [showNotifications, setShowNotifications] = useState(false);
-//   const [showMyDonations, setShowMyDonations] = useState(false);
-//   const [showMyRequests, setShowMyRequests] = useState(false);
-//   const [bloodData, setBloodData] = useState({
-//     bloodBanks: [],
-//     urgentRequests: [],
-//     userStats: {
-//       acceptedDonations: 0,
-//       acceptedRequests: 0,
-//       livesSaved: 0,
-//       canDonate: true,
-//       pendingDonations: 0,
-//       pendingRequests: 0
-//     },
-//     myDonations: [],
-//     myRequests: [],
-//     notifications: []
-//   });
-
-//   useEffect(() => {
-//     initializeBloodPortal();
-//   }, []);
-
-//   const initializeBloodPortal = async () => {
-//     try {
-//       setLoading(true);
-
-//       // Using your exact API endpoints
-//       const [banksRes, urgentRes, donationsRes, requestsRes] = await Promise.all([
-//         axios.get('/api/blood-bank/banks', { withCredentials: true }),
-//         axios.get('/api/blood-bank-user/blood/urgent-requests', { withCredentials: true }),
-//         axios.get('/api/blood-bank-user/donation-requests', { withCredentials: true }),
-//         axios.get('/api/blood-bank-user/blood-requests', { withCredentials: true })
-//       ]);
-
-//       // Calculate stats from the data
-//       const donations = donationsRes.data.donations || [];
-//       const requests = requestsRes.data.requests || [];
-
-//       const acceptedDonations = donations.filter(d => d.status === 'accepted').length;
-//       const acceptedRequests = requests.filter(r => r.status === 'accepted').length;
-//       const pendingDonations = donations.filter(d => d.status === 'pending').length;
-//       const pendingRequests = requests.filter(r => r.status === 'pending').length;
-//       const livesSaved = acceptedDonations * 3;
-
-//       // Create mock notifications based on recent activities
-//       const notifications = [
-//         ...donations.slice(0, 3).map(d => ({
-//           id: `donation-${d._id}`,
-//           type: 'donation',
-//           title: `Donation ${d.status}`,
-//           message: `Your ${d.blood_group} blood donation has been ${d.status}`,
-//           time: new Date(d.requested_date).toLocaleDateString(),
-//           status: d.status
-//         })),
-//         ...requests.slice(0, 3).map(r => ({
-//           id: `request-${r._id}`,
-//           type: 'request',
-//           title: `Request ${r.status}`,
-//           message: `Your ${r.blood_group} blood request has been ${r.status}`,
-//           time: new Date(r.requested_date).toLocaleDateString(),
-//           status: r.status
-//         }))
-//       ].slice(0, 5);
-
-//       setBloodData({
-//         bloodBanks: banksRes.data.banks || banksRes.data || [],
-//         urgentRequests: urgentRes.data.urgent || [],
-//         userStats: {
-//           acceptedDonations,
-//           acceptedRequests,
-//           livesSaved,
-//           canDonate: true,
-//           pendingDonations,
-//           pendingRequests
-//         },
-//         myDonations: donations,
-//         myRequests: requests,
-//         notifications
-//       });
-
-//     } catch (error) {
-//       console.error('Failed to load Blood Portal:', error);
-//       setBloodData({
-//         bloodBanks: [],
-//         urgentRequests: [],
-//         userStats: {
-//           acceptedDonations: 0,
-//           acceptedRequests: 0,
-//           livesSaved: 0,
-//           canDonate: true,
-//           pendingDonations: 0,
-//           pendingRequests: 0
-//         },
-//         myDonations: [],
-//         myRequests: [],
-//         notifications: []
-//       });
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   const refreshData = async () => {
-//     await initializeBloodPortal();
-//   };
-
-//   const handleDonationSubmit = async (donationData) => {
-//     try {
-//       console.log('Submitting donation data:', donationData);
-//       const response = await axios.post('/api/blood-bank-user/donation-request', donationData);
-
-//       if (response.data.message) {
-//         alert(' ' + response.data.message);
-//         await refreshData();
-//       }
-//     } catch (error) {
-//       console.error('Donation submission failed:', error);
-//       alert(error.response?.data?.message || 'Failed to submit donation request');
-//     }
-//   };
-
-//   const handleRequestSubmit = async (requestData) => {
-//     try {
-//       console.log('Submitting request data:', requestData);
-//       const response = await axios.post('/api/blood-bank-user/request-blood', requestData);
-
-//       if (response.data.message) {
-//         alert(' ' + response.data.message);
-//         await refreshData();
-//       }
-//     } catch (error) {
-//       console.error('Request submission failed:', error);
-//       alert(error.response?.data?.message || 'Failed to submit blood request');
-//     }
-//   };
-
-//   if (loading) {
-//     return (
-//       <div className="bu-loadingContainer">
-//         <div className="bu-loadingContent">
-//           <div className="bu-loadingIcon"></div>
-//           <div className="bu-loadingText">Loading Blood Portal...</div>
-//           <div className="bu-progressBar">
-//             <div className="bu-progressFill"></div>
-//           </div>
-//         </div>
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div className="bu-container">
-//       {/* Enhanced Header with Notifications, My Donations, My Requests */}
-//       <header className="bu-header">
-//         <div className="bu-headerContent">
-//           <div className="bu-logo">
-//             <span className="bu-logoIcon"></span>
-//             <span className="bu-logoText">BloodBank Portal</span>
-//           </div>
-
-//           <div className="bu-headerActions">
-//             {/* Notifications Dropdown */}
-//             <div className="bu-headerActionItem">
-//               <button 
-//                 onClick={() => setShowNotifications(!showNotifications)}
-//                 className="bu-headerButton"
-//               >
-//                 <span className="bu-headerButtonIcon"></span>
-//                 <span className="bu-headerButtonText">Notifications</span>
-//                 {bloodData.notifications.length > 0 && (
-//                   <span className="bu-notificationBadge">{bloodData.notifications.length}</span>
-//                 )}
-//               </button>
-
-//               {showNotifications && (
-//                 <div className="bu-dropdown">
-//                   <div className="bu-dropdownHeader">
-//                     <h4>Recent Notifications</h4>
-//                   </div>
-//                   <div className="bu-dropdownContent">
-//                     {bloodData.notifications.length === 0 ? (
-//                       <div className="bu-emptyDropdown">
-//                         <span className="bu-emptyIcon"></span>
-//                         <p>No notifications yet</p>
-//                       </div>
-//                     ) : (
-//                       bloodData.notifications.map(notification => (
-//                         <div key={notification.id} className="bu-notificationItem">
-//                           <div className="bu-notificationIcon">
-//                             {notification.type === 'donation' ? '' : ''}
-//                           </div>
-//                           <div className="bu-notificationContent">
-//                             <h5 className="bu-notificationTitle">{notification.title}</h5>
-//                             <p className="bu-notificationMessage">{notification.message}</p>
-//                             <span className="bu-notificationTime">{notification.time}</span>
-//                           </div>
-//                           <div style={{
-//                             ...styles.notificationStatus,
-//                             backgroundColor: notification.status === 'accepted' ? '#27ae60' : 
-//                                             notification.status === 'rejected' ? '#e74c3c' : '#f39c12'
-//                           }}>
-//                             {notification.status === 'accepted' ? '' :
-//                              notification.status === 'rejected' ? '' : ''}
-//                           </div>
-//                         </div>
-//                       ))
-//                     )}
-//                   </div>
-//                 </div>
-//               )}
-//             </div>
-
-//             {/* My Donations Dropdown */}
-//             <div className="bu-headerActionItem">
-//               <button 
-//                 onClick={() => setShowMyDonations(!showMyDonations)}
-//                 className="bu-headerButton"
-//               >
-//                 <span className="bu-headerButtonIcon"></span>
-//                 <span className="bu-headerButtonText">My Donations</span>
-//                 <span className="bu-countBadge">{bloodData.userStats.acceptedDonations}</span>
-//               </button>
-
-//               {showMyDonations && (
-//                 <div className="bu-dropdown">
-//                   <div className="bu-dropdownHeader">
-//                     <h4>My Donations ({bloodData.myDonations.length})</h4>
-//                     <div className="bu-statsRow">
-//                       <span className="bu-statBadge"> {bloodData.userStats.acceptedDonations} Accepted</span>
-//                       <span className="bu-statBadge"> {bloodData.userStats.pendingDonations} Pending</span>
-//                     </div>
-//                   </div>
-//                   <div className="bu-dropdownContent">
-//                     {bloodData.myDonations.length === 0 ? (
-//                       <div className="bu-emptyDropdown">
-//                         <span className="bu-emptyIcon"></span>
-//                         <p>No donations yet</p>
-//                         <button 
-//                           onClick={() => setActiveSection('donate')}
-//                           className="bu-emptyActionButton"
-//                         >
-//                           Make First Donation
-//                         </button>
-//                       </div>
-//                     ) : (
-//                       bloodData.myDonations.slice(0, 5).map(donation => (
-//                         <div key={donation._id} className="bu-dropdownItem">
-//                           <div className="bu-itemLeft">
-//                             <span className="bu-bloodTypeSmall">{donation.blood_group}</span>
-//                             <span className="bu-itemUnits">{donation.units_donated}u</span>
-//                           </div>
-//                           <div className="bu-itemCenter">
-//                             <span className="bu-itemBank">{donation.bank_id?.name || 'Blood Bank'}</span>
-//                             <span className="bu-itemDate">{new Date(donation.requested_date).toLocaleDateString()}</span>
-//                           </div>
-//                           <div className="bu-itemRight">
-//                             <span style={{
-//                               ...styles.itemStatus,
-//                               color: donation.status === 'accepted' ? '#27ae60' : 
-//                                      donation.status === 'rejected' ? '#e74c3c' : '#f39c12'
-//                             }}>
-//                               {donation.status === 'accepted' ? '' :
-//                                donation.status === 'rejected' ? '' : ''}
-//                             </span>
-//                           </div>
-//                         </div>
-//                       ))
-//                     )}
-//                     {bloodData.myDonations.length > 5 && (
-//                       <div className="bu-viewAllButton" onClick={() => setActiveSection('history')}>
-//                         View All Donations ({bloodData.myDonations.length})
-//                       </div>
-//                     )}
-//                   </div>
-//                 </div>
-//               )}
-//             </div>
-
-//             {/* My Requests Dropdown */}
-//             <div className="bu-headerActionItem">
-//               <button 
-//                 onClick={() => setShowMyRequests(!showMyRequests)}
-//                 className="bu-headerButton"
-//               >
-//                 <span className="bu-headerButtonIcon"></span>
-//                 <span className="bu-headerButtonText">My Requests</span>
-//                 <span className="bu-countBadge">{bloodData.userStats.acceptedRequests}</span>
-//               </button>
-
-//               {showMyRequests && (
-//                 <div className="bu-dropdown">
-//                   <div className="bu-dropdownHeader">
-//                     <h4>My Requests ({bloodData.myRequests.length})</h4>
-//                     <div className="bu-statsRow">
-//                       <span className="bu-statBadge"> {bloodData.userStats.acceptedRequests} Fulfilled</span>
-//                       <span className="bu-statBadge"> {bloodData.userStats.pendingRequests} Pending</span>
-//                     </div>
-//                   </div>
-//                   <div className="bu-dropdownContent">
-//                     {bloodData.myRequests.length === 0 ? (
-//                       <div className="bu-emptyDropdown">
-//                         <span className="bu-emptyIcon"></span>
-//                         <p>No requests yet</p>
-//                         <button 
-//                           onClick={() => setActiveSection('request')}
-//                           className="bu-emptyActionButton"
-//                         >
-//                           Make First Request
-//                         </button>
-//                       </div>
-//                     ) : (
-//                       bloodData.myRequests.slice(0, 5).map(request => (
-//                         <div key={request._id} className="bu-dropdownItem">
-//                           <div className="bu-itemLeft">
-//                             <span className="bu-bloodTypeSmall">{request.blood_group}</span>
-//                             <span className="bu-itemUnits">{request.units_requested}u</span>
-//                           </div>
-//                           <div className="bu-itemCenter">
-//                             <span className="bu-itemBank">{request.bank_id?.name || 'Blood Bank'}</span>
-//                             <span className="bu-itemDate">{new Date(request.requested_date).toLocaleDateString()}</span>
-//                           </div>
-//                           <div className="bu-itemRight">
-//                             <span style={{
-//                               ...styles.itemStatus,
-//                               color: request.status === 'accepted' ? '#27ae60' : 
-//                                      request.status === 'rejected' ? '#e74c3c' : '#f39c12'
-//                             }}>
-//                               {request.status === 'accepted' ? '' :
-//                                request.status === 'rejected' ? '' : ''}
-//                             </span>
-//                           </div>
-//                         </div>
-//                       ))
-//                     )}
-//                     {bloodData.myRequests.length > 5 && (
-//                       <div className="bu-viewAllButton" onClick={() => setActiveSection('history')}>
-//                         View All Requests ({bloodData.myRequests.length})
-//                       </div>
-//                     )}
-//                   </div>
-//                 </div>
-//               )}
-//             </div>
-
-//             {/* Quick Stats */}
-//             <div className="bu-quickStats">
-//               <div className="bu-quickStat">
-//                 <span className="bu-quickStatNumber">{bloodData.userStats.livesSaved}</span>
-//                 <span className="bu-quickStatLabel">Lives Saved</span>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       </header>
-
-//       {/* Click outside to close dropdowns */}
-//       {(showNotifications || showMyDonations || showMyRequests) && (
-//         <div 
-//           className="bu-overlay" 
-//           onClick={() => {
-//             setShowNotifications(false);
-//             setShowMyDonations(false);
-//             setShowMyRequests(false);
-//           }}
-//         />
-//       )}
-
-//       {/* Enhanced Hero Section */}
-//       <section className="bu-hero">
-//         <div className="bu-heroContent">
-//           <div className="bu-heroLeft">
-//             <h1 className="bu-heroTitle">
-//               Save Lives Through <span className="bu-highlight">Blood Donation</span>
-//             </h1>
-//             <p className="bu-heroSubtitle">
-//               Your contribution can save up to 3 lives. Join our community of life-savers!
-//             </p>
-//             <div className="bu-heroButtons">
-//               <button 
-//                 onClick={() => setActiveSection('donate')}
-//                 className="bu-heroPrimaryButton"
-//               >
-//                  Donate Now
-//               </button>
-//               <button 
-//                 onClick={() => setActiveSection('request')}
-//                 className="bu-heroSecondaryButton"
-//               >
-//                  Request Blood
-//               </button>
-//             </div>
-//           </div>
-//           <div className="bu-heroRight">
-//             <div className="bu-heroStatsCard">
-//               <h3 className="bu-heroStatsTitle">Your Impact</h3>
-//               <div className="bu-heroStatsList">
-//                 <div className="bu-heroStatItem">
-//                   <span className="bu-heroStatIcon"></span>
-//                   <div>
-//                     <div className="bu-heroStatNumber">{bloodData.userStats.acceptedDonations}</div>
-//                     <div className="bu-heroStatLabel">Successful Donations</div>
-//                   </div>
-//                 </div>
-//                 <div className="bu-heroStatItem">
-//                   <span className="bu-heroStatIcon"></span>
-//                   <div>
-//                     <div className="bu-heroStatNumber">{bloodData.userStats.acceptedRequests}</div>
-//                     <div className="bu-heroStatLabel">Fulfilled Requests</div>
-//                   </div>
-//                 </div>
-//                 <div className="bu-heroStatItem">
-//                   <span className="bu-heroStatIcon"></span>
-//                   <div>
-//                     <div className="bu-heroStatNumber">{bloodData.userStats.livesSaved}</div>
-//                     <div className="bu-heroStatLabel">Lives Saved</div>
-//                   </div>
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       </section>
-
-//       {/* Enhanced Navigation */}
-//       <nav className="bu-nav">
-//         <div className="bu-navContent">
-//           {[
-//             { id: "home", label: "Dashboard", icon: "", color: "#3498db" },
-//             { id: "donate", label: "Donate Blood", icon: "", color: "#e74c3c" },
-//             { id: "request", label: "Request Blood", icon: "", color: "#f39c12" },
-//             { id: "history", label: "My History", icon: "", color: "#9b59b6" },
-//             { id: "urgent", label: "Urgent Needs", icon: "", color: "#e67e22" }
-//           ].map(item => (
-//             <button
-//               key={item.id}
-//               onClick={() => setActiveSection(item.id)}
-//               style={{
-//                 ...styles.navButton,
-//                 ...(activeSection === item.id ? {
-//                   ...styles.navButtonActive,
-//                   backgroundColor: item.color,
-//                   boxShadow: `0 8px 25px ${item.color}40`,
-//                   transform: 'translateY(-2px)'
-//                 } : {})
-//               }}
-//               onMouseEnter={(e) => {
-//                 if (activeSection !== item.id) {
-//                   e.target.style.backgroundColor = `${item.color}20`;
-//                   e.target.style.borderColor = item.color;
-//                   e.target.style.color = item.color;
-//                 }
-//               }}
-//               onMouseLeave={(e) => {
-//                 if (activeSection !== item.id) {
-//                   e.target.style.backgroundColor = 'white';
-//                   e.target.style.borderColor = '#ecf0f1';
-//                   e.target.style.color = '#2c3e50';
-//                 }
-//               }}
-//             >
-//               <span className="bu-navIcon">{item.icon}</span>
-//               <span className="bu-navLabel">{item.label}</span>
-//             </button>
-//           ))}
-//         </div>
-//       </nav>
-
-//       {/* Content with better styling */}
-//       <div className="bu-content">
-//         <div className="bu-contentWrapper">
-//           {activeSection === "home" && (
-//             <HomeSection 
-//               urgentRequests={bloodData.urgentRequests} 
-//               bloodBanks={bloodData.bloodBanks}
-//               userStats={bloodData.userStats}
-//               setActiveSection={setActiveSection} 
-//             />
-//           )}
-//           {activeSection === "donate" && (
-//             <DonateSection 
-//               bloodBanks={bloodData.bloodBanks}
-//               userStats={bloodData.userStats}
-//               onSubmit={handleDonationSubmit} 
-//             />
-//           )}
-//           {activeSection === "request" && (
-//             <RequestSection 
-//               bloodBanks={bloodData.bloodBanks}
-//               userStats={bloodData.userStats}
-//               onSubmit={handleRequestSubmit} 
-//             />
-//           )}
-//           {activeSection === "history" && (
-//             <HistorySection 
-//               myDonations={bloodData.myDonations}
-//               myRequests={bloodData.myRequests}
-//               userStats={bloodData.userStats}
-//               setActiveSection={setActiveSection}
-//             />
-//           )}
-//           {activeSection === "urgent" && (
-//             <UrgentSection urgentRequests={bloodData.urgentRequests} />
-//           )}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
-// // Keep your existing section components (HomeSection, DonateSection, etc.) 
-// // but I'll show you the updated HomeSection with better styling:
-
-// function HomeSection({ urgentRequests, bloodBanks, userStats, setActiveSection }) {
-//   return (
-//     <div className="bu-section">
-//       <div className="bu-welcomeCard">
-//         <div className="bu-welcomeContent">
-//           <h2 className="bu-welcomeTitle">Your Blood Bank Journey </h2>
-//           <p className="bu-welcomeText">
-//             Track your life-saving contributions and make a real difference in your community!
-//           </p>
-
-//           <div className="bu-achievementShowcase">
-//             <div className="bu-achievementItem">
-//               <div className="bu-achievementNumber">{userStats.acceptedDonations}</div>
-//               <div className="bu-achievementLabel">Successful Donations</div>
-//               <div className="bu-achievementDesc">Accepted by blood banks</div>
-//             </div>
-//             <div className="bu-achievementDivider"></div>
-//             <div className="bu-achievementItem">
-//               <div className="bu-achievementNumber">{userStats.livesSaved}</div>
-//               <div className="bu-achievementLabel">Lives Saved</div>
-//               <div className="bu-achievementDesc">Through your donations</div>
-//             </div>
-//             <div className="bu-achievementDivider"></div>
-//             <div className="bu-achievementItem">
-//               <div className="bu-achievementNumber">{userStats.acceptedRequests}</div>
-//               <div className="bu-achievementLabel">Requests Fulfilled</div>
-//               <div className="bu-achievementDesc">When you needed help</div>
-//             </div>
-//           </div>
-
-//           {(userStats.pendingDonations > 0 || userStats.pendingRequests > 0) && (
-//             <div className="bu-pendingAlert">
-//               <span className="bu-pendingIcon"></span>
-//               <div className="bu-pendingText">
-//                 {userStats.pendingDonations > 0 && (
-//                   <span>{userStats.pendingDonations} donation{userStats.pendingDonations > 1 ? 's' : ''} pending approval</span>
-//                 )}
-//                 {userStats.pendingDonations > 0 && userStats.pendingRequests > 0 && <span>  </span>}
-//                 {userStats.pendingRequests > 0 && (
-//                   <span>{userStats.pendingRequests} request{userStats.pendingRequests > 1 ? 's' : ''} pending approval</span>
-//                 )}
-//               </div>
-//             </div>
-//           )}
-//         </div>
-//       </div>
-
-//       {/* Quick Action Cards */}
-//       <div className="bu-quickActionCards">
-//         <div 
-//           onClick={() => setActiveSection('donate')}
-//           style={{...styles.quickCard, ...styles.donateCard}}
-//         >
-//           <div className="bu-quickCardIcon"></div>
-//           <h3 className="bu-quickCardTitle">Donate Blood</h3>
-//           <p className="bu-quickCardDesc">Save up to 3 lives with one donation</p>
-//           <div className="bu-quickCardArrow"></div>
-//         </div>
-
-//         <div 
-//           onClick={() => setActiveSection('request')}
-//           style={{...styles.quickCard, ...styles.requestCard}}
-//         >
-//           <div className="bu-quickCardIcon"></div>
-//           <h3 className="bu-quickCardTitle">Request Blood</h3>
-//           <p className="bu-quickCardDesc">Get help when you need it most</p>
-//           <div className="bu-quickCardArrow"></div>
-//         </div>
-
-//         <div 
-//           onClick={() => setActiveSection('urgent')}
-//           style={{...styles.quickCard, ...styles.urgentCard}}
-//         >
-//           <div className="bu-quickCardIcon"></div>
-//           <h3 className="bu-quickCardTitle">Urgent Needs</h3>
-//           <p className="bu-quickCardDesc">Help someone in critical need</p>
-//           <div className="bu-quickCardArrow"></div>
-//         </div>
-//       </div>
-
-//       {/* Available Blood Banks Carousel */}
-//       {bloodBanks.length > 0 && (
-//         <div className="bu-bloodBanksSection">
-//           <h3 className="bu-sectionSubtitle"> Available Blood Banks ({bloodBanks.length})</h3>
-//           <div className="bu-bloodBanksCarousel">
-//             {bloodBanks.slice(0, 6).map(bank => (
-//               <div key={bank._id} className="bu-bankCard">
-//                 <div className="bu-bankCardIcon"></div>
-//                 <h4 className="bu-bankCardName">{bank.name}</h4>
-//                 <p className="bu-bankCardLocation"> {bank.location || bank.address}</p>
-//                 {bank.phone && (
-//                   <p className="bu-bankCardContact"> {bank.phone}</p>
-//                 )}
-//               </div>
-//             ))}
-//           </div>
-//           {bloodBanks.length > 6 && (
-//             <div className="bu-showMoreBanks">
-//               <span>And {bloodBanks.length - 6} more blood banks available...</span>
-//             </div>
-//           )}
-//         </div>
-//       )}
-
-//       {/* Urgent Requests Preview */}
-//       {urgentRequests.length > 0 && (
-//         <div className="bu-urgentSection">
-//           <h3 className="bu-urgentSectionTitle"> Critical Blood Needs</h3>
-//           <div className="bu-urgentCarousel">
-//             {urgentRequests.slice(0, 3).map(request => (
-//               <div key={request._id} className="bu-urgentPreviewCard">
-//                 <div className="bu-urgentCardTop">
-//                   <span className="bu-urgentBloodTypeBig">{request.blood_group}</span>
-//                   <span className="bu-urgentPriorityBadge">
-//                     {request.urgency === 'critical' ? ' CRITICAL' : ' URGENT'}
-//                   </span>
-//                 </div>
-//                 <div className="bu-urgentCardDetails">
-//                   <p> {request.location}</p>
-//                   <p> {request.units_requested} units needed</p>
-//                   <p> {request.timeAgo}</p>
-//                 </div>
-//                 <button className="bu-urgentHelpBtn"> Help Now</button>
-//               </div>
-//             ))}
-//           </div>
-//           <div className="bu-viewAllUrgent" onClick={() => setActiveSection('urgent')}>
-//             View All Urgent Requests ({urgentRequests.length})
-//           </div>
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
-
-// // Enhanced Styles with modern design
-// const styles = {
-//   container: {
-//     fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif",
-//     background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-//     minHeight: "100vh",
-//     position: "relative"
-//   },
-
-//   // Loading Screen
-//   loadingContainer: {
-//     minHeight: "100vh",
-//     display: "flex",
-//     alignItems: "center",
-//     justifyContent: "center",
-//     background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-//   },
-//   loadingContent: {
-//     textAlign: "center",
-//     background: "rgba(255,255,255,0.95)",
-//     padding: "3rem",
-//     borderRadius: "20px",
-//     boxShadow: "0 20px 60px rgba(0,0,0,0.1)",
-//     backdropFilter: "blur(10px)"
-//   },
-//   loadingIcon: {
-//     fontSize: "5rem",
-//     marginBottom: "1.5rem",
-//     animation: "pulse 2s infinite"
-//   },
-//   loadingText: {
-//     fontSize: "1.8rem",
-//     color: "#2c3e50",
-//     fontWeight: "700",
-//     marginBottom: "1.5rem"
-//   },
-//   progressBar: {
-//     width: "200px",
-//     height: "4px",
-//     background: "#ecf0f1",
-//     borderRadius: "2px",
-//     overflow: "hidden",
-//     margin: "0 auto"
-//   },
-//   progressFill: {
-//     width: "100%",
-//     height: "100%",
-//     background: "linear-gradient(90deg, #e74c3c, #f39c12)",
-//     animation: "slideIn 2s ease-in-out infinite"
-//   },
-
-//   // Header with Notifications
-//   header: {
-//     background: "rgba(255,255,255,0.95)",
-//     backdropFilter: "blur(20px)",
-//     borderBottom: "1px solid rgba(255,255,255,0.2)",
-//     position: "sticky",
-//     top: 0,
-//     zIndex: 1000,
-//     boxShadow: "0 8px 32px rgba(0,0,0,0.1)"
-//   },
-//   headerContent: {
-//     maxWidth: "1400px",
-//     margin: "0 auto",
-//     padding: "1rem 2rem",
-//     display: "flex",
-//     alignItems: "center",
-//     justifyContent: "space-between"
-//   },
-//   logo: {
-//     display: "flex",
-//     alignItems: "center",
-//     gap: "1rem"
-//   },
-//   logoIcon: {
-//     fontSize: "2.5rem",
-//     animation: "heartbeat 2s ease-in-out infinite"
-//   },
-//   logoText: {
-//     fontSize: "1.8rem",
-//     fontWeight: "800",
-//     color: "#2c3e50",
-//     background: "linear-gradient(45deg, #e74c3c, #f39c12)",
-//     backgroundClip: "text",
-//     WebkitBackgroundClip: "text",
-//     WebkitTextFillColor: "transparent"
-//   },
-//   headerActions: {
-//     display: "flex",
-//     alignItems: "center",
-//     gap: "1rem"
-//   },
-//   headerActionItem: {
-//     position: "relative"
-//   },
-//   headerButton: {
-//     background: "white",
-//     border: "2px solid #ecf0f1",
-//     borderRadius: "15px",
-//     padding: "0.8rem 1.2rem",
-//     cursor: "pointer",
-//     display: "flex",
-//     alignItems: "center",
-//     gap: "0.5rem",
-//     transition: "all 0.3s ease",
-//     boxShadow: "0 4px 15px rgba(0,0,0,0.08)",
-//     position: "relative"
-//   },
-//   headerButtonIcon: {
-//     fontSize: "1.3rem"
-//   },
-//   headerButtonText: {
-//     fontWeight: "600",
-//     color: "#2c3e50"
-//   },
-//   notificationBadge: {
-//     background: "#e74c3c",
-//     color: "white",
-//     borderRadius: "50%",
-//     width: "20px",
-//     height: "20px",
-//     display: "flex",
-//     alignItems: "center",
-//     justifyContent: "center",
-//     fontSize: "0.7rem",
-//     fontWeight: "bold",
-//     position: "absolute",
-//     top: "-5px",
-//     right: "-5px"
-//   },
-//   countBadge: {
-//     background: "#27ae60",
-//     color: "white",
-//     borderRadius: "12px",
-//     padding: "0.2rem 0.5rem",
-//     fontSize: "0.8rem",
-//     fontWeight: "bold"
-//   },
-//   quickStats: {
-//     background: "linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)",
-//     borderRadius: "15px",
-//     padding: "1rem 1.5rem",
-//     color: "white"
-//   },
-//   quickStat: {
-//     textAlign: "center"
-//   },
-//   quickStatNumber: {
-//     display: "block",
-//     fontSize: "1.8rem",
-//     fontWeight: "bold"
-//   },
-//   quickStatLabel: {
-//     fontSize: "0.8rem",
-//     opacity: 0.9
-//   },
-
-//   // Dropdown Menus
-//   dropdown: {
-//     position: "absolute",
-//     top: "100%",
-//     right: "0",
-//     background: "white",
-//     borderRadius: "15px",
-//     boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
-//     width: "400px",
-//     maxHeight: "500px",
-//     overflow: "hidden",
-//     zIndex: 1001,
-//     marginTop: "0.5rem",
-//     border: "1px solid rgba(0,0,0,0.1)"
-//   },
-//   dropdownHeader: {
-//     padding: "1.5rem",
-//     borderBottom: "1px solid #ecf0f1",
-//     background: "linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)"
-//   },
-//   dropdownContent: {
-//     maxHeight: "400px",
-//     overflowY: "auto"
-//   },
-//   statsRow: {
-//     display: "flex",
-//     gap: "0.5rem",
-//     marginTop: "0.5rem"
-//   },
-//   statBadge: {
-//     background: "#ecf0f1",
-//     padding: "0.3rem 0.8rem",
-//     borderRadius: "12px",
-//     fontSize: "0.8rem",
-//     fontWeight: "600",
-//     color: "#2c3e50"
-//   },
-//   emptyDropdown: {
-//     textAlign: "center",
-//     padding: "3rem 2rem",
-//     color: "#7f8c8d"
-//   },
-//   emptyIcon: {
-//     fontSize: "3rem",
-//     marginBottom: "1rem"
-//   },
-//   emptyActionButton: {
-//     background: "linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)",
-//     color: "white",
-//     border: "none",
-//     padding: "0.8rem 1.5rem",
-//     borderRadius: "20px",
-//     fontSize: "0.9rem",
-//     fontWeight: "600",
-//     cursor: "pointer",
-//     marginTop: "1rem"
-//   },
-//   notificationItem: {
-//     display: "flex",
-//     alignItems: "flex-start",
-//     gap: "1rem",
-//     padding: "1rem",
-//     borderBottom: "1px solid #f8f9fa",
-//     transition: "background 0.2s ease"
-//   },
-//   notificationIcon: {
-//     fontSize: "1.5rem",
-//     minWidth: "30px"
-//   },
-//   notificationContent: {
-//     flex: 1
-//   },
-//   notificationTitle: {
-//     margin: "0 0 0.3rem 0",
-//     color: "#2c3e50",
-//     fontSize: "0.9rem",
-//     fontWeight: "600"
-//   },
-//   notificationMessage: {
-//     margin: "0 0 0.3rem 0",
-//     color: "#7f8c8d",
-//     fontSize: "0.8rem",
-//     lineHeight: 1.4
-//   },
-//   notificationTime: {
-//     fontSize: "0.7rem",
-//     color: "#bdc3c7"
-//   },
-//   notificationStatus: {
-//     width: "24px",
-//     height: "24px",
-//     borderRadius: "50%",
-//     display: "flex",
-//     alignItems: "center",
-//     justifyContent: "center",
-//     fontSize: "0.8rem",
-//     color: "white"
-//   },
-//   dropdownItem: {
-//     display: "flex",
-//     alignItems: "center",
-//     justify: "space-between",
-//     padding: "0.8rem 1rem",
-//     borderBottom: "1px solid #f8f9fa",
-//     transition: "background 0.2s ease"
-//   },
-//   itemLeft: {
-//     display: "flex",
-//     alignItems: "center",
-//     gap: "0.5rem"
-//   },
-//   bloodTypeSmall: {
-//     background: "#e74c3c",
-//     color: "white",
-//     padding: "0.3rem 0.6rem",
-//     borderRadius: "12px",
-//     fontSize: "0.8rem",
-//     fontWeight: "bold"
-//   },
-//   itemUnits: {
-//     color: "#2c3e50",
-//     fontSize: "0.8rem",
-//     fontWeight: "600"
-//   },
-//   itemCenter: {
-//     flex: 1,
-//     textAlign: "center"
-//   },
-//   itemBank: {
-//     display: "block",
-//     color: "#2c3e50",
-//     fontSize: "0.8rem",
-//     fontWeight: "600"
-//   },
-//   itemDate: {
-//     display: "block",
-//     color: "#7f8c8d",
-//     fontSize: "0.7rem"
-//   },
-//   itemRight: {
-//     minWidth: "30px",
-//     textAlign: "center"
-//   },
-//   itemStatus: {
-//     fontSize: "1.2rem"
-//   },
-//   viewAllButton: {
-//     padding: "1rem",
-//     textAlign: "center",
-//     background: "#f8f9fa",
-//     color: "#2c3e50",
-//     fontWeight: "600",
-//     cursor: "pointer",
-//     transition: "background 0.2s ease",
-//     borderTop: "1px solid #ecf0f1"
-//   },
-//   overlay: {
-//     position: "fixed",
-//     top: 0,
-//     left: 0,
-//     right: 0,
-//     bottom: 0,
-//     background: "rgba(0,0,0,0.3)",
-//     zIndex: 999
-//   },
-
-//   // Enhanced Hero Section
-//   hero: {
-//     background: "linear-gradient(135deg, #2c3e50 0%, #34495e 100%)",
-//     color: "white",
-//     padding: "4rem 2rem",
-//     position: "relative",
-//     overflow: "hidden"
-//   },
-//   heroContent: {
-//     maxWidth: "1400px",
-//     margin: "0 auto",
-//     display: "flex",
-//     alignItems: "center",
-//     gap: "4rem"
-//   },
-//   heroLeft: {
-//     flex: 1
-//   },
-//   heroTitle: {
-//     fontSize: "3.5rem",
-//     fontWeight: "800",
-//     marginBottom: "1.5rem",
-//     lineHeight: 1.2
-//   },
-//   highlight: {
-//     background: "linear-gradient(45deg, #e74c3c, #f39c12)",
-//     backgroundClip: "text",
-//     WebkitBackgroundClip: "text",
-//     WebkitTextFillColor: "transparent"
-//   },
-//   heroSubtitle: {
-//     fontSize: "1.3rem",
-//     opacity: 0.9,
-//     marginBottom: "2.5rem",
-//     lineHeight: 1.6
-//   },
-//   heroButtons: {
-//     display: "flex",
-//     gap: "1rem"
-//   },
-//   heroPrimaryButton: {
-//     background: "linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)",
-//     color: "white",
-//     border: "none",
-//     padding: "1.2rem 2.5rem",
-//     borderRadius: "30px",
-//     fontSize: "1.1rem",
-//     fontWeight: "700",
-//     cursor: "pointer",
-//     transition: "all 0.3s ease",
-//     boxShadow: "0 8px 25px rgba(231,76,60,0.3)"
-//   },
-//   heroSecondaryButton: {
-//     background: "transparent",
-//     color: "white",
-//     border: "2px solid white",
-//     padding: "1.2rem 2.5rem",
-//     borderRadius: "30px",
-//     fontSize: "1.1rem",
-//     fontWeight: "700",
-//     cursor: "pointer",
-//     transition: "all 0.3s ease"
-//   },
-//   heroRight: {
-//     flex: 1
-//   },
-//   heroStatsCard: {
-//     background: "rgba(255,255,255,0.1)",
-//     backdropFilter: "blur(20px)",
-//     borderRadius: "20px",
-//     padding: "2rem",
-//     border: "1px solid rgba(255,255,255,0.2)"
-//   },
-//   heroStatsTitle: {
-//     fontSize: "1.5rem",
-//     marginBottom: "1.5rem",
-//     fontWeight: "700",
-//     textAlign: "center"
-//   },
-//   heroStatsList: {
-//     display: "flex",
-//     flexDirection: "column",
-//     gap: "1rem"
-//   },
-//   heroStatItem: {
-//     display: "flex",
-//     alignItems: "center",
-//     gap: "1rem",
-//     background: "rgba(255,255,255,0.1)",
-//     padding: "1rem",
-//     borderRadius: "12px"
-//   },
-//   heroStatIcon: {
-//     fontSize: "2rem",
-//     minWidth: "50px"
-//   },
-//   heroStatNumber: {
-//     fontSize: "2rem",
-//     fontWeight: "bold",
-//     color: "#ffeaa7"
-//   },
-//   heroStatLabel: {
-//     fontSize: "0.9rem",
-//     opacity: 0.9
-//   },
-
-//   // Enhanced Navigation
-//   nav: {
-//     background: "rgba(255,255,255,0.95)",
-//     backdropFilter: "blur(20px)",
-//     padding: "2rem",
-//     boxShadow: "0 4px 20px rgba(0,0,0,0.1)"
-//   },
-//   navContent: {
-//     maxWidth: "1400px",
-//     margin: "0 auto",
-//     display: "flex",
-//     justifyContent: "center",
-//     gap: "1rem",
-//     flexWrap: "wrap"
-//   },
-//   navButton: {
-//     background: "white",
-//     border: "2px solid #ecf0f1",
-//     borderRadius: "20px",
-//     padding: "1.2rem 2rem",
-//     cursor: "pointer",
-//     fontSize: "1rem",
-//     fontWeight: "600",
-//     color: "#2c3e50",
-//     transition: "all 0.3s ease",
-//     display: "flex",
-//     alignItems: "center",
-//     gap: "0.8rem",
-//     minWidth: "160px",
-//     justifyContent: "center",
-//     boxShadow: "0 8px 25px rgba(0,0,0,0.08)"
-//   },
-//   navButtonActive: {
-//     color: "white",
-//     transform: "translateY(-2px)"
-//   },
-//   navIcon: {
-//     fontSize: "1.4rem"
-//   },
-//   navLabel: {
-//     fontSize: "0.95rem"
-//   },
-
-//   // Content Area
-//   content: {
-//     padding: "3rem 2rem"
-//   },
-//   contentWrapper: {
-//     maxWidth: "1400px",
-//     margin: "0 auto"
-//   },
-//   section: {
-//     marginBottom: "3rem"
-//   },
-
-//   // Welcome Card
-//   welcomeCard: {
-//     background: "white",
-//     borderRadius: "25px",
-//     padding: "3rem",
-//     marginBottom: "3rem",
-//     boxShadow: "0 20px 60px rgba(0,0,0,0.1)",
-//     border: "1px solid rgba(0,0,0,0.05)"
-//   },
-//   welcomeContent: {
-//     textAlign: "center"
-//   },
-//   welcomeTitle: {
-//     fontSize: "2.5rem",
-//     color: "#2c3e50",
-//     marginBottom: "1rem",
-//     fontWeight: "800"
-//   },
-//   welcomeText: {
-//     fontSize: "1.2rem",
-//     color: "#7f8c8d",
-//     marginBottom: "3rem",
-//     lineHeight: 1.6
-//   },
-//   achievementShowcase: {
-//     display: "flex",
-//     justifyContent: "center",
-//     alignItems: "center",
-//     gap: "2rem",
-//     marginBottom: "2rem",
-//     flexWrap: "wrap"
-//   },
-//   achievementItem: {
-//     textAlign: "center",
-//     padding: "1.5rem",
-//     background: "linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)",
-//     borderRadius: "15px",
-//     minWidth: "150px"
-//   },
-//   achievementNumber: {
-//     fontSize: "3rem",
-//     fontWeight: "bold",
-//     color: "#e74c3c",
-//     marginBottom: "0.5rem"
-//   },
-//   achievementLabel: {
-//     fontSize: "1rem",
-//     fontWeight: "600",
-//     color: "#2c3e50",
-//     marginBottom: "0.3rem"
-//   },
-//   achievementDesc: {
-//     fontSize: "0.8rem",
-//     color: "#7f8c8d"
-//   },
-//   achievementDivider: {
-//     fontSize: "2rem",
-//     color: "#bdc3c7",
-//     fontWeight: "bold"
-//   },
-//   pendingAlert: {
-//     display: "flex",
-//     alignItems: "center",
-//     gap: "1rem",
-//     background: "#fff3cd",
-//     border: "1px solid #ffeaa7",
-//     borderRadius: "12px",
-//     padding: "1rem",
-//     marginTop: "2rem"
-//   },
-//   pendingIcon: {
-//     fontSize: "1.5rem"
-//   },
-//   pendingText: {
-//     color: "#856404",
-//     fontWeight: "600"
-//   },
-
-//   // Quick Action Cards
-//   quickActionCards: {
-//     display: "grid",
-//     gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-//     gap: "2rem",
-//     marginBottom: "3rem"
-//   },
-//   quickCard: {
-//     background: "white",
-//     borderRadius: "20px",
-//     padding: "2rem",
-//     cursor: "pointer",
-//     transition: "all 0.3s ease",
-//     boxShadow: "0 15px 40px rgba(0,0,0,0.1)",
-//     border: "1px solid rgba(0,0,0,0.05)",
-//     position: "relative",
-//     overflow: "hidden"
-//   },
-//   donateCard: {
-//     background: "linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)"
-//   },
-//   requestCard: {
-//     background: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)"
-//   },
-//   urgentCard: {
-//     background: "linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)"
-//   },
-//   quickCardIcon: {
-//     fontSize: "3.5rem",
-//     marginBottom: "1rem"
-//   },
-//   quickCardTitle: {
-//     color: "#2c3e50",
-//     marginBottom: "0.8rem",
-//     fontSize: "1.4rem",
-//     fontWeight: "700"
-//   },
-//   quickCardDesc: {
-//     color: "#5a6c7d",
-//     marginBottom: "1.5rem",
-//     lineHeight: 1.5
-//   },
-//   quickCardArrow: {
-//     fontSize: "1.5rem",
-//     color: "#2c3e50",
-//     fontWeight: "bold",
-//     position: "absolute",
-//     bottom: "1.5rem",
-//     right: "1.5rem"
-//   },
-
-//   // Blood Banks Section
-//   bloodBanksSection: {
-//     background: "white",
-//     borderRadius: "20px",
-//     padding: "2rem",
-//     marginBottom: "3rem",
-//     boxShadow: "0 15px 40px rgba(0,0,0,0.1)"
-//   },
-//   sectionSubtitle: {
-//     fontSize: "1.8rem",
-//     color: "#2c3e50",
-//     marginBottom: "2rem",
-//     fontWeight: "700",
-//     textAlign: "center"
-//   },
-//   bloodBanksCarousel: {
-//     display: "grid",
-//     gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-//     gap: "1.5rem",
-//     marginBottom: "1rem"
-//   },
-//   bankCard: {
-//     background: "#f8f9fa",
-//     borderRadius: "15px",
-//     padding: "1.5rem",
-//     textAlign: "center",
-//     border: "2px solid #ecf0f1",
-//     transition: "all 0.3s ease"
-//   },
-//   bankCardIcon: {
-//     fontSize: "2.5rem",
-//     marginBottom: "1rem"
-//   },
-//   bankCardName: {
-//     color: "#2c3e50",
-//     marginBottom: "0.5rem",
-//     fontSize: "1.1rem",
-//     fontWeight: "600"
-//   },
-//   bankCardLocation: {
-//     color: "#7f8c8d",
-//     marginBottom: "0.3rem",
-//     fontSize: "0.9rem"
-//   },
-//   bankCardContact: {
-//     color: "#27ae60",
-//     fontSize: "0.9rem",
-//     fontWeight: "600"
-//   },
-//   showMoreBanks: {
-//     textAlign: "center",
-//     color: "#7f8c8d",
-//     fontStyle: "italic"
-//   },
-
-//   // Urgent Section
-//   urgentSection: {
-//     background: "linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%)",
-//     borderRadius: "20px",
-//     padding: "2rem",
-//     color: "white",
-//     boxShadow: "0 20px 60px rgba(255,107,107,0.3)"
-//   },
-//   urgentSectionTitle: {
-//     fontSize: "2rem",
-//     fontWeight: "700",
-//     marginBottom: "2rem",
-//     textAlign: "center"
-//   },
-//   urgentCarousel: {
-//     display: "grid",
-//     gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-//     gap: "1.5rem",
-//     marginBottom: "2rem"
-//   },
-//   urgentPreviewCard: {
-//     background: "rgba(255,255,255,0.1)",
-//     borderRadius: "15px",
-//     padding: "1.5rem",
-//     backdropFilter: "blur(10px)",
-//     border: "1px solid rgba(255,255,255,0.2)"
-//   },
-//   urgentCardTop: {
-//     display: "flex",
-//     justifyContent: "space-between",
-//     alignItems: "center",
-//     marginBottom: "1rem"
-//   },
-//   urgentBloodTypeBig: {
-//     background: "rgba(255,255,255,0.2)",
-//     padding: "0.8rem 1.2rem",
-//     borderRadius: "20px",
-//     fontSize: "1.3rem",
-//     fontWeight: "bold"
-//   },
-//   urgentPriorityBadge: {
-//     background: "rgba(255,255,255,0.2)",
-//     padding: "0.5rem 1rem",
-//     borderRadius: "15px",
-//     fontSize: "0.8rem",
-//     fontWeight: "bold"
-//   },
-//   urgentCardDetails: {
-//     marginBottom: "1.5rem",
-//     lineHeight: 1.8
-//   },
-//   urgentHelpBtn: {
-//     background: "rgba(255,255,255,0.2)",
-//     color: "white",
-//     border: "2px solid rgba(255,255,255,0.3)",
-//     padding: "0.8rem 1.5rem",
-//     borderRadius: "20px",
-//     fontSize: "1rem",
-//     fontWeight: "600",
-//     cursor: "pointer",
-//     width: "100%",
-//     backdropFilter: "blur(10px)",
-//     transition: "all 0.3s ease"
-//   },
-//   viewAllUrgent: {
-//     textAlign: "center",
-//     background: "rgba(255,255,255,0.2)",
-//     padding: "1rem",
-//     borderRadius: "12px",
-//     cursor: "pointer",
-//     fontWeight: "600",
-//     backdropFilter: "blur(10px)"
-//   }
-// };
-
-// // Add CSS animations
-// const styleSheet = document.createElement('style');
-// styleSheet.textContent = `
-//   @keyframes pulse {
-//     0%, 100% { transform: scale(1); }
-//     50% { transform: scale(1.1); }
-//   }
-
-//   @keyframes slideIn {
-//     0% { transform: translateX(-100%); }
-//     100% { transform: translateX(100%); }
-//   }
-
-//   @keyframes heartbeat {
-//     0%, 100% { transform: scale(1); }
-//     25% { transform: scale(1.1); }
-//     50% { transform: scale(1); }
-//     75% { transform: scale(1.05); }
-//   }
-
-//   .quickCard:hover {
-//     transform: translateY(-8px);
-//     box-shadow: 0 25px 60px rgba(0,0,0,0.15);
-//   }
-
-//   .bankCard:hover {
-//     transform: translateY(-4px);
-//     border-color: #3498db;
-//     box-shadow: 0 12px 30px rgba(52,152,219,0.2);
-//   }
-
-//   .urgentHelpBtn:hover {
-//     background: rgba(255,255,255,0.3);
-//     transform: translateY(-2px);
-//   }
-
-//   .headerButton:hover {
-//     transform: translateY(-2px);
-//     box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-//   }
-
-//   .notificationItem:hover, .dropdownItem:hover {
-//     background: #f8f9fa;
-//   }
-
-//   .viewAllButton:hover {
-//     background: #e9ecef;
-//   }
-// `;
-// document.head.appendChild(styleSheet);
-
-// export default BloodPortal;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import React, { useState, useEffect } from "react";
-import { Heart, Droplet, Calendar, Building2, Activity, MapPin } from "lucide-react";
+import { Heart, Droplet, Calendar, Building2, Activity, MapPin, Bell, CheckCircle, XCircle, Clock } from "lucide-react";
 import "../../styles/BloodBankUserPortal.css";
 import { useLocation } from "react-router-dom";
 import api from "../../utils/api";
+
+const SkeletonPortal = () => (
+  <div className="bu-container bu-skeleton-shimmer">
+    {/* Header Skeleton */}
+    <header className="bu-header" style={{ borderBottom: '1px solid #e2e8f0', background: '#fff', padding: '15px 0' }}>
+      <div className="bu-headerContent" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#e2e8f0' }}></div>
+          <div style={{ width: '150px', height: '24px', borderRadius: '6px', background: '#e2e8f0' }}></div>
+        </div>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <div style={{ width: '130px', height: '42px', borderRadius: '50px', background: '#e2e8f0' }}></div>
+          <div style={{ width: '130px', height: '42px', borderRadius: '50px', background: '#e2e8f0' }}></div>
+        </div>
+      </div>
+    </header>
+
+    {/* Hero Area Skeleton */}
+    <div style={{ maxWidth: '1400px', margin: '2rem auto 0 auto', padding: '0 2rem' }}>
+      <div style={{ width: '100%', height: '220px', borderRadius: '24px', background: '#e2e8f0', marginBottom: '2rem' }}></div>
+      
+      {/* Stats Cards Row Skeleton */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginBottom: '2.5rem' }}>
+        {[1, 2, 3, 4].map(i => (
+          <div key={i} style={{ padding: '1.75rem', borderRadius: '20px', background: '#fff', border: '1px solid #e2e8f0', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: '#e2e8f0' }}></div>
+            <div style={{ flex: 1 }}>
+              <div style={{ width: '60px', height: '28px', borderRadius: '6px', background: '#e2e8f0', marginBottom: '8px' }}></div>
+              <div style={{ width: '120px', height: '16px', borderRadius: '4px', background: '#e2e8f0' }}></div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Main Grid Skeleton */}
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
+        <div>
+          <div style={{ width: '200px', height: '24px', borderRadius: '6px', background: '#e2e8f0', marginBottom: '1.5rem' }}></div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
+            {[1, 2, 3].map(i => (
+              <div key={i} style={{ height: '180px', borderRadius: '20px', background: '#fff', border: '1px solid #e2e8f0', padding: '1.5rem' }}>
+                <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
+                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#e2e8f0' }}></div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ width: '100px', height: '18px', borderRadius: '4px', background: '#e2e8f0', marginBottom: '6px' }}></div>
+                    <div style={{ width: '60px', height: '12px', borderRadius: '4px', background: '#e2e8f0' }}></div>
+                  </div>
+                </div>
+                <div style={{ width: '100%', height: '12px', borderRadius: '4px', background: '#e2e8f0', marginBottom: '8px' }}></div>
+                <div style={{ width: '80%', height: '12px', borderRadius: '4px', background: '#e2e8f0', marginBottom: '16px' }}></div>
+                <div style={{ width: '100px', height: '36px', borderRadius: '8px', background: '#e2e8f0' }}></div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <div style={{ width: '150px', height: '24px', borderRadius: '6px', background: '#e2e8f0', marginBottom: '1.5rem' }}></div>
+          <div style={{ height: '380px', borderRadius: '20px', background: '#fff', border: '1px solid #e2e8f0', padding: '1.5rem' }}>
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '1rem' }}>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: '#e2e8f0' }}></div>
+                  <div>
+                    <div style={{ width: '80px', height: '14px', borderRadius: '4px', background: '#e2e8f0', marginBottom: '4px' }}></div>
+                    <div style={{ width: '50px', height: '10px', borderRadius: '4px', background: '#e2e8f0' }}></div>
+                  </div>
+                </div>
+                <div style={{ width: '40px', height: '20px', borderRadius: '10px', background: '#e2e8f0' }}></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
 function BloodPortal() {
   const location = useLocation();
@@ -1681,17 +255,7 @@ function BloodPortal() {
   };
 
   if (loading) {
-    return (
-      <div className="bu-loadingContainer">
-        <div className="bu-loadingContent">
-          <div className="bu-loadingIcon"></div>
-          <div className="bu-loadingText">Loading Blood Portal...</div>
-          <div className="bu-progressBar">
-            <div className="bu-progressFill"></div>
-          </div>
-        </div>
-      </div>
-    );
+    return <SkeletonPortal />;
   }
 
   return (
@@ -1705,48 +269,99 @@ function BloodPortal() {
           </div>
 
           <div className="bu-headerActions">
-            {/* Notifications Dropdown */}
-            <div className="bu-headerActionItem">
+            <div className="bu-headerActionItem" style={{ position: 'relative' }}>
               <button
                 onClick={() => setShowNotifications(!showNotifications)}
-                className="bu-headerButton"
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '8px',
+                  background: showNotifications ? 'rgba(59, 130, 246, 0.1)' : 'white',
+                  border: showNotifications ? '1px solid #3b82f6' : '1px solid #e2e8f0',
+                  padding: '10px 18px', borderRadius: '50px', cursor: 'pointer',
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)', 
+                  color: showNotifications ? '#3b82f6' : '#475569',
+                  fontWeight: '700', fontSize: '0.9rem',
+                  boxShadow: showNotifications ? '0 4px 12px rgba(59,130,246,0.15)' : 'none'
+                }}
               >
-                <span className="bu-headerButtonIcon"></span>
-                <span className="bu-headerButtonText">Notifications</span>
+                <Bell size={18} />
+                <span>Notifications</span>
                 {bloodData.notifications.length > 0 && (
-                  <span className="bu-notificationBadge">{bloodData.notifications.length}</span>
+                  <span style={{
+                    background: '#ef4444', color: 'white', padding: '2px 8px',
+                    borderRadius: '50px', fontSize: '0.75rem', fontWeight: '800',
+                    marginLeft: '4px'
+                  }}>{bloodData.notifications.length}</span>
                 )}
               </button>
 
               {showNotifications && (
-                <div className="bu-dropdown">
-                  <div className="bu-dropdownHeader">
-                    <h4>Recent Notifications</h4>
+                <div style={{
+                  position: 'absolute', top: 'calc(100% + 12px)', right: 0,
+                  width: '360px', background: 'rgba(255,255,255,0.95)',
+                  backdropFilter: 'blur(20px)', borderRadius: '24px',
+                  boxShadow: '0 12px 40px rgba(0,0,0,0.12)', border: '1px solid rgba(255,255,255,0.8)',
+                  zIndex: 100, overflow: 'hidden'
+                }}>
+                  <div style={{
+                    padding: '20px', borderBottom: '1px solid #f1f5f9',
+                    background: 'linear-gradient(135deg, #f8fafc, #f1f5f9)'
+                  }}>
+                    <h4 style={{ margin: 0, color: '#0f172a', fontSize: '1.05rem', fontWeight: '800' }}>Recent Notifications</h4>
                   </div>
-                  <div className="bu-dropdownContent">
+                  <div style={{ maxHeight: '380px', overflowY: 'auto', padding: '12px' }}>
                     {bloodData.notifications.length === 0 ? (
-                      <div className="bu-emptyDropdown">
-                        <span className="bu-emptyIcon"></span>
-                        <p>No notifications yet</p>
+                      <div style={{ padding: '40px 20px', textAlign: 'center' }}>
+                        <Bell size={40} color="#cbd5e1" style={{ marginBottom: '16px' }} />
+                        <p style={{ color: '#64748b', margin: 0, fontWeight: '600', fontSize: '0.95rem' }}>All caught up!</p>
+                        <p style={{ color: '#94a3b8', margin: '4px 0 0', fontSize: '0.85rem' }}>No new notifications.</p>
                       </div>
                     ) : (
                       bloodData.notifications.map(notification => (
-                        <div key={notification.id} className="bu-notificationItem">
-                          <div className="bu-notificationIcon">
-                            {notification.type === 'donation' ? '' : ''}
-                          </div>
-                          <div className="bu-notificationContent">
-                            <h5 className="bu-notificationTitle">{notification.title}</h5>
-                            <p className="bu-notificationMessage">{notification.message}</p>
-                            <span className="bu-notificationTime">{notification.time}</span>
-                          </div>
+                        <div key={notification.id} style={{
+                          padding: '16px', borderRadius: '16px', marginBottom: '8px',
+                          display: 'flex', gap: '14px', transition: 'all 0.2s ease',
+                          cursor: 'pointer', background: 'transparent'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = '#f8fafc';
+                          e.currentTarget.style.transform = 'translateY(-2px)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'transparent';
+                          e.currentTarget.style.transform = 'translateY(0)';
+                        }}
+                        >
                           <div style={{
-                            ...styles.notificationStatus,
-                            backgroundColor: notification.status === 'accepted' ? '#27ae60' :
-                              notification.status === 'rejected' ? '#e74c3c' : '#f39c12'
+                            width: '44px', height: '44px', borderRadius: '50%',
+                            background: notification.type === 'donation' ? '#fee2e2' : '#fef3c7',
+                            color: notification.type === 'donation' ? '#ef4444' : '#d97706',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            flexShrink: 0
                           }}>
-                            {notification.status === 'accepted' ? '' :
-                              notification.status === 'rejected' ? '' : ''}
+                            {notification.type === 'donation' ? <Heart size={22} /> : <Droplet size={22} />}
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <h5 style={{ margin: '0 0 6px', color: '#0f172a', fontSize: '0.95rem', fontWeight: '800' }}>
+                              {notification.title}
+                            </h5>
+                            <p style={{ margin: '0 0 10px', color: '#64748b', fontSize: '0.85rem', lineHeight: '1.5' }}>
+                              {notification.message}
+                            </p>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                              <span style={{ color: '#94a3b8', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '600' }}>
+                                <Clock size={14} /> {notification.time}
+                              </span>
+                              <span style={{
+                                fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase',
+                                padding: '4px 10px', borderRadius: '50px',
+                                background: notification.status === 'accepted' ? '#dcfce7' :
+                                  notification.status === 'rejected' ? '#fee2e2' : '#fef3c7',
+                                color: notification.status === 'accepted' ? '#16a34a' :
+                                  notification.status === 'rejected' ? '#dc2626' : '#d97706'
+                              }}>
+                                {notification.status}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       ))
@@ -1756,150 +371,272 @@ function BloodPortal() {
               )}
             </div>
 
-            {/* My Donations Dropdown */}
-            <div className="bu-headerActionItem">
+            <div className="bu-headerActionItem" style={{ position: 'relative' }}>
               <button
                 onClick={() => setShowMyDonations(!showMyDonations)}
-                className="bu-headerButton"
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '8px',
+                  background: showMyDonations ? 'rgba(239, 68, 68, 0.1)' : 'white',
+                  border: showMyDonations ? '1px solid #ef4444' : '1px solid #e2e8f0',
+                  padding: '10px 18px', borderRadius: '50px', cursor: 'pointer',
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)', 
+                  color: showMyDonations ? '#ef4444' : '#475569',
+                  fontWeight: '700', fontSize: '0.9rem',
+                  boxShadow: showMyDonations ? '0 4px 12px rgba(239,68,68,0.15)' : 'none'
+                }}
               >
-                <span className="bu-headerButtonIcon"></span>
-                <span className="bu-headerButtonText">My Donations</span>
-                <span className="bu-countBadge">{bloodData.userStats.acceptedDonations}</span>
+                <Heart size={18} />
+                <span>My Donations</span>
+                <span style={{
+                  background: '#f1f5f9', color: '#475569', padding: '2px 8px',
+                  borderRadius: '50px', fontSize: '0.75rem', fontWeight: '800',
+                  marginLeft: '4px'
+                }}>{bloodData.userStats.acceptedDonations}</span>
               </button>
 
               {showMyDonations && (
-                <div className="bu-dropdown">
-                  <div className="bu-dropdownHeader">
-                    <h4>My Donations ({bloodData.myDonations.length})</h4>
-                    <div className="bu-statsRow">
-                      <span className="bu-statBadge"> {bloodData.userStats.acceptedDonations} Accepted</span>
-                      <span className="bu-statBadge"> {bloodData.userStats.pendingDonations} Pending</span>
+                <div style={{
+                  position: 'absolute', top: 'calc(100% + 12px)', right: 0,
+                  width: '380px', background: 'rgba(255,255,255,0.95)',
+                  backdropFilter: 'blur(20px)', borderRadius: '24px',
+                  boxShadow: '0 12px 40px rgba(0,0,0,0.12)', border: '1px solid rgba(255,255,255,0.8)',
+                  zIndex: 100, overflow: 'hidden'
+                }}>
+                  <div style={{
+                    padding: '20px', borderBottom: '1px solid #f1f5f9',
+                    background: 'linear-gradient(135deg, #fef2f2, #fff)'
+                  }}>
+                    <h4 style={{ margin: '0 0 12px', color: '#0f172a', fontSize: '1.05rem', fontWeight: '800' }}>
+                      My Donations ({bloodData.myDonations.length})
+                    </h4>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <span style={{ background: '#dcfce7', color: '#16a34a', padding: '4px 12px', borderRadius: '50px', fontSize: '0.75rem', fontWeight: '700' }}>
+                        {bloodData.userStats.acceptedDonations} Accepted
+                      </span>
+                      <span style={{ background: '#fef3c7', color: '#d97706', padding: '4px 12px', borderRadius: '50px', fontSize: '0.75rem', fontWeight: '700' }}>
+                        {bloodData.userStats.pendingDonations} Pending
+                      </span>
                     </div>
                   </div>
-                  <div className="bu-dropdownContent">
+                  <div style={{ maxHeight: '380px', overflowY: 'auto', padding: '12px' }}>
                     {bloodData.myDonations.length === 0 ? (
-                      <div className="bu-emptyDropdown">
-                        <span className="bu-emptyIcon"></span>
-                        <p>No donations yet</p>
+                      <div style={{ padding: '40px 20px', textAlign: 'center' }}>
+                        <Heart size={40} color="#cbd5e1" style={{ marginBottom: '16px' }} />
+                        <p style={{ color: '#64748b', margin: '0 0 16px', fontWeight: '600' }}>No donations yet</p>
                         <button
                           onClick={() => setActiveSection('donate')}
-                          className="bu-emptyActionButton"
+                          style={{
+                            background: '#ef4444', color: 'white', border: 'none',
+                            padding: '10px 20px', borderRadius: '50px', fontWeight: '700',
+                            cursor: 'pointer', boxShadow: '0 4px 12px rgba(239,68,68,0.3)'
+                          }}
                         >
                           Make First Donation
                         </button>
                       </div>
                     ) : (
-                      bloodData.myDonations.slice(0, 5).map(donation => (
-                        <div key={donation._id} className="bu-dropdownItem">
-                          <div className="bu-itemLeft">
-                            <span className="bu-bloodTypeSmall">{donation.blood_group}</span>
-                            <span className="bu-itemUnits">{donation.units_donated}u</span>
-                          </div>
-                          <div className="bu-itemCenter">
-                            <span className="bu-itemBank">{donation.bank_id?.name || 'Blood Bank'}</span>
-                            <span className="bu-itemDate">{new Date(donation.requested_date).toLocaleDateString()}</span>
-                          </div>
-                          <div className="bu-itemRight">
-                            <span style={{
-                              ...styles.itemStatus,
-                              color: donation.status === 'accepted' ? '#27ae60' :
-                                donation.status === 'rejected' ? '#e74c3c' : '#f39c12'
+                      <>
+                        {bloodData.myDonations.slice(0, 5).map(donation => (
+                          <div key={donation._id} style={{
+                            padding: '16px', borderRadius: '16px', marginBottom: '8px',
+                            display: 'flex', alignItems: 'center', gap: '12px',
+                            background: '#f8fafc', border: '1px solid #f1f5f9'
+                          }}>
+                            <div style={{
+                              width: '46px', height: '46px', borderRadius: '12px',
+                              background: '#fee2e2', color: '#ef4444',
+                              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                              flexShrink: 0, fontWeight: '800'
                             }}>
-                              {donation.status === 'accepted' ? '' :
-                                donation.status === 'rejected' ? '' : ''}
-                            </span>
+                              <span style={{ fontSize: '0.9rem' }}>{donation.blood_group}</span>
+                              <span style={{ fontSize: '0.65rem', opacity: 0.8 }}>{donation.units_donated}U</span>
+                            </div>
+                            <div style={{ flex: 1 }}>
+                              <div style={{ color: '#0f172a', fontWeight: '700', fontSize: '0.9rem', marginBottom: '4px' }}>
+                                {donation.bank_id?.name || 'Blood Bank'}
+                              </div>
+                              <div style={{ color: '#64748b', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                <Calendar size={12} /> {new Date(donation.requested_date).toLocaleDateString()}
+                              </div>
+                            </div>
+                            <div style={{
+                              padding: '6px 12px', borderRadius: '50px', fontSize: '0.75rem', fontWeight: '800',
+                              background: donation.status === 'accepted' ? '#dcfce7' :
+                                donation.status === 'rejected' ? '#fee2e2' : '#fef3c7',
+                              color: donation.status === 'accepted' ? '#16a34a' :
+                                donation.status === 'rejected' ? '#dc2626' : '#d97706',
+                              display: 'flex', alignItems: 'center', gap: '4px'
+                            }}>
+                              {donation.status === 'accepted' ? <CheckCircle size={14} /> :
+                                donation.status === 'rejected' ? <XCircle size={14} /> : <Clock size={14} />}
+                              <span style={{ textTransform: 'capitalize' }}>{donation.status}</span>
+                            </div>
                           </div>
-                        </div>
-                      ))
-                    )}
-                    {bloodData.myDonations.length > 5 && (
-                      <div className="bu-viewAllButton" onClick={() => setActiveSection('history')}>
-                        View All Donations ({bloodData.myDonations.length})
-                      </div>
+                        ))}
+                        {bloodData.myDonations.length > 5 && (
+                          <button 
+                            onClick={() => setActiveSection('history')}
+                            style={{
+                              width: '100%', padding: '12px', background: 'transparent',
+                              border: '1px dashed #cbd5e1', borderRadius: '12px',
+                              color: '#64748b', fontWeight: '700', cursor: 'pointer',
+                              marginTop: '4px', transition: 'all 0.2s'
+                            }}
+                            onMouseEnter={(e) => { e.currentTarget.style.color = '#0f172a'; e.currentTarget.style.borderColor = '#94a3b8'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.color = '#64748b'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
+                          >
+                            View All {bloodData.myDonations.length} Donations
+                          </button>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
               )}
             </div>
 
-            {/* My Requests Dropdown */}
-            <div className="bu-headerActionItem">
+            <div className="bu-headerActionItem" style={{ position: 'relative' }}>
               <button
                 onClick={() => setShowMyRequests(!showMyRequests)}
-                className="bu-headerButton"
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '8px',
+                  background: showMyRequests ? 'rgba(245, 158, 11, 0.1)' : 'white',
+                  border: showMyRequests ? '1px solid #f59e0b' : '1px solid #e2e8f0',
+                  padding: '10px 18px', borderRadius: '50px', cursor: 'pointer',
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)', 
+                  color: showMyRequests ? '#d97706' : '#475569',
+                  fontWeight: '700', fontSize: '0.9rem',
+                  boxShadow: showMyRequests ? '0 4px 12px rgba(245,158,11,0.15)' : 'none'
+                }}
               >
-                <span className="bu-headerButtonIcon"></span>
-                <span className="bu-headerButtonText">My Requests</span>
-                <span className="bu-countBadge">{bloodData.userStats.acceptedRequests}</span>
+                <Droplet size={18} />
+                <span>My Requests</span>
+                <span style={{
+                  background: '#f1f5f9', color: '#475569', padding: '2px 8px',
+                  borderRadius: '50px', fontSize: '0.75rem', fontWeight: '800',
+                  marginLeft: '4px'
+                }}>{bloodData.userStats.acceptedRequests}</span>
               </button>
 
               {showMyRequests && (
-                <div className="bu-dropdown">
-                  <div className="bu-dropdownHeader">
-                    <h4>My Requests ({bloodData.myRequests.length})</h4>
-                    <div className="bu-statsRow">
-                      <span className="bu-statBadge"> {bloodData.userStats.acceptedRequests} Fulfilled</span>
-                      <span className="bu-statBadge"> {bloodData.userStats.pendingRequests} Pending</span>
+                <div style={{
+                  position: 'absolute', top: 'calc(100% + 12px)', right: 0,
+                  width: '380px', background: 'rgba(255,255,255,0.95)',
+                  backdropFilter: 'blur(20px)', borderRadius: '24px',
+                  boxShadow: '0 12px 40px rgba(0,0,0,0.12)', border: '1px solid rgba(255,255,255,0.8)',
+                  zIndex: 100, overflow: 'hidden'
+                }}>
+                  <div style={{
+                    padding: '20px', borderBottom: '1px solid #f1f5f9',
+                    background: 'linear-gradient(135deg, #fffbeb, #fff)'
+                  }}>
+                    <h4 style={{ margin: '0 0 12px', color: '#0f172a', fontSize: '1.05rem', fontWeight: '800' }}>
+                      My Requests ({bloodData.myRequests.length})
+                    </h4>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <span style={{ background: '#dcfce7', color: '#16a34a', padding: '4px 12px', borderRadius: '50px', fontSize: '0.75rem', fontWeight: '700' }}>
+                        {bloodData.userStats.acceptedRequests} Fulfilled
+                      </span>
+                      <span style={{ background: '#fef3c7', color: '#d97706', padding: '4px 12px', borderRadius: '50px', fontSize: '0.75rem', fontWeight: '700' }}>
+                        {bloodData.userStats.pendingRequests} Pending
+                      </span>
                     </div>
                   </div>
-                  <div className="bu-dropdownContent">
+                  <div style={{ maxHeight: '380px', overflowY: 'auto', padding: '12px' }}>
                     {bloodData.myRequests.length === 0 ? (
-                      <div className="bu-emptyDropdown">
-                        <span className="bu-emptyIcon"></span>
-                        <p>No requests yet</p>
+                      <div style={{ padding: '40px 20px', textAlign: 'center' }}>
+                        <Droplet size={40} color="#cbd5e1" style={{ marginBottom: '16px' }} />
+                        <p style={{ color: '#64748b', margin: '0 0 16px', fontWeight: '600' }}>No requests yet</p>
                         <button
                           onClick={() => setActiveSection('request')}
-                          className="bu-emptyActionButton"
+                          style={{
+                            background: '#f59e0b', color: 'white', border: 'none',
+                            padding: '10px 20px', borderRadius: '50px', fontWeight: '700',
+                            cursor: 'pointer', boxShadow: '0 4px 12px rgba(245,158,11,0.3)'
+                          }}
                         >
                           Make First Request
                         </button>
                       </div>
                     ) : (
-                      bloodData.myRequests.slice(0, 5).map(request => (
-                        <div key={request._id} className="bu-dropdownItem">
-                          <div className="bu-itemLeft">
-                            <span className="bu-bloodTypeSmall">{request.blood_group}</span>
-                            <span className="bu-itemUnits">{request.units_requested}u</span>
-                          </div>
-                          <div className="bu-itemCenter">
-                            <span className="bu-itemBank">{request.bank_id?.name || 'Blood Bank'}</span>
-                            <span className="bu-itemDate">{new Date(request.requested_date).toLocaleDateString()}</span>
-                          </div>
-                          <div className="bu-itemRight">
-                            <span style={{
-                              ...styles.itemStatus,
-                              color: request.status === 'accepted' ? '#27ae60' :
-                                request.status === 'rejected' ? '#e74c3c' : '#f39c12'
+                      <>
+                        {bloodData.myRequests.slice(0, 5).map(request => (
+                          <div key={request._id} style={{
+                            padding: '16px', borderRadius: '16px', marginBottom: '8px',
+                            display: 'flex', alignItems: 'center', gap: '12px',
+                            background: '#f8fafc', border: '1px solid #f1f5f9'
+                          }}>
+                            <div style={{
+                              width: '46px', height: '46px', borderRadius: '12px',
+                              background: '#fffbeb', color: '#d97706',
+                              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                              flexShrink: 0, fontWeight: '800'
                             }}>
-                              {request.status === 'accepted' ? '' :
-                                request.status === 'rejected' ? '' : ''}
-                            </span>
+                              <span style={{ fontSize: '0.9rem' }}>{request.blood_group}</span>
+                              <span style={{ fontSize: '0.65rem', opacity: 0.8 }}>{request.units_requested}U</span>
+                            </div>
+                            <div style={{ flex: 1 }}>
+                              <div style={{ color: '#0f172a', fontWeight: '700', fontSize: '0.9rem', marginBottom: '4px' }}>
+                                {request.bank_id?.name || 'Blood Bank'}
+                              </div>
+                              <div style={{ color: '#64748b', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                <Calendar size={12} /> {new Date(request.requested_date).toLocaleDateString()}
+                              </div>
+                            </div>
+                            <div style={{
+                              padding: '6px 12px', borderRadius: '50px', fontSize: '0.75rem', fontWeight: '800',
+                              background: request.status === 'accepted' ? '#dcfce7' :
+                                request.status === 'rejected' ? '#fee2e2' : '#fef3c7',
+                              color: request.status === 'accepted' ? '#16a34a' :
+                                request.status === 'rejected' ? '#dc2626' : '#d97706',
+                              display: 'flex', alignItems: 'center', gap: '4px'
+                            }}>
+                              {request.status === 'accepted' ? <CheckCircle size={14} /> :
+                                request.status === 'rejected' ? <XCircle size={14} /> : <Clock size={14} />}
+                              <span style={{ textTransform: 'capitalize' }}>{request.status}</span>
+                            </div>
                           </div>
-                        </div>
-                      ))
-                    )}
-                    {bloodData.myRequests.length > 5 && (
-                      <div className="bu-viewAllButton" onClick={() => setActiveSection('history')}>
-                        View All Requests ({bloodData.myRequests.length})
-                      </div>
+                        ))}
+                        {bloodData.myRequests.length > 5 && (
+                          <button 
+                            onClick={() => setActiveSection('history')}
+                            style={{
+                              width: '100%', padding: '12px', background: 'transparent',
+                              border: '1px dashed #cbd5e1', borderRadius: '12px',
+                              color: '#64748b', fontWeight: '700', cursor: 'pointer',
+                              marginTop: '4px', transition: 'all 0.2s'
+                            }}
+                            onMouseEnter={(e) => { e.currentTarget.style.color = '#0f172a'; e.currentTarget.style.borderColor = '#94a3b8'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.color = '#64748b'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
+                          >
+                            View All {bloodData.myRequests.length} Requests
+                          </button>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Quick Stats */}
-            <div className="bu-quickStats">
-              <div className="bu-quickStat">
-                <span className="bu-quickStatNumber">{bloodData.userStats.livesSaved}</span>
-                <span className="bu-quickStatLabel">Lives Saved</span>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '8px',
+              paddingLeft: '20px', borderLeft: '2px solid #e2e8f0'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{
+                  background: 'linear-gradient(135deg, #ef4444, #b91c1c)', color: 'white',
+                  width: '36px', height: '36px', borderRadius: '12px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '1.1rem', fontWeight: '900', boxShadow: '0 4px 12px rgba(239,68,68,0.3)'
+                }}>{bloodData.userStats.livesSaved}</span>
+                <span style={{ color: '#475569', fontSize: '0.85rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Lives Saved</span>
               </div>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Click outside to close dropdowns */}
       {(showNotifications || showMyDonations || showMyRequests) && (
         <div
           className="bu-overlay"

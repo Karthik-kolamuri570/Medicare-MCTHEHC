@@ -4,6 +4,7 @@ const API_BASE_URL = '/api/blogs';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
+  withCredentials: true,
 });
 
 // Attach JWT to every blog API request

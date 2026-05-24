@@ -1,4 +1,4 @@
-  const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
+const { S3Client, GetObjectCommand, PutObjectCommand } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 require('dotenv').config();
 
@@ -67,7 +67,25 @@ const generatePresignedUrl = async (key, expiresIn = 3600) => {
     return await getSignedUrl(s3Client, command, { expiresIn });
 };
 
+/**
+ * Generates a pre-signed PUT URL for direct S3 client uploads.
+ * @param {string} key - The target S3 object key.
+ * @param {string} contentType - The MIME type of the file.
+ * @param {number} expiresIn - Expiration in seconds.
+ * @returns {Promise<string>} - The pre-signed upload URL.
+ */
+const generatePresignedPutUrl = async (key, contentType, expiresIn = 3600) => {
+    if (!key || !contentType) return null;
+    const command = new PutObjectCommand({
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: key,
+        ContentType: contentType
+    });
+    return await getSignedUrl(s3Client, command, { expiresIn });
+};
+
 module.exports = {
     s3Client,
-    generatePresignedUrl
+    generatePresignedUrl,
+    generatePresignedPutUrl
 };

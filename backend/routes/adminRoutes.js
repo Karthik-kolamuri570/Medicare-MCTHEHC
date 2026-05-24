@@ -30,14 +30,15 @@ const express = require('express');
 const router = express.Router();
 const adminController = require('./../controller/adminController');
 const { adminAuth, ensureRole, ensurePermission } = require('../middleware/auth');
+const { authLimiter } = require('../middleware/rateLimit');
 
 // ===== AUTHENTICATION =====
 // No auth required for login
-router.post('/auth/login', adminController.login);
+router.post('/auth/login', authLimiter, adminController.login);
 
 // Auth required for logout and refresh
 router.post('/auth/logout', adminAuth, adminController.logout);
-router.post('/auth/refresh-token', adminController.refreshToken);
+router.post('/auth/refresh-token', authLimiter, adminController.refreshToken);
 
 // ===== DASHBOARD =====
 router.get('/dashboard-stats', adminAuth, ensureRole('super-admin', 'admin'), adminController.getDashboardStats);

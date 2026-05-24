@@ -26,10 +26,12 @@ router.get('/me', auth.doctorAuth, async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 })
-router.post('/register', doctorController.uploadProfile, doctorController.registerDoctor);
-router.post('/login', doctorController.loginDoctor);
-router.post('/forgot-password', doctorController.forgotPassword);
-router.post('/reset-password', doctorController.resetPassword);
+const { authLimiter } = require('../middleware/rateLimit');
+
+router.post('/register', authLimiter, doctorController.uploadProfile, doctorController.registerDoctor);
+router.post('/login', authLimiter, doctorController.loginDoctor);
+router.post('/forgot-password', authLimiter, doctorController.forgotPassword);
+router.post('/reset-password', authLimiter, doctorController.resetPassword);
 
 // Public: slot-based availability for a doctor on a given date
 router.get('/slots/:doctorId', doctorController.getAvailableSlots);

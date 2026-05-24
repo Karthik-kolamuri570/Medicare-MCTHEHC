@@ -4,10 +4,12 @@ const patientController = require('../controller/patientController');
 const auth = require('../middleware/auth');
 const Patient = require('../models/patient'); // Adjust the path as needed
 const { uploadProfile: patientUploadProfile } = require('./../controller/patientController');
-router.post('/register', patientUploadProfile, patientController.registerPatient);
-router.post('/login', patientController.loginPatient);
-router.post('/forgot-password', patientController.forgotPassword);
-router.post('/reset-password', patientController.resetPassword);
+const { authLimiter } = require('../middleware/rateLimit');
+
+router.post('/register', authLimiter, patientUploadProfile, patientController.registerPatient);
+router.post('/login', authLimiter, patientController.loginPatient);
+router.post('/forgot-password', authLimiter, patientController.forgotPassword);
+router.post('/reset-password', authLimiter, patientController.resetPassword);
 router.get('/me', auth.patientAuth, patientController.getPatientProfile);
 // router.get('/:patientId',auth.patientAuth,patientController.getPatientById);
 // router.get('/',patientController.getAllPatients);

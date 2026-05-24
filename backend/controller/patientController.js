@@ -527,7 +527,6 @@ exports.deleteNotification = async (req, res) => {
 
 
 exports.logoutPatient = (req, res) => {
-    // JWT is stateless — client clears the token
     res.json({
         success: true,
         message: 'Logout successful'

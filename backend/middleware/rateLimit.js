@@ -17,13 +17,13 @@ const globalLimiter = rateLimit({
   legacyHeaders: false,  // Disable the `X-RateLimit-*` headers
 });
 
-// Auth Rate Limit — 5 login attempts per 15 minutes per IP
+// Auth Rate Limit — 5 login attempts per 5 minutes per IP
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
+  windowMs: 5 * 60 * 1000, // 5 minutes
   max: 5,
   message: {
     success: false,
-    message: 'Too many login attempts. Please try again after 15 minutes.'
+    message: 'Too many login attempts. Please try again after 5 minutes.'
   },
   standardHeaders: true,
   legacyHeaders: false,
