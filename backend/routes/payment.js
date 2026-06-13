@@ -165,6 +165,12 @@ router.post("/check-out", async (req, res) => {
       return res.status(400).json({ success: false, message: "Unable to determine price for this payment" });
     }
 
+    // Use the backend's own address for Stripe's success/cancel callbacks.
+    // This lets the backend verify payment + update DB before redirecting to frontend.
+    // We use the request host so it works for both localhost (web) and LAN IP (mobile).
+    const backendBase = `${req.protocol}://${req.get('host')}`;
+    const frontendBase = process.env.FRONTEND_URL || 'http://localhost:5173';
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
@@ -176,20 +182,21 @@ router.post("/check-out", async (req, res) => {
             product_data: {
               name: isSecondOpinion ? `Second opinion with Dr. ${doctorName}` : `Consultation with Dr. ${doctorName}`,
             },
-            unit_amount: Math.round(Number(derivedPrice) * 100), // price in paise
+            unit_amount: Math.round(Number(derivedPrice) * 100),
           },
           quantity: 1,
         },
       ],
-      success_url: `${req.protocol}://${req.get("host")}/api/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.protocol}://${req.get("host")}/api/payment/cancel`,
+      // Backend handles success first (verifies + updates DB), then redirects to frontend
+      success_url: `${backendBase}/api/payment/success?session_id={CHECKOUT_SESSION_ID}&frontend=${encodeURIComponent(frontendBase)}`,
+      cancel_url: `${frontendBase}/payment/cancel`,
       metadata: {
         appointmentId,
         type: isSecondOpinion ? 'second-opinion' : 'appointment'
       },
     });
 
-    res.status(200).json({ id: session.id });
+    res.status(200).json({ id: session.id, url: session.url });
   } catch (err) {
     console.error("Checkout Session Error:", err.message);
     res.status(500).json({ success: false, message: "Payment initiation failed. Please try again." });
@@ -198,86 +205,43 @@ router.post("/check-out", async (req, res) => {
 
 // Step 2: Handle Payment Success
 router.get("/success", async (req, res) => {
-  const { session_id } = req.query;
+  const { session_id, frontend } = req.query;
   if (!session_id) {
     return res.status(400).json({ success: false, message: "Missing session ID." });
   }
+
+  // Determine where to redirect after verifying
+  const frontendBase = frontend
+    ? decodeURIComponent(frontend)
+    : (process.env.FRONTEND_URL || 'http://localhost:5173');
 
   try {
     const session = await stripe.checkout.sessions.retrieve(session_id);
 
     if (session.payment_status === "paid") {
       const appointmentId = session.metadata.appointmentId;
-
-      // Persist paid amount (Stripe reports in smallest currency unit, paise for INR)
       const paidAmount = session.amount_total ? (session.amount_total / 100) : null;
 
-      // Update appointment if found
-      const updatedAppointment = await Appointment.findByIdAndUpdate(
-        appointmentId,
-        {
-          status: "Pending",
-          paymentId: session.payment_intent,
-          paymentStatus: "Paid",
-          ...(paidAmount != null ? { price: paidAmount, fee: paidAmount } : {})
-        },
-        { new: true }
-      );
+      const updateData = {
+        status: "Pending",
+        paymentId: session.payment_intent,
+        paymentStatus: "Paid",
+        ...(paidAmount != null ? { price: paidAmount, fee: paidAmount } : {})
+      };
 
-      // Update second opinion if found
-      const updatedSecondOpinion = await GetSecondOpinion.findByIdAndUpdate(
-        appointmentId,
-        {
-          status: "Pending",
-          paymentId: session.payment_intent,
-          paymentStatus: "Paid",
-          ...(paidAmount != null ? { price: paidAmount, fee: paidAmount } : {})
-        },
-        { new: true }
-      );
+      const updatedAppointment = await Appointment.findByIdAndUpdate(appointmentId, updateData, { new: true });
+      const updatedSecondOpinion = await GetSecondOpinion.findByIdAndUpdate(appointmentId, updateData, { new: true });
 
-      if (updatedAppointment) {
-        console.log(`Appointment payment status updated for ID ${appointmentId}`);
-      }
-      if (updatedSecondOpinion) {
-        console.log(`SecondOpinion payment status updated for ID ${appointmentId}`);
-      }
+      if (updatedAppointment) console.log(`✅ Payment verified for appointment ${appointmentId}`);
+      if (updatedSecondOpinion) console.log(`✅ Payment verified for second opinion ${appointmentId}`);
 
-      // Redirect to frontend success page
-      let frontendUrl = process.env.FRONTEND_URL;
-      if (!frontendUrl) {
-        const host = req.get("host");
-        if (host.includes("localhost") || host.includes("127.0.0.1")) {
-          frontendUrl = "http://localhost:5173";
-        } else {
-          frontendUrl = `${req.protocol}://${host}`;
-        }
-      }
-      return res.redirect(`${frontendUrl}/payment/success?session_id=${session_id}`);
+      return res.redirect(`${frontendBase}/payment/success?session_id=${session_id}`);
     } else {
-      let frontendUrl = process.env.FRONTEND_URL;
-      if (!frontendUrl) {
-        const host = req.get("host");
-        if (host.includes("localhost") || host.includes("127.0.0.1")) {
-          frontendUrl = "http://localhost:5173";
-        } else {
-          frontendUrl = `${req.protocol}://${host}`;
-        }
-      }
-      return res.redirect(`${frontendUrl}/payment/cancel`);
+      return res.redirect(`${frontendBase}/payment/cancel`);
     }
   } catch (err) {
     console.error("Stripe success error:", err.message);
-    let frontendUrl = process.env.FRONTEND_URL;
-    if (!frontendUrl) {
-      const host = req.get("host");
-      if (host.includes("localhost") || host.includes("127.0.0.1")) {
-        frontendUrl = "http://localhost:5173";
-      } else {
-        frontendUrl = `${req.protocol}://${host}`;
-      }
-    }
-    return res.redirect(`${frontendUrl}/payment/cancel`);
+    return res.redirect(`${frontendBase}/payment/cancel`);
   }
 });
 

@@ -16,7 +16,7 @@ const logger = require('./utils/logger');
 const { verifyToken } = require('./utils/jwt');
 const cookieParser = require('cookie-parser');
 
-// Configure dotenv
+// Configure dotenv (triggered auto-restart)
 dotEnv.config();
 
 // Validate required environment variables
@@ -69,17 +69,42 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // app.set("views", path.join(__dirname, "views"));
 
 
+// app.use(cors({
+//   origin: [
+//     "http://localhost:5173",
+//     "http://127.0.0.1:5173",
+//     /\.vercel\.app$/, // Allow Vercel preview deployments
+//     process.env.FRONTEND_URL // Future production URL
+//   ].filter(Boolean),
+//   credentials: true,
+//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+//   allowedHeaders: ['Content-Type', 'Authorization']
+// }));
+
+
+
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    /\.vercel\.app$/, // Allow Vercel preview deployments
-    process.env.FRONTEND_URL // Future production URL
-  ].filter(Boolean),
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+    // Allow all localhost variants and LAN IPs in development
+    if (process.env.NODE_ENV !== 'production') return callback(null, true);
+    // Production whitelist
+    const allowed = [
+      'http://localhost:5173',
+      'http://127.0.0.1:5173',
+      process.env.FRONTEND_URL
+    ].filter(Boolean);
+    if (allowed.includes(origin) || /\.vercel\.app$/.test(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
 
 // Security Headers
 app.use(helmet({

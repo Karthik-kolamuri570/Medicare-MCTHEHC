@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "Medicare-MC",
+    "slug": "medicare-mc-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#f8fafc"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.medicare.mc"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#f8fafc"
+      },
+      "package": "com.medicare.mc",
+      "softwareKeyboardLayoutMode": "pan"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#0ea5e9",
+          "sounds": []
+        }
+      ]
+    ]
+  }
+}

@@ -22,6 +22,10 @@ const medicineSchema = new Schema({
     notes: {
         type: String,
         default: ""
+    },
+    taken: {
+        type: Boolean,
+        default: false
     }
 }, { _id: false });
 

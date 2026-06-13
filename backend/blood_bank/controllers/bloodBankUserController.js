@@ -252,6 +252,7 @@ const Request = require('../models/Request');
 const Donate = require('../models/Donate');
 const BloodBank = require('../models/BloodBank');
 const Notification = require('../models/Notification');
+const BloodCamp = require('../models/BloodCamp');
 const mongoose = require('mongoose');
 
 // Get All Blood Requests for the Bank

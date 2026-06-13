@@ -1,2 +1,4 @@
 {"error":"getaddrinfo ENOTFOUND medicare-shard-00-01.anigs.mongodb.net","level":"error","message":"Error in appointment reminder check","service":"medicare-api","timestamp":"2026-04-15 10:00:30"}
 {"error":"getaddrinfo ENOTFOUND medicare-shard-00-01.anigs.mongodb.net","level":"error","message":"Error in appointment reminder check","service":"medicare-api","timestamp":"2026-04-15 10:01:00"}
+{"error":"getaddrinfo ENOTFOUND medicare-shard-00-00.anigs.mongodb.net","level":"error","message":"Error in appointment reminder check","service":"medicare-api","timestamp":"2026-06-10 18:30:30"}
+{"error":"getaddrinfo ENOTFOUND medicare-shard-00-00.anigs.mongodb.net","level":"error","message":"Error in appointment reminder check","service":"medicare-api","timestamp":"2026-06-10 18:31:00"}

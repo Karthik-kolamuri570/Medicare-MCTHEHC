@@ -161,3 +161,39 @@ exports.getDoctorPrescriptions = async (req, res) => {
         res.status(500).json({ success: false, message: "Error fetching prescriptions" });
     }
 };
+
+/**
+ * Toggle the taken status of a medication in a prescription
+ */
+exports.toggleMedicationTaken = async (req, res) => {
+    try {
+        const patientId = req.user._id;
+        const { prescriptionId, medIndex } = req.params;
+
+        const prescription = await Prescription.findOne({ _id: prescriptionId, patientId });
+        if (!prescription) {
+            return res.status(404).json({ success: false, message: "Prescription not found" });
+        }
+
+        const index = parseInt(medIndex, 10);
+        if (isNaN(index) || index < 0 || index >= prescription.medicines.length) {
+            return res.status(400).json({ success: false, message: "Invalid medication index" });
+        }
+
+        // Toggle the taken state
+        prescription.medicines[index].taken = !prescription.medicines[index].taken;
+
+        // Since it's a subdocument array mutation, we mark it modified and save
+        prescription.markModified('medicines');
+        await prescription.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Medication status toggled successfully",
+            data: prescription
+        });
+    } catch (error) {
+        console.error("Error toggling medication:", error);
+        res.status(500).json({ success: false, message: "Error updating medication status", error: error.message });
+    }
+};

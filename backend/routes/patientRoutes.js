@@ -44,5 +44,6 @@ router.get('/review/:appointmentId', auth.patientAuth, reviewController.getRevie
 const prescriptionController = require('../controller/prescriptionController');
 router.get('/prescriptions', auth.patientAuth, prescriptionController.getPatientPrescriptions);
 router.get('/prescription/:appointmentId', auth.patientAuth, prescriptionController.getPrescriptionByAppointment);
+router.put('/prescriptions/:prescriptionId/medication/:medIndex', auth.patientAuth, prescriptionController.toggleMedicationTaken);
 
 module.exports = router;

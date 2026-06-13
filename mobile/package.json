@@ -1,0 +1,39 @@
+{
+  "name": "medicare-mc-mobile",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "@react-navigation/bottom-tabs": "^6.5.20",
+    "@react-navigation/native": "^6.1.17",
+    "@react-navigation/stack": "^6.3.29",
+    "axios": "^1.6.8",
+    "expo": "~54.0.0",
+    "expo-asset": "~12.0.0",
+    "expo-linear-gradient": "~15.0.0",
+    "expo-notifications": "~0.32.17",
+    "expo-secure-store": "~15.0.0",
+    "expo-status-bar": "~3.0.9",
+    "lucide-react-native": "^0.378.0",
+    "react": "19.1.0",
+    "react-native": "0.81.5",
+    "react-native-gesture-handler": "~2.28.0",
+    "react-native-reanimated": "~4.1.1",
+    "react-native-safe-area-context": "~5.6.0",
+    "react-native-screens": "~4.16.0",
+    "react-native-svg": "15.12.1",
+    "react-native-worklets": "0.5.1",
+    "socket.io-client": "^4.7.5",
+    "stream-chat": "^9.44.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.20.0",
+    "@expo/ngrok": "^4.1.0",
+    "ngrok": "^4.3.3"
+  },
+  "private": true
+}

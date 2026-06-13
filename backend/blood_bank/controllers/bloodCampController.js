@@ -1,5 +1,6 @@
 const BloodCamp = require("../models/BloodCamp");
 const Doctor = require("../../models/doctor");
+const Donate = require("../models/Donate");
 
 // CREATE a new blood camp with validations assumed done by Mongoose
 exports.createBloodCamp = async (req, res) => {
@@ -190,6 +191,39 @@ exports.registerForCamp = async (req, res) => {
     const camp = await BloodCamp.findById(req.params.campId);
     if (!camp) return res.status(404).json({ message: 'Camp not found' });
     
+    // Check if the user has already donated blood in any camp within the last 90 days
+    const ninetyDaysAgo = new Date();
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+
+    const recentCampDonation = await BloodCamp.findOne({
+      donations: {
+        $elemMatch: {
+          donor: req.user._id,
+          status: "donated",
+          donation_time: { $gte: ninetyDaysAgo }
+        }
+      }
+    });
+
+    if (recentCampDonation) {
+      const d = recentCampDonation.donations.find(
+        dn => dn.donor.toString() === req.user._id.toString() && 
+              dn.status === "donated" && 
+              dn.donation_time >= ninetyDaysAgo
+      );
+      if (d && d.donation_time) {
+        const lastDonationDate = d.donation_time;
+        const nextAllowedDate = new Date(lastDonationDate);
+        nextAllowedDate.setDate(nextAllowedDate.getDate() + 90);
+        const remainingDays = Math.ceil((nextAllowedDate - new Date()) / (1000 * 60 * 60 * 24));
+        
+        return res.status(400).json({
+          success: false,
+          message: `You cannot register for this camp yet. You last donated at a camp on ${lastDonationDate.toISOString().split('T')[0]}. You must wait 90 days between donations (${remainingDays} days remaining, allowed from ${nextAllowedDate.toISOString().split('T')[0]}).`
+        });
+      }
+    }
+
     // Check if patient is already registered
     const isRegistered = camp.donations.some(d => d.donor.toString() === req.user._id.toString());
     if (isRegistered) {
