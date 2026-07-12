@@ -6,7 +6,9 @@ import {
 } from 'react-native';
 import {
   User, Mail, Phone, MapPin, Stethoscope, ShieldAlert,
-  LogOut, Bell, KeyRound, ArrowLeft, RefreshCw, Calendar, Star
+  LogOut, Bell, KeyRound, ArrowLeft, RefreshCw, Calendar, Star,
+  Clock, Award, BadgeCheck, Briefcase, Building2, IndianRupee,
+  Heart, Hash, FileText
 } from 'lucide-react-native';
 import * as SecureStore from 'expo-secure-store';
 import api from '../services/api';
@@ -29,12 +31,12 @@ export default function ProfileScreen({ route, navigation, onLogout }) {
       const stored    = storedRaw ? JSON.parse(storedRaw) : null;
       const role      = stored?.role || 'patient';
 
-      // Use /api/me for the authoritative data
       const endpoint = role === 'doctor' ? '/doctor/me' : '/patient/me';
       const res = await api.get(endpoint);
       const data = res.data?.data || res.data?.doctor || res.data?.patient || res.data || {};
 
       setProfile({
+        // ── Common fields ──
         name:           data.name || data.fullname || stored?.name || 'N/A',
         email:          data.email || stored?.email || 'N/A',
         phone:          data.contact || data.phone || data.phoneNumber || 'N/A',
@@ -42,17 +44,27 @@ export default function ProfileScreen({ route, navigation, onLogout }) {
         age:            data.age ? `${data.age} yrs` : 'N/A',
         address:        data.address || data.location || 'N/A',
         role,
-        // Doctor-specific
+        profileImage:   data.profileImage || stored?.profileImage || null,
+        joinedAt:       data.createdAt || null,
+
+        // ── Doctor-specific ──
         specialization: data.specialization || data.specialty || null,
         hospital:       data.hospital || null,
+        location:       data.location || null,
         fee:            data.feePerConsultation || data.fee || null,
         experience:     data.experience || null,
-        rating:         data.averageRating || data.rating || null,
-        profileImage:   data.profileImage || stored?.profileImage || null,
+        rating:         data.rating || data.averageRating || null,
+        totalRatings:   data.totalRatings || null,
+        totalRatingScore: data.totalRatingScore || null,
+        fromTime:       data.fromTime || null,
+        toTime:         data.toTime || null,
+        status:         data.status || null,
+        verifiedByAdmin: data.verifiedByAdmin || null,
+        certification:  data.certification || null,
+        about:          data.about || data.bio || null,
       });
     } catch (err) {
       console.error('Profile fetch error:', err?.response?.data || err.message);
-      // Fallback to stored user data
       try {
         const storedRaw = await SecureStore.getItemAsync(USER_DATA_KEY);
         if (storedRaw) {
@@ -87,9 +99,8 @@ export default function ProfileScreen({ route, navigation, onLogout }) {
           onPress: async () => {
             setLoggingOut(true);
             try {
-              // Call backend logout endpoint first
               const endpoint = profile?.role === 'doctor' ? '/doctor/logout' : '/patient/logout';
-              await api.get(endpoint).catch(() => {}); // ignore backend errors
+              await api.get(endpoint).catch(() => {});
               await logoutUser();
               if (onLogout) onLogout();
             } catch (err) {
@@ -110,6 +121,23 @@ export default function ProfileScreen({ route, navigation, onLogout }) {
     ? profile.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
     : '?';
 
+  // ── helpers ─────────────────────────────────────────────────────────────────
+  const formatDate = (dateStr) => {
+    if (!dateStr) return null;
+    try {
+      return new Date(dateStr).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
+    } catch { return null; }
+  };
+
+  const getVerificationBadge = (status) => {
+    switch (status) {
+      case 'approved': return { color: '#16a34a', bg: '#dcfce7', label: 'Verified', icon: '✓' };
+      case 'rejected': return { color: '#dc2626', bg: '#fef2f2', label: 'Rejected', icon: '✗' };
+      case 'pending':  return { color: '#d97706', bg: '#fffbeb', label: 'Pending Review', icon: '⏳' };
+      default: return null;
+    }
+  };
+
   // ── render ──────────────────────────────────────────────────────────────────
   if (loading) {
     return (
@@ -123,6 +151,7 @@ export default function ProfileScreen({ route, navigation, onLogout }) {
   }
 
   const isDoctor = profile?.role === 'doctor';
+  const verificationBadge = isDoctor ? getVerificationBadge(profile?.verifiedByAdmin) : null;
 
   return (
     <SafeAreaView style={s.container}>
@@ -150,36 +179,122 @@ export default function ProfileScreen({ route, navigation, onLogout }) {
           )}
           <Text style={s.profileName}>{profile?.name || 'N/A'}</Text>
           <Text style={s.profileEmail}>{profile?.email || 'N/A'}</Text>
-          <View style={[s.roleBadge, isDoctor && s.roleBadgeDoctor]}>
-            {isDoctor
-              ? <Stethoscope size={12} color="#fff" />
-              : <User size={12} color="#fff" />
-            }
-            <Text style={s.roleText}>
-              {isDoctor ? 'Doctor' : 'Patient'}
-            </Text>
+
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 }}>
+            <View style={[s.roleBadge, isDoctor && s.roleBadgeDoctor]}>
+              {isDoctor
+                ? <Stethoscope size={12} color="#fff" />
+                : <User size={12} color="#fff" />
+              }
+              <Text style={s.roleText}>
+                {isDoctor ? 'Doctor' : 'Patient'}
+              </Text>
+            </View>
+
+            {/* Doctor Verification Badge */}
+            {isDoctor && verificationBadge && (
+              <View style={[s.verificationBadge, { backgroundColor: verificationBadge.bg }]}>
+                <BadgeCheck size={12} color={verificationBadge.color} />
+                <Text style={[s.verificationText, { color: verificationBadge.color }]}>
+                  {verificationBadge.label}
+                </Text>
+              </View>
+            )}
           </View>
+
+          {/* Doctor online status */}
+          {isDoctor && profile?.status && (
+            <View style={[s.statusPill, {
+              backgroundColor: profile.status === 'Online' ? '#dcfce7' : '#f1f5f9'
+            }]}>
+              <View style={[s.statusDot, {
+                backgroundColor: profile.status === 'Online' ? '#16a34a' : '#94a3b8'
+              }]} />
+              <Text style={[s.statusText, {
+                color: profile.status === 'Online' ? '#16a34a' : '#64748b'
+              }]}>{profile.status}</Text>
+            </View>
+          )}
+
+          {/* Doctor Rating Summary */}
+          {isDoctor && profile?.rating != null && profile.rating > 0 && (
+            <View style={s.ratingRow}>
+              <Star size={16} color="#f59e0b" fill="#f59e0b" />
+              <Text style={s.ratingVal}>{profile.rating.toFixed(1)}</Text>
+              {profile.totalRatings > 0 && (
+                <Text style={s.ratingCount}>({profile.totalRatings} ratings)</Text>
+              )}
+            </View>
+          )}
+
+          {/* Member since */}
+          {profile?.joinedAt && (
+            <Text style={s.memberSince}>Member since {formatDate(profile.joinedAt)}</Text>
+          )}
         </View>
 
         {/* ── Personal Info ── */}
         <Text style={s.sectionTitle}>Personal Information</Text>
         <View style={s.infoCard}>
-          <InfoRow icon={<Phone size={16} color="#0ea5e9" />}  label="Phone"   value={profile?.phone} />
-          <InfoRow icon={<User size={16} color="#0ea5e9" />}   label="Gender"  value={profile?.gender} />
-          <InfoRow icon={<Calendar size={16} color="#0ea5e9" />} label="Age"   value={profile?.age} />
-          <InfoRow icon={<MapPin size={16} color="#0ea5e9" />}  label="Address" value={profile?.address} last />
+          <InfoRow icon={<Mail size={16} color="#0ea5e9" />}     label="Email"   value={profile?.email} />
+          <InfoRow icon={<Phone size={16} color="#0ea5e9" />}    label="Phone"   value={profile?.phone} />
+          <InfoRow icon={<User size={16} color="#0ea5e9" />}     label="Gender"  value={profile?.gender ? profile.gender.charAt(0).toUpperCase() + profile.gender.slice(1) : 'N/A'} />
+          <InfoRow icon={<Calendar size={16} color="#0ea5e9" />} label="Age"     value={profile?.age} />
+          <InfoRow icon={<MapPin size={16} color="#0ea5e9" />}   label="Address" value={profile?.address} last />
         </View>
 
-        {/* ── Doctor-specific Info ── */}
+        {/* ── Doctor Professional Details ── */}
         {isDoctor && (
           <>
             <Text style={s.sectionTitle}>Professional Details</Text>
             <View style={s.infoCard}>
               <InfoRow icon={<Stethoscope size={16} color="#8b5cf6" />} label="Specialization" value={profile?.specialization} />
-              {profile?.hospital   && <InfoRow icon={<MapPin size={16} color="#8b5cf6" />}      label="Hospital"   value={profile.hospital} />}
-              {profile?.experience && <InfoRow icon={<Calendar size={16} color="#8b5cf6" />}    label="Experience" value={`${profile.experience} yrs`} />}
-              {profile?.fee        && <InfoRow icon={<Star size={16} color="#8b5cf6" />}         label="Fee"        value={`₹${profile.fee}`} />}
-              {profile?.rating     && <InfoRow icon={<Star size={16} color="#f59e0b" />}         label="Rating"     value={`${profile.rating} ★`} last />}
+              <InfoRow icon={<Building2 size={16} color="#8b5cf6" />}   label="Hospital"       value={profile?.hospital} />
+              <InfoRow icon={<MapPin size={16} color="#8b5cf6" />}      label="Location"       value={profile?.location} />
+              <InfoRow icon={<Briefcase size={16} color="#8b5cf6" />}   label="Experience"     value={profile?.experience ? `${profile.experience} years` : null} />
+              <InfoRow icon={<IndianRupee size={16} color="#8b5cf6" />} label="Fee / Consult"  value={profile?.fee ? `₹${profile.fee}` : null} />
+              {profile?.certification && (
+                <InfoRow icon={<Award size={16} color="#8b5cf6" />}     label="Certification"  value={profile.certification} />
+              )}
+              {profile?.about && (
+                <InfoRow icon={<FileText size={16} color="#8b5cf6" />}  label="About"          value={profile.about} />
+              )}
+              <InfoRow icon={<Clock size={16} color="#8b5cf6" />}      label="Working Hours"  value={
+                profile?.fromTime && profile?.toTime
+                  ? `${profile.fromTime} – ${profile.toTime}`
+                  : null
+              } last />
+            </View>
+
+            {/* Doctor Stats Cards */}
+            <Text style={s.sectionTitle}>Performance</Text>
+            <View style={s.statsRow}>
+              <View style={[s.statCard, { borderColor: '#bae6fd' }]}>
+                <Star size={20} color="#f59e0b" />
+                <Text style={s.statValue}>{profile?.rating?.toFixed(1) || '0.0'}</Text>
+                <Text style={s.statLabel}>Rating</Text>
+              </View>
+              <View style={[s.statCard, { borderColor: '#c4b5fd' }]}>
+                <Heart size={20} color="#8b5cf6" />
+                <Text style={s.statValue}>{profile?.totalRatings || 0}</Text>
+                <Text style={s.statLabel}>Reviews</Text>
+              </View>
+              <View style={[s.statCard, { borderColor: '#a7f3d0' }]}>
+                <Briefcase size={20} color="#10b981" />
+                <Text style={s.statValue}>{profile?.experience || '—'}</Text>
+                <Text style={s.statLabel}>Yrs Exp</Text>
+              </View>
+            </View>
+          </>
+        )}
+
+        {/* ── Patient Quick Stats (if patient) ── */}
+        {!isDoctor && (
+          <>
+            <Text style={s.sectionTitle}>Account Details</Text>
+            <View style={s.infoCard}>
+              <InfoRow icon={<Hash size={16} color="#0ea5e9" />} label="Account Type" value="Patient" />
+              <InfoRow icon={<Heart size={16} color="#ef4444" />} label="Health Portal" value="Active" last />
             </View>
           </>
         )}
@@ -241,7 +356,7 @@ function InfoRow({ icon, label, value, last }) {
       <View style={s.infoIcon}>{icon}</View>
       <View style={{ flex: 1 }}>
         <Text style={s.infoLabel}>{label}</Text>
-        <Text style={s.infoValue} numberOfLines={2}>
+        <Text style={s.infoValue} numberOfLines={3}>
           {value && value !== 'N/A' ? value : <Text style={{ color: '#cbd5e1' }}>Not provided</Text>}
         </Text>
       </View>
@@ -276,22 +391,48 @@ const s = StyleSheet.create({
     shadowColor: '#0f172a', shadowOpacity: 0.05, shadowRadius: 8, elevation: 2,
   },
   avatarCircle: {
-    width: 80, height: 80, borderRadius: 40,
+    width: 88, height: 88, borderRadius: 44,
     backgroundColor: '#0ea5e9', alignItems: 'center', justifyContent: 'center',
     marginBottom: 14,
+    shadowColor: '#0ea5e9', shadowOpacity: 0.3, shadowRadius: 12, elevation: 4,
   },
-  avatarCircleDoctor: { backgroundColor: '#8b5cf6' },
-  avatarImg: { width: 80, height: 80, borderRadius: 40, marginBottom: 14 },
-  avatarText: { fontSize: 28, fontWeight: '800', color: '#fff' },
-  profileName: { fontSize: 20, fontWeight: '800', color: '#0f172a' },
+  avatarCircleDoctor: { backgroundColor: '#8b5cf6', shadowColor: '#8b5cf6' },
+  avatarImg: { width: 88, height: 88, borderRadius: 44, marginBottom: 14 },
+  avatarText: { fontSize: 30, fontWeight: '800', color: '#fff' },
+  profileName: { fontSize: 22, fontWeight: '800', color: '#0f172a', letterSpacing: -0.3 },
   profileEmail: { fontSize: 13, color: '#64748b', marginTop: 4 },
   roleBadge: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
     backgroundColor: '#0ea5e9', borderRadius: 20,
-    paddingHorizontal: 14, paddingVertical: 6, marginTop: 12,
+    paddingHorizontal: 14, paddingVertical: 6,
   },
   roleBadgeDoctor: { backgroundColor: '#8b5cf6' },
   roleText: { color: '#fff', fontWeight: '700', fontSize: 12 },
+
+  // Verification badge
+  verificationBadge: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20,
+  },
+  verificationText: { fontSize: 11, fontWeight: '700' },
+
+  // Online status
+  statusPill: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20, marginTop: 10,
+  },
+  statusDot: { width: 8, height: 8, borderRadius: 4 },
+  statusText: { fontSize: 12, fontWeight: '700' },
+
+  // Rating
+  ratingRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10,
+  },
+  ratingVal: { color: '#d97706', fontSize: 15, fontWeight: '800' },
+  ratingCount: { color: '#94a3b8', fontSize: 12, fontWeight: '600' },
+
+  // Member since
+  memberSince: { color: '#94a3b8', fontSize: 11, fontWeight: '600', marginTop: 10 },
 
   // Section title
   sectionTitle: {
@@ -315,6 +456,18 @@ const s = StyleSheet.create({
   infoIcon: { width: 32, alignItems: 'center', marginRight: 12 },
   infoLabel: { fontSize: 11, fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 0.5 },
   infoValue: { fontSize: 14, fontWeight: '600', color: '#1e293b', marginTop: 2 },
+
+  // Stats row
+  statsRow: {
+    flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20, gap: 8,
+  },
+  statCard: {
+    flex: 1, backgroundColor: '#fff', borderRadius: 14, padding: 16,
+    alignItems: 'center', borderWidth: 1.5,
+    shadowColor: '#0f172a', shadowOpacity: 0.04, shadowRadius: 6, elevation: 1,
+  },
+  statValue: { fontSize: 20, fontWeight: '900', color: '#0f172a', marginTop: 8 },
+  statLabel: { fontSize: 10, fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 4 },
 
   // Preferences
   prefRow: {

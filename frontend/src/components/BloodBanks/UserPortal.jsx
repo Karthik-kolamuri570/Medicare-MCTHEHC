@@ -1256,7 +1256,7 @@ function HistorySection({ myDonations, myRequests, userStats, setActiveSection }
         ].map(tab => (
           <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
             display: 'flex', alignItems: 'center', gap: '8px',
-            padding: '12px 24px', borderRadius: '50px', border: 'none',
+            padding: '12px 24px', borderRadius: '50px',
             fontFamily: 'inherit', fontSize: '0.9rem', fontWeight: '800',
             cursor: 'pointer', transition: 'all 0.2s ease',
             background: activeTab === tab.id ? 'linear-gradient(135deg, #dc2626, #b91c1c)' : '#ffffff',

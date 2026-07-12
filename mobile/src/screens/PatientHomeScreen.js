@@ -1,12 +1,13 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { Calendar, FileText, Activity, Heart, Bell, Plus, CheckCircle, ChevronRight, Sparkles, Stethoscope, Droplets, Video, BookOpen } from 'lucide-react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, ActivityIndicator, Animated } from 'react-native';
+import { Calendar, FileText, Activity, Heart, Bell, Plus, CheckCircle, ChevronRight, Sparkles, Stethoscope, Droplets, Video, BookOpen, Pill, Sun, Sunset, Moon, Coffee, Clock, TrendingUp } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, SHADOWS } from '../styles/theme';
 import GlassCard from '../components/GlassCard';
 import { getAppointments, getPrescriptions, toggleMedicationTaken } from '../services/api';
 import { triggerLocalNotification } from '../services/notifications';
+import { loadTodayStatus, saveTodayStatus, applyDailyReset } from '../utils/medicationDailyReset';
 
 const isMedicineActive = (createdAtStr, durationStr) => {
   if (!createdAtStr) return true;
@@ -63,8 +64,11 @@ export default function PatientHomeScreen({ navigation }) {
   const loadHomeData = async () => {
     try {
       setLoading(true);
-      const apps = await getAppointments();
-      const rxs = await getPrescriptions();
+      const [apps, rxs, todayStatus] = await Promise.all([
+        getAppointments(),
+        getPrescriptions(),
+        loadTodayStatus(),
+      ]);
       
       const today = new Date();
       today.setHours(0,0,0,0);
@@ -81,7 +85,8 @@ export default function PatientHomeScreen({ navigation }) {
       });
 
       setAppointments(upcomingApps.slice(0, 2)); // Show top 2 upcoming
-      setPrescriptions(rxs);
+      // Apply daily reset: if no local entry for today, med shows as untaken
+      setPrescriptions(applyDailyReset(rxs, todayStatus));
     } catch (err) {
       console.error('Error loading home data:', err);
     } finally {
@@ -90,17 +95,16 @@ export default function PatientHomeScreen({ navigation }) {
   };
 
   const handleMedsCheck = async (prescriptionId, medIndex, medName, currentTaken) => {
+    const newTaken = !currentTaken;
     try {
-      await toggleMedicationTaken(prescriptionId, medIndex);
-      
-      // Update local state instantly
+      // Optimistic UI update
       const updatedRxs = prescriptions.map(rx => {
         const rxId = rx._id || rx.id;
         if (rxId === prescriptionId) {
           const key = rx.medicines ? 'medicines' : 'medications';
           const updatedMeds = [...(rx[key] || [])];
           if (updatedMeds[medIndex]) {
-            updatedMeds[medIndex] = { ...updatedMeds[medIndex], taken: !currentTaken };
+            updatedMeds[medIndex] = { ...updatedMeds[medIndex], taken: newTaken };
           }
           return { ...rx, [key]: updatedMeds };
         }
@@ -108,8 +112,14 @@ export default function PatientHomeScreen({ navigation }) {
       });
       setPrescriptions(updatedRxs);
 
-      // Trigger achievement notification if checked
-      if (!currentTaken) {
+      // Persist today's status locally (daily reset key)
+      await saveTodayStatus(prescriptionId, medIndex, newTaken);
+
+      // Sync to backend
+      await toggleMedicationTaken(prescriptionId, medIndex);
+
+      // Notification when marking as taken
+      if (newTaken) {
         triggerLocalNotification(
           'Medication Completed! 🌟',
           `Excellent job maintaining your schedule. You have taken your ${medName}.`
@@ -330,69 +340,425 @@ export default function PatientHomeScreen({ navigation }) {
           ))
         )}
 
-        {/* Medication Compliance Checkpoint */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Medication Schedule</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('Prescriptions')}>
-            <Text style={styles.viewAllText}>View All</Text>
-          </TouchableOpacity>
-        </View>
-
-        {(() => {
-          const activeMeds = [];
-          prescriptions.forEach(rx => {
-            const meds = rx.medicines || rx.medications || [];
-            meds.forEach((med, index) => {
-              if (isMedicineActive(rx.createdAt || rx.date, med.duration)) {
-                activeMeds.push({
-                  ...med,
-                  prescriptionId: rx._id || rx.id,
-                  medIndex: index,
-                });
-              }
-            });
-          });
-
-          if (activeMeds.length === 0) {
-            return (
-              <GlassCard style={styles.emptyCard}>
-                <Text style={styles.emptyText}>No active medications registered.</Text>
-              </GlassCard>
-            );
-          }
-
-          return (
-            <GlassCard style={styles.medCard}>
-              <Text style={styles.medHeaderTitle}>Today's Doses</Text>
-              {activeMeds.map((med, idx) => (
-                <View key={`${med.prescriptionId}-${med.medIndex}-${idx}`} style={styles.medRow}>
-                  <TouchableOpacity 
-                    activeOpacity={0.8}
-                    onPress={() => handleMedsCheck(med.prescriptionId, med.medIndex, med.name, med.taken)}
-                    style={styles.medCheckbox}
-                  >
-                    <CheckCircle 
-                      size={22} 
-                      color={med.taken ? '#16a34a' : '#cbd5e1'} 
-                      fill={med.taken ? 'rgba(22, 163, 74, 0.1)' : 'transparent'}
-                    />
-                  </TouchableOpacity>
-                  <View style={styles.medDetails}>
-                    <Text style={[styles.medNameText, med.taken && styles.medNameCrossed]}>
-                      {med.name}
-                    </Text>
-                    <Text style={styles.medFrequency}>{med.dose || med.dosage} · {med.frequency}</Text>
-                  </View>
-                  <Text style={styles.medTime}>{med.time || med.duration || ''}</Text>
-                </View>
-              ))}
-            </GlassCard>
-          );
-        })()}
+        {/* Medication Schedule — enhanced */}
+        <MedicationScheduleSection
+          prescriptions={prescriptions}
+          onToggle={handleMedsCheck}
+          onViewAll={() => navigation.navigate('Prescriptions')}
+        />
       </ScrollView>
     </SafeAreaView>
   );
 }
+
+// ─────────────────────────────────────────────
+// Medication Schedule Component
+// ─────────────────────────────────────────────
+
+const TIME_SLOTS = [
+  { label: 'Morning',   key: 'morning',   icon: Coffee,  color: '#f59e0b', bg: '#fffbeb', border: '#fef3c7', hours: [5, 6, 7, 8, 9, 10, 11] },
+  { label: 'Afternoon', key: 'afternoon', icon: Sun,     color: '#f97316', bg: '#fff7ed', border: '#fed7aa', hours: [12, 13, 14, 15, 16] },
+  { label: 'Evening',   key: 'evening',   icon: Sunset,  color: '#8b5cf6', bg: '#f5f3ff', border: '#ddd6fe', hours: [17, 18, 19, 20] },
+  { label: 'Night',     key: 'night',     icon: Moon,    color: '#1d4ed8', bg: '#eff6ff', border: '#bfdbfe', hours: [21, 22, 23, 0, 1, 2, 3, 4] },
+];
+
+const getMedTimeSlot = (timeStr) => {
+  if (!timeStr) return 'morning';
+  const lower = (timeStr || '').toLowerCase();
+  // Check for AM/PM time strings first
+  const ampmMatch = lower.match(/(\d+)(?::(\d+))?\s*(am|pm)/);
+  if (ampmMatch) {
+    let hr = parseInt(ampmMatch[1], 10);
+    const period = ampmMatch[3];
+    if (period === 'pm' && hr !== 12) hr += 12;
+    if (period === 'am' && hr === 12) hr = 0;
+    for (const slot of TIME_SLOTS) {
+      if (slot.hours.includes(hr)) return slot.key;
+    }
+  }
+  // Keyword fallback
+  if (lower.includes('morning') || lower.includes('breakfast') || lower.includes('wakeup')) return 'morning';
+  if (lower.includes('afternoon') || lower.includes('lunch')) return 'afternoon';
+  if (lower.includes('evening') || lower.includes('dinner')) return 'evening';
+  if (lower.includes('night') || lower.includes('sleep') || lower.includes('bedtime')) return 'night';
+  // Frequency fallback
+  if (lower.includes('twice') || lower.includes('2 times')) return 'morning';
+  return 'morning';
+};
+
+function AnimatedMedRow({ med, onToggle }) {
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const handlePress = () => {
+    Animated.sequence([
+      Animated.timing(scaleAnim, { toValue: 0.94, duration: 80, useNativeDriver: true }),
+      Animated.timing(scaleAnim, { toValue: 1,    duration: 120, useNativeDriver: true }),
+    ]).start();
+    onToggle();
+  };
+
+  const slot = TIME_SLOTS.find(s => s.key === getMedTimeSlot(med.time || med.timing || med.frequency));
+  const SlotIcon = slot?.icon || Coffee;
+
+  return (
+    <Animated.View style={[
+      medStyles.medRow,
+      med.taken && medStyles.medRowTaken,
+      { transform: [{ scale: scaleAnim }] },
+    ]}>
+      {/* Left: icon badge */}
+      <View style={[medStyles.medIconBadge, { backgroundColor: slot?.bg || '#f1f5f9' }]}>
+        <SlotIcon size={14} color={slot?.color || '#64748b'} />
+      </View>
+
+      {/* Center: name + meta */}
+      <View style={medStyles.medDetails}>
+        <Text style={[medStyles.medName, med.taken && medStyles.medNameCrossed]} numberOfLines={1}>
+          {med.name}
+        </Text>
+        <Text style={medStyles.medMeta} numberOfLines={1}>
+          {[med.dose || med.dosage, med.frequency].filter(Boolean).join(' · ')}
+        </Text>
+      </View>
+
+      {/* Right: time label + checkbox */}
+      <View style={medStyles.medRight}>
+        {(med.time || med.timing) ? (
+          <View style={medStyles.timeChip}>
+            <Clock size={10} color='#64748b' />
+            <Text style={medStyles.timeChipText}>{med.time || med.timing}</Text>
+          </View>
+        ) : null}
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={handlePress}
+          style={[
+            medStyles.checkbox,
+            med.taken && medStyles.checkboxDone,
+          ]}
+        >
+          <CheckCircle
+            size={20}
+            color={med.taken ? '#ffffff' : '#cbd5e1'}
+            fill={med.taken ? '#16a34a' : 'transparent'}
+          />
+        </TouchableOpacity>
+      </View>
+    </Animated.View>
+  );
+}
+
+function MedicationScheduleSection({ prescriptions, onToggle, onViewAll }) {
+  const activeMeds = [];
+  prescriptions.forEach(rx => {
+    const meds = rx.medicines || rx.medications || [];
+    meds.forEach((med, index) => {
+      if (isMedicineActive(rx.createdAt || rx.date, med.duration)) {
+        activeMeds.push({
+          ...med,
+          prescriptionId: rx._id || rx.id,
+          medIndex: index,
+        });
+      }
+    });
+  });
+
+  const total  = activeMeds.length;
+  const taken  = activeMeds.filter(m => m.taken).length;
+  const pct    = total > 0 ? Math.round((taken / total) * 100) : 0;
+  const allDone = total > 0 && taken === total;
+
+  // Group by time slot
+  const grouped = {};
+  activeMeds.forEach(med => {
+    const slotKey = getMedTimeSlot(med.time || med.timing || med.frequency);
+    if (!grouped[slotKey]) grouped[slotKey] = [];
+    grouped[slotKey].push(med);
+  });
+
+  return (
+    <>
+      {/* Section header */}
+      <View style={styles.sectionHeader}>
+        <View style={medStyles.sectionTitleRow}>
+          <Pill size={16} color={COLORS.primary} />
+          <Text style={styles.sectionTitle}>Medication Schedule</Text>
+        </View>
+        <TouchableOpacity onPress={onViewAll} style={medStyles.viewAllBtn}>
+          <Text style={medStyles.viewAllText}>View All</Text>
+          <ChevronRight size={13} color={COLORS.primary} />
+        </TouchableOpacity>
+      </View>
+
+      {total === 0 ? (
+        <GlassCard style={styles.emptyCard}>
+          <Pill size={32} color='#cbd5e1' />
+          <Text style={[styles.emptyText, { marginTop: 10 }]}>No active medications today.</Text>
+        </GlassCard>
+      ) : (
+        <View style={medStyles.wrapper}>
+          {/* Progress summary card */}
+          <LinearGradient
+            colors={allDone ? ['#065f46', '#059669'] : ['#0c1631', '#1565c0']}
+            start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+            style={medStyles.progressCard}
+          >
+            <View style={medStyles.progressLeft}>
+              <Text style={medStyles.progressLabel}>
+                {allDone ? '🎉 All doses complete!' : "Today's Progress"}
+              </Text>
+              <Text style={medStyles.progressCount}>
+                {taken} / {total} doses taken
+              </Text>
+              {/* Progress bar */}
+              <View style={medStyles.progressBarBg}>
+                <View style={[medStyles.progressBarFill, { width: `${pct}%` }]} />
+              </View>
+            </View>
+            <View style={medStyles.progressCircle}>
+              <Text style={medStyles.progressPct}>{pct}%</Text>
+              <Text style={medStyles.progressPctLabel}>done</Text>
+            </View>
+          </LinearGradient>
+
+          {/* Time-grouped med rows */}
+          {allDone ? (
+            <View style={medStyles.allDoneInner}>
+              <TrendingUp size={22} color='#16a34a' />
+              <Text style={medStyles.allDoneMsg}>Great job! You've maintained your schedule perfectly today.</Text>
+            </View>
+          ) : (
+            TIME_SLOTS.map(slot => {
+              const slotMeds = grouped[slot.key];
+              if (!slotMeds || slotMeds.length === 0) return null;
+              const SlotIcon = slot.icon;
+              return (
+                <View key={slot.key} style={medStyles.slotSection}>
+                  {/* Slot header */}
+                  <View style={[medStyles.slotHeader, { borderColor: slot.border, backgroundColor: slot.bg }]}>
+                    <SlotIcon size={13} color={slot.color} />
+                    <Text style={[medStyles.slotLabel, { color: slot.color }]}>{slot.label}</Text>
+                    <View style={medStyles.slotBadge}>
+                      <Text style={[medStyles.slotBadgeText, { color: slot.color }]}>
+                        {slotMeds.filter(m => m.taken).length}/{slotMeds.length}
+                      </Text>
+                    </View>
+                  </View>
+                  {/* Meds */}
+                  {slotMeds.map((med, idx) => (
+                    <AnimatedMedRow
+                      key={`${med.prescriptionId}-${med.medIndex}-${idx}`}
+                      med={med}
+                      onToggle={() => onToggle(med.prescriptionId, med.medIndex, med.name, med.taken)}
+                    />
+                  ))}
+                </View>
+              );
+            })
+          )}
+        </View>
+      )}
+    </>
+  );
+}
+
+const medStyles = StyleSheet.create({
+  sectionTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  viewAllBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+  },
+  viewAllText: {
+    color: COLORS.primary,
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  wrapper: {
+    marginHorizontal: 20,
+    marginBottom: 8,
+    borderRadius: 20,
+    overflow: 'hidden',
+    borderWidth: 1.5,
+    borderColor: '#e2e8f0',
+    backgroundColor: '#ffffff',
+    ...SHADOWS.default,
+  },
+  progressCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 18,
+    paddingBottom: 20,
+  },
+  progressLeft: {
+    flex: 1,
+    marginRight: 16,
+  },
+  progressLabel: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 12,
+    fontWeight: '600',
+    marginBottom: 4,
+    letterSpacing: 0.3,
+  },
+  progressCount: {
+    color: '#ffffff',
+    fontSize: 20,
+    fontWeight: '800',
+    letterSpacing: -0.5,
+    marginBottom: 10,
+  },
+  progressBarBg: {
+    height: 6,
+    borderRadius: 100,
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    height: '100%',
+    borderRadius: 100,
+    backgroundColor: '#34d399',
+  },
+  progressCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: 'rgba(255,255,255,0.13)',
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  progressPct: {
+    color: '#ffffff',
+    fontSize: 18,
+    fontWeight: '800',
+  },
+  progressPctLabel: {
+    color: 'rgba(255,255,255,0.6)',
+    fontSize: 10,
+    fontWeight: '600',
+  },
+  allDoneInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    padding: 16,
+    backgroundColor: '#f0fdf4',
+  },
+  allDoneMsg: {
+    flex: 1,
+    color: '#15803d',
+    fontSize: 13,
+    fontWeight: '600',
+    lineHeight: 19,
+  },
+  slotSection: {
+    borderTopWidth: 1,
+    borderTopColor: '#f1f5f9',
+  },
+  slotHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+  },
+  slotLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    flex: 1,
+    letterSpacing: 0.3,
+  },
+  slotBadge: {
+    backgroundColor: 'rgba(0,0,0,0.06)',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 100,
+  },
+  slotBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  medRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f5f9',
+    backgroundColor: '#ffffff',
+    gap: 10,
+  },
+  medRowTaken: {
+    backgroundColor: '#f8fafc',
+  },
+  medIconBadge: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  medDetails: {
+    flex: 1,
+    minWidth: 0,
+  },
+  medName: {
+    color: '#0f172a',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  medNameCrossed: {
+    textDecorationLine: 'line-through',
+    color: '#94a3b8',
+  },
+  medMeta: {
+    color: '#64748b',
+    fontSize: 12,
+    marginTop: 2,
+    fontWeight: '500',
+  },
+  medRight: {
+    alignItems: 'flex-end',
+    gap: 6,
+  },
+  timeChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    backgroundColor: '#f1f5f9',
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    borderRadius: 100,
+  },
+  timeChipText: {
+    color: '#64748b',
+    fontSize: 10,
+    fontWeight: '600',
+  },
+  checkbox: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: '#cbd5e1',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f8fafc',
+  },
+  checkboxDone: {
+    borderColor: '#16a34a',
+    backgroundColor: '#16a34a',
+  },
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -666,50 +1032,5 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontWeight: '700',
     fontSize: 13,
-  },
-  medCard: {
-    padding: 16,
-    marginHorizontal: 20,
-  },
-  medHeaderTitle: {
-    color: '#0f172a',
-    fontSize: 15,
-    fontWeight: '800',
-    marginBottom: 12,
-    borderBottomWidth: 1.5,
-    borderBottomColor: '#e2e8f0',
-    paddingBottom: 8,
-  },
-  medRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
-  },
-  medCheckbox: {
-    marginRight: 12,
-  },
-  medDetails: {
-    flex: 1,
-  },
-  medNameText: {
-    color: '#0f172a',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  medNameCrossed: {
-    textDecorationLine: 'line-through',
-    color: '#94a3b8',
-  },
-  medFrequency: {
-    color: '#64748b',
-    fontSize: 12,
-    marginTop: 2,
-  },
-  medTime: {
-    color: '#64748b',
-    fontSize: 12,
-    fontWeight: '600',
   },
 });

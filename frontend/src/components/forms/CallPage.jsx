@@ -73,12 +73,8 @@ const CallPage = () => {
 
       try {
         // 🔑 Step 1: Get token & user info
-        const jwtToken = localStorage.getItem('token');
-        const res = await fetch("/api/stream/token", {
-          headers: { Authorization: `Bearer ${jwtToken}` },
-        });
-
-        const { token, userId, apiKey } = await res.json();
+        const res = await api.get("/api/stream/token");
+        const { token, userId, apiKey } = res.data;
 
         if (!userId || !receiverId) {
           console.error("Missing userId or receiverId", { userId, receiverId });

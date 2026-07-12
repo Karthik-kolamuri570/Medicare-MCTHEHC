@@ -719,7 +719,7 @@ function Header() {
                         display: "flex", alignItems: "center", justifyContent: "center",
                         border: "2px solid #fff",
                         animation: "ntfPulse 2s infinite"
-                      }}>{notifCount > 9 ? '9+' : notifCount}</span>
+                      }}>{notifCount > 99 ? '99+' : notifCount}</span>
                     )}
                   </li>
                 )}

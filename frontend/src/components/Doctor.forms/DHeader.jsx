@@ -434,7 +434,7 @@ function DHeader() {
             >
               🔔
               {notifCount > 0 && (
-                <span className="d-notif-badge">{notifCount > 9 ? '9+' : notifCount}</span>
+                <span className="d-notif-badge">{notifCount > 99 ? '99+' : notifCount}</span>
               )}
             </li>
             {!isLoading && (doctor ?

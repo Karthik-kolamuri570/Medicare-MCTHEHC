@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import api from '../../utils/api';
 import "../../styles/Notifications.css";
 import { FaBell, FaTrash, FaEye, FaTrashAlt, FaCheckCircle, FaTimesCircle, FaCalendarAlt, FaClock, FaUserMd, FaExclamationTriangle, FaInfoCircle, FaRedo, FaShieldAlt } from 'react-icons/fa';
@@ -43,6 +43,8 @@ function ANotifications() {
     const [activeTab, setActiveTab] = useState('unseen');
     const [actionLoading, setActionLoading] = useState(false);
 
+    const unseenNotificationsRef = useRef([]);
+
     const fetchNotifications = async () => {
         try {
             setLoading(true);
@@ -59,7 +61,21 @@ function ANotifications() {
         }
     };
 
-    useEffect(() => { fetchNotifications(); }, []);
+    useEffect(() => {
+        unseenNotificationsRef.current = unseenNotifications;
+    }, [unseenNotifications]);
+
+    useEffect(() => {
+        fetchNotifications();
+        return () => {
+            // Mark all unseen notifications as read when leaving the page
+            if (unseenNotificationsRef.current.length > 0) {
+                api.post('/api/admin/notifications/mark-seen').catch((err) => {
+                    console.error("Error auto-marking admin notifications as seen on unmount:", err);
+                });
+            }
+        };
+    }, []);
 
     // Auto-refresh every 30s
     useEffect(() => {
@@ -113,11 +129,13 @@ function ANotifications() {
     // Group by date
     const grouped = useMemo(() => {
         const groups = {};
-        currentList.forEach((n, i) => {
+        // Process items in reverse order so newer notifications (larger indexes) appear first
+        for (let i = currentList.length - 1; i >= 0; i--) {
+            const n = currentList[i];
             const key = getDateGroup(n.createdAt);
             if (!groups[key]) groups[key] = [];
             groups[key].push({ ...n, _idx: i });
-        });
+        }
         const order = ['Today', 'Yesterday', 'This Week', 'Older'];
         return order.filter(k => groups[k]).map(k => ({ label: k, items: groups[k] }));
     }, [currentList]);
@@ -132,7 +150,9 @@ function ANotifications() {
                         <div className="ntf-bell-wrapper">
                             <FaBell className="ntf-bell-icon" />
                             {unseenNotifications.length > 0 && (
-                                <span className="ntf-badge">{unseenNotifications.length}</span>
+                                <span className="ntf-badge">
+                                    {unseenNotifications.length > 99   ? '99+' : unseenNotifications.length}
+                                </span>
                             )}
                         </div>
                         <div>
@@ -146,11 +166,6 @@ function ANotifications() {
                         </div>
                     </div>
                     <div className="ntf-header-actions">
-                        {unseenNotifications.length > 0 && (
-                            <button className="ntf-btn ntf-btn-mark" onClick={handleMarkAllAsSeen} disabled={actionLoading}>
-                                <FaEye /> Mark All Read
-                            </button>
-                        )}
                         {totalCount > 0 && (
                             <button className="ntf-btn ntf-btn-clear" onClick={handleClearAll} disabled={actionLoading}>
                                 <FaTrash /> Clear All

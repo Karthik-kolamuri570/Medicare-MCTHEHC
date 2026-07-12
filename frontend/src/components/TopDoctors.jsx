@@ -45,117 +45,145 @@ const isAvailable = (from, to) => {
 /* ── Sub-component: Skeleton card ─────────────────── */
 function SkeletonCard() {
   return (
-    <div className="td-skeleton-card">
-      <div className="td-sk td-sk-img" />
-      <div className="td-sk-body">
-        <div className="td-sk td-sk-line td-sk-short" />
-        <div className="td-sk td-sk-line td-sk-med" />
-        <div className="td-sk td-sk-line td-sk-long" />
-        <div className="td-sk td-sk-btn" />
+    <div className="td-card-horizontal td-skeleton-card">
+      <div className="td-card-img-side td-sk td-sk-img" />
+      <div className="td-card-info-side" style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div className="td-sk td-sk-line" style={{ width: '80px', height: '18px' }} />
+          <div className="td-sk td-sk-line" style={{ width: '50px', height: '18px' }} />
+        </div>
+        <div className="td-sk td-sk-line" style={{ width: '150px', height: '22px', margin: '4px 0' }} />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginTop: '6px' }}>
+          <div className="td-sk td-sk-line" style={{ height: '14px' }} />
+          <div className="td-sk td-sk-line" style={{ height: '14px' }} />
+          <div className="td-sk td-sk-line" style={{ gridColumn: 'span 2', height: '14px' }} />
+          <div className="td-sk td-sk-line" style={{ gridColumn: 'span 2', height: '14px' }} />
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '10px' }}>
+          <div>
+            <div className="td-sk td-sk-line" style={{ width: '60px', height: '10px', marginBottom: '4px' }} />
+            <div className="td-sk td-sk-line" style={{ width: '50px', height: '18px' }} />
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <div className="td-sk td-sk-line" style={{ width: '60px', height: '32px', borderRadius: '8px' }} />
+            <div className="td-sk td-sk-line" style={{ width: '70px', height: '32px', borderRadius: '8px' }} />
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-/* ── Sub-component: Doctor card (vertical) ────────── */
+const getSpecClass = (spec) => {
+  if (!spec) return 'td-spec-default';
+  const cleanSpec = spec.toLowerCase();
+  if (cleanSpec.includes('cardio')) return 'td-spec-cardio';
+  if (cleanSpec.includes('derm')) return 'td-spec-derm';
+  if (cleanSpec.includes('neuro')) return 'td-spec-neuro';
+  if (cleanSpec.includes('ortho')) return 'td-spec-ortho';
+  if (cleanSpec.includes('gyne')) return 'td-spec-gyne';
+  if (cleanSpec.includes('pediat')) return 'td-spec-pediat';
+  if (cleanSpec.includes('psych')) return 'td-spec-psych';
+  if (cleanSpec.includes('ent')) return 'td-spec-ent';
+  if (cleanSpec.includes('ophthal')) return 'td-spec-ophthal';
+  if (cleanSpec.includes('dent')) return 'td-spec-dent';
+  if (cleanSpec.includes('radio')) return 'td-spec-radio';
+  if (cleanSpec.includes('general') || cleanSpec.includes('physician') || cleanSpec.includes('medicine')) return 'td-spec-general';
+  return 'td-spec-default';
+};
+
 function DoctorCard({ doc, onProfile, onBook }) {
   const avail = isAvailable(doc.fromTime, doc.toTime);
   const emoji = SPEC_ICONS[doc.specialization] || '🩺';
   const rating = doc.rating ? doc.rating.toFixed(1) : null;
-  const starCount = Math.round(doc.rating || 0);
 
   return (
-    <div className="td-card" role="listitem">
-      {/* ── Image area ── */}
-      <div className="td-card-img-wrap">
+    <div className="td-card-horizontal" role="listitem">
+      {/* Left side: Image & Badges */}
+      <div className="td-card-img-side">
         <img
           src={doc.profileImage || defaultDoctorImage}
           alt={doc.name}
           className="td-card-img"
           onError={e => { e.target.src = defaultDoctorImage; }}
         />
+        <div className="td-card-img-overlay" />
+        
         {/* Availability pill */}
         <span className={`td-avail-pill ${avail ? 'td-avail-on' : 'td-avail-off'}`}>
           <span className="td-avail-dot" />
-          {avail ? 'Available' : 'Unavailable'}
+          {avail ? 'Available Today' : 'Unavailable'}
         </span>
-        {/* Verified badge */}
-        <span className="td-verified-badge" title="Admin verified">
-          <BadgeCheck size={14} />
-        </span>
+
         {/* Specialty emoji overlay */}
         <span className="td-emoji-badge">{emoji}</span>
       </div>
 
-      {/* ── Body ── */}
-      <div className="td-card-body">
-        {/* Rating row */}
-        <div className="td-card-rating-row">
-          <span className="td-stars">
-            {[1,2,3,4,5].map(i => (
-              <Star
-                key={i}
-                size={12}
-                fill={i <= starCount ? '#f59e0b' : 'none'}
-                color={i <= starCount ? '#f59e0b' : '#d1d5db'}
-                strokeWidth={1.5}
-              />
-            ))}
+      {/* Right side: Info and Actions */}
+      <div className="td-card-info-side">
+        {/* Top: Specialization & Rating */}
+        <div className="td-card-spec-rating-row">
+          <span className={`td-card-spec-badge ${getSpecClass(doc.specialization)}`}>
+            {doc.specialization || 'General'}
           </span>
-          <span className="td-rating-num">
-            {rating || 'New'}
-          </span>
-          {doc.totalRatings > 0 && (
-            <span className="td-rating-count">({doc.totalRatings})</span>
-          )}
+          <div className="td-rating-badge">
+            <Star size={11} fill="#f59e0b" color="#f59e0b" />
+            <span className="td-rating-num">{rating || 'New'}</span>
+            {doc.totalRatings > 0 && (
+              <span className="td-rating-count">({doc.totalRatings})</span>
+            )}
+          </div>
         </div>
 
-        {/* Name + specialty */}
-        <h3 className="td-card-name">{doc.name}</h3>
-        <p className="td-card-spec">{doc.specialization}</p>
+        {/* Doctor Name & Verified */}
+        <div className="td-card-name-row">
+          <h3 className="td-card-name" title={doc.name}>{doc.name}</h3>
+          <span className="td-verified-badge-inline" title="Admin verified">
+            <BadgeCheck size={16} fill="#2563eb" color="#fff" />
+          </span>
+        </div>
 
-        {/* Info chips */}
-        <div className="td-card-chips">
+        {/* Grid Info */}
+        <div className="td-card-info-grid">
           {doc.experience && (
-            <span className="td-chip td-chip-blue">
-              <Award size={11} /> {doc.experience}yr exp
-            </span>
+            <div className="td-grid-item">
+              <Award size={13} className="td-grid-icon blue" />
+              <span className="td-grid-text">{doc.experience}+ Years</span>
+            </div>
           )}
           {doc.location && (
-            <span className="td-chip td-chip-rose">
-              <MapPin size={11} /> {doc.location}
-            </span>
+            <div className="td-grid-item">
+              <MapPin size={13} className="td-grid-icon rose" />
+              <span className="td-grid-text">{doc.location}</span>
+            </div>
           )}
-        </div>
-
-        {/* Hospital */}
-        {doc.hospital && (
-          <div className="td-card-hospital">
-            <Building2 size={12} />
-            <span>{doc.hospital}</span>
+          {doc.hospital && (
+            <div className="td-grid-item td-grid-item-wide">
+              <Building2 size={13} className="td-grid-icon violet" />
+              <span className="td-grid-text" title={doc.hospital}>{doc.hospital}</span>
+            </div>
+          )}
+          <div className="td-grid-item td-grid-item-wide">
+            <Clock size={13} className="td-grid-icon indigo" />
+            <span className="td-grid-text">{doc.fromTime || '09:00'} – {doc.toTime || '17:00'}</span>
           </div>
-        )}
-
-        {/* Hours */}
-        <div className="td-card-hours">
-          <Clock size={12} />
-          <span>{doc.fromTime || '09:00'} – {doc.toTime || '17:00'}</span>
         </div>
-      </div>
 
-      {/* ── Footer ── */}
-      <div className="td-card-footer">
-        <div className="td-card-fee">
-          <span className="td-fee-label">Consultation</span>
-          <span className="td-fee-val">₹{doc.feePerConsultation || 500}</span>
-        </div>
-        <div className="td-card-actions-row">
-          <button className="td-profile-btn" onClick={() => onProfile(doc._id)}>
-            Profile
-          </button>
-          <button className="td-book-btn" onClick={() => onBook(doc._id)}>
-            Book <ArrowRight size={13} />
-          </button>
+        {/* Bottom actions and fee */}
+        <div className="td-card-footer-side">
+          <div className="td-card-fee">
+            <span className="td-fee-label">Consultation Fee</span>
+            <span className="td-fee-val">₹{doc.feePerConsultation || 500}</span>
+          </div>
+          <div className="td-card-actions-row">
+            <button className="td-profile-btn" onClick={() => onProfile(doc._id)}>
+              Profile
+            </button>
+            <button className="td-book-btn" onClick={() => onBook(doc._id)}>
+              <span>Book</span>
+              <ArrowRight size={14} className="td-book-arrow" />
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -468,259 +468,159 @@ const ChatApp = () => {
   return (
     <>
       <style>{`
-        body, html {
-          margin: 0 !important;
-          padding: 0 !important;
-          height: 100vh !important;
-          overflow: hidden !important;
-          background: #fafafa;
-          transition: background-color 0.3s ease;
-        }
+        /* ── Chat page: no body/html overrides, compatible with global zoom ── */
+
         .str-chat {
-          height: 100vh !important;
-          width: 100vw !important;
+          height: 100% !important;
+          width: 100% !important;
+          flex: 1 !important;
+          min-height: 0 !important;
+          display: flex !important;
+          flex-direction: column !important;
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-          position: fixed !important;
-          top: 0 !important;
-          left: 0 !important;
-          background: #ece5dd;
-          transition: background-color 0.3s ease;
+          background: #ece5dd !important;
         }
         .str-chat-channel {
-          height: 100vh !important;
-          width: 100vw !important;
+          flex: 1 !important;
+          min-height: 0 !important;
+          height: 100% !important;
+          width: 100% !important;
           display: flex !important;
           flex-direction: column !important;
         }
         .str-chat__container {
-          height: 100vh !important;
-          width: 100vw !important;
+          flex: 1 !important;
+          min-height: 0 !important;
+          height: 100% !important;
+          width: 100% !important;
           display: flex !important;
           flex-direction: column !important;
         }
         .str-chat__list {
           flex: 1 !important;
-          background: #e5ddd5 !important;
-          padding: 20px !important;
-          overflow-y: auto !important;
           min-height: 0 !important;
-          padding-bottom: 80px !important;
+          overflow-y: auto !important;
+          background: #e5ddd5 !important;
+          padding: 16px 20px !important;
           scrollbar-width: thin;
           scrollbar-color: #128c7e transparent;
-          transition: background-color 0.3s ease;
         }
-        .str-chat__list::-webkit-scrollbar {
-          width: 8px;
-        }
-        .str-chat__list::-webkit-scrollbar-thumb {
-          background-color: #128c7e;
-          border-radius: 10px;
-        }
-        .str-chat__list:hover::-webkit-scrollbar-thumb {
-          background-color: #075e54;
-        }
-        .str-chat__message-simple__text {
-          background: #dcf8c6 !important;
-          color: #000 !important;
-          border-radius: 8px !important;
-          padding: 8px 12px !important;
-          box-shadow: 0 1px 0.5px rgba(0,0,0,0.13) !important;
-          max-width: 80% !important;
-          transition: background-color 0.25s ease, transform 0.15s ease;
-          cursor: pointer;
-        }
-        .str-chat__message-simple__text:hover {
-          background-color: #c1e1a6 !important;
-          transform: scale(1.03);
-          box-shadow: 0 4px 12px rgba(0, 140, 118, 0.3);
-        }
-        .str-chat__message-simple:not(.str-chat__message-simple--me) .str-chat__message-simple__text {
-          background: #ffffff !important;
-          transition: background-color 0.25s ease;
-        }
-        .str-chat__message-simple:not(.str-chat__message-simple--me) .str-chat__message-simple__text:hover {
-          background-color: #dcf8c6 !important;
-        }
+        .str-chat__list::-webkit-scrollbar { width: 6px; }
+        .str-chat__list::-webkit-scrollbar-thumb { background-color: #128c7e; border-radius: 10px; }
+        .str-chat__list:hover::-webkit-scrollbar-thumb { background-color: #075e54; }
+
         .str-chat__input {
-          position: fixed !important;
-          bottom: 0 !important;
-          left: 0 !important;
-          right: 0 !important;
-          width: 100vw !important;
+          flex-shrink: 0 !important;
+          position: relative !important;
+          width: 100% !important;
           background: #f0f0f0 !important;
-          border-top: 1px solid #e0e0e0 !important;
-          padding: 15px 20px !important;
-          z-index: 1000 !important;
+          border-top: 1px solid #ddd !important;
+          padding: 12px 16px !important;
           box-sizing: border-box !important;
-          transition: background-color 0.3s ease, box-shadow 0.3s ease;
+          z-index: 10 !important;
         }
         .str-chat__input:focus-within {
-          background-color: #ffffff !important;
-          box-shadow: 0 0 8px 2px #25d366aa;
+          background-color: #fff !important;
+          box-shadow: 0 -2px 8px rgba(37,211,102,0.12) !important;
         }
         .str-chat__input-flat {
           background: white !important;
-          border: 1px solid #e0e0e0 !important;
-          border-radius: 25px !important;
-          padding: 12px 16px !important;
+          border: 1.5px solid #e0e0e0 !important;
+          border-radius: 24px !important;
+          padding: 10px 16px !important;
           font-size: 14px !important;
           width: 100% !important;
           box-sizing: border-box !important;
-          transition: border-color 0.3s ease;
+          transition: border-color 0.2s;
         }
         .str-chat__input-flat:focus {
           outline: none !important;
           border-color: #25d366 !important;
-          box-shadow: 0 0 5px #25d366aa;
+          box-shadow: 0 0 0 3px rgba(37,211,102,0.15) !important;
         }
+
+        .str-chat__message-simple__text {
+          background: #dcf8c6 !important;
+          color: #111 !important;
+          border-radius: 8px !important;
+          padding: 8px 12px !important;
+          box-shadow: 0 1px 1px rgba(0,0,0,0.1) !important;
+          max-width: 80% !important;
+        }
+        .str-chat__message-simple:not(.str-chat__message-simple--me) .str-chat__message-simple__text {
+          background: #ffffff !important;
+        }
+
         .video-call-btn {
-          background: none;
-          border: none;
-          color: white;
-          cursor: pointer;
-          font-size: 22px;
-          padding: 8px;
-          border-radius: 50%;
-          transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+          background: none; border: none; color: white;
+          cursor: pointer; font-size: 22px; padding: 8px;
+          border-radius: 50%; transition: background 0.2s, transform 0.15s;
         }
-        .video-call-btn:hover {
-          background: rgba(255,255,255,0.15);
-          transform: scale(1.1);
-          box-shadow: 0 0 8px 2px rgba(37, 211, 102, 0.7);
+        .video-call-btn:hover { background: rgba(255,255,255,0.15); transform: scale(1.1); }
+        .video-call-btn:active { transform: scale(0.95); }
+
+        .chat-role-badge {
+          display: inline-block; padding: 2px 8px; border-radius: 12px;
+          color: white; font-weight: 700; font-size: 11px; margin-left: 6px; user-select: none;
         }
-        .video-call-btn:active {
-          transform: scale(0.95);
-          box-shadow: none;
-        }
-        .user-role-badge {
-          display: inline-block;
-          padding: 2px 8px;
-          border-radius: 12px;
-          color: white;
-          font-weight: 600;
-          font-size: 12px;
-          cursor: default;
-          animation: pulse 3s infinite ease-in-out;
-          user-select: none;
-          transition: background-color 0.3s ease;
-        }
-        .user-role-badge.doctor {
-          background-color: #128c7e;
-        }
-        .user-role-badge.patient {
-          background-color: #25d366;
-        }
-        .user-role-badge:hover {
-          animation-play-state: paused;
-          filter: brightness(1.2);
-        }
-        @keyframes pulse {
-          0%, 100% {
-            opacity: 1;
-          }
-          50% {
-            opacity: 0.7;
-          }
-        }
+        .chat-role-badge.doctor { background: #128c7e; }
+        .chat-role-badge.patient { background: #25d366; }
       `}</style>
 
+      {/* Full-viewport flex column — compensates for #root zoom: 0.90 */}
       <div style={{
-        height: "100vh",
-        width: "100vw",
-        display: "flex",
-        flexDirection: "column",
-        position: "fixed",
-        top: 0,
-        left: 0,
-        overflow: "hidden"
+        height: "calc(100vh / 0.90)",
+        width: "100%",
+        display: "flex", flexDirection: "column",
+        overflow: "hidden", background: "#ece5dd"
       }}>
-        {/* Header */}
-        <div
-          style={{
-            background: "#075e54",
-            color: "white",
-            padding: "12px 16px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            minHeight: "64px",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.12)",
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            zIndex: 999,
-            width: "100vw",
-            boxSizing: "border-box",
-          }}
-        >
+
+        {/* Header — fixed height, flexShrink:0 keeps it at top */}
+        <div style={{
+          flexShrink: 0, width: "100%", boxSizing: "border-box",
+          background: "#075e54", color: "white",
+          padding: "10px 16px", minHeight: "60px",
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
+        }}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <div
-              style={{
-                width: "40px",
-                height: "40px",
-                borderRadius: "50%",
-                background: userRole === 'doctor' ? "#25d366" : "#128c7e",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "18px",
-                fontWeight: "bold",
-                transition: "background-color 0.3s ease",
-                userSelect: "none"
-              }}
-              title={userRole === 'doctor' ? 'Doctor' : 'Patient'}
-            >
-              {userRole === 'doctor' ? '👨‍⚕️' : '🤒'}
+            <div style={{
+              width: "40px", height: "40px", borderRadius: "50%", flexShrink: 0,
+              background: userRole === "doctor" ? "#25d366" : "#128c7e",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: "20px", userSelect: "none",
+            }}>
+              {userRole === "doctor" ? "👨‍⚕️" : "🤒"}
             </div>
             <div>
-              <div style={{ fontWeight: "500", fontSize: "16px" }}>
-                {userRole === 'doctor' ? 'Patient Chat' : 'Doctor Chat'}
+              <div style={{ fontWeight: "600", fontSize: "15px", lineHeight: 1.2 }}>
+                {userRole === "doctor" ? "Patient Chat" : "Doctor Chat"}
               </div>
-              <div style={{ fontSize: "13px", opacity: 0.8 }}>
+              <div style={{ fontSize: "12px", opacity: 0.8, display: "flex", alignItems: "center", marginTop: "2px" }}>
                 {onlineMembers > 0 ? "online" : "last seen recently"}
-                <span
-                  className={`user-role-badge ${userRole === 'doctor' ? 'doctor' : 'patient'}`}
-                  style={{ marginLeft: "8px" }}
-                >
-                  {userRole === 'doctor' ? 'DOCTOR' : 'PATIENT'}
+                <span className={`chat-role-badge ${userRole === "doctor" ? "doctor" : "patient"}`}>
+                  {userRole === "doctor" ? "DOCTOR" : "PATIENT"}
                 </span>
               </div>
             </div>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-            {userRole === 'doctor' && (
-              <button
-                className="video-call-btn"
-                onClick={handleVideoCall}
-                title="Start Video Call (Doctor Only)"
-              >
-                📹
-              </button>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            {userRole === "doctor" && (
+              <button className="video-call-btn" onClick={handleVideoCall} title="Start Video Call">📹</button>
             )}
-
-            {userRole === 'patient' && (
-              <div style={{
-                fontSize: "12px",
-                opacity: 0.7,
-                fontStyle: "italic",
-                textAlign: "right",
-                lineHeight: "1.2",
-              }}>
+            {userRole === "patient" && (
+              <div style={{ fontSize: "11px", opacity: 0.65, fontStyle: "italic", textAlign: "right", lineHeight: 1.3 }}>
                 Doctor can start<br />video calls
               </div>
             )}
           </div>
         </div>
 
-        {/* Chat Container */}
+        {/* Chat area — flex:1 + minHeight:0 fills all remaining space */}
         <div style={{
-          marginTop: "76px",
-          marginBottom: "70px",
-          height: "calc(100vh - 146px)",
-          display: "flex",
-          flexDirection: "column"
+          flex: 1, minHeight: 0,
+          display: "flex", flexDirection: "column", overflow: "hidden",
         }}>
           <Chat client={chatClient} theme="messaging light">
             <Channel channel={activeChannel}>

@@ -119,6 +119,9 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    zoom: 0.90; /* Global scale reduction — makes every page 10% smaller */
+  }
   body {
     @apply bg-background text-foreground;
   }
