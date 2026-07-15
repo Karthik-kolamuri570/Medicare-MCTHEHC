@@ -76,6 +76,14 @@ const doctorSchema = new Schema({
         type: String,
         required: [true, "Please provide your to time"],
     },
+    blockedDates: {
+        type: [String],
+        default: []
+    },
+    blockedSlots: [{
+        date: { type: String, required: true },
+        startTime: { type: String, required: true }
+    }],
     status: {
         type: String,
         default: "pending",

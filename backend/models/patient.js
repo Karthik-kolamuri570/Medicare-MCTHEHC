@@ -72,7 +72,13 @@ const patientSchema = new Schema({
     profileImage: {
         type: String,
         default: null
-    }
+    },
+    medicalRecords: [{
+        title: { type: String, required: true },
+        fileUrl: { type: String, required: true },
+        fileType: { type: String },
+        uploadedAt: { type: Date, default: Date.now }
+    }]
 
 })
 

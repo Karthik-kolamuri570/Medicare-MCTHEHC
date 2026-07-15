@@ -1,8 +1,7 @@
 
 import React, { useEffect } from "react";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import "react-toastify/dist/ReactToastify.css";
 import "../styles/Payment.css"; // Shared styles
 import { CheckCircle, Home, Calendar } from "lucide-react";
 
@@ -16,6 +15,10 @@ const PaymentSuccess = () => {
       toast.error("Session ID missing.");
       return navigate("/");
     }
+    toast.success("Appointment Booked successfully!", {
+      duration: 5000,
+      icon: '🎉',
+    });
   }, [navigate, searchParams]);
 
   return (

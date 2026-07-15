@@ -314,6 +314,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import logo from "../../assets/logo.png"; // keep your original path
 import ContactModal from "../ContactModal";
 import socket, { connectSocket, disconnectSocket } from "../../utils/socket";
+import toast from "react-hot-toast";
 
 const searchData = [
   {
@@ -504,6 +505,19 @@ function Header() {
       
       const handleNewNotification = (data) => {
         setNotifCount(data.count);
+        if (data.notification && data.notification.message) {
+          toast.success(data.notification.message, {
+            duration: 5000,
+            icon: '🔔',
+            style: {
+              background: '#0f172a',
+              color: '#fff',
+              borderRadius: '12px',
+              fontWeight: '500',
+              border: '1px solid #334155'
+            }
+          });
+        }
       };
 
       socket.on('newNotification', handleNewNotification);

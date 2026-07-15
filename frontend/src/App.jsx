@@ -18,6 +18,7 @@ import DAppointments from "./components/Doctor.forms/DAppointments";
 import DOnlineConsultation from "./components/Doctor.forms/DOnlineConsultation";
 import DNotifications from "./components/Doctor.forms/DNotifications";
 import DAnalytics from "./components/Doctor.forms/DAnalytics";
+import DScheduler from "./components/Doctor.forms/DScheduler";
 import PrescriptionForm from "./components/Doctor.forms/PrescriptionForm";
 import MyPrescriptions from "./components/Patient.forms/MyPrescriptions";
 import LogoutPatient from "./components/forms/LogoutPatient";
@@ -140,6 +141,7 @@ function App() {
         <Route path="/doctor" element={<ProtectedDoctorRoute><DLayout><DoctorDashboard /></DLayout></ProtectedDoctorRoute>} />
         <Route path="/doctor/my-appointments" element={<ProtectedDoctorRoute><DLayout><DAppointments /></DLayout></ProtectedDoctorRoute>} />
         <Route path="/doctor/my-consultations" element={<ProtectedDoctorRoute><DLayout><DOnlineConsultation /></DLayout></ProtectedDoctorRoute>} />
+        <Route path="/doctor/scheduler" element={<ProtectedDoctorRoute><DLayout><DScheduler /></DLayout></ProtectedDoctorRoute>} />
         <Route path="/doctor/second-opinion" element={<ProtectedDoctorRoute><DLayout><DSecondOpinions /></DLayout></ProtectedDoctorRoute>} />
         <Route path="/my-blogs" element={<ProtectedDoctorRoute><DLayout><DBlogs /></DLayout></ProtectedDoctorRoute>} />
         <Route path="/doctor/notifications" element={<ProtectedDoctorRoute><DLayout><DNotifications /></DLayout></ProtectedDoctorRoute>} />

@@ -228,7 +228,7 @@ mongoose.connect(process.env.MONGO_URI)
         console.log(`Server is running on PORT: ${PORT}`);
       });
       // Start the appointment reminder scheduler
-      startReminderScheduler();
+      startReminderScheduler(io);
     }
     console.log("Data Base is connected... ");
   })

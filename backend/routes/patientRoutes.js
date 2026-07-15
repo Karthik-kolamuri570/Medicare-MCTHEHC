@@ -30,10 +30,15 @@ const { uploadFiles, getSecondOpinion, uploadProfile, updateProfileImage } = req
 router.put('/profile-image', auth.patientAuth, uploadProfile, updateProfileImage);
 router.get('/get-second-opinion', auth.patientAuth, patientController.getAllSecondOpinions);
 router.post('/get-second-opinion', auth.patientAuth, uploadFiles, getSecondOpinion);
-router.get('/logout', auth.patientAuth, patientController.logoutPatient)
+router.get('/logout', auth.patientAuth, patientController.logoutPatient);
 router.get("/verify-auth", auth.patientAuth, (req, res) => {
     res.json({ message: "Authenticated", user: { id: req.user._id, name: req.user.name, email: req.user.email } });
 });
+
+// Medical records vault
+router.post('/medical-records', auth.patientAuth, uploadFiles, patientController.uploadMedicalRecords);
+router.get('/medical-records', auth.patientAuth, patientController.getMedicalRecords);
+router.delete('/medical-records/:recordId', auth.patientAuth, patientController.deleteMedicalRecord);
 
 // Review routes
 const reviewController = require('../controller/reviewController');

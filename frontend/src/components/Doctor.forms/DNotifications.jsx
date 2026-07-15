@@ -119,6 +119,47 @@ function DNotifications() {
         finally { setActionLoading(false); }
     };
 
+    const handleDirectAction = async (notification, action) => {
+        const type = notification.type;
+        const id = notification.data?.appointmentId || notification.data?.secondOpinionId || notification.data?.requestId || notification.data?.id;
+
+        if (!id) {
+            toast.error("Could not find the target request ID.");
+            return;
+        }
+
+        setActionLoading(true);
+        try {
+            if (type === 'new-second-opinion' || type.startsWith('second-opinion-')) {
+                const res = await api.put(`/api/doctor/get-second-opinion/${id}`, {
+                    status: action === 'accept' ? 'accepted' : 'rejected'
+                });
+                if (res.data) {
+                    toast.success(`Second opinion request ${action}ed successfully!`, { icon: '🤝' });
+                    // Silent delete this notification since it is now processed
+                    await api.post('/api/doctor/notifications/delete', { index: notification._idx, type: activeTab });
+                    fetchNotifications();
+                }
+            } else if (type === 'new-appointment' || type.startsWith('appointment-')) {
+                const endpoint = action === 'accept'
+                    ? `/api/doctor/accept-appointment/${id}`
+                    : `/api/doctor/reject-appointment/${id}`;
+                const res = await api.put(endpoint);
+                if (res.data) {
+                    toast.success(`Appointment ${action}ed successfully!`, { icon: '📅' });
+                    // Silent delete this notification since it is now processed
+                    await api.post('/api/doctor/notifications/delete', { index: notification._idx, type: activeTab });
+                    fetchNotifications();
+                }
+            }
+        } catch (err) {
+            console.error("Error performing direct action on notification:", err);
+            toast.error(err.response?.data?.message || `Failed to ${action} request.`);
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
     const currentList = activeTab === 'unseen' ? unseenNotifications : seenNotifications;
     const totalCount = unseenNotifications.length + seenNotifications.length;
 
@@ -181,18 +222,7 @@ function DNotifications() {
 
                     <div className="ntf-list">
                         {loading ? (
-                            <>
-                                {[1, 2, 3].map((i) => (
-                                    <div key={i} className="ntf-sk-item">
-                                        <div className="ntf-sk-icon ntf-sk-anim"></div>
-                                        <div className="ntf-sk-body">
-                                            <div className="ntf-sk-line ntf-sk-short ntf-sk-anim"></div>
-                                            <div className="ntf-sk-line ntf-sk-long ntf-sk-anim"></div>
-                                            <div className="ntf-sk-line ntf-sk-med ntf-sk-anim"></div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </>
+                            <></>
                         ) : currentList.length === 0 ? (
                             <div className="ntf-empty">
                                 <FaBell className="ntf-empty-icon" />
@@ -235,6 +265,69 @@ function DNotifications() {
                                                             <span className="ntf-meta-tag"><FaClock /> {notification.data.time}</span>
                                                         )}
                                                     </div>
+                                                    {notification.data?.problem && (
+                                                         <div className="ntf-problem-box" style={{ 
+                                                             marginTop: '8px', 
+                                                             padding: '8px 12px', 
+                                                             background: '#f8fafc', 
+                                                             borderRadius: '6px', 
+                                                             borderLeft: '3px solid #3b82f6',
+                                                             fontSize: '0.85rem',
+                                                             color: '#475569'
+                                                         }}>
+                                                             <strong>Reason/Problem:</strong> {notification.data.problem}
+                                                         </div>
+                                                     )}
+                                                    {(notification.type === 'new-appointment' || notification.type === 'new-second-opinion') && (
+                                                        <div className="ntf-item-actions" style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                                                            <button
+                                                                className="ntf-action-btn ntf-accept-btn"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleDirectAction(notification, 'accept');
+                                                                }}
+                                                                disabled={actionLoading}
+                                                                style={{
+                                                                    padding: '6px 12px',
+                                                                    background: '#10b981',
+                                                                    color: 'white',
+                                                                    border: 'none',
+                                                                    borderRadius: '6px',
+                                                                    fontSize: '0.8rem',
+                                                                    fontWeight: '600',
+                                                                    cursor: 'pointer',
+                                                                    display: 'flex',
+                                                                    alignItems: 'center',
+                                                                    gap: '4px'
+                                                                }}
+                                                            >
+                                                                Accept
+                                                            </button>
+                                                            <button
+                                                                className="ntf-action-btn ntf-reject-btn"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleDirectAction(notification, 'reject');
+                                                                }}
+                                                                disabled={actionLoading}
+                                                                style={{
+                                                                    padding: '6px 12px',
+                                                                    background: '#fee2e2',
+                                                                    color: '#ef4444',
+                                                                    border: 'none',
+                                                                    borderRadius: '6px',
+                                                                    fontSize: '0.8rem',
+                                                                    fontWeight: '600',
+                                                                    cursor: 'pointer',
+                                                                    display: 'flex',
+                                                                    alignItems: 'center',
+                                                                    gap: '4px'
+                                                                }}
+                                                            >
+                                                                Reject
+                                                            </button>
+                                                        </div>
+                                                    )}
                                                 </div>
                                                 <button
                                                     className="ntf-item-delete"

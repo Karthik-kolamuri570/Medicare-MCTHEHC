@@ -205,6 +205,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import logo from '../../assets/logo.png'; // make sure this path is correct
 import socket, { connectSocket, disconnectSocket } from "../../utils/socket";
+import toast from "react-hot-toast";
 
 const searchData = [
   {
@@ -383,6 +384,19 @@ function DHeader() {
       
       const handleNewNotification = (data) => {
         setNotifCount(data.count);
+        if (data.notification && data.notification.message) {
+          toast.success(data.notification.message, {
+            duration: 5000,
+            icon: '🔔',
+            style: {
+              background: '#0f172a',
+              color: '#fff',
+              borderRadius: '12px',
+              fontWeight: '500',
+              border: '1px solid #334155'
+            }
+          });
+        }
       };
 
       socket.on('newNotification', handleNewNotification);
@@ -424,6 +438,7 @@ function DHeader() {
             )}
             <li onClick={() => { navigate("/doctor/my-appointments"); setIsMobileMenuOpen(false); }}>My Appointments</li>
             <li onClick={() => { navigate("/doctor/my-consultations"); setIsMobileMenuOpen(false); }}>My Consultations</li>
+            <li onClick={() => { navigate("/doctor/scheduler"); setIsMobileMenuOpen(false); }}>📅 Availability Scheduler</li>
             <li onClick={() => { navigate("/doctor/doc/blogs"); setIsMobileMenuOpen(false); }}>My Blogs</li>
             <li onClick={() => { navigate("/doctor/blood-camp/admin"); setIsMobileMenuOpen(false); }}>Blood Camp</li>
             <li onClick={() => { navigate("/doctor/analytics"); setIsMobileMenuOpen(false); }}>📊 Analytics</li>

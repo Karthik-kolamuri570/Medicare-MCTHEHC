@@ -262,30 +262,7 @@ exports.bookAppointment = async (req, res) => {
             time
         });
 
-        //sending notification to doctor
-        const notification = createNotification('new-appointment', `New appointment request from ${patient.name}`, {
-            patientId: patient._id, patientName: patient.name, date, time
-        });
 
-        await Doctor.findByIdAndUpdate(doctorId, {
-            $push: { unseenNotifications: notification }
-        });
-
-        // Emit Socket Notification
-        emitNotification(req.app.get('socketio'), doctorId, 'doctor');
-
-        //sending nootifiaction to patient for confirmation
-        const patientNotification = createNotification('appointment-booked', `Appointment booked successfully with Dr. ${doctor.name}`, {
-            doctorId: doctor._id, doctorName: doctor.name, date, time
-        });
-        await Patient.findByIdAndUpdate(patientId, {
-            $push: { unseenNotifications: patientNotification }
-        });
-
-        // Emit Socket Notifications
-        const io = req.app.get('socketio');
-        emitNotification(io, doctorId, 'doctor');
-        emitNotification(io, patientId, 'patient');
 
         // Send Email Confirmation
         const emailDetails = {
@@ -333,7 +310,7 @@ exports.getPatientAppointments = async (req, res) => {
             });
         }
 
-        const appointments = await Appointment.find({ patientId: patientId }).populate('doctorId', 'name specialization profileImage');
+        const appointments = await Appointment.find({ patientId: patientId, paymentStatus: 'Paid' }).populate('doctorId', 'name specialization profileImage');
         console.log("Fetched Appointments:", appointments);
 
         if (!appointments || appointments.length === 0) {
@@ -646,26 +623,7 @@ exports.getSecondOpinion = async (req, res) => {
             time,
         });
 
-        //sending notification to doctor
-        const notification = createNotification('new-second-opinion', `New second opinion request from ${patient.name}`, {
-            patientId: patient._id, patientName: patient.name, date, time
-        });
 
-        await Doctor.findByIdAndUpdate(doctorId, {
-            $push: { unseenNotifications: notification }
-        });
-
-        const patientNotification = createNotification('second-opinion-requested', `Second opinion request submitted successfully`, {
-            doctorId: doctor._id, doctorName: doctor.name
-        });
-        await Patient.findByIdAndUpdate(userId, {
-            $push: { unseenNotifications: patientNotification }
-        });
-
-        // Emit Socket Notifications
-        const io = req.app.get('socketio');
-        emitNotification(io, doctorId, 'doctor');
-        emitNotification(io, userId, 'patient');
 
         res.status(201).json({ success: true, message: "Second opinion request created", data: newSecondOpinion });
 
@@ -1021,5 +979,115 @@ exports.rescheduleSecondOpinion = async (req, res) => {
     } catch (error) {
         console.error('Reschedule second opinion error:', error);
         return res.status(500).json({ success: false, message: 'Failed to reschedule second opinion.' });
+    }
+};
+
+// Upload medical records
+exports.uploadMedicalRecords = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).json({ success: false, message: "No files uploaded." });
+        }
+
+        const patient = await Patient.findById(userId);
+        if (!patient) {
+            return res.status(404).json({ success: false, message: "Patient not found." });
+        }
+
+        const newRecords = req.files.map((file) => {
+            return {
+                title: file.originalname,
+                fileUrl: file.key || file.location,
+                fileType: file.mimetype,
+                uploadedAt: new Date()
+            };
+        });
+
+        patient.medicalRecords.push(...newRecords);
+        await patient.save();
+
+        const uploadedWithUrls = await Promise.all(newRecords.map(async (record) => {
+            const url = await generatePresignedUrl(record.fileUrl);
+            return { ...record, fileUrl: url };
+        }));
+
+        return res.status(201).json({
+            success: true,
+            message: "Medical records uploaded successfully",
+            data: uploadedWithUrls
+        });
+    } catch (err) {
+        console.error("Error uploading medical records:", err);
+        return res.status(500).json({ success: false, message: "Server error during upload." });
+    }
+};
+
+// Get medical records
+exports.getMedicalRecords = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const patient = await Patient.findById(userId);
+        if (!patient) {
+            return res.status(404).json({ success: false, message: "Patient not found." });
+        }
+
+        const records = await Promise.all(patient.medicalRecords.map(async (rec) => {
+            const recObj = rec.toObject();
+            if (recObj.fileUrl) {
+                recObj.fileUrl = await generatePresignedUrl(recObj.fileUrl);
+            }
+            return recObj;
+        }));
+
+        return res.json({ success: true, data: records });
+    } catch (err) {
+        console.error("Error fetching medical records:", err);
+        return res.status(500).json({ success: false, message: "Server error." });
+    }
+};
+
+// Delete medical record
+exports.deleteMedicalRecord = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const { recordId } = req.params;
+
+        const patient = await Patient.findById(userId);
+        if (!patient) {
+            return res.status(404).json({ success: false, message: "Patient not found." });
+        }
+
+        patient.medicalRecords = patient.medicalRecords.filter(rec => rec._id.toString() !== recordId);
+        await patient.save();
+
+        return res.json({ success: true, message: "Medical record deleted successfully" });
+    } catch (err) {
+        console.error("Error deleting medical record:", err);
+        return res.status(500).json({ success: false, message: "Server error." });
+    }
+};
+
+// Get specific patient medical records (for Doctor)
+exports.getPatientMedicalRecordsForDoctor = async (req, res) => {
+    try {
+        const { patientId } = req.params;
+        const patient = await Patient.findById(patientId);
+        if (!patient) {
+            return res.status(404).json({ success: false, message: "Patient not found." });
+        }
+
+        const records = await Promise.all(patient.medicalRecords.map(async (rec) => {
+            const recObj = rec.toObject();
+            if (recObj.fileUrl) {
+                recObj.fileUrl = await generatePresignedUrl(recObj.fileUrl);
+            }
+            return recObj;
+        }));
+
+        return res.json({ success: true, data: records });
+    } catch (err) {
+        console.error("Error fetching patient medical records for doctor:", err);
+        return res.status(500).json({ success: false, message: "Server error." });
     }
 };

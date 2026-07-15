@@ -1033,6 +1033,31 @@ function DAppointments() {
   const [filter, setFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCard, setSelectedCard] = useState(null);
+  const [vaultModal, setVaultModal] = useState({ open: false, patient: null });
+  const [patientRecords, setPatientRecords] = useState([]);
+  const [recordsLoading, setRecordsLoading] = useState(false);
+
+  const openPatientVaultModal = async (patient) => {
+    if (!patient) return;
+    setVaultModal({ open: true, patient });
+    setRecordsLoading(true);
+    try {
+      const res = await api.get(`/api/doctor/patient-medical-records/${patient._id}`);
+      if (res.data.success) {
+        setPatientRecords(res.data.data);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load patient's medical records");
+    } finally {
+      setRecordsLoading(false);
+    }
+  };
+
+  const closeVaultModal = () => {
+    setVaultModal({ open: false, patient: null });
+    setPatientRecords([]);
+  };
 
   // --- Helper Functions ---
 
@@ -1082,13 +1107,25 @@ function DAppointments() {
   const fetchAppointments = async () => {
     setLoading(true);
     try {
-      const response = await api.get("/api/doctor/appointments/");
-      if (response.data.success) {
-        setAppointments(response.data.data);
+      const [apptsRes, secRes] = await Promise.allSettled([
+        api.get("/api/doctor/appointments/"),
+        api.get("/api/doctor/get-second-opinion")
+      ]);
+
+      let apptsList = [];
+      let secList = [];
+
+      if (apptsRes.status === 'fulfilled' && apptsRes.value.data.success) {
+        apptsList = apptsRes.value.data.data.map(item => ({ ...item, isSecondOpinion: false }));
       }
+      if (secRes.status === 'fulfilled' && secRes.value.data.success) {
+        secList = secRes.value.data.data.map(item => ({ ...item, isSecondOpinion: true }));
+      }
+
+      setAppointments([...apptsList, ...secList]);
     } catch (error) {
-      console.error("Error fetching appointments:", error);
-      toast.error("Failed to load appointments");
+      console.error("Error fetching appointments and second opinions:", error);
+      toast.error("Failed to load records");
     } finally {
       setLoading(false);
     }
@@ -1098,36 +1135,52 @@ function DAppointments() {
     fetchAppointments();
   }, []);
 
-  const handleStatusUpdate = async (id, action) => {
-    const endpoint = action === 'accept' 
-      ? `/api/doctor/accept-appointment/${id}` 
-      : `/api/doctor/reject-appointment/${id}`;
-    
+  const handleStatusUpdate = async (id, action, isSecondOpinion = false) => {
     try {
-      const response = await api.put(endpoint);
+      let response;
+      if (isSecondOpinion) {
+        const statusValue = action === 'accept' ? 'Accepted' : 'Rejected';
+        response = await api.put(`/api/doctor/get-second-opinion/${id}`, { status: statusValue });
+      } else {
+        const endpoint = action === 'accept' 
+          ? `/api/doctor/accept-appointment/${id}` 
+          : `/api/doctor/reject-appointment/${id}`;
+        response = await api.put(endpoint);
+      }
+      
       if (response.data.success) {
         const updated = response.data.data;
         setAppointments((prev) =>
-          prev.map((appt) => (appt._id === updated._id ? { ...appt, status: updated.status } : appt))
+          prev.map((appt) => {
+            if (appt._id === id) {
+              return { ...appt, status: updated.status };
+            }
+            return appt;
+          })
         );
-        toast.success(`Appointment ${action}ed successfully!`);
+        toast.success(`${isSecondOpinion ? 'Second Opinion' : 'Appointment'} ${action}ed successfully!`);
       }
     } catch (error) {
-      console.error(`Error ${action}ing appointment:`, error);
-      toast.error(`Failed to ${action} appointment`);
+      console.error(`Error ${action}ing record:`, error);
+      toast.error(`Failed to ${action}`);
     }
   };
 
   // --- Filtering & Sorting ---
 
   const filteredAppointments = appointments.filter((appt) => {
-    const status = normalizeStatus(appt.status);
     const isFuture = isPresentOrFuture(appt.date, appt.time);
 
-    const filterMatch = 
-      filter === "all" ? isFuture :
-      filter === "history" ? true :
-      (status === filter && isFuture);
+    let filterMatch = false;
+    if (filter === "all") {
+      filterMatch = isFuture;
+    } else if (filter === "appointments") {
+      filterMatch = !appt.isSecondOpinion && isFuture;
+    } else if (filter === "second_opinions") {
+      filterMatch = appt.isSecondOpinion && isFuture;
+    } else if (filter === "history") {
+      filterMatch = !isFuture;
+    }
 
     const searchMatch = !searchTerm || (
       appt.patientId?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -1139,10 +1192,10 @@ function DAppointments() {
   });
 
   const stats = {
-    total: appointments.filter(a => isPresentOrFuture(a.date, a.time)).length,
-    pending: appointments.filter(a => normalizeStatus(a.status) === "pending" && isPresentOrFuture(a.date, a.time)).length,
-    accepted: appointments.filter(a => normalizeStatus(a.status) === "accepted" && isPresentOrFuture(a.date, a.time)).length,
-    rejected: appointments.filter(a => normalizeStatus(a.status) === "rejected" && isPresentOrFuture(a.date, a.time)).length,
+    all: appointments.filter(a => isPresentOrFuture(a.date, a.time)).length,
+    appointments: appointments.filter(a => !a.isSecondOpinion && isPresentOrFuture(a.date, a.time)).length,
+    secondOpinions: appointments.filter(a => a.isSecondOpinion && isPresentOrFuture(a.date, a.time)).length,
+    history: appointments.filter(a => !isPresentOrFuture(a.date, a.time)).length,
   };
 
   if (loading && appointments.length === 0) return <Loader />;
@@ -1528,7 +1581,7 @@ function DAppointments() {
       <div className="d-container">
         <header className="d-header">
           <h1>My Appointments</h1>
-          <p>You have {stats.pending > 0 ? `${stats.pending} pending requests` : "no pending requests"} today.</p>
+          <p>Manage your consultations and second opinions.</p>
         </header>
 
         {/* Stats Section */}
@@ -1536,29 +1589,29 @@ function DAppointments() {
           <div className="d-stat-card">
             <div className="d-stat-icon" style={{ background: '#eff6ff', color: '#3b82f6' }}><Users /></div>
             <div className="d-stat-info">
-              <h4>Active Slots</h4>
-              <p className="d-number">{stats.total}</p>
+              <h4>All</h4>
+              <p className="d-number">{stats.all}</p>
             </div>
           </div>
           <div className="d-stat-card">
             <div className="d-stat-icon" style={{ background: '#fffbeb', color: '#f59e0b' }}><AlertCircle /></div>
             <div className="d-stat-info">
-              <h4>Pending</h4>
-              <p className="d-number">{stats.pending}</p>
+              <h4>Appointments</h4>
+              <p className="d-number">{stats.appointments}</p>
             </div>
           </div>
           <div className="d-stat-card">
             <div className="d-stat-icon" style={{ background: '#ecfdf5', color: '#10b981' }}><CheckCircle2 /></div>
             <div className="d-stat-info">
-              <h4>Accepted</h4>
-              <p className="d-number">{stats.accepted}</p>
+              <h4>Second Opinions</h4>
+              <p className="d-number">{stats.secondOpinions}</p>
             </div>
           </div>
           <div className="d-stat-card">
-            <div className="d-stat-icon" style={{ background: '#fef2f2', color: '#ef4444' }}><XCircle /></div>
+            <div className="d-stat-icon" style={{ background: '#fef2f2', color: '#ef4444' }}><History /></div>
             <div className="d-stat-info">
-              <h4>Rejected</h4>
-              <p className="d-number">{stats.rejected}</p>
+              <h4>History</h4>
+              <p className="d-number">{stats.history}</p>
             </div>
           </div>
         </section>
@@ -1575,8 +1628,9 @@ function DAppointments() {
             />
           </div>
           <div className="d-filters">
-            <button className={`d-filter-btn ${filter === 'all' ? 'active' : ''}`} onClick={() => setFilter('all')}>Upcoming</button>
-            <button className={`d-filter-btn ${filter === 'pending' ? 'active' : ''}`} onClick={() => setFilter('pending')}>Pending</button>
+            <button className={`d-filter-btn ${filter === 'all' ? 'active' : ''}`} onClick={() => setFilter('all')}>All</button>
+            <button className={`d-filter-btn ${filter === 'appointments' ? 'active' : ''}`} onClick={() => setFilter('appointments')}>Appointments</button>
+            <button className={`d-filter-btn ${filter === 'second_opinions' ? 'active' : ''}`} onClick={() => setFilter('second_opinions')}>Second Opinions</button>
             <button className={`d-filter-btn ${filter === 'history' ? 'active' : ''}`} onClick={() => setFilter('history')}><History size={16}/> History</button>
           </div>
         </div>
@@ -1589,11 +1643,26 @@ function DAppointments() {
               const isPast = !isPresentOrFuture(appt.date, appt.time);
               
               return (
-                <div key={appt._id} className="d-card">
+                <div key={appt._id} className="d-card" style={appt.isSecondOpinion ? { borderTop: '4px solid #8b5cf6' } : {}}>
                   <div className="d-card-header">
-                    <div className="d-avatar">{getInitials(appt.patientId?.name)}</div>
+                    <div className="d-avatar" style={appt.isSecondOpinion ? { background: '#f5f3ff', color: '#8b5cf6' } : {}}>{getInitials(appt.patientId?.name)}</div>
                     <div className="d-patient-info">
-                      <h3>{appt.patientId?.name || "Anonymous Patient"}</h3>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                        <h3>{appt.patientId?.name || "Anonymous Patient"}</h3>
+                        {appt.isSecondOpinion && (
+                          <span style={{
+                            backgroundColor: '#f5f3ff',
+                            color: '#8b5cf6',
+                            border: '1px solid #c084fc',
+                            fontSize: '0.7rem',
+                            padding: '2px 8px',
+                            borderRadius: '20px',
+                            fontWeight: '700'
+                          }}>
+                            Second Opinion
+                          </span>
+                        )}
+                      </div>
                       <span className="d-time-ago">
                         <Clock size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
                         Requested {formatDistanceToNow(new Date(appt.createdAt || Date.now()), { addSuffix: true })}
@@ -1613,6 +1682,26 @@ function DAppointments() {
                       </div>
                     </div>
 
+                    {appt.isSecondOpinion && appt.treatment && (
+                      <div className="d-info-item">
+                        <div className="d-info-icon">🩺</div>
+                        <div className="d-info-text">
+                          <div className="d-info-label">Current Treatment</div>
+                          <div className="d-info-value">{appt.treatment}</div>
+                        </div>
+                      </div>
+                    )}
+
+                    {appt.isSecondOpinion && appt.mode && (
+                      <div className="d-info-item">
+                        <div className="d-info-icon">💻</div>
+                        <div className="d-info-text">
+                          <div className="d-info-label">Consultation Mode</div>
+                          <div className="d-info-value" style={{ textTransform: 'capitalize' }}>{appt.mode}</div>
+                        </div>
+                      </div>
+                    )}
+
                     <div className="d-info-item">
                       <div className="d-info-icon"><Calendar size={18} /></div>
                       <div className="d-info-text">
@@ -1628,22 +1717,102 @@ function DAppointments() {
                         <div className="d-info-value">{appt.patientId?.email || "N/A"}</div>
                       </div>
                     </div>
+
+                    {appt.isSecondOpinion && appt.files && appt.files.length > 0 && (
+                      <div className="d-info-item" style={{ marginTop: '0.5rem', borderTop: '1px dashed #e2e8f0', paddingTop: '0.5rem' }}>
+                        <div className="d-info-icon">📁</div>
+                        <div className="d-info-text">
+                          <div className="d-info-label" style={{ marginBottom: '4px' }}>Attached Files</div>
+                          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                            {appt.files.map((fileUrl, index) => (
+                              <a 
+                                key={index} 
+                                href={fileUrl} 
+                                target="_blank" 
+                                rel="noreferrer" 
+                                style={{
+                                  fontSize: '0.75rem',
+                                  color: '#2563eb',
+                                  background: '#eff6ff',
+                                  border: '1px solid #bfdbfe',
+                                  padding: '2px 8px',
+                                  borderRadius: '6px',
+                                  textDecoration: 'none',
+                                  fontWeight: '600',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px'
+                                }}
+                              >
+                                📄 Doc {index + 1}
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {status === "pending" && !isPast && (
                     <div className="d-card-actions">
                       <button 
                         className="d-btn d-btn-reject" 
-                        onClick={() => handleStatusUpdate(appt._id, 'reject')}
+                        onClick={() => handleStatusUpdate(appt._id, 'reject', appt.isSecondOpinion)}
                       >
                         <XCircle size={18} /> Reject
                       </button>
                       <button 
                         className="d-btn d-btn-accept"
-                        onClick={() => handleStatusUpdate(appt._id, 'accept')}
+                        onClick={() => handleStatusUpdate(appt._id, 'accept', appt.isSecondOpinion)}
                       >
                         <CheckCircle2 size={18} /> Accept
                       </button>
+                    </div>
+                  )}
+
+                  {status === "accepted" && (
+                    <div style={{ marginTop: '1.25rem', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      <button 
+                        className="d-btn"
+                        onClick={() => openPatientVaultModal(appt.patientId)}
+                        style={{
+                          width: '100%',
+                          backgroundColor: '#eff6ff',
+                          color: '#2563eb',
+                          border: '1.5px solid #bfdbfe',
+                          padding: '10px 0',
+                          borderRadius: '12px',
+                          fontWeight: '700',
+                          cursor: 'pointer',
+                          fontSize: '0.85rem',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '6px',
+                          boxShadow: 'none'
+                        }}
+                      >
+                        📄 View Patient Medical Vault
+                      </button>
+                      
+                      {!isPast && (
+                        <div className="d-card-actions" style={{ marginTop: 0 }}>
+                          <button 
+                            className="d-btn d-btn-reject" 
+                            onClick={() => handleStatusUpdate(appt._id, 'reject', appt.isSecondOpinion)}
+                          >
+                            <XCircle size={18} /> Reject
+                          </button>
+                          <button 
+                            className="d-btn d-btn-accept"
+                            onClick={() => handleStatusUpdate(appt._id, 'accept', appt.isSecondOpinion)}
+                            style={{ opacity: 0.6, cursor: 'not-allowed' }}
+                            disabled={true}
+                          >
+                            <CheckCircle2 size={18} /> Accepted
+                          </button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -1658,6 +1827,128 @@ function DAppointments() {
           </div>
         )}
       </div>
+
+      {/* Patient Medical Vault Modal */}
+      {vaultModal.open && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(15, 23, 42, 0.45)',
+          backdropFilter: 'blur(12px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 99999,
+          padding: '24px'
+        }} onClick={closeVaultModal}>
+          <div style={{
+            background: '#f8fafc',
+            borderRadius: '24px',
+            width: '100%',
+            maxWidth: '550px',
+            boxShadow: '0 30px 60px -15px rgba(15, 23, 42, 0.35)',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden'
+          }} onClick={(e) => e.stopPropagation()}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '18px 24px',
+              backgroundColor: '#ffffff',
+              borderBottom: '1px solid #e2e8f0'
+            }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: '1.15rem', fontWeight: '800', color: '#0f172a' }}>
+                  {vaultModal.patient?.name}'s Medical Vault
+                </h2>
+                <p style={{ margin: '2px 0 0 0', fontSize: '0.75rem', color: '#64748b', fontWeight: '500' }}>
+                  Shared laboratory reports and clinical files
+                </p>
+              </div>
+              <button onClick={closeVaultModal} style={{
+                background: '#f1f5f9',
+                border: 'none',
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                cursor: 'pointer',
+                color: '#64748b',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s'
+              }}>
+                ✕
+              </button>
+            </div>
+
+            <div style={{ padding: '24px', maxHeight: '400px', overflowY: 'auto' }}>
+              {recordsLoading ? (
+                <div style={{ textAlign: 'center', padding: '20px', color: '#64748b', fontWeight: '600' }}>
+                  Loading shared records...
+                </div>
+              ) : patientRecords.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '40px 20px', color: '#64748b' }}>
+                  <p style={{ fontSize: '2.5rem', margin: '0 0 12px 0' }}>📭</p>
+                  <p style={{ fontWeight: '700', fontSize: '0.95rem', color: '#334155', margin: 0 }}>
+                    No records found in this vault
+                  </p>
+                  <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '4px 0 0 0' }}>
+                    The patient hasn't uploaded any documents yet.
+                  </p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {patientRecords.map((record) => {
+                    const isImg = record.fileType?.startsWith('image/');
+                    return (
+                      <div key={record._id} style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '14px 18px',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '16px',
+                        backgroundColor: '#fff',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.02)'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0, flex: 1 }}>
+                          <span style={{ fontSize: '1.4rem' }}>{isImg ? '🖼️' : '📄'}</span>
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{ fontSize: '0.88rem', fontWeight: '700', color: '#0f172a', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} title={record.title}>
+                              {record.title}
+                            </div>
+                            <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: '500', marginTop: '2px' }}>
+                              Shared on {new Date(record.uploadedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                            </div>
+                          </div>
+                        </div>
+                        <a href={record.fileUrl} target="_blank" rel="noopener noreferrer" style={{
+                          backgroundColor: '#2563eb',
+                          color: '#fff',
+                          padding: '8px 16px',
+                          borderRadius: '8px',
+                          textDecoration: 'none',
+                          fontSize: '0.8rem',
+                          fontWeight: '700',
+                          boxShadow: '0 4px 6px -1px rgba(37, 99, 235, 0.2)'
+                        }}>
+                          View Document
+                        </a>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

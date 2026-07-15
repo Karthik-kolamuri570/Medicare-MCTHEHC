@@ -290,6 +290,27 @@ const MyPrescriptions = () => {
                                         <h2>Verified Prescription</h2>
                                         <p className="mp-rx-number">Rx ID: #{selectedPrescription._id.toString().slice(-8).toUpperCase()}</p>
                                     </div>
+                                    <button 
+                                        className="mp-print-btn" 
+                                        onClick={() => window.print()}
+                                        style={{
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            gap: '6px',
+                                            padding: '6px 12px',
+                                            marginLeft: '16px',
+                                            backgroundColor: '#2563eb',
+                                            color: '#fff',
+                                            border: 'none',
+                                            borderRadius: '8px',
+                                            cursor: 'pointer',
+                                            fontSize: '0.78rem',
+                                            fontWeight: '700',
+                                            boxShadow: '0 4px 6px -1px rgba(37, 99, 235, 0.2)'
+                                        }}
+                                    >
+                                        Print / Save PDF
+                                    </button>
                                 </div>
                                 <button onClick={() => setSelectedPrescription(null)} className="mp-close-btn">
                                     <X size={16} />

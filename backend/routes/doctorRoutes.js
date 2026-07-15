@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const doctorController = require('../controller/doctorController');
+const patientController = require('../controller/patientController');
 const Doctor = require('../models/doctor');
 const auth = require('../middleware/auth');
 const { generatePresignedUrl } = require('../utils/s3Config');
@@ -77,5 +78,14 @@ router.get('/prescriptions', auth.doctorAuth, prescriptionController.getDoctorPr
 // Analytics
 const analyticsController = require('../controller/analyticsController');
 router.get('/analytics', auth.doctorAuth, analyticsController.getDoctorAnalytics);
+
+// Get specific patient medical records
+router.get('/patient-medical-records/:patientId', auth.doctorAuth, patientController.getPatientMedicalRecordsForDoctor);
+
+// Scheduler Configuration
+router.get('/calendar/config', auth.doctorAuth, doctorController.getCalendarConfig);
+router.post('/calendar/toggle-date', auth.doctorAuth, doctorController.toggleBlockDate);
+router.post('/calendar/toggle-slot', auth.doctorAuth, doctorController.toggleBlockSlot);
+router.post('/calendar/working-hours', auth.doctorAuth, doctorController.updateWorkingHours);
 
 module.exports = router;

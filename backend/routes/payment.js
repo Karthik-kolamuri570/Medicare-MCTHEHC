@@ -126,6 +126,8 @@ const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 const Appointment = require("./../models/appointments");
 const GetSecondOpinion = require("../models/GetSecondOpinion"); // IMPORT ADDED - adjust path/file name as per your project
 const Patient = require("../models/patient");
+const Doctor = require("../models/doctor");
+const { createNotification, emitNotification } = require("../utils/notification");
 const { sendPaymentReceipt } = require('../utils/emailService');
 
 // Step 1: Create Stripe Checkout Session
@@ -221,19 +223,74 @@ router.get("/success", async (req, res) => {
     if (session.payment_status === "paid") {
       const appointmentId = session.metadata.appointmentId;
       const paidAmount = session.amount_total ? (session.amount_total / 100) : null;
+      const type = session.metadata.type; // type from metadata
 
-      const updateData = {
-        status: "Pending",
-        paymentId: session.payment_intent,
-        paymentStatus: "Paid",
-        ...(paidAmount != null ? { price: paidAmount, fee: paidAmount } : {})
-      };
+      let Model = type === 'second-opinion' ? GetSecondOpinion : Appointment;
+      let record = await Model.findById(appointmentId);
 
-      const updatedAppointment = await Appointment.findByIdAndUpdate(appointmentId, updateData, { new: true });
-      const updatedSecondOpinion = await GetSecondOpinion.findByIdAndUpdate(appointmentId, updateData, { new: true });
+      if (record && record.paymentStatus !== "Paid") {
+        const updateData = {
+          status: "Pending",
+          paymentId: session.payment_intent,
+          paymentStatus: "Paid",
+          ...(paidAmount != null ? { price: paidAmount, fee: paidAmount } : {})
+        };
 
-      if (updatedAppointment) console.log(`✅ Payment verified for appointment ${appointmentId}`);
-      if (updatedSecondOpinion) console.log(`✅ Payment verified for second opinion ${appointmentId}`);
+        const updatedRecord = await Model.findByIdAndUpdate(appointmentId, updateData, { new: true });
+        
+        const patient = await Patient.findById(record.patientId);
+        const doctor = await Doctor.findById(record.doctorId);
+
+        if (patient && doctor) {
+            const io = req.app.get('socketio');
+            if (type === 'second-opinion') {
+                // Notify doctor
+                const docNotif = createNotification('new-second-opinion', `New second opinion request from ${patient.name}`, {
+                    secondOpinionId: record._id,
+                    patientId: patient._id,
+                    patientName: patient.name,
+                    problem: record.problem || "",
+                    date: record.date,
+                    time: record.time
+                });
+                await Doctor.findByIdAndUpdate(record.doctorId, { $push: { unseenNotifications: docNotif } });
+                emitNotification(io, record.doctorId, 'doctor', docNotif);
+
+                // Notify patient
+                const patNotif = createNotification('second-opinion-requested', `Second opinion request submitted successfully`, {
+                    secondOpinionId: record._id,
+                    doctorId: doctor._id,
+                    doctorName: doctor.name
+                });
+                await Patient.findByIdAndUpdate(record.patientId, { $push: { unseenNotifications: patNotif } });
+                emitNotification(io, record.patientId, 'patient', patNotif);
+            } else {
+                // Notify doctor
+                const docNotif = createNotification('new-appointment', `New appointment request from ${patient.name}`, {
+                    appointmentId: record._id,
+                    patientId: patient._id,
+                    patientName: patient.name,
+                    problem: record.problem || "",
+                    date: record.date,
+                    time: record.time
+                });
+                await Doctor.findByIdAndUpdate(record.doctorId, { $push: { unseenNotifications: docNotif } });
+                emitNotification(io, record.doctorId, 'doctor', docNotif);
+
+                // Notify patient
+                const patNotif = createNotification('appointment-booked', `Appointment booked successfully with Dr. ${doctor.name}`, {
+                    appointmentId: record._id,
+                    doctorId: doctor._id,
+                    doctorName: doctor.name,
+                    date: record.date,
+                    time: record.time
+                });
+                await Patient.findByIdAndUpdate(record.patientId, { $push: { unseenNotifications: patNotif } });
+                emitNotification(io, record.patientId, 'patient', patNotif);
+            }
+        }
+        console.log(`✅ Payment success route: verified and notified for ${type} ${appointmentId}`);
+      }
 
       return res.redirect(`${frontendBase}/payment/success?session_id=${session_id}`);
     } else {
@@ -285,46 +342,84 @@ router.post("/webhook", express.raw({ type: 'application/json' }), async (req, r
     const session = event.data.object;
     const appointmentId = session.metadata.appointmentId;
     const paidAmount = session.amount_total ? (session.amount_total / 100) : null;
-
-    const updateData = {
-      status: "Pending",
-      paymentId: session.payment_intent,
-      paymentStatus: "Paid",
-      ...(paidAmount != null ? { price: paidAmount, fee: paidAmount } : {})
-    };
+    const type = session.metadata.type; // type from metadata
 
     try {
-      const updatedAppointment = await Appointment.findByIdAndUpdate(appointmentId, updateData, { new: true });
-      const updatedSecondOpinion = await GetSecondOpinion.findByIdAndUpdate(appointmentId, updateData, { new: true });
+      let Model = type === 'second-opinion' ? GetSecondOpinion : Appointment;
+      let record = await Model.findById(appointmentId);
 
-      if (updatedAppointment) {
-        console.log(`✅ Webhook: Appointment payment verified for ID ${appointmentId}`);
-        // Fetch patient to send email 
-        if (updatedAppointment.patientId) {
-            const patient = await Patient.findById(updatedAppointment.patientId);
-            if (patient) {
-                await sendPaymentReceipt(patient.email, {
+      if (record && record.paymentStatus !== "Paid") {
+        const updateData = {
+          status: "Pending",
+          paymentId: session.payment_intent,
+          paymentStatus: "Paid",
+          ...(paidAmount != null ? { price: paidAmount, fee: paidAmount } : {})
+        };
+
+        const updatedRecord = await Model.findByIdAndUpdate(appointmentId, updateData, { new: true });
+        
+        const patient = await Patient.findById(record.patientId);
+        const doctor = await Doctor.findById(record.doctorId);
+
+        if (patient && doctor) {
+            const io = req.app.get('socketio');
+            if (type === 'second-opinion') {
+                // Notify doctor
+                const docNotif = createNotification('new-second-opinion', `New second opinion request from ${patient.name}`, {
+                    secondOpinionId: record._id,
+                    patientId: patient._id,
                     patientName: patient.name,
-                    amount: paidAmount,
-                    transactionId: session.payment_intent,
-                    appointmentId: updatedAppointment._id
+                    problem: record.problem || "",
+                    date: record.date,
+                    time: record.time
                 });
+                await Doctor.findByIdAndUpdate(record.doctorId, { $push: { unseenNotifications: docNotif } });
+                emitNotification(io, record.doctorId, 'doctor', docNotif);
+
+                // Notify patient
+                const patNotif = createNotification('second-opinion-requested', `Second opinion request submitted successfully`, {
+                    secondOpinionId: record._id,
+                    doctorId: doctor._id,
+                    doctorName: doctor.name
+                });
+                await Patient.findByIdAndUpdate(record.patientId, { $push: { unseenNotifications: patNotif } });
+                emitNotification(io, record.patientId, 'patient', patNotif);
+            } else {
+                // Notify doctor
+                const docNotif = createNotification('new-appointment', `New appointment request from ${patient.name}`, {
+                    appointmentId: record._id,
+                    patientId: patient._id,
+                    patientName: patient.name,
+                    problem: record.problem || "",
+                    date: record.date,
+                    time: record.time
+                });
+                await Doctor.findByIdAndUpdate(record.doctorId, { $push: { unseenNotifications: docNotif } });
+                emitNotification(io, record.doctorId, 'doctor', docNotif);
+
+                // Notify patient
+                const patNotif = createNotification('appointment-booked', `Appointment booked successfully with Dr. ${doctor.name}`, {
+                    appointmentId: record._id,
+                    doctorId: doctor._id,
+                    doctorName: doctor.name,
+                    date: record.date,
+                    time: record.time
+                });
+                await Patient.findByIdAndUpdate(record.patientId, { $push: { unseenNotifications: patNotif } });
+                emitNotification(io, record.patientId, 'patient', patNotif);
             }
         }
-      }
-      if (updatedSecondOpinion) {
-        console.log(`✅ Webhook: SecondOpinion payment verified for ID ${appointmentId}`);
-        if (updatedSecondOpinion.patientId) {
-            const patient = await Patient.findById(updatedSecondOpinion.patientId);
-            if (patient) {
-                await sendPaymentReceipt(patient.email, {
-                    patientName: patient.name,
-                    amount: paidAmount,
-                    transactionId: session.payment_intent,
-                    appointmentId: updatedSecondOpinion._id
-                });
-            }
+
+        // Send payment receipt
+        if (patient) {
+            await sendPaymentReceipt(patient.email, {
+                patientName: patient.name,
+                amount: paidAmount,
+                transactionId: session.payment_intent,
+                appointmentId: record._id
+            });
         }
+        console.log(`✅ Webhook: Payment verified and notified for ${type} ${appointmentId}`);
       }
     } catch (dbErr) {
       console.error(`❌ Webhook DB Update Error: ${dbErr.message}`);

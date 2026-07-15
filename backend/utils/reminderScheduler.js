@@ -7,6 +7,7 @@ const Appointment = require('../models/appointments');
 const Doctor = require('../models/doctor');
 const Patient = require('../models/patient');
 const { sendAppointmentReminder } = require('./emailService');
+const { createNotification, emitNotification } = require('./notification');
 const logger = require('./logger');
 
 /**
@@ -44,8 +45,9 @@ function parseAppointmentDateTime(dateStr, timeStr) {
 /**
  * Check and send reminders for upcoming appointments
  * @param {number} hoursAhead - How many hours ahead to check (24 or 1)
+ * @param {Object} io - Socket.io instance
  */
-async function checkAndSendReminders(hoursAhead) {
+async function checkAndSendReminders(hoursAhead, io = null) {
     try {
         const now = new Date();
         const targetTime = new Date(now.getTime() + hoursAhead * 60 * 60 * 1000);
@@ -84,6 +86,7 @@ async function checkAndSendReminders(hoursAhead) {
             
             if (diffHours >= lowerBound && diffHours <= upperBound && !alreadySent) {
                 try {
+                    // 1. Send Email Reminder
                     await sendAppointmentReminder(appt.patientId.email, {
                         patientName: appt.patientId.name,
                         doctorName: appt.doctorId.name,
@@ -92,6 +95,36 @@ async function checkAndSendReminders(hoursAhead) {
                         time: appt.time,
                         hoursAhead
                     });
+
+                    // 2. Create Patient In-App Notification
+                    const patientNotif = createNotification('appointment-reminder', `Reminder: You have an upcoming consultation with Dr. ${appt.doctorId.name} in ${hoursAhead} hour${hoursAhead > 1 ? 's' : ''}.`, {
+                        appointmentId: appt._id,
+                        doctorId: appt.doctorId._id,
+                        doctorName: appt.doctorId.name,
+                        date: appt.date,
+                        time: appt.time
+                    });
+                    await Patient.findByIdAndUpdate(appt.patientId._id, {
+                        $push: { unseenNotifications: patientNotif }
+                    });
+                    if (io) {
+                        emitNotification(io, appt.patientId._id, 'patient', patientNotif);
+                    }
+
+                    // 3. Create Doctor In-App Notification
+                    const doctorNotif = createNotification('appointment-reminder', `Reminder: You have an upcoming consultation with ${appt.patientId.name} in ${hoursAhead} hour${hoursAhead > 1 ? 's' : ''}.`, {
+                        appointmentId: appt._id,
+                        patientId: appt.patientId._id,
+                        patientName: appt.patientId.name,
+                        date: appt.date,
+                        time: appt.time
+                    });
+                    await Doctor.findByIdAndUpdate(appt.doctorId._id, {
+                        $push: { unseenNotifications: doctorNotif }
+                    });
+                    if (io) {
+                        emitNotification(io, appt.doctorId._id, 'doctor', doctorNotif);
+                    }
 
                     // Update the appointment to mark reminder as sent
                     const updateField = hoursAhead === 24 ? 'remindersSent.twentyFourHour' : 'remindersSent.oneHour';
@@ -117,13 +150,14 @@ async function checkAndSendReminders(hoursAhead) {
 /**
  * Start the reminder scheduler
  * - Runs every 30 minutes to check for appointments needing 24h or 1h reminders
+ * @param {Object} io - Socket.io instance
  */
-function startReminderScheduler() {
+function startReminderScheduler(io = null) {
     // Run every 30 minutes
     cron.schedule('*/30 * * * *', async () => {
         logger.info('Running appointment reminder check...');
-        await checkAndSendReminders(24); // 24-hour reminders
-        await checkAndSendReminders(1);  // 1-hour reminders
+        await checkAndSendReminders(24, io); // 24-hour reminders
+        await checkAndSendReminders(1, io);  // 1-hour reminders
     });
 
     logger.info('✅ Appointment reminder scheduler started (runs every 30 minutes)');

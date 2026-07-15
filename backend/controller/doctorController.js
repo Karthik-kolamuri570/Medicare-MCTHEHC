@@ -438,7 +438,7 @@ exports.updateAvailability = async (req, res, next) => {
 // Get all appointments for a doctor
 exports.getDoctorAppointments = async (req, res, next) => {
   try {
-    const appointments = await Appointment.find({ doctorId: req.user._id }).populate('patientId');
+    const appointments = await Appointment.find({ doctorId: req.user._id, paymentStatus: 'Paid' }).populate('patientId');
     if (!appointments) {
       res.status(500).json({
         success: false,
@@ -800,8 +800,8 @@ exports.getSecondOpinion = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Doctor not found' });
     }
 
-    const secondOpinionRequests = await GetSecondOpinion.find({ doctorId: doctorId })
-      .populate('patientId', 'name contact')
+    const secondOpinionRequests = await GetSecondOpinion.find({ doctorId: doctorId, paymentStatus: 'Paid' })
+      .populate('patientId', 'name contact email')
       .sort({ createdAt: -1 }); // Sort by most recent first  
     if (!secondOpinionRequests || secondOpinionRequests.length === 0) {
       return res.status(200).json({ success: true, data: [], message: 'No second opinion requests found' });
@@ -812,6 +812,13 @@ exports.getSecondOpinion = async (req, res) => {
       const requestObj = request.toObject();
       if (requestObj.files && requestObj.files.length > 0) {
         requestObj.files = await Promise.all(requestObj.files.map(file => generatePresignedUrl(file)));
+      }
+      if (requestObj.date) {
+        try {
+          requestObj.date = new Date(requestObj.date).toISOString().split('T')[0];
+        } catch (e) {
+          console.error("Error formatting date:", e);
+        }
       }
       return requestObj;
     }));
@@ -1245,7 +1252,7 @@ exports.getAvailableSlots = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Date query parameter is required (YYYY-MM-DD)' });
     }
 
-    const doctor = await Doctor.findById(doctorId).select('fromTime toTime name verifiedByAdmin');
+    const doctor = await Doctor.findById(doctorId).select('fromTime toTime name verifiedByAdmin blockedDates blockedSlots');
     if (!doctor) {
       return res.status(404).json({ success: false, message: 'Doctor not found' });
     }
@@ -1293,10 +1300,20 @@ exports.getAvailableSlots = async (req, res) => {
 
     const bookedTimes = new Set(bookedAppointments.map(a => a.time));
 
-    // Mark slots as booked
+    // Check if the date is fully blocked
+    const isDayBlocked = (doctor.blockedDates || []).includes(date);
+
+    // Get set of custom blocked slot start times
+    const customBlockedSlots = new Set(
+      (doctor.blockedSlots || [])
+        .filter(s => s.date === date)
+        .map(s => s.startTime)
+    );
+
+    // Mark slots as booked or blocked
     const slots = allSlots.map(slot => ({
       ...slot,
-      available: !bookedTimes.has(slot.startTime),
+      available: !isDayBlocked && !bookedTimes.has(slot.startTime) && !customBlockedSlots.has(slot.startTime),
     }));
 
     // Also check if selected date is in the past
@@ -1308,8 +1325,9 @@ exports.getAvailableSlots = async (req, res) => {
       data: {
         doctorId,
         date,
-        slots: isPastDate ? [] : slots,
+        slots: (isPastDate || isDayBlocked) ? [] : slots,
         isPastDate,
+        isDayBlocked,
         workingHours: { from: doctor.fromTime, to: doctor.toTime },
       },
     });
@@ -1329,6 +1347,112 @@ exports.getAllSpecializations = async (req, res) => {
     return res.status(200).json({ success: true, data: specializations.filter(Boolean).sort() });
   } catch (error) {
     logger.error('Error fetching specializations:', { error: error.message });
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+/**
+ * GET /api/doctor/calendar/config
+ * Returns current blocked config for the authenticated doctor.
+ */
+exports.getCalendarConfig = async (req, res) => {
+  try {
+    const doctor = await Doctor.findById(req.user._id).select('blockedDates blockedSlots fromTime toTime');
+    if (!doctor) {
+      return res.status(404).json({ success: false, message: 'Doctor not found' });
+    }
+    return res.status(200).json({ success: true, data: doctor });
+  } catch (error) {
+    logger.error('Error fetching calendar config:', { error: error.message });
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+/**
+ * POST /api/doctor/calendar/toggle-date
+ * Adds/removes a date from the blockedDates array.
+ */
+exports.toggleBlockDate = async (req, res) => {
+  try {
+    const { date } = req.body;
+    if (!date) {
+      return res.status(400).json({ success: false, message: 'Date is required' });
+    }
+
+    const doctor = await Doctor.findById(req.user._id);
+    if (!doctor) {
+      return res.status(404).json({ success: false, message: 'Doctor not found' });
+    }
+
+    const index = doctor.blockedDates.indexOf(date);
+    if (index > -1) {
+      doctor.blockedDates.splice(index, 1);
+    } else {
+      doctor.blockedDates.push(date);
+    }
+
+    await doctor.save();
+    return res.status(200).json({ success: true, message: 'Blocked dates updated', data: doctor.blockedDates });
+  } catch (error) {
+    logger.error('Error toggling block date:', { error: error.message });
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+/**
+ * POST /api/doctor/calendar/toggle-slot
+ * Adds/removes a specific slot from the blockedSlots array.
+ */
+exports.toggleBlockSlot = async (req, res) => {
+  try {
+    const { date, startTime } = req.body;
+    if (!date || !startTime) {
+      return res.status(400).json({ success: false, message: 'Date and startTime are required' });
+    }
+
+    const doctor = await Doctor.findById(req.user._id);
+    if (!doctor) {
+      return res.status(404).json({ success: false, message: 'Doctor not found' });
+    }
+
+    const existingIndex = doctor.blockedSlots.findIndex(s => s.date === date && s.startTime === startTime);
+    if (existingIndex > -1) {
+      doctor.blockedSlots.splice(existingIndex, 1);
+    } else {
+      doctor.blockedSlots.push({ date, startTime });
+    }
+
+    await doctor.save();
+    return res.status(200).json({ success: true, message: 'Blocked slots updated', data: doctor.blockedSlots });
+  } catch (error) {
+    logger.error('Error toggling block slot:', { error: error.message });
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+/**
+ * POST /api/doctor/calendar/working-hours
+ * Updates default working hours for the doctor.
+ */
+exports.updateWorkingHours = async (req, res) => {
+  try {
+    const { fromTime, toTime } = req.body;
+    if (!fromTime || !toTime) {
+      return res.status(400).json({ success: false, message: 'fromTime and toTime are required' });
+    }
+
+    const doctor = await Doctor.findById(req.user._id);
+    if (!doctor) {
+      return res.status(404).json({ success: false, message: 'Doctor not found' });
+    }
+
+    doctor.fromTime = fromTime;
+    doctor.toTime = toTime;
+
+    await doctor.save();
+    return res.status(200).json({ success: true, message: 'Working hours updated successfully', data: { fromTime, toTime } });
+  } catch (error) {
+    logger.error('Error updating working hours:', { error: error.message });
     res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
